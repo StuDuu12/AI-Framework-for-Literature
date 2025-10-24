@@ -1,0 +1,13 @@
+# Bật rewrite engine
+RewriteEngine On
+
+# Thiết lập base directory
+RewriteBase /
+
+# Cho phép truy cập file tĩnh (CSS, JS, images, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Chuyển tất cả request còn lại về index.php
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
