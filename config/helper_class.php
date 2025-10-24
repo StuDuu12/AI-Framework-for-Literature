@@ -33,7 +33,7 @@ function getClassMembers($classId = null)
                           FROM `class_member` cm 
                           LEFT JOIN `users` u ON cm.user_id = u.user_id 
                           WHERE cm.class_id = :class_id
-                          ORDER BY cm.role DESC, u.fullname ASC");
+                          ORDER BY `role` ASC, `created_at` DESC;");
     $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
