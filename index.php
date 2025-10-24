@@ -20,6 +20,8 @@ $routes = [
 
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
 
+    'class/participants' => ['file' => 'views/participants_groups/participants.php', 'title' => 'Quản lý thành viên lớp học', 'require_auth' => true],
+
     // Error pages
     '400' => ['file' => 'views/errors/400.php', 'title' => '400 Bad Request', 'require_auth' => false],
     '403' => ['file' => 'views/errors/403.php', 'title' => '403 Forbidden', 'require_auth' => false],
