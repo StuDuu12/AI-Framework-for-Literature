@@ -11,6 +11,10 @@ $route = trim($route, '/');
 $routes = [
     'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
+    // Đăng nhập đăng xuất
+    'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
+    'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng ký', 'require_auth' => false],
+
     // Error pages
     '400' => ['file' => 'views/errors/400.php', 'title' => '400 Bad Request', 'require_auth' => false],
     '403' => ['file' => 'views/errors/403.php', 'title' => '403 Forbidden', 'require_auth' => false],

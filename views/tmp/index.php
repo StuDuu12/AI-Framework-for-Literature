@@ -11,9 +11,13 @@
 <body>
     <?php
     require_once './views/templates/header.php';
-    require_once './views/templates/sidebar_teacher.php';
+    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
+        require_once './views/templates/sidebar_teacher.php';
+    } else if(isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
+        require_once './views/templates/sidebar_student.php';
+    }
     ?>
-    
+
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>Dashboard</h1>
@@ -26,7 +30,11 @@
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
-
+        <pre>
+            <?php 
+            var_dump($_SESSION);
+            ?>
+        </pre>
         </section>
 
     </main><!-- End #main -->
