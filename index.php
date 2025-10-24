@@ -15,6 +15,11 @@ $routes = [
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
     'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng ký', 'require_auth' => false],
 
+    '' => ['file' => 'views/index.php', 'title' => 'Dashboard', 'require_auth' => true],
+    'joinclass' => ['file' => 'api/joinclass.php', 'require_auth' => true],
+
+    'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
+
     // Error pages
     '400' => ['file' => 'views/errors/400.php', 'title' => '400 Bad Request', 'require_auth' => false],
     '403' => ['file' => 'views/errors/403.php', 'title' => '403 Forbidden', 'require_auth' => false],
@@ -31,7 +36,7 @@ function checkAuth()
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+    return isset($_SESSION['user']) && !empty($_SESSION['user']);
 }
 
 $is_bao_tri = false;
@@ -47,12 +52,12 @@ if (isset($routes[$route])) {
     exit;
 }
 
-// if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
-//     if (!checkAuth()) {
-//         header('Location: ' . URL_ROOT . '/login');
-//         exit;
-//     }
-// }
+if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
+    if (!checkAuth()) {
+        header('Location: ' . URL_ROOT . '/login');
+        exit;
+    }
+}
 
 $filePath = PATH_ROOT . '/' . $routeConfig['file'];
 
