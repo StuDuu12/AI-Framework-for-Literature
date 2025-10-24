@@ -1,0 +1,38 @@
+<!-- ======= Sidebar cho học sinh ======= -->
+<aside id="sidebar" class="sidebar">
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+        <li class="nav-item">
+            <a class="nav-link" href="<?= PAGES_URL ?>/student.php">
+                <i class="bi bi-grid"></i>
+                <span>Trang chủ</span>
+            </a>
+        </li>
+
+        <li class="nav-heading">Học tập</li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= PAGES_URL ?>/student_tasks.php">
+                <i class="bi bi-list-task"></i>
+                <span>Nhiệm vụ của tôi</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= PAGES_URL ?>/student_groups.php">
+                <i class="bi bi-people"></i>
+                <span>Nhóm của tôi</span>
+            </a>
+        </li>
+
+        <li class="nav-heading">Công cụ</li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= TOOLS_URL ?>/literary_analysis.php">
+                <i class="bi bi-book"></i>
+                <span>Phân tích Văn học</span>
+            </a>
+        </li>
+
+    </ul>
+</aside>
