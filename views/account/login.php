@@ -18,12 +18,18 @@ if (isset($_POST['login'])) {
         // Kiểm tra đăng nhập
         if (login($username, $password)) {
             // Đăng nhập thành công, chuyển hướng đến trang chính
-            header('Location: ' . URL_ROOT . '/templates');
+            header('Location: ' . URL_ROOT . '/');
             exit;
         } else {
             $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
         }
     }
+}
+
+if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+    // Nếu đã đăng nhập, chuyển hướng đến trang chính
+    header('Location: ' . URL_ROOT . '/');
+    exit;
 }
 ?>
 <!DOCTYPE html>
