@@ -17,3 +17,5 @@
 
 <!-- Template Main CSS File -->
 <link href="<?= URL_ROOT ?>/assets/css/style.css" rel="stylesheet">
+
+<?php require_once './views/templates/theme-toggle.php'; ?>
