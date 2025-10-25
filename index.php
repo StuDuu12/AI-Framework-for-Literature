@@ -21,6 +21,15 @@ $routes = [
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
 
     'class/participants' => ['file' => 'views/participants_groups/participants.php', 'title' => 'Quản lý thành viên lớp học', 'require_auth' => true],
+    'class/groups' => ['file' => 'views/participants_groups/groups.php', 'title' => 'Quản lý nhóm lớp học', 'require_auth' => true],
+    'class/phases' => ['file' => 'views/phase/index.php', 'title' => 'Quản lý pha học tập', 'require_auth' => true],
+    'class/phases/create' => ['file' => 'views/phase/create.php', 'title' => 'Tạo pha học tập', 'require_auth' => true],
+    'class/phases/edit' => ['file' => 'views/phase/edit.php', 'title' => 'Chỉnh sửa pha học tập', 'require_auth' => true],
+    'class/task' => ['file' => 'views/tasks/index.php', 'title' => 'Quản lý nhiệm vụ', 'require_auth' => true],
+    'class/task/create' => ['file' => 'views/tasks/create.php', 'title' => 'Tạo nhiệm vụ', 'require_auth' => true],
+    'class/task/edit' => ['file' => 'views/tasks/edit.php', 'title' => 'Chỉnh sửa nhiệm vụ', 'require_auth' => true],
+    'class/task/assign' => ['file' => 'views/tasks/assign.php', 'title' => 'Phân công nhiệm vụ', 'require_auth' => true],
+    'class/task/perform' => ['file' => 'views/tasks/perform.php', 'title' => 'Thực hiện nhiệm vụ', 'require_auth' => true],
 
     'literary_analysis' => ['file' => 'views/literary_analysis/literary_analysis.php', 'title' => 'Phân tích Văn học', 'require_auth' => true],
 

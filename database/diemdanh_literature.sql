@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 25, 2025 at 03:02 PM
+-- Generation Time: Oct 25, 2025 at 02:35 PM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -421,17 +421,6 @@ CREATE TABLE `task` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `task`
---
-
-INSERT INTO `task` (`task_id`, `phase_id`, `title`, `description`, `file_content`, `content_creator`, `added_by`, `created_at`, `updated_at`) VALUES
-(3, 1, 'Phân tích bài thơ Sắc thu', 'Em hãy phân tích bài thơ Sắc thu', 'tasks/task_68fc833d1f7b5.txt', 2, 2, '2025-10-25 14:51:03', '2025-10-25 14:58:53'),
-(4, 1, 'Phân tích bài thơ', 'Em hãy phân tích bài thơ ảo ảnh', 'tasks/task_68fc81bc365a6.txt', 2, 2, '2025-10-25 14:52:28', '2025-10-25 14:52:28'),
-(5, 1, 'Phân tích bài thơ Tản mạn Tây Hồ', 'Em hãy sử dụng các công cụ để phân tích bài thơ', 'tasks/task_68fc826a4e99a.txt', 2, 2, '2025-10-25 14:55:22', '2025-10-25 14:55:22');
-
--- --------------------------------------------------------
 
 --
 -- Table structure for table `tieu_chi`
@@ -874,7 +863,7 @@ ALTER TABLE `setting_detail`
 -- AUTO_INCREMENT for table `task`
 --
 ALTER TABLE `task`
-  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tieu_chi`

@@ -8,7 +8,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link">
+            <a class="nav-link" href="<?= URL_ROOT ?>/class">
                 <i class="bi bi-grid"></i>
                 <span>Bạn đang ở <b><?= $_SESSION['current_class_name'] ?></b></span>
             </a>
