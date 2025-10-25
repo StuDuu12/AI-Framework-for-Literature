@@ -79,6 +79,57 @@
     } else if(isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
         require_once './views/templates/sidebar_student.php';
     }
+
+    // Kiểm tra phase hiện tại và quyền sử dụng AI
+    $current_phase_number = null;
+    $m_phase_id = null;
+    $ai_enabled = false; // Mặc định KHÔNG cho phép AI
+    $comment_enabled = false;
+    $edit_enabled = false;
+    $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : null;
+    $has_active_phase = false; // Flag để kiểm tra có phase active không
+    
+    if ($topic_id) {
+        try {
+            // Lấy phase đang active của topic cùng với thông tin main_phase
+            $stmt = $pdo->prepare("
+                SELECT 
+                    p.phase_number, 
+                    p.m_phase_id,
+                    mp.AI as ai_enabled,
+                    mp.Comment as comment_enabled,
+                    mp.Edit as edit_enabled,
+                    mp.m_phase_name,
+                    mp.phase_code
+                FROM phase p
+                LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+                WHERE p.topic_id = ? AND p.flag_active = 1 
+                ORDER BY p.phase_number ASC 
+                LIMIT 1
+            ");
+            $stmt->execute([$topic_id]);
+            $active_phase = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($active_phase) {
+                $has_active_phase = true;
+                $current_phase_number = (int)$active_phase['phase_number'];
+                $m_phase_id = (int)$active_phase['m_phase_id'];
+                // MySQL tinyint(1): 0 = false, 1 = true
+                $ai_enabled = ($active_phase['ai_enabled'] == 1);
+                $comment_enabled = ($active_phase['comment_enabled'] == 1);
+                $edit_enabled = ($active_phase['edit_enabled'] == 1);
+                
+                // Debug log
+                error_log("✅ Topic {$topic_id} - Trạng thái: {$current_phase_number}, m_phase_id: {$m_phase_id}, AI: " . ($ai_enabled ? 'YES' : 'NO'));
+            } else {
+                error_log("⚠️ Chưa có trạng thái active cho topic_id: {$topic_id}");
+            }
+        } catch (PDOException $e) {
+            error_log("❌ Lỗi kiểm tra trạng thái: " . $e->getMessage());
+        }
+    } else {
+        error_log("⚠️ Chưa có topic_id trong URL");
+    }
     ?>
 
     <main id="main" class="main">
@@ -96,6 +147,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
 
                 <!-- Left Panel: Input -->
+                <?php if ($ai_enabled && $_SESSION['user']['role'] === 'student'): ?>
                 <div class="lg:col-span-4 h-full">
                     <div class="bg-white p-6 rounded-xl shadow-md">
                         <h2 class="text-lg font-semibold mb-4 text-slate-800">Nhập văn bản cần phân tích</h2>
@@ -142,9 +194,71 @@
                         </div>
                     </div>
                 </div>
+                <?php elseif (!$has_active_phase && $_SESSION['user']['role'] === 'student'): ?>
+                <!-- Thông báo chưa có topic hoặc chưa được kích hoạt -->
+                <div class="lg:col-span-4 h-full">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-center py-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-slate-400 mb-4">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-slate-700 mb-2">
+                                <?php if (!$topic_id): ?>
+                                    Chưa chọn chủ đề
+                                <?php else: ?>
+                                    Chưa được kích hoạt
+                                <?php endif; ?>
+                            </h3>
+                            <p class="text-sm text-slate-500 mb-4">
+                                <?php if (!$topic_id): ?>
+                                    Vui lòng chọn chủ đề từ danh sách lớp học để bắt đầu sử dụng công cụ phân tích văn học.
+                                <?php else: ?>
+                                    Chủ đề này chưa được kích hoạt. Vui lòng đợi giáo viên bắt đầu.
+                                <?php endif; ?>
+                            </p>
+                            <a href="?route=class" class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                <i class="bi bi-arrow-left me-2"></i>Quay lại lớp học
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <?php elseif (!$ai_enabled && $has_active_phase && $_SESSION['user']['role'] === 'student'): ?>
+                <!-- Thông báo không được phép sử dụng AI lúc này -->
+                <div class="lg:col-span-4 h-full">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-center py-8">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-amber-500 mb-4">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-slate-700 mb-2">Không được phép làm lúc này</h3>
+                            <p class="text-sm text-slate-500 mb-4">
+                                Bạn không được phép sử dụng công cụ AI để phân tích văn bản trong thời điểm này.
+                            </p>
+                            <?php if ($comment_enabled): ?>
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <p class="text-sm text-blue-700"><i class="bi bi-info-circle me-2"></i>Bạn có thể xem và bình luận các phân tích</p>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Right Panel: Output -->
-                <div class="lg:col-span-8">
+                <?php 
+                // Xác định width của panel output dựa trên điều kiện
+                $output_width = 'lg:col-span-12'; // Mặc định full width
+                if ($ai_enabled && $has_active_phase && $_SESSION['user']['role'] === 'student') {
+                    $output_width = 'lg:col-span-8'; // Có AI panel bên trái
+                } elseif (!$has_active_phase || (!$ai_enabled && $has_active_phase)) {
+                    $output_width = 'lg:col-span-8'; // Có thông báo panel bên trái
+                }
+                ?>
+                <div class="<?php echo $output_width; ?>">
                      <div id="results-container" class="bg-white rounded-xl shadow-md min-h-[calc(100vh-12rem)]">
                         <!-- Placeholder -->
                         <div id="placeholder" class="text-center text-slate-500 h-full flex flex-col justify-center items-center p-8">
@@ -182,8 +296,18 @@
     require_once 'views/templates/vendors.php';
     ?>
 
-    <!-- Thêm script từ Literature.html vào đây -->
-    <?php include 'views/literary_analysis/literature_script.php'; ?>
+    <!-- Load script tương ứng - XỬ LÝ HOÀN TOÀN BẰNG PHP -->
+    <?php 
+    // Logic load script dựa trên trạng thái và quyền hạn
+    if ($has_active_phase && $ai_enabled && $_SESSION['user']['role'] === 'student') {
+        // Student được kích hoạt VÀ cho phép sử dụng AI: Load literature_script.php
+        include 'views/literary_analysis/literature_script.php';
+    } elseif ($has_active_phase || $_SESSION['user']['role'] === 'teacher') {
+        // Đã kích hoạt NHƯNG không cho phép AI, hoặc là teacher: Load literature_comment.php
+        include 'views/literary_analysis/literature_comment.php';
+    }
+    // Nếu chưa kích hoạt và là student: không load script nào
+    ?>
 
 </body>
 </html>

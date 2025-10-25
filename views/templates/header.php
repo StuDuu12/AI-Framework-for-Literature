@@ -24,6 +24,13 @@
                 </a>
             </li><!-- End Search Icon-->
 
+            <!-- Theme Toggle Button -->
+            <li class="nav-item">
+                <button class="nav-link nav-icon theme-toggle" onclick="toggleTheme()" title="Đổi giao diện">
+                    <i class="bi bi-moon-fill" id="theme-icon"></i>
+                </button>
+            </li><!-- End Theme Toggle -->
+
             <li class="nav-item dropdown pe-3">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
