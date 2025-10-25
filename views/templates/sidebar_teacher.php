@@ -18,9 +18,9 @@
         <li class="nav-heading">Pages</li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/main.php">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/participants">
                 <i class="bi bi-people"></i>
-                <span>Quản lý người dùng & Lớp học</span>
+                <span>Quản lý thành viên lớp học</span>
             </a>
         </li><!-- End User Management Nav -->
 
