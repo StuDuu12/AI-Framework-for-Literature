@@ -13,7 +13,7 @@
     require_once './views/templates/header.php';
     if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
         require_once './views/templates/sidebar_teacher.php';
-    } else if(isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
+    } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
         require_once './views/templates/sidebar_student.php';
     }
     ?>
@@ -30,7 +30,6 @@
         </div><!-- End Page Title -->
 
         <section class="section dashboard">
-
         </section>
 
     </main><!-- End #main -->
