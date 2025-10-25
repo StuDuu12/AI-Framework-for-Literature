@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 25, 2025 at 11:25 AM
+-- Generation Time: Oct 25, 2025 at 02:35 PM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -32,18 +32,6 @@ CREATE TABLE `assignment` (
   `id_setting_detail` int NOT NULL,
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `category`
---
-
-CREATE TABLE `category` (
-  `id_category` int NOT NULL,
-  `name_category` varchar(255) NOT NULL,
-  `description` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -149,28 +137,6 @@ CREATE TABLE `content` (
   `created_by` int DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `content_category`
---
-
-CREATE TABLE `content_category` (
-  `content_id` int NOT NULL,
-  `id_category` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `content_list`
---
-
-CREATE TABLE `content_list` (
-  `id_content_list` int NOT NULL,
-  `name_content_list` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -290,6 +256,8 @@ CREATE TABLE `main_phase` (
   `AI` tinyint(1) NOT NULL,
   `Comment` tinyint(1) NOT NULL,
   `Edit` tinyint(1) NOT NULL,
+  `teacher` tinyint(1) NOT NULL,
+  `student` tinyint(1) NOT NULL,
   `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -297,12 +265,12 @@ CREATE TABLE `main_phase` (
 -- Dumping data for table `main_phase`
 --
 
-INSERT INTO `main_phase` (`m_phase_id`, `m_phase_name`, `phase_code`, `AI`, `Comment`, `Edit`, `description`) VALUES
-(1, 'Thực hiện nhiệm vụ (sử dụng công cụ AI và tự phản biện)', 'PHASE_START', 1, 1, 0, 'Người học sử dụng công cụ AI để tạo ra nội dung phân tích văn học. Sau đó người học sẽ tự phản biện các nội dung được tạo ra'),
-(2, 'Chữa bài', 'PHASE_CHUABAI', 0, 1, 0, 'Người học và giáo viên chữa bài bằng cách bình luận vào các nội dung cần sửa'),
-(3, 'Làm bài tập về nhà', 'PHASE_BTVN', 1, 1, 1, 'Người học thực hiện yêu cầu được giao'),
-(4, 'Đánh giá đồng đẳng', 'PHASE_DANHGIANGUOIHOC', 0, 1, 0, 'Người được phân công đánh giá sẽ đánh giá điểm cho từng bài được chỉ định'),
-(5, 'Chấm điểm', 'PHASE_CHAMDIEM', 0, 1, 0, 'Giáo viên chấm điểm kết luận cho các bài');
+INSERT INTO `main_phase` (`m_phase_id`, `m_phase_name`, `phase_code`, `AI`, `Comment`, `Edit`, `teacher`, `student`, `description`) VALUES
+(1, 'Thực hiện nhiệm vụ (sử dụng công cụ AI và tự phản biện)', 'PHASE_START', 1, 1, 0, 0, 1, 'Người học sử dụng công cụ AI để tạo ra nội dung phân tích văn học. Sau đó người học sẽ tự phản biện các nội dung được tạo ra'),
+(2, 'Chữa bài', 'PHASE_CHUABAI', 0, 1, 0, 1, 1, 'Người học và giáo viên chữa bài bằng cách bình luận vào các nội dung cần sửa'),
+(3, 'Làm bài tập về nhà', 'PHASE_BTVN', 1, 1, 1, 0, 1, 'Người học thực hiện yêu cầu được giao'),
+(4, 'Đánh giá đồng đẳng', 'PHASE_DANHGIANGUOIHOC', 0, 1, 0, 0, 1, 'Người được phân công đánh giá sẽ đánh giá điểm cho từng bài được chỉ định'),
+(5, 'Chấm điểm', 'PHASE_CHAMDIEM', 0, 1, 0, 1, 0, 'Giáo viên chấm điểm kết luận cho các bài');
 
 -- --------------------------------------------------------
 
@@ -348,6 +316,15 @@ CREATE TABLE `phase` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `phase`
+--
+
+INSERT INTO `phase` (`phase_id`, `phase_number`, `phase_name`, `m_phase_id`, `topic_id`, `start_time`, `end_time`, `flag_active`, `added_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Phản biện nội dung tìm hiểu về thơ ABC', 1, 8, '2025-10-25 12:10:00', '2025-10-25 12:15:00', 0, 2, '2025-10-25 12:10:49', '2025-10-25 12:28:01'),
+(2, 2, 'Chữa nội dung phản biện', 2, 8, '2025-10-25 12:32:00', '2025-10-25 12:52:00', 0, 2, '2025-10-25 12:30:11', '2025-10-25 12:32:28'),
+(3, 3, 'Làm bài tập về nhà', 3, 8, '2025-10-25 12:48:00', '2025-10-25 12:59:00', 0, 2, '2025-10-25 12:33:02', '2025-10-25 12:37:30');
 
 -- --------------------------------------------------------
 
@@ -435,26 +412,15 @@ CREATE TABLE `setting_detail` (
 
 CREATE TABLE `task` (
   `task_id` int NOT NULL,
-  `content_id` int DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
+  `phase_id` int NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` text,
-  `created_at` datetime DEFAULT NULL,
-  `duong_dan_file` varchar(255) NOT NULL,
-  `name_assignment` varchar(255) NOT NULL
+  `file_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `content_creator` int DEFAULT NULL,
+  `added_by` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `task_result`
---
-
-CREATE TABLE `task_result` (
-  `task_result_id` int NOT NULL,
-  `typer_assignment` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
-  `id_phan_cong` int NOT NULL,
-  `value` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -577,12 +543,6 @@ ALTER TABLE `assignment`
   ADD KEY `idx_asg_user` (`user_id`);
 
 --
--- Indexes for table `category`
---
-ALTER TABLE `category`
-  ADD PRIMARY KEY (`id_category`);
-
---
 -- Indexes for table `class`
 --
 ALTER TABLE `class`
@@ -613,19 +573,6 @@ ALTER TABLE `content`
   ADD PRIMARY KEY (`content_id`),
   ADD KEY `fk_content_user` (`created_by`),
   ADD KEY `fk_rp_response` (`response_id`);
-
---
--- Indexes for table `content_category`
---
-ALTER TABLE `content_category`
-  ADD PRIMARY KEY (`content_id`,`id_category`),
-  ADD KEY `fk_cc_category` (`id_category`);
-
---
--- Indexes for table `content_list`
---
-ALTER TABLE `content_list`
-  ADD PRIMARY KEY (`id_content_list`);
 
 --
 -- Indexes for table `deliver`
@@ -760,14 +707,7 @@ ALTER TABLE `setting_detail`
 -- Indexes for table `task`
 --
 ALTER TABLE `task`
-  ADD PRIMARY KEY (`task_id`),
-  ADD KEY `fk_task_content` (`content_id`);
-
---
--- Indexes for table `task_result`
---
-ALTER TABLE `task_result`
-  ADD PRIMARY KEY (`task_result_id`);
+  ADD PRIMARY KEY (`task_id`);
 
 --
 -- Indexes for table `tieu_chi`
@@ -808,12 +748,6 @@ ALTER TABLE `assignment`
   MODIFY `id_assignment` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `category`
---
-ALTER TABLE `category`
-  MODIFY `id_category` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `class`
 --
 ALTER TABLE `class`
@@ -830,12 +764,6 @@ ALTER TABLE `comment`
 --
 ALTER TABLE `content`
   MODIFY `content_id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `content_list`
---
-ALTER TABLE `content_list`
-  MODIFY `id_content_list` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `deliver`
@@ -895,7 +823,7 @@ ALTER TABLE `object_review`
 -- AUTO_INCREMENT for table `phase`
 --
 ALTER TABLE `phase`
-  MODIFY `phase_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `phase_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `response`
@@ -938,12 +866,6 @@ ALTER TABLE `setting_detail`
 --
 ALTER TABLE `task`
   MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `task_result`
---
-ALTER TABLE `task_result`
-  MODIFY `task_result_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tieu_chi`
@@ -1002,13 +924,6 @@ ALTER TABLE `comment`
 ALTER TABLE `content`
   ADD CONSTRAINT `fk_content_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_rp_response` FOREIGN KEY (`response_id`) REFERENCES `response` (`id_response`);
-
---
--- Constraints for table `content_category`
---
-ALTER TABLE `content_category`
-  ADD CONSTRAINT `fk_cc_category` FOREIGN KEY (`id_category`) REFERENCES `category` (`id_category`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_cc_content` FOREIGN KEY (`content_id`) REFERENCES `content` (`content_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `deliver`
@@ -1098,12 +1013,6 @@ ALTER TABLE `setting`
 --
 ALTER TABLE `setting_detail`
   ADD CONSTRAINT `fk_sd_setting` FOREIGN KEY (`id_setting`) REFERENCES `setting` (`id_setting`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `task`
---
-ALTER TABLE `task`
-  ADD CONSTRAINT `fk_task_content` FOREIGN KEY (`content_id`) REFERENCES `content` (`content_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tieu_chi`

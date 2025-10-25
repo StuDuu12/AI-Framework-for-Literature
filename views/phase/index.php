@@ -94,6 +94,10 @@
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="d-flex gap-2 align-items-center">
+                                                        <a href="/class/task?topic_id=<?= intval($topic['topic_id']) ?>&phase_id=<?= $phase['phase_id'] ?>" class="btn btn-outline-primary btn-sm topic-link"
+                                                            data-topic-id="<?= intval($topic['topic_id']) ?>" title="Xem các danh sách các nhiệm vụ">
+                                                            <i class="bi bi-box-arrow-in-right"></i> Nhiệm vụ
+                                                        </a>
                                                         <?php if ($isTeacher): ?>
                                                             <a href="<?= URL_ROOT ?>/class/phases/edit?phase_id=<?= $phase['phase_id'] ?>&topic_id=<?= $topicId ?>"
                                                                 class="btn btn-outline-secondary btn-sm" title="Chỉnh sửa">
