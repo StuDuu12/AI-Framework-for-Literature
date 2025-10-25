@@ -2,6 +2,7 @@
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
+        <!-- ====== NAVBAR CHUNG ====== -->
         <li class="nav-item">
             <a class="nav-link collapsed" href="<?= URL_ROOT ?>/">
                 <i class="bi bi-grid"></i>
@@ -9,34 +10,46 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link">
-                <i class="bi bi-grid"></i>
-                <span>Bạn đang ở <b><?= $_SESSION['current_class_name'] ?></b></span>
+            <a class="nav-link" href="<?= URL_ROOT ?>/class">
+                <i class="bi bi-building"></i>
+                <span>Bạn đang ở <b style="color: red"><?= $_SESSION['current_class_name'] ?></b></span>
             </a>
         </li>
 
-        <li class="nav-heading">Pages</li>
-
+        <!-- ====== NGƯỜI DÙNG VÀ NHÓM ====== -->
+        <li class="nav-heading">Quản lý thành viên</li>
         <li class="nav-item">
             <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/participants">
                 <i class="bi bi-people"></i>
                 <span>Quản lý thành viên lớp học</span>
             </a>
-        </li><!-- End User Management Nav -->
+        </li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/groups.php">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/groups">
                 <i class="bi bi-diagram-3"></i>
                 <span>Quản lý nhóm</span>
             </a>
-        </li><!-- End Group Management Nav -->
+        </li>
 
+        <!-- ====== NỘI DUNG ====== -->
+        <li class="nav-heading">Quản lý nội dung</li>
+        <?php if(isset($_SESSION['current_class_id']) && $_SESSION['current_class_id'] > 0): ?>
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/tasks.php">
-                <i class="bi bi-list-task"></i>
-                <span>Quản lý nhiệm vụ</span>
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class">
+                <i class="bi bi-box-seam"></i>
+                <span>Danh sách chủ đề</span>
             </a>
-        </li><!-- End Task Management Nav -->
+        </li>
+        <?php endif; ?>
+        <?php if(isset($_GET['topic_id']) && $_GET['topic_id'] > 0): ?>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $_GET['topic_id'] ?>">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Các pha của chủ đề hiện tại</span>
+            </a>
+        </li>
+        <?php endif; ?>
 
     </ul>
 

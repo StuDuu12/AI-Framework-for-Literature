@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 24, 2025 at 10:11 PM
+-- Generation Time: Oct 25, 2025 at 11:25 AM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -53,15 +53,17 @@ CREATE TABLE `category` (
 
 CREATE TABLE `class` (
   `class_id` int NOT NULL,
-  `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `class`
 --
 
-INSERT INTO `class` (`class_id`, `class_name`) VALUES
-(1, 'Lớp 10A1');
+INSERT INTO `class` (`class_id`, `class_name`, `created_at`, `updated_at`) VALUES
+(1, 'Lớp 10A1', '2025-10-25 01:15:28', '2025-10-25 01:15:28');
 
 -- --------------------------------------------------------
 
@@ -72,16 +74,50 @@ INSERT INTO `class` (`class_id`, `class_name`) VALUES
 CREATE TABLE `class_member` (
   `class_id` int NOT NULL,
   `user_id` int NOT NULL,
-  `role` enum('admin','teacher','student') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `role` enum('admin','teacher','student') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `added_by` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `class_member`
 --
 
-INSERT INTO `class_member` (`class_id`, `user_id`, `role`) VALUES
-(1, 2, 'teacher'),
-(1, 3, 'student');
+INSERT INTO `class_member` (`class_id`, `user_id`, `role`, `added_by`, `created_at`, `updated_at`) VALUES
+(1, 2, 'teacher', 1, '2025-10-24 22:45:44', '2025-10-25 00:48:33'),
+(1, 357, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 358, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 359, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 360, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 361, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 362, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 363, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 364, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 365, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 366, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 367, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 368, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 369, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 370, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 371, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 372, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 373, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 374, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 375, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 376, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 377, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 378, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 379, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 380, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 381, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 382, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 383, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 384, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 385, 'student', 2, '2025-10-25 09:59:55', '2025-10-25 09:59:55'),
+(1, 386, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 387, 'student', 2, '2025-10-25 09:59:56', '2025-10-25 09:59:56'),
+(1, 388, 'student', 2, '2025-10-25 11:02:49', '2025-10-25 11:02:49');
 
 -- --------------------------------------------------------
 
@@ -214,8 +250,18 @@ CREATE TABLE `generate` (
 CREATE TABLE `group` (
   `group_id` int NOT NULL,
   `class_id` int NOT NULL,
-  `group_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `group_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `group`
+--
+
+INSERT INTO `group` (`group_id`, `class_id`, `group_name`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Nhóm 1', '2025-10-25 02:22:46', '2025-10-25 02:22:46'),
+(2, 1, 'Nhóm 2', '2025-10-25 02:23:29', '2025-10-25 02:23:29');
 
 -- --------------------------------------------------------
 
@@ -225,7 +271,10 @@ CREATE TABLE `group` (
 
 CREATE TABLE `group_member` (
   `group_id` int NOT NULL,
-  `user_id` int NOT NULL
+  `user_id` int NOT NULL,
+  `added_by` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 -- --------------------------------------------------------
@@ -243,6 +292,17 @@ CREATE TABLE `main_phase` (
   `Edit` tinyint(1) NOT NULL,
   `description` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `main_phase`
+--
+
+INSERT INTO `main_phase` (`m_phase_id`, `m_phase_name`, `phase_code`, `AI`, `Comment`, `Edit`, `description`) VALUES
+(1, 'Thực hiện nhiệm vụ (sử dụng công cụ AI và tự phản biện)', 'PHASE_START', 1, 1, 0, 'Người học sử dụng công cụ AI để tạo ra nội dung phân tích văn học. Sau đó người học sẽ tự phản biện các nội dung được tạo ra'),
+(2, 'Chữa bài', 'PHASE_CHUABAI', 0, 1, 0, 'Người học và giáo viên chữa bài bằng cách bình luận vào các nội dung cần sửa'),
+(3, 'Làm bài tập về nhà', 'PHASE_BTVN', 1, 1, 1, 'Người học thực hiện yêu cầu được giao'),
+(4, 'Đánh giá đồng đẳng', 'PHASE_DANHGIANGUOIHOC', 0, 1, 0, 'Người được phân công đánh giá sẽ đánh giá điểm cho từng bài được chỉ định'),
+(5, 'Chấm điểm', 'PHASE_CHAMDIEM', 0, 1, 0, 'Giáo viên chấm điểm kết luận cho các bài');
 
 -- --------------------------------------------------------
 
@@ -277,14 +337,16 @@ CREATE TABLE `object_review` (
 
 CREATE TABLE `phase` (
   `phase_id` int NOT NULL,
-  `task_id` int DEFAULT NULL,
   `phase_number` int DEFAULT NULL,
   `phase_name` varchar(100) DEFAULT NULL,
   `m_phase_id` int DEFAULT NULL,
   `topic_id` int DEFAULT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime NOT NULL,
-  `flag_active` tinyint DEFAULT NULL
+  `flag_active` tinyint DEFAULT NULL,
+  `added_by` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -418,8 +480,18 @@ CREATE TABLE `tieu_chi` (
 CREATE TABLE `topic` (
   `topic_id` int NOT NULL,
   `topic_name` varchar(255) NOT NULL,
-  `class_id` int NOT NULL
+  `class_id` int NOT NULL,
+  `added_by` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `topic`
+--
+
+INSERT INTO `topic` (`topic_id`, `topic_name`, `class_id`, `added_by`, `created_at`, `updated_at`) VALUES
+(8, 'Tuần 1: Thơ lục bát', 1, 2, '2025-10-25 10:34:01', '2025-10-25 10:34:01');
 
 -- --------------------------------------------------------
 
@@ -446,7 +518,7 @@ CREATE TABLE `users` (
   `user_id` int NOT NULL,
   `fullname` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
-  `email` varchar(255) DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `role` enum('student','teacher','admin') DEFAULT 'student',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
@@ -458,27 +530,39 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `fullname`, `username`, `email`, `password_hash`, `role`, `created_at`) VALUES
 (1, 'Quản trị viên', 'admin', 'admin@gmail.com', '1', 'admin', '2025-10-22 13:35:57'),
-(2, 'Giáo viên 1', 'gv1', 'teacher@gmail.com', '1', 'teacher', '2025-10-22 13:36:41'),
-(3, 'Học sinh 1', 'hs1', 'hs1@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(4, 'Học sinh 2', 'hs2', 'hs2@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(5, 'Học sinh 3', 'hs3', 'hs3@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(6, 'Học sinh 4', 'hs4', 'hs4@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(7, 'Học sinh 5', 'hs5', 'hs5@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(8, 'Học sinh 6', 'hs6', 'hs6@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(9, 'Học sinh 7', 'hs7', 'hs7@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(10, 'Học sinh 8', 'hs8', 'hs8@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(11, 'Học sinh 9', 'hs9', 'hs9@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(12, 'Học sinh 10', 'hs10', 'hs10@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(13, 'Học sinh 11', 'hs11', 'hs11@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(14, 'Học sinh 12', 'hs12', 'hs12@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(15, 'Học sinh 13', 'hs13', 'hs13@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(16, 'Học sinh 14', 'hs14', 'hs14@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(17, 'Học sinh 15', 'hs15', 'hs15@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(18, 'Học sinh 16', 'hs16', 'hs16@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(19, 'Học sinh 17', 'hs17', 'hs17@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(20, 'Học sinh 18', 'hs18', 'hs18@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(21, 'Học sinh 19', 'hs19', 'hs19@gmail.com', '1', 'student', '2025-10-24 14:28:29'),
-(22, 'Học sinh 20', 'hs20', 'hs20@gmail.com', '1', 'student', '2025-10-24 14:28:29');
+(2, 'Nguyễn Minh Thương', 'gv1', 'nguyenminhthuong@gmail.com', '1', 'teacher', '2025-10-22 13:36:41'),
+(357, 'Lương Bảo An', '0133378801', 'luongbaoan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(358, 'Bùi Tâm Anh', '0131638629', 'buitamanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(359, 'Đoàn Châu Anh', '0149599874', 'doanchauanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(360, 'Hán Đỗ Kỳ Anh', '0145046988', 'handokyanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(361, 'Hoàng Anh', '0130487794', 'hoanganh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(362, 'Lê Phan Quỳnh Anh', '0132665589', 'lephanquynhanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(363, 'Ngô Mai Anh', '0131044918', 'ngomaianh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(364, 'Nguyễn Tú Anh', '0131749183', 'nguyentuanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(365, 'Trần Lê Tú Anh', '0148772396', 'tranletuanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(366, 'Lê Gia Hân', '0150352610', 'legiahan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(367, 'Phạm Thị Diệu Hoa', '0145692640', 'phamthidieuhoa@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(368, 'Lê Đức Khiêm', '0150433750', 'leduckhiem@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(369, 'Đinh Hoàng Yến Linh', '0118430801', 'dinhhoangyenlinh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(370, 'Hoàng Ngọc Linh', '0142720218', 'hoangngoclinh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(371, 'Chu Tuệ Mẫn', '0149106246', 'chutueman@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(372, 'Trần Ngọc Nguyễn Minh', '0131730433', 'tranngocnguyenminh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(373, 'Nguyễn Bảo Ngân', '0117814287', 'nguyenbaongan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(374, 'Nguyễn Thị Minh Ngọc', '0131730336', 'nguyenthiminhngoc@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(375, 'Vũ Công Nhã', '0133129428', 'vucongnha@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(376, 'Nguyễn Hồng Nhung', '0142668466', 'nguyenhongnhung@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(377, 'Tạ Duy Quân', '0150349882', 'taduyquan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(378, 'Đỗ Quốc Thành', '0140783057', 'doquocthanh@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(379, 'Nguyễn Minh Thư', '0118104560', 'nguyenminhthu02@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(380, 'Nguyễn Minh Thư', '0118017017', 'nguyenminhthu10@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(381, 'Nguyễn Ngọc Huyền Thư', '0118180219', 'nguyenngochuyenthu@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(382, 'Nguyễn Hoàng Khánh Thy', '0117861700', 'nguyenhoangkhanhthy@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(383, 'Dương Minh Trang', '0139294683', 'duongminhtrang@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(384, 'Đoàn Minh Trang', '0118422859', 'doanminhtrang@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(385, 'Nguyễn Phương Uyên', '0118133173', 'nguyenphuonguyen@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(386, 'Phạm Thanh Vân', '0117816346', 'phamthanhvan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(387, 'Trương Anh Tuấn', '0155092125', 'truonganhtuan@gmail.com', '1', 'student', '2025-10-25 02:50:16'),
+(388, 'Học sinh 1', 'hs1', '1@gmail.com', '1', 'student', '2025-10-25 04:02:41');
 
 --
 -- Indexes for dumped tables
@@ -510,7 +594,8 @@ ALTER TABLE `class`
 --
 ALTER TABLE `class_member`
   ADD PRIMARY KEY (`class_id`,`user_id`),
-  ADD KEY `idx_cm_user` (`user_id`);
+  ADD KEY `idx_cm_user` (`user_id`),
+  ADD KEY `fk_add_by` (`added_by`);
 
 --
 -- Indexes for table `comment`
@@ -621,7 +706,6 @@ ALTER TABLE `object_review`
 --
 ALTER TABLE `phase`
   ADD PRIMARY KEY (`phase_id`),
-  ADD KEY `fk_phase_task` (`task_id`),
   ADD KEY `fk_phase_mainphase` (`m_phase_id`),
   ADD KEY `fk_phase_topic` (`topic_id`);
 
@@ -787,13 +871,13 @@ ALTER TABLE `generate`
 -- AUTO_INCREMENT for table `group`
 --
 ALTER TABLE `group`
-  MODIFY `group_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `group_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `main_phase`
 --
 ALTER TABLE `main_phase`
-  MODIFY `m_phase_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `m_phase_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `nhom_tc`
@@ -853,7 +937,7 @@ ALTER TABLE `setting_detail`
 -- AUTO_INCREMENT for table `task`
 --
 ALTER TABLE `task`
-  MODIFY `task_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `task_result`
@@ -871,7 +955,7 @@ ALTER TABLE `tieu_chi`
 -- AUTO_INCREMENT for table `topic`
 --
 ALTER TABLE `topic`
-  MODIFY `topic_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `topic_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `total_score`
@@ -883,7 +967,7 @@ ALTER TABLE `total_score`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=389;
 
 --
 -- Constraints for dumped tables
@@ -900,6 +984,7 @@ ALTER TABLE `assignment`
 -- Constraints for table `class_member`
 --
 ALTER TABLE `class_member`
+  ADD CONSTRAINT `fk_add_by` FOREIGN KEY (`added_by`) REFERENCES `users` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `fk_cm_class` FOREIGN KEY (`class_id`) REFERENCES `class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_cm_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -971,7 +1056,6 @@ ALTER TABLE `object_review`
 --
 ALTER TABLE `phase`
   ADD CONSTRAINT `fk_phase_mainphase` FOREIGN KEY (`m_phase_id`) REFERENCES `main_phase` (`m_phase_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_phase_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_phase_topic` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`topic_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --

@@ -21,6 +21,10 @@ $routes = [
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
 
     'class/participants' => ['file' => 'views/participants_groups/participants.php', 'title' => 'Quản lý thành viên lớp học', 'require_auth' => true],
+    'class/groups' => ['file' => 'views/participants_groups/groups.php', 'title' => 'Quản lý nhóm lớp học', 'require_auth' => true],
+    'class/phases' => ['file' => 'views/phase/index.php', 'title' => 'Quản lý pha học tập', 'require_auth' => true],
+    'class/phases/create' => ['file' => 'views/phase/create.php', 'title' => 'Tạo pha học tập', 'require_auth' => true],
+    'class/phases/edit' => ['file' => 'views/phase/edit.php', 'title' => 'Chỉnh sửa pha học tập', 'require_auth' => true],
 
     // Error pages
     '400' => ['file' => 'views/errors/400.php', 'title' => '400 Bad Request', 'require_auth' => false],
