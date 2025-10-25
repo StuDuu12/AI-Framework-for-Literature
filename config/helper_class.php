@@ -39,6 +39,15 @@ function getClassMembers($classId = null)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getClassOfStudent($studentId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT class_id FROM class_member WHERE user_id = :user_id");
+    $stmt->bindParam(':user_id', $studentId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 /**
  * Search users by keyword (fullname, username, email)
  */
@@ -377,4 +386,32 @@ function deleteTopic($topicId)
     $stmt = $pdo->prepare('DELETE FROM topic WHERE topic_id = :topic_id');
     $stmt->bindParam(':topic_id', $topicId, PDO::PARAM_INT);
     return $stmt->execute();
+}
+
+/**
+ * Get groups in a class that include a specific user
+ */
+function getAllGroupsOfStudentInClasses($userId, $classId = null)
+{
+    if ($classId === null) {
+        $classId = getCurrentClassId();
+    }
+
+    if (!$classId || !$userId) {
+        return [];
+    }
+
+    global $pdo;
+    $stmt = $pdo->prepare(
+        "SELECT g.group_id, g.group_name, g.class_id
+         FROM `group` g
+         INNER JOIN group_member gm ON gm.group_id = g.group_id
+         WHERE g.class_id = :class_id AND gm.user_id = :user_id
+         ORDER BY g.group_name ASC"
+    );
+    $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

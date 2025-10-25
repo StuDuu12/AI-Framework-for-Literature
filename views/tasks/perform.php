@@ -109,36 +109,13 @@
                                 </div>
                             <?php endif; ?>
 
-                            <!-- Student Work Area -->
-                            <div class="card border-primary">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0">
-                                        <i class="bi bi-pencil-square"></i> Khu vực làm việc của bạn
-                                    </h6>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted">
-                                        <i class="bi bi-lightbulb"></i>
-                                        Đây là nơi bạn sẽ thực hiện nhiệm vụ. Chức năng này đang được phát triển...
-                                    </p>
-
-                                    <!-- Placeholder for future implementation -->
-                                    <div class="alert alert-warning">
-                                        <i class="bi bi-tools"></i>
-                                        <strong>Đang phát triển:</strong>
-                                        Khu vực này sẽ cho phép bạn nhập câu trả lời, tải file lên, hoặc tương tác với
-                                        các công cụ AI.
-                                    </div>
-
-                                    <button class="btn btn-success" disabled>
-                                        <i class="bi bi-check-circle"></i> Nộp bài (Sắp ra mắt)
-                                    </button>
-                                    <a href="index.php?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left"></i> Quay lại
-                                    </a>
-                                </div>
-                            </div>
+                            <a class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Bắt đầu làm bài
+                            </a>
+                            <a href="index.php?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
                         </div>
                     </div>
                 </div>

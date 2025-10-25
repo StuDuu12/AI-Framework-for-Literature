@@ -17,14 +17,14 @@
         <li class="nav-heading">Học tập</li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/student_tasks.php">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=student_tasks">
                 <i class="bi bi-list-task"></i>
                 <span>Nhiệm vụ của tôi</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/student_groups.php">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=student_groups">
                 <i class="bi bi-people"></i>
                 <span>Nhóm của tôi</span>
             </a>
@@ -33,7 +33,7 @@
         <li class="nav-heading">Công cụ</li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/literary_analysis.php">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=literary_analysis">
                 <i class="bi bi-book"></i>
                 <span>Phân tích Văn học</span>
             </a>
