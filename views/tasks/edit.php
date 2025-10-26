@@ -74,9 +74,9 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="index.php?topic_id=<?= $topicId ?>">Pha học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học tập</a></li>
                     <li class="breadcrumb-item"><a
-                            href="index.php?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Nhiệm vụ</a></li>
+                            href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Nhiệm vụ</a></li>
                     <li class="breadcrumb-item active">Chỉnh sửa</li>
                 </ol>
             </nav>
@@ -178,7 +178,7 @@
                                     <button type="submit" class="btn btn-primary" id="submitBtn">
                                         <i class="bi bi-check-circle"></i> Cập nhật
                                     </button>
-                                    <a href="index.php?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                    <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
                                         <i class="bi bi-x-circle"></i> Hủy
                                     </a>
@@ -227,7 +227,7 @@
     ?>
 
     <script>
-        (function () {
+        (function() {
             'use strict';
 
             // Toast utility function
@@ -280,7 +280,7 @@
             const fileContentArea = document.getElementById('fileContentArea');
             const contentTypeRadios = document.getElementsByName('content_type');
 
-            replaceContentCheckbox.addEventListener('change', function () {
+            replaceContentCheckbox.addEventListener('change', function() {
                 contentReplaceArea.style.display = this.checked ? 'block' : 'none';
                 if (!this.checked) {
                     document.getElementById('contentText').value = '';
@@ -289,7 +289,7 @@
             });
 
             contentTypeRadios.forEach(radio => {
-                radio.addEventListener('change', function () {
+                radio.addEventListener('change', function() {
                     if (this.value === 'text') {
                         textContentArea.style.display = 'block';
                         fileContentArea.style.display = 'none';
@@ -303,7 +303,7 @@
             });
 
             // Form submission
-            document.getElementById('editTaskForm').addEventListener('submit', async function (e) {
+            document.getElementById('editTaskForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const title = document.getElementById('taskTitle').value.trim();

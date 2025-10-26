@@ -233,7 +233,7 @@
                                                     <strong>Cá nhân:</strong>
                                                 <?php endif; ?>
                                                 <br>
-                                                <small><?= htmlspecialchars($assignment['assigned_to_name']) ?></small>
+                                                <small><?= htmlspecialchars($assignment['assigned_to_name'] ?? '') ?></small>
                                             </div>
                                             <button type="button" class="btn btn-sm btn-outline-danger remove-assignment"
                                                 data-deliver-id="<?= $assignment['id_deliver'] ?>" title="Hủy giao">
@@ -250,10 +250,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Thông tin nhiệm vụ</h5>
-                            <p><strong>Tiêu đề:</strong> <?= htmlspecialchars($task['title']) ?></p>
-                            <p><strong>Pha:</strong> Bước <?= $phase['phase_number'] ?> -
-                                <?= htmlspecialchars($phase['phase_name']) ?></p>
-                            <p><strong>Chủ đề:</strong> <?= htmlspecialchars($topic['topic_name']) ?></p>
+                            <p><strong>Tiêu đề:</strong> <?= htmlspecialchars($task['title'] ?? '') ?></p>
+                            <p><strong>Pha:</strong> Bước <?= htmlspecialchars($phase['phase_number'] ?? '') ?> -
+                                <?= htmlspecialchars($phase['phase_name'] ?? '') ?></p>
+                            <p><strong>Chủ đề:</strong> <?= htmlspecialchars($topic['topic_name'] ?? '') ?></p>
                         </div>
                     </div>
                 </div>
@@ -282,7 +282,7 @@
     ?>
 
     <script>
-        (function () {
+        (function() {
             'use strict';
 
             // Toast utility function
@@ -335,7 +335,7 @@
             const assignIndividualArea = document.getElementById('assignIndividualArea');
 
             assignTypeRadios.forEach(radio => {
-                radio.addEventListener('change', function () {
+                radio.addEventListener('change', function() {
                     assignClassArea.style.display = 'none';
                     assignGroupArea.style.display = 'none';
                     assignIndividualArea.style.display = 'none';
@@ -353,7 +353,7 @@
             // Search students
             const searchStudent = document.getElementById('searchStudent');
             if (searchStudent) {
-                searchStudent.addEventListener('input', function () {
+                searchStudent.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
                     const studentItems = document.querySelectorAll('.student-item');
 
@@ -371,7 +371,7 @@
             }
 
             // Form submission
-            document.getElementById('assignTaskForm').addEventListener('submit', async function (e) {
+            document.getElementById('assignTaskForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const assignType = document.querySelector('input[name="assign_type"]:checked').value;
@@ -436,7 +436,7 @@
 
             // Remove assignment
             document.querySelectorAll('.remove-assignment').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const deliverId = this.dataset.deliverId;
 
                     if (!confirm('Bạn có chắc chắn muốn hủy giao nhiệm vụ này?')) {
