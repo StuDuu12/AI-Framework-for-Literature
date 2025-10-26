@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 25, 2025 at 02:35 PM
+-- Generation Time: Oct 26, 2025 at 08:36 AM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -149,8 +149,21 @@ CREATE TABLE `deliver` (
   `id_deliver` int NOT NULL,
   `task_id` int NOT NULL,
   `type` enum('class','group','user') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` int NOT NULL COMMENT 'Phân công đối tượng nào thì sẽ truyền vào value đối tượng đó'
+  `value` int NOT NULL COMMENT 'Phân công đối tượng nào thì sẽ truyền vào value đối tượng đó',
+  `added_by` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `deliver`
+--
+
+INSERT INTO `deliver` (`id_deliver`, `task_id`, `type`, `value`, `added_by`, `created_at`, `updated_at`) VALUES
+(1, 5, 'user', 358, 2, '2025-10-25 15:24:55', '2025-10-25 15:26:50'),
+(2, 5, 'user', 371, 2, '2025-10-25 15:24:55', '2025-10-25 15:26:52'),
+(4, 5, 'class', 1, 2, '2025-10-25 15:24:55', '2025-10-25 15:26:55'),
+(5, 5, 'group', 1, 2, '2025-10-25 15:24:55', '2025-10-25 15:26:56');
 
 -- --------------------------------------------------------
 
@@ -227,7 +240,8 @@ CREATE TABLE `group` (
 
 INSERT INTO `group` (`group_id`, `class_id`, `group_name`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Nhóm 1', '2025-10-25 02:22:46', '2025-10-25 02:22:46'),
-(2, 1, 'Nhóm 2', '2025-10-25 02:23:29', '2025-10-25 02:23:29');
+(2, 1, 'Nhóm 2', '2025-10-25 02:23:29', '2025-10-25 02:23:29'),
+(3, 1, 'Nhóm 3', '2025-10-26 08:18:53', '2025-10-26 08:18:53');
 
 -- --------------------------------------------------------
 
@@ -324,7 +338,8 @@ CREATE TABLE `phase` (
 INSERT INTO `phase` (`phase_id`, `phase_number`, `phase_name`, `m_phase_id`, `topic_id`, `start_time`, `end_time`, `flag_active`, `added_by`, `created_at`, `updated_at`) VALUES
 (1, 1, 'Phản biện nội dung tìm hiểu về thơ ABC', 1, 8, '2025-10-25 12:10:00', '2025-10-25 12:15:00', 0, 2, '2025-10-25 12:10:49', '2025-10-25 12:28:01'),
 (2, 2, 'Chữa nội dung phản biện', 2, 8, '2025-10-25 12:32:00', '2025-10-25 12:52:00', 0, 2, '2025-10-25 12:30:11', '2025-10-25 12:32:28'),
-(3, 3, 'Làm bài tập về nhà', 3, 8, '2025-10-25 12:48:00', '2025-10-25 12:59:00', 0, 2, '2025-10-25 12:33:02', '2025-10-25 12:37:30');
+(3, 3, 'Làm bài tập về nhà', 3, 8, '2025-10-25 12:48:00', '2025-10-25 12:59:00', 0, 2, '2025-10-25 12:33:02', '2025-10-25 12:37:30'),
+(4, 4, 'Đánh giá chéo bài tập', 4, 8, '2025-10-10 23:07:00', '2025-11-01 23:07:00', 0, 2, '2025-10-25 23:07:28', '2025-10-25 23:07:44');
 
 -- --------------------------------------------------------
 
@@ -421,6 +436,16 @@ CREATE TABLE `task` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `task`
+--
+
+INSERT INTO `task` (`task_id`, `phase_id`, `title`, `description`, `file_content`, `content_creator`, `added_by`, `created_at`, `updated_at`) VALUES
+(3, 1, 'Phân tích bài thơ Sắc thu', 'Em hãy phân tích bài thơ Sắc thu', 'tasks/task_68fc833d1f7b5.txt', 2, 2, '2025-10-25 14:51:03', '2025-10-25 14:58:53'),
+(5, 1, 'Phân tích bài thơ Tản mạn Tây Hồ', 'Em hãy sử dụng các công cụ để phân tích bài thơ', 'tasks/task_68fc826a4e99a.txt', 2, 2, '2025-10-25 14:55:22', '2025-10-25 14:55:22');
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `tieu_chi`
@@ -767,7 +792,7 @@ ALTER TABLE `content`
 -- AUTO_INCREMENT for table `deliver`
 --
 ALTER TABLE `deliver`
-  MODIFY `id_deliver` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_deliver` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `detail_evaluate`
@@ -797,7 +822,7 @@ ALTER TABLE `generate`
 -- AUTO_INCREMENT for table `group`
 --
 ALTER TABLE `group`
-  MODIFY `group_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `group_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `main_phase`
@@ -821,7 +846,7 @@ ALTER TABLE `object_review`
 -- AUTO_INCREMENT for table `phase`
 --
 ALTER TABLE `phase`
-  MODIFY `phase_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `phase_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `response`
@@ -863,7 +888,7 @@ ALTER TABLE `setting_detail`
 -- AUTO_INCREMENT for table `task`
 --
 ALTER TABLE `task`
-  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tieu_chi`

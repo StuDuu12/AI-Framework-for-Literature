@@ -109,7 +109,7 @@
                                 </div>
                             <?php endif; ?>
 
-                            <a class="btn btn-success">
+                            <a class="btn btn-success" href="/class/homework/analysis_start?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">
                                 <i class="bi bi-check-circle"></i> Bắt đầu làm bài
                             </a>
                             <a href="index.php?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
