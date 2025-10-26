@@ -85,14 +85,16 @@ function createTask($data)
                 title, 
                 description, 
                 file_content, 
-                content_creator, 
+                content_creator,
+                review_task, 
                 added_by
             ) VALUES (
                 :phase_id, 
                 :title, 
                 :description, 
                 :file_content, 
-                :content_creator, 
+                :content_creator,
+                :review_task, 
                 :added_by
             )
         ");
@@ -103,6 +105,7 @@ function createTask($data)
             ':description' => $data['description'] ?? null,
             ':file_content' => $data['file_content'] ?? null,
             ':content_creator' => $data['content_creator'] ?? null,
+            ':review_task' => $data['review_task'] ?? null,
             ':added_by' => $data['added_by']
         ]);
 
@@ -133,7 +136,8 @@ function updateTask($taskId, $data)
                 title = :title,
                 description = :description,
                 file_content = :file_content,
-                content_creator = :content_creator
+                content_creator = :content_creator,
+                review_task = :review_task
             WHERE task_id = :task_id
         ");
 
@@ -142,7 +146,8 @@ function updateTask($taskId, $data)
             ':title' => $data['title'],
             ':description' => $data['description'] ?? null,
             ':file_content' => $data['file_content'] ?? null,
-            ':content_creator' => $data['content_creator'] ?? null
+            ':content_creator' => $data['content_creator'] ?? null,
+            ':review_task' => $data['review_task'] ?? null
         ]);
     } catch (PDOException $e) {
         error_log("Error in updateTask: " . $e->getMessage());
@@ -408,5 +413,51 @@ function isTaskAssigned($taskId, $type, $value)
         error_log("Error in isTaskAssigned: " . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Get tasks from PHASE_START and PHASE_BTVN for evaluation phases
+ * @param int $topicId
+ * @return array
+ */
+function getEvaluationSourceTasks($topicId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                t.task_id,
+                t.title,
+                t.description,
+                p.phase_name,
+                p.phase_number,
+                mp.m_phase_name,
+                mp.phase_code
+            FROM task t
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+            WHERE p.topic_id = :topic_id
+            AND mp.phase_code IN ('PHASE_START', 'PHASE_BTVN')
+            ORDER BY p.phase_number ASC, t.created_at ASC
+        ");
+
+        $stmt->execute([':topic_id' => $topicId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getEvaluationSourceTasks: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Check if phase requires evaluation (based on phase_code)
+ * @param string $phaseCode
+ * @return bool
+ */
+function isEvaluationPhase($phaseCode)
+{
+    $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
+    return in_array($phaseCode, $evaluationPhaseCodes);
 }
 

@@ -84,6 +84,7 @@ function insertResponse($taskId, $userId, $option = [])
     $payload = [
         'task_id' => $taskId,
         'user_id' => $userId,
+        'owner_user_id' => $option['owner_user_id'] ?? null,
         'parent_response' => $option['parent_response'] ?? null,
         'json_ai' => $option['json_ai'] ?? null,
     ];
@@ -93,12 +94,17 @@ function insertResponse($taskId, $userId, $option = [])
     }
 
     $stmt = $pdo->prepare("
-        INSERT INTO response (task_id, user_id, parent_response, json_ai)
-        VALUES (:task_id, :user_id, :parent_response, :json_ai)
+        INSERT INTO response (task_id, user_id, owner_user_id, parent_response, json_ai)
+        VALUES (:task_id, :user_id, :owner_user_id, :parent_response, :json_ai)
     ");
 
     $stmt->bindValue(':task_id', $payload['task_id'], PDO::PARAM_INT);
     $stmt->bindValue(':user_id', $payload['user_id'], PDO::PARAM_INT);
+    $stmt->bindValue(
+        ':owner_user_id',
+        $payload['owner_user_id'],
+        $payload['owner_user_id'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT
+    );
     $stmt->bindValue(
         ':parent_response',
         $payload['parent_response'],
@@ -411,14 +417,219 @@ function getResponseWithTaskInfo($responseId)
 {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT r.*, t.title AS task_title, t.description AS task_description,
-               p.phase_name, mp.m_phase_name, mp.phase_code, mp.Comment as allow_comment
+        SELECT r.*, 
+               t.title AS task_title, t.description AS task_description,
+               p.phase_name, mp.m_phase_name, mp.phase_code, mp.Comment as allow_comment,
+               u.fullname as user_fullname, u.email as user_email,
+               owner.fullname as owner_fullname, owner.email as owner_email
         FROM response r
         LEFT JOIN task t ON r.task_id = t.task_id
         LEFT JOIN phase p ON t.phase_id = p.phase_id
         LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        LEFT JOIN users u ON r.user_id = u.user_id
+        LEFT JOIN users owner ON r.owner_user_id = owner.user_id
         WHERE r.id_response = :response_id
     ");
     $stmt->execute(['response_id' => $responseId]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get root response for a task and user (student's work)
+ * This handles both regular tasks and evaluation tasks (with review_task)
+ * Uses owner_user_id to find the student's response chain
+ * Then finds the specific response created by the viewing user (teacher or student)
+ * 
+ * @param int $taskId Task ID
+ * @param int $targetUserId Target user ID (student whose work we're viewing)
+ * @param int $currentUserId Current viewing user ID (teacher or student viewing the work)
+ * @return array|null Response data with task info or null if not found
+ */
+function getRootResponseForTaskAndUser($taskId, $targetUserId, $currentUserId = null)
+{
+    global $pdo;
+
+    // If currentUserId not provided, use targetUserId (viewing own work)
+    if ($currentUserId === null) {
+        $currentUserId = $targetUserId;
+    }
+
+    try {
+        // First, check if task has review_task (evaluation phase)
+        $taskStmt = $pdo->prepare("
+            SELECT task_id, review_task 
+            FROM task 
+            WHERE task_id = :task_id
+        ");
+        $taskStmt->execute([':task_id' => $taskId]);
+        $task = $taskStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$task) {
+            return null;
+        }
+
+        // Determine which task to look for responses
+        $searchTaskId = $task['review_task'] ?? $taskId;
+
+        // Find response for this target user (owner) and current user (creator)
+        // owner_user_id = student whose work this is (always the student being viewed)
+        // user_id = person who created this response (could be teacher or student)
+        $responseStmt = $pdo->prepare("
+            SELECT 
+                r.id_response,
+                r.user_id,
+                r.owner_user_id,
+                r.parent_response,
+                r.task_id,
+                r.created_at,
+                r.updated_at,
+                t.title as task_title,
+                t.description as task_description,
+                p.phase_name,
+                mp.m_phase_name,
+                mp.phase_code,
+                mp.Comment as allow_comment,
+                u.fullname as user_fullname,
+                owner.fullname as owner_fullname
+            FROM response r
+            INNER JOIN task t ON r.task_id = t.task_id
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+            INNER JOIN users u ON r.user_id = u.user_id
+            LEFT JOIN users owner ON r.owner_user_id = owner.user_id
+            WHERE r.task_id = :task_id 
+            AND r.user_id = :current_user_id
+            AND (r.owner_user_id = :target_user_id OR (r.owner_user_id IS NULL AND r.user_id = :target_user_id))
+            ORDER BY r.created_at DESC
+            LIMIT 1
+        ");
+
+        $responseStmt->execute([
+            ':task_id' => $searchTaskId,
+            ':current_user_id' => $currentUserId,
+            ':target_user_id' => $targetUserId
+        ]);
+
+        $response = $responseStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$response) {
+            return null;
+        }
+
+        // Follow parent_response chain to find root
+        $currentResponse = $response;
+        $iterations = 0;
+        $maxIterations = 10; // Prevent infinite loop
+
+        while ($currentResponse['parent_response'] !== null && $iterations < $maxIterations) {
+            $parentStmt = $pdo->prepare("
+                SELECT 
+                    r.id_response,
+                    r.user_id,
+                    r.owner_user_id,
+                    r.parent_response,
+                    r.task_id,
+                    r.created_at,
+                    r.updated_at,
+                    t.title as task_title,
+                    t.description as task_description,
+                    p.phase_name,
+                    mp.m_phase_name,
+                    mp.phase_code,
+                    mp.Comment as allow_comment,
+                    u.fullname as user_fullname,
+                    owner.fullname as owner_fullname
+                FROM response r
+                INNER JOIN task t ON r.task_id = t.task_id
+                INNER JOIN phase p ON t.phase_id = p.phase_id
+                INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+                INNER JOIN users u ON r.user_id = u.user_id
+                LEFT JOIN users owner ON r.owner_user_id = owner.user_id
+                WHERE r.id_response = :parent_id
+            ");
+
+            $parentStmt->execute([':parent_id' => $currentResponse['parent_response']]);
+            $parentResponse = $parentStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$parentResponse) {
+                break; // Parent not found, current is root
+            }
+
+            $currentResponse = $parentResponse;
+            $iterations++;
+        }
+
+        return $currentResponse;
+    } catch (PDOException $e) {
+        error_log("Error in getRootResponseForTaskAndUser: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Get all students who submitted responses for a task
+ * Includes response status and submission time
+ * Now uses owner_user_id to identify students (owners of the work)
+ * 
+ * @param int $taskId Task ID
+ * @return array List of students with their response info
+ */
+function getStudentsWithResponsesForTask($taskId)
+{
+    global $pdo;
+
+    try {
+        // Check if task has review_task
+        $taskStmt = $pdo->prepare("
+            SELECT task_id, review_task 
+            FROM task 
+            WHERE task_id = :task_id
+        ");
+        $taskStmt->execute([':task_id' => $taskId]);
+        $task = $taskStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$task) {
+            return [];
+        }
+
+        // Determine which task to look for responses
+        $searchTaskId = $task['review_task'] ?? $taskId;
+
+        // Get all students who own responses for this task
+        // Use owner_user_id to identify students OR user_id when owner_user_id is NULL (legacy data)
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT
+                COALESCE(r.owner_user_id, r.user_id) as user_id,
+                u.fullname,
+                u.email,
+                MIN(r.id_response) as id_response,
+                MIN(r.created_at) as response_created_at,
+                MAX(r.updated_at) as response_updated_at,
+                (SELECT COUNT(*) FROM content WHERE response_id IN (
+                    SELECT id_response FROM response 
+                    WHERE task_id = :task_id 
+                    AND (owner_user_id = COALESCE(r.owner_user_id, r.user_id) 
+                         OR (owner_user_id IS NULL AND user_id = COALESCE(r.owner_user_id, r.user_id)))
+                )) as content_count,
+                (SELECT COUNT(*) FROM comment c 
+                 INNER JOIN content ct ON c.content_id = ct.content_id 
+                 WHERE ct.response_id IN (
+                    SELECT id_response FROM response 
+                    WHERE task_id = :task_id 
+                    AND (owner_user_id = COALESCE(r.owner_user_id, r.user_id) 
+                         OR (owner_user_id IS NULL AND user_id = COALESCE(r.owner_user_id, r.user_id)))
+                )) as comment_count
+            FROM response r
+            INNER JOIN users u ON COALESCE(r.owner_user_id, r.user_id) = u.user_id
+            WHERE r.task_id = :task_id
+            GROUP BY COALESCE(r.owner_user_id, r.user_id), u.fullname, u.email
+            ORDER BY u.fullname ASC
+        ");
+
+        $stmt->execute([':task_id' => $searchTaskId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getStudentsWithResponsesForTask: " . $e->getMessage());
+        return [];
+    }
 }

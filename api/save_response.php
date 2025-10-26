@@ -51,6 +51,7 @@ $action_type = $input['action_type'] ?? ''; // 'analyze', 'chat', 'slideshow', '
 $ai_response = $input['ai_response'] ?? null;
 $user_content = $input['user_content'] ?? '';
 $parent_response_id = isset($input['parent_response_id']) ? intval($input['parent_response_id']) : null;
+$target_user_id = isset($input['target_user_id']) ? intval($input['target_user_id']) : $user_id; // Default to current user
 
 if ($task_id <= 0) {
     http_response_code(400);
@@ -83,9 +84,9 @@ try {
         }
     }
 
-    // Insert response record
+    // Insert response record with owner_user_id
     $response_id = insertResponse($task_id, $user_id, [
-        // 'parent_response' => $parent_response_id,
+        'owner_user_id' => $target_user_id, // Set owner (student whose work this is)
         'json_ai' => $ai_response // Store AI response as JSON
     ]);
 
