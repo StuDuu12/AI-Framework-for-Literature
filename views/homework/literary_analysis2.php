@@ -746,6 +746,7 @@
 
         // --- Display Functions ---
         function displayAnalysis(result) {
+            console.log(result);
             if (!result) return;
 
             // Create main analysis content
