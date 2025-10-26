@@ -80,7 +80,7 @@
     // Kiểm tra xem người dùng đã tạo phân tích chưa
     $json_data = null;
     $id_response = null;
-    
+
     // Get user_id with flexible session structure
     $user_id = null;
     if (isset($_SESSION['user']['user_id'])) {
@@ -88,7 +88,7 @@
     } elseif (isset($_SESSION['user_id'])) {
         $user_id = $_SESSION['user_id'];
     }
-    
+
     if ($user_id) {
         $analysisData = getResponseUserByTask($task_id, $user_id);
         if ($analysisData && isset($analysisData['id_response'])) {
@@ -121,8 +121,10 @@
             <h1><?= htmlspecialchars($taskData['task_title']) ?></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($_SESSION['current_class_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>">Nhiệm vụ</a></li>
+                    <li class="breadcrumb-item"><a
+                            href="/class"><?= htmlspecialchars($_SESSION['current_class_name']) ?></a></li>
+                    <li class="breadcrumb-item"><a
+                            href="class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>">Nhiệm vụ</a></li>
                     <li class="breadcrumb-item active"><?= htmlspecialchars($taskData['phase_name']) ?></li>
                 </ol>
             </nav>
@@ -515,10 +517,31 @@
             textInput.setAttribute('readonly', true);
             textInput.classList.add('bg-slate-100', 'cursor-not-allowed');
 
-            // Hide analyze button, show reset button
+            // Hide analyze button, show reset button and comment button
             analyzeButton.classList.add('hidden');
             resetButton.classList.remove('hidden');
             resetButton.removeAttribute('disabled'); // Enable reset button
+            
+            // Show "Go to Comment" button
+            if (currentResponseId) {
+                const commentBtnHTML = `
+                    <a href="/class/homework/comment?response_id=${currentResponseId}" 
+                       class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition inline-flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
+                        </svg>
+                        Chuyển sang Bình luận
+                    </a>
+                `;
+                
+                // Insert before reset button
+                if (!document.getElementById('go-comment-btn')) {
+                    const commentBtn = document.createElement('div');
+                    commentBtn.id = 'go-comment-btn';
+                    commentBtn.innerHTML = commentBtnHTML;
+                    resetButton.parentElement.insertBefore(commentBtn, resetButton);
+                }
+            }
 
             // Check if PHASE_START - disable chat functionality (UI only, backend validates)
             if (IS_PHASE_START) {
@@ -545,6 +568,12 @@
         }
 
         function handleReset() {
+            // Prevent reset for PHASE_START
+            if (IS_PHASE_START) {
+                alert('Giai đoạn này không cho phép làm lại. Bạn chỉ có thể phân tích 1 lần duy nhất.');
+                return;
+            }
+            
             if (!confirm('Bạn có chắc chắn muốn làm lại? Tất cả dữ liệu phân tích sẽ bị mất.')) {
                 return;
             }

@@ -179,3 +179,246 @@ function getResponseUserByTask($taskId, $userId)
     $stmt->execute(['task_id' => $taskId, 'user_id' => $userId]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
+/**
+ * Get all content blocks for a response (for comment page)
+ * @param int $responseId - ID of the response
+ * @return array - Array of content blocks ordered by 'order' field
+ */
+function getContentByResponse($responseId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT content_id, response_id, content, `order`, type_create, added_by, created_at
+        FROM content
+        WHERE response_id = :response_id
+        ORDER BY `order` ASC
+    ");
+    $stmt->execute(['response_id' => $responseId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get content block with user info
+ * @param int $contentId - ID of the content
+ * @return array|false - Content data with user info
+ */
+function getContentById($contentId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.fullname, u.email
+        FROM content c
+        LEFT JOIN users u ON c.added_by = u.user_id
+        WHERE c.content_id = :content_id
+    ");
+    $stmt->execute(['content_id' => $contentId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Insert a comment for a content block (Max 3 levels)
+ * @param int $contentId - ID of the content being commented
+ * @param int $userId - ID of the user making the comment
+ * @param int $taskId - ID of the task
+ * @param string $commentText - The comment text
+ * @param int|null $replyCommentId - ID of parent comment (for replies)
+ * @return int - ID of the inserted comment
+ * @throws Exception if exceeds 3 levels
+ */
+function insertComment($contentId, $userId, $taskId, $commentText, $replyCommentId = null)
+{
+    global $pdo;
+    
+    // Check depth level if replying to a comment
+    if ($replyCommentId) {
+        $depth = getCommentDepth($replyCommentId);
+        if ($depth >= 2) {
+            throw new Exception('Chỉ cho phép tối đa 3 cấp bình luận');
+        }
+    }
+    
+    $stmt = $pdo->prepare("
+        INSERT INTO comment (content_id, user_id, task_id, comment_text, reply_comment, created_at)
+        VALUES (:content_id, :user_id, :task_id, :comment_text, :reply_comment, NOW())
+    ");
+    $stmt->execute([
+        'content_id' => $contentId,
+        'user_id' => $userId,
+        'task_id' => $taskId,
+        'comment_text' => $commentText,
+        'reply_comment' => $replyCommentId ?? 0
+    ]);
+    return $pdo->lastInsertId();
+}
+
+/**
+ * Get comment depth level (0 = root, 1 = reply, 2 = reply of reply)
+ * @param int $commentId - ID of the comment
+ * @return int - Depth level
+ */
+function getCommentDepth($commentId)
+{
+    global $pdo;
+    $depth = 0;
+    $currentId = $commentId;
+    
+    while ($currentId > 0 && $depth < 10) { // Max 10 iterations to prevent infinite loop
+        $stmt = $pdo->prepare("SELECT reply_comment FROM comment WHERE comment_id = :comment_id");
+        $stmt->execute(['comment_id' => $currentId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$result || $result['reply_comment'] == 0) {
+            break;
+        }
+        
+        $currentId = $result['reply_comment'];
+        $depth++;
+    }
+    
+    return $depth;
+}
+
+/**
+ * Get all comments for a content block
+ * @param int $contentId - ID of the content
+ * @return array - Array of comments with user info
+ */
+function getCommentsByContent($contentId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.fullname, u.email
+        FROM comment c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.content_id = :content_id
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute(['content_id' => $contentId]);
+    $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Add default avatar to all comments
+    foreach ($comments as &$comment) {
+        $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
+    }
+    unset($comment);
+    
+    return $comments;
+}
+
+/**
+ * Get hierarchical comments (parent and replies) with depth info
+ * @param int $contentId - ID of the content
+ * @return array - Array of comments organized hierarchically with depth
+ */
+function getCommentsHierarchical($contentId)
+{
+    global $pdo;
+    
+    // Get all comments for this content with user role and phase info
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.fullname, u.email, u.role,
+               t.phase_id, p.phase_name, mp.m_phase_name
+        FROM comment c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        LEFT JOIN task t ON c.task_id = t.task_id
+        LEFT JOIN phase p ON t.phase_id = p.phase_id
+        LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE c.content_id = :content_id
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute(['content_id' => $contentId]);
+    $allComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Add default avatar and depth to all comments
+    foreach ($allComments as &$comment) {
+        $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
+        $comment['depth'] = getCommentDepth($comment['comment_id']);
+        $comment['role_label'] = $comment['role'] === 'teacher' ? 'Giáo viên' : 'Học sinh';
+        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Không rõ';
+    }
+    unset($comment);
+    
+    // Organize into parent and child structure
+    $organized = [];
+    $commentMap = [];
+    
+    foreach ($allComments as $comment) {
+        $comment['replies'] = [];
+        $commentMap[$comment['comment_id']] = $comment;
+    }
+    
+    foreach ($commentMap as $commentId => $comment) {
+        if ($comment['reply_comment'] == 0 || $comment['reply_comment'] == null) {
+            // Top level comment
+            $organized[] = &$commentMap[$commentId];
+        } else {
+            // Reply to another comment
+            if (isset($commentMap[$comment['reply_comment']])) {
+                $commentMap[$comment['reply_comment']]['replies'][] = &$commentMap[$commentId];
+            }
+        }
+    }
+    
+    return $organized;
+}
+
+/**
+ * Delete a comment
+ * @param int $commentId - ID of the comment to delete
+ * @param int $userId - ID of the user attempting deletion (for permission check)
+ * @return bool - Success status
+ */
+function deleteComment($commentId, $userId)
+{
+    global $pdo;
+    
+    // Check if user owns the comment or is teacher
+    $stmt = $pdo->prepare("
+        SELECT user_id FROM comment WHERE comment_id = :comment_id
+    ");
+    $stmt->execute(['comment_id' => $commentId]);
+    $comment = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$comment) {
+        return false;
+    }
+    
+    // Check permission
+    $isOwner = ($comment['user_id'] == $userId);
+    $isTeacher = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher';
+    
+    if (!$isOwner && !$isTeacher) {
+        return false;
+    }
+    
+    // Delete the comment and its replies
+    $stmt = $pdo->prepare("
+        DELETE FROM comment 
+        WHERE comment_id = :comment_id OR reply_comment = :comment_id
+    ");
+    $stmt->execute(['comment_id' => $commentId]);
+    
+    return true;
+}
+
+/**
+ * Get response with task info for comment page
+ * @param int $responseId - ID of the response
+ * @return array|false - Response data with task info
+ */
+function getResponseWithTaskInfo($responseId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT r.*, t.title AS task_title, t.description AS task_description,
+               p.phase_name, mp.m_phase_name, mp.phase_code, mp.Comment as allow_comment
+        FROM response r
+        LEFT JOIN task t ON r.task_id = t.task_id
+        LEFT JOIN phase p ON t.phase_id = p.phase_id
+        LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE r.id_response = :response_id
+    ");
+    $stmt->execute(['response_id' => $responseId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
