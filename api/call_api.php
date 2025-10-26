@@ -7,11 +7,13 @@ if (session_status() === PHP_SESSION_NONE) {
 // Set header to return JSON
 header('Content-Type: application/json');
 
-// Check authentication
-if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized - Please login']);
-    exit;
+// Check authentication (skip if already validated by analyze_task.php)
+if (!defined('AUTH_PASSED')) {
+    if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized - Please login']);
+        exit;
+    }
 }
 
 // --- Main Function to Call Google Gemini API ---
@@ -64,9 +66,17 @@ function callGeminiApi($systemPrompt, $contents, $schema)
 }
 
 // --- Get Request Data ---
-$input = json_decode(file_get_contents('php://input'), true);
-$action = $input['action'] ?? '';
-$data = $input['data'] ?? '';
+// Check if called from analyze_task.php (data in $_POST) or directly (data in php://input)
+if (defined('AUTH_PASSED') && isset($_POST['action'])) {
+    // Called from analyze_task.php
+    $action = $_POST['action'] ?? '';
+    $data = $_POST['data'] ?? '';
+} else {
+    // Direct call - read from JSON body
+    $input = json_decode(file_get_contents('php://input'), true);
+    $action = $input['action'] ?? '';
+    $data = $input['data'] ?? '';
+}
 
 $response = null;
 
