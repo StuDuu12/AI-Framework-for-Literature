@@ -229,7 +229,7 @@ function getContentById($contentId)
 function insertComment($contentId, $userId, $taskId, $commentText, $replyCommentId = null)
 {
     global $pdo;
-    
+
     // Check depth level if replying to a comment
     if ($replyCommentId) {
         $depth = getCommentDepth($replyCommentId);
@@ -237,7 +237,7 @@ function insertComment($contentId, $userId, $taskId, $commentText, $replyComment
             throw new Exception('Chỉ cho phép tối đa 3 cấp bình luận');
         }
     }
-    
+
     $stmt = $pdo->prepare("
         INSERT INTO comment (content_id, user_id, task_id, comment_text, reply_comment, created_at)
         VALUES (:content_id, :user_id, :task_id, :comment_text, :reply_comment, NOW())
@@ -262,20 +262,20 @@ function getCommentDepth($commentId)
     global $pdo;
     $depth = 0;
     $currentId = $commentId;
-    
+
     while ($currentId > 0 && $depth < 10) { // Max 10 iterations to prevent infinite loop
         $stmt = $pdo->prepare("SELECT reply_comment FROM comment WHERE comment_id = :comment_id");
         $stmt->execute(['comment_id' => $currentId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$result || $result['reply_comment'] == 0) {
             break;
         }
-        
+
         $currentId = $result['reply_comment'];
         $depth++;
     }
-    
+
     return $depth;
 }
 
@@ -296,13 +296,13 @@ function getCommentsByContent($contentId)
     ");
     $stmt->execute(['content_id' => $contentId]);
     $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Add default avatar to all comments
     foreach ($comments as &$comment) {
         $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
     }
     unset($comment);
-    
+
     return $comments;
 }
 
@@ -314,7 +314,7 @@ function getCommentsByContent($contentId)
 function getCommentsHierarchical($contentId)
 {
     global $pdo;
-    
+
     // Get all comments for this content with user role and phase info
     $stmt = $pdo->prepare("
         SELECT c.*, u.fullname, u.email, u.role,
@@ -329,7 +329,7 @@ function getCommentsHierarchical($contentId)
     ");
     $stmt->execute(['content_id' => $contentId]);
     $allComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Add default avatar and depth to all comments
     foreach ($allComments as &$comment) {
         $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
@@ -338,16 +338,16 @@ function getCommentsHierarchical($contentId)
         $comment['phase_label'] = $comment['m_phase_name'] ?? 'Không rõ';
     }
     unset($comment);
-    
+
     // Organize into parent and child structure
     $organized = [];
     $commentMap = [];
-    
+
     foreach ($allComments as $comment) {
         $comment['replies'] = [];
         $commentMap[$comment['comment_id']] = $comment;
     }
-    
+
     foreach ($commentMap as $commentId => $comment) {
         if ($comment['reply_comment'] == 0 || $comment['reply_comment'] == null) {
             // Top level comment
@@ -359,7 +359,7 @@ function getCommentsHierarchical($contentId)
             }
         }
     }
-    
+
     return $organized;
 }
 
@@ -372,33 +372,33 @@ function getCommentsHierarchical($contentId)
 function deleteComment($commentId, $userId)
 {
     global $pdo;
-    
+
     // Check if user owns the comment or is teacher
     $stmt = $pdo->prepare("
         SELECT user_id FROM comment WHERE comment_id = :comment_id
     ");
     $stmt->execute(['comment_id' => $commentId]);
     $comment = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$comment) {
         return false;
     }
-    
+
     // Check permission
     $isOwner = ($comment['user_id'] == $userId);
     $isTeacher = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher';
-    
+
     if (!$isOwner && !$isTeacher) {
         return false;
     }
-    
+
     // Delete the comment and its replies
     $stmt = $pdo->prepare("
         DELETE FROM comment 
         WHERE comment_id = :comment_id OR reply_comment = :comment_id
     ");
     $stmt->execute(['comment_id' => $commentId]);
-    
+
     return true;
 }
 

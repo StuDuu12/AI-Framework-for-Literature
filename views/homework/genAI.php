@@ -521,7 +521,7 @@
             analyzeButton.classList.add('hidden');
             resetButton.classList.remove('hidden');
             resetButton.removeAttribute('disabled'); // Enable reset button
-            
+
             // Show "Go to Comment" button
             if (currentResponseId) {
                 const commentBtnHTML = `
@@ -533,7 +533,7 @@
                         Chuyển sang Bình luận
                     </a>
                 `;
-                
+
                 // Insert before reset button
                 if (!document.getElementById('go-comment-btn')) {
                     const commentBtn = document.createElement('div');
@@ -573,7 +573,7 @@
                 alert('Giai đoạn này không cho phép làm lại. Bạn chỉ có thể phân tích 1 lần duy nhất.');
                 return;
             }
-            
+
             if (!confirm('Bạn có chắc chắn muốn làm lại? Tất cả dữ liệu phân tích sẽ bị mất.')) {
                 return;
             }
