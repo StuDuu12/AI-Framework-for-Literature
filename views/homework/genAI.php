@@ -104,6 +104,43 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
+    <style>
+        /* Image Block Styles - từ v4.html */
+        .content-image-wrapper {
+            margin: 1.5rem 0;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            padding: 0;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .content-image-wrapper:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
+        }
+        .content-image-wrapper.selected {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 4px rgba(79, 70, 229, 0.6);
+            transform: translateY(-2px);
+            background-color: #f9fafb;
+        }
+        .content-image-wrapper img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0;
+            box-shadow: none;
+            pointer-events: none;
+            display: block;
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
@@ -352,7 +389,7 @@
         let currentResponseId = <?php echo isset($id_response) ? $id_response : 'null'; ?>; // Track current response ID for chat threading
 
         // Initialize: Load file content if available
-        window.addEventListener('DOMContentLoaded', function () {
+        window.addEventListener('DOMContentLoaded', function() {
             if (FILE_CONTENT) {
                 textInput.value = FILE_CONTENT;
 
@@ -388,14 +425,17 @@
                 switchToChatMode();
 
                 // Initialize conversation history with the existing analysis
-                conversationHistory = [
-                    {
+                conversationHistory = [{
                         role: 'user',
-                        parts: [{ text: `Phân tích văn bản sau:\n\n${FILE_CONTENT || textInput.value.trim()}` }]
+                        parts: [{
+                            text: `Phân tích văn bản sau:\n\n${FILE_CONTENT || textInput.value.trim()}`
+                        }]
                     },
                     {
                         role: 'model',
-                        parts: [{ text: JSON.stringify(currentAnalysisData) }]
+                        parts: [{
+                            text: JSON.stringify(currentAnalysisData)
+                        }]
                     }
                 ];
 
@@ -525,7 +565,7 @@
             // Show "Go to Comment" button
             if (currentResponseId) {
                 const commentBtnHTML = `
-                    <a href="/class/homework/comment?response_id=${currentResponseId}" 
+                    <a href="/class/homework/comment?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>" 
                        class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition inline-flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
@@ -609,12 +649,6 @@
             chatButton.classList.add('hidden');
             chatButton.setAttribute('disabled', true); // Re-disable chat button
 
-            // Hide and disable tabs
-            tabSlideshow.classList.add('hidden');
-            tabSlideshow.setAttribute('disabled', true);
-            tabQuiz.classList.add('hidden');
-            tabQuiz.setAttribute('disabled', true);
-
             // Hide chat section
             chatSection.classList.add('hidden');
 
@@ -650,7 +684,9 @@
             // Add user message to conversation history
             conversationHistory.push({
                 role: 'user',
-                parts: [{ text: userMessage }]
+                parts: [{
+                    text: userMessage
+                }]
             });
 
             try {
@@ -682,7 +718,9 @@
                     // Add to conversation history
                     conversationHistory.push({
                         role: 'model',
-                        parts: [{ text: result.answer }]
+                        parts: [{
+                            text: result.answer
+                        }]
                     });
 
                     // Append to analysis display
@@ -694,7 +732,10 @@
                         `**Câu hỏi:** ${userMessage}`,
                         `**Trả lời:** ${result.answer}`
                     ];
-                    await saveAnalysisResult('chat', { question: userMessage, answer: result.answer }, chatContent);
+                    await saveAnalysisResult('chat', {
+                        question: userMessage,
+                        answer: result.answer
+                    }, chatContent);
                 } else {
                     addChatMessage('system', '⚠️ Không nhận được phản hồi từ AI. Vui lòng thử lại.');
                 }
@@ -741,7 +782,10 @@
             analysisContent.appendChild(qaSection);
 
             // Scroll to the new section
-            qaSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            qaSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
 
         function handleTabClick(e) {
@@ -1154,6 +1198,354 @@
             return content;
         }
 
+        // === TEXT TO IMAGE CONVERSION (từ v4.html) ===
+        async function textToImage(text, width = 800, options = {}) {
+            const {
+                fontSize = 16,
+                fontFamily = 'Inter, sans-serif',
+                lineHeight = 1.7,
+                padding = 30,
+                backgroundColor = '#ffffff',
+                textColor = '#334155',
+                maxWidth = width - padding * 2,
+            } = options;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const parseInlineFormatting = (line) => {
+                const segments = [];
+                let remainingText = line;
+                let match;
+                const regex = /(\*|_)(.*?)\1/g;
+                let lastIndex = 0;
+
+                while ((match = regex.exec(remainingText)) !== null) {
+                    if (match.index > lastIndex) {
+                        segments.push({ text: remainingText.substring(lastIndex, match.index), style: {} });
+                    }
+                    const style = {};
+                    if (match[1] === '*') style.bold = true;
+                    if (match[1] === '_') style.italic = true;
+                    segments.push({ text: match[2], style: style });
+                    lastIndex = regex.lastIndex;
+                }
+
+                if (lastIndex < remainingText.length) {
+                    segments.push({ text: remainingText.substring(lastIndex), style: {} });
+                }
+
+                if (segments.length === 0 && line) {
+                    segments.push({ text: line, style: {} });
+                }
+
+                return segments;
+            };
+
+            const applyStyle = (style) => {
+                let fontStyle = '';
+                if (style.italic) fontStyle += 'italic ';
+                if (style.bold) fontStyle += 'bold ';
+                return `${fontStyle} ${fontSize}px ${fontFamily}`;
+            };
+
+            const paragraphs = text.split('\n\n');
+            const lines = [];
+
+            paragraphs.forEach((paragraph) => {
+                paragraph.split('\n').forEach((rawLine) => {
+                    if (rawLine.trim() === '') {
+                        lines.push({ segments: [], height: lineHeight * fontSize * 0.5 });
+                        return;
+                    }
+
+                    const parsedSegments = parseInlineFormatting(rawLine);
+                    let currentLineSegments = [];
+                    let currentLineWidth = 0;
+
+                    parsedSegments.forEach((segment) => {
+                        ctx.font = applyStyle(segment.style);
+                        const words = segment.text.split(/(\s+)/).filter(Boolean);
+
+                        words.forEach((word) => {
+                            const wordWidth = ctx.measureText(word).width;
+
+                            if (currentLineWidth + wordWidth > maxWidth && currentLineSegments.length > 0 && !/^\s+$/.test(word)) {
+                                lines.push({ segments: [...currentLineSegments], height: lineHeight * fontSize });
+                                const startingWord = /^\s+$/.test(word) ? '' : word.trimStart();
+                                currentLineSegments = [{ text: startingWord, style: segment.style }];
+                                currentLineWidth = startingWord ? ctx.measureText(startingWord).width : 0;
+                            } else {
+                                if (currentLineSegments.length === 0 && /^\s+$/.test(word)) return;
+                                currentLineSegments.push({ text: word, style: segment.style });
+                                currentLineWidth += wordWidth;
+                            }
+                        });
+                    });
+
+                    if (currentLineSegments.length > 0) {
+                        lines.push({ segments: [...currentLineSegments], height: lineHeight * fontSize });
+                    }
+                });
+                lines.push({ segments: [], height: lineHeight * fontSize * 0.7 });
+            });
+
+            if (lines.length > 0 && lines[lines.length - 1].segments.length === 0) lines.pop();
+
+            const totalHeight = lines.reduce((sum, line) => sum + line.height, 0) + padding * 2;
+            canvas.width = width;
+            canvas.height = Math.max(totalHeight, 50);
+
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.textBaseline = 'top';
+
+            let currentY = padding;
+            lines.forEach((line) => {
+                let currentX = padding;
+                line.segments.forEach((segment) => {
+                    ctx.font = applyStyle(segment.style);
+                    ctx.fillStyle = textColor;
+                    ctx.fillText(segment.text, currentX, currentY);
+                    currentX += ctx.measureText(segment.text).width;
+                });
+                currentY += line.height;
+            });
+
+            return canvas.toDataURL('image/png');
+        }
+
+        // === FORMATTING FUNCTIONS FOR IMAGE GENERATION ===
+        const formatForImage = (content) =>
+            content
+                ? String(content)
+                      .replace(/<br\s*\/?>/gi, '\n')
+                      .replace(/<\/?i>/gi, '_')
+                      .replace(/<\/?em>/gi, '_')
+                      .replace(/<\/?strong>/gi, '*')
+                      .replace(/<\/?b>/gi, '*')
+                : '';
+
+        function formatGeneralAnalysisForImage(data) {
+            let text = '';
+            
+            // Thematic Analysis
+            if (data.thematicAnalysis && data.thematicAnalysis.length > 0) {
+                data.thematicAnalysis.forEach(section => {
+                    text += `*${section.heading}*\n${formatForImage(section.content)}\n\n`;
+                });
+            }
+            
+            // Linguistic Insights
+            if (data.linguisticInsights) {
+                const insights = data.linguisticInsights;
+                if (insights.motifs?.length) {
+                    text += `*Mô-típ lặp lại:*\n${insights.motifs.map(i => `• ${formatForImage(i)}`).join('\n')}\n\n`;
+                }
+                if (insights.symbolsAndMetaphors?.length) {
+                    text += `*Biểu tượng & Ẩn dụ:*\n${insights.symbolsAndMetaphors.map(i => `• ${formatForImage(i)}`).join('\n')}\n\n`;
+                }
+                if (insights.temporalElements) {
+                    text += `*Yếu tố Thời gian:*\n${formatForImage(insights.temporalElements)}\n\n`;
+                }
+                if (insights.natureAndScenery) {
+                    text += `*Thiên nhiên & Phong cảnh:*\n${formatForImage(insights.natureAndScenery)}`;
+                }
+            }
+            
+            return text.trim();
+        }
+
+        function formatStoryAnalysisForImage(data) {
+            const order = ['character', 'space', 'time', 'dialogue', 'narrator', 'situation', 'prominentDetails'];
+            const titles = {
+                character: 'Nhân vật',
+                space: 'Không gian',
+                time: 'Thời gian',
+                dialogue: 'Lời thoại & Độc thoại nội tâm',
+                narrator: 'Người kể chuyện',
+                situation: 'Tình huống truyện',
+                prominentDetails: 'Chi tiết nổi bật'
+            };
+            
+            return order
+                .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
+                .filter(Boolean)
+                .join('\n\n');
+        }
+
+        function formatDramaAnalysisForImage(data) {
+            const order = ['characters', 'conflict', 'action', 'structure', 'dialogue'];
+            const titles = {
+                characters: 'Nhân vật',
+                conflict: 'Xung đột',
+                action: 'Hành động',
+                structure: 'Cấu trúc',
+                dialogue: 'Đối thoại'
+            };
+            
+            return order
+                .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
+                .filter(Boolean)
+                .join('\n\n');
+        }
+
+        function formatPoetryAnalysisForImage(data) {
+            const order = ['rhyming', 'rhythm', 'structure', 'imagery', 'emotionalFlow', 'rhetoricalDevices', 'spaceTimeOrganization'];
+            const titles = {
+                rhyming: 'Gieo vần trong thơ',
+                rhythm: 'Phân tích Nhịp điệu',
+                structure: 'Cấu trúc bài thơ',
+                imagery: 'Hình ảnh trong thơ',
+                emotionalFlow: 'Mạch cảm xúc',
+                rhetoricalDevices: 'Biện pháp tu từ',
+                spaceTimeOrganization: 'Tổ chức không gian & thời gian'
+            };
+            
+            return order
+                .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
+                .filter(Boolean)
+                .join('\n\n');
+        }
+
+        function formatConclusionForImage(data) {
+            let text = '';
+            if (data.lesson) text += `*Bài học:*\n${formatForImage(data.lesson)}\n\n`;
+            if (data.message) text += `*Thông điệp:*\n${formatForImage(data.message)}`;
+            return text.trim();
+        }
+
+        function formatIntertextualityForImage(data) {
+            let text = '';
+            if (data.initialAnalysis) text += `${formatForImage(data.initialAnalysis)}\n\n`;
+            if (data.comparativeText) {
+                text += `*So sánh với:*\n_${data.comparativeText.title || ''}_ - ${data.comparativeText.author || ''}\n\n`;
+            }
+            if (data.comparison) {
+                if (data.comparison.similarities) text += `*Điểm tương đồng:*\n${formatForImage(data.comparison.similarities)}\n\n`;
+                if (data.comparison.differences) text += `*Điểm khác biệt:*\n${formatForImage(data.comparison.differences)}\n\n`;
+                if (data.comparison.effects) text += `*Hiệu quả:*\n${formatForImage(data.comparison.effects)}`;
+            }
+            return text.trim();
+        }
+
+        // === CREATE IMAGE BLOCK HTML ===
+        function createImageBlock(imageData, sectionName) {
+            return `
+                <div class="content-image-wrapper" data-section="${sectionName}">
+                    <img src="${imageData}" alt="${sectionName} Analysis Image">
+                </div>
+            `;
+        }
+
+        // === GENERATE AND INSERT IMAGE BLOCKS ===
+        async function generateContentImages(result) {
+            const sectionsToImage = [
+                {
+                    id: 'general-images',
+                    title: 'Phân tích Chung',
+                    data: result.generalAnalysis,
+                    formatFunc: formatGeneralAnalysisForImage,
+                    bgColor: '#f9fafb',
+                    textColor: '#1f2937',
+                },
+                {
+                    id: 'story-images',
+                    title: 'Phân tích Truyện',
+                    data: result.storyAnalysis,
+                    formatFunc: formatStoryAnalysisForImage,
+                    bgColor: '#f0f9ff',
+                    textColor: '#1e40af',
+                },
+                {
+                    id: 'drama-images',
+                    title: 'Phân tích Kịch',
+                    data: result.dramaAnalysis,
+                    formatFunc: formatDramaAnalysisForImage,
+                    bgColor: '#fef3c7',
+                    textColor: '#92400e',
+                },
+                {
+                    id: 'poetry-images',
+                    title: 'Phân tích Thơ ca',
+                    data: result.poetryAnalysis,
+                    formatFunc: formatPoetryAnalysisForImage,
+                    bgColor: '#fce7f3',
+                    textColor: '#831843',
+                },
+                {
+                    id: 'conclusion-images',
+                    title: 'Bài học & Thông điệp',
+                    data: result.concludingThoughts,
+                    formatFunc: formatConclusionForImage,
+                    bgColor: '#dcfce7',
+                    textColor: '#14532d',
+                },
+                {
+                    id: 'intertextuality-images',
+                    title: 'Phân tích Liên văn bản',
+                    data: result.intertextuality,
+                    formatFunc: formatIntertextualityForImage,
+                    bgColor: '#ede9fe',
+                    textColor: '#4c1d95',
+                },
+            ];
+
+            const imagePromises = [];
+
+            sectionsToImage.forEach((section) => {
+                const container = document.getElementById(section.id);
+                if (container && section.data) {
+                    const textContent = section.formatFunc(section.data);
+                    if (textContent) {
+                        const promise = textToImage(textContent, 750, {
+                            fontSize: 15,
+                            lineHeight: 1.7,
+                            backgroundColor: section.bgColor,
+                            textColor: section.textColor,
+                            padding: 25,
+                        })
+                            .then((imageData) => {
+                                if (imageData) {
+                                    container.innerHTML = createImageBlock(imageData, section.title);
+                                } else {
+                                    console.warn(`Cannot create image for section: ${section.title}`);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error(`Error creating image for ${section.title}:`, error);
+                            });
+                        imagePromises.push(promise);
+                    }
+                }
+            });
+
+            try {
+                await Promise.all(imagePromises);
+                console.log('✅ All analysis images generated and displayed');
+                setupImageBlockHandlers();
+            } catch (error) {
+                console.error('Error during image generation/display:', error);
+            }
+        }
+
+        // === IMAGE BLOCK INTERACTION ===
+        let selectedBlock = null;
+        function setupImageBlockHandlers() {
+            const wrappers = document.querySelectorAll('.content-image-wrapper');
+            wrappers.forEach((wrapper) => {
+                const section = wrapper.dataset.section || 'Unknown';
+                wrapper.addEventListener('click', function (e) {
+                    if (selectedBlock && selectedBlock !== this) {
+                        selectedBlock.classList.remove('selected');
+                    }
+                    this.classList.toggle('selected');
+                    selectedBlock = this.classList.contains('selected') ? this : null;
+                    console.log(selectedBlock ? `📌 Selected Image: "${section}"` : `⚪ Deselected Image: "${section}"`);
+                });
+            });
+        }
+
         // --- Display Functions ---
         function displayAnalysis(result) {
             // console.log(result);
@@ -1163,26 +1555,6 @@
             // Create main analysis content
             let html = `<div id="analysis-content">`;
             html += `<h1>${result.title || 'Không có tiêu đề'}</h1>`;
-
-            const formatDetailedAnalysis = (text) => {
-                if (!text) return '';
-                // Split by the bold title pattern, keeping the delimiter
-                const parts = text.split(/(\*\*(?:.*?):\*\*)/g).filter(part => part.trim() !== '');
-                let formattedHtml = '';
-                for (let i = 0; i < parts.length; i += 2) {
-                    const title = parts[i] ? parts[i].replace(/\*\*/g, '') : '';
-                    // Remove leading newline and bullet, then format newlines
-                    const content = parts[i + 1] ? parts[i + 1].replace(/^\s*\\n\s*•?\s*/, '').replace(/\\n/g, '<br>') : '';
-                    if (title) {
-                        formattedHtml += `<div class="analysis-point"><strong>${title}</strong><span>${content}</span></div>`;
-                    } else if (content) {
-                        formattedHtml += `<p>${content.replace(/\\n/g, '<br>')}</p>`; // Fallback for content without title
-                    }
-                }
-                // Remove initial <br> if it exists after processing
-                return formattedHtml.replace(/^<br>/, '');
-            };
-
 
             html += `<h2>Đặc điểm văn bản</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.characteristics) {
@@ -1208,108 +1580,30 @@
                 html += `</div>`;
             }
 
-            // --- General Analysis Section ---
+            // --- Image Block Containers ---
             if (result.generalAnalysis) {
-                html += `<h2>Phân tích Chung</h2>`;
-                const ga = result.generalAnalysis;
-
-                // Thematic Analysis within General Analysis
-                if (ga.thematicAnalysis) {
-                    ga.thematicAnalysis.forEach(section => {
-                        html += `<h3>${section.heading}</h3><p>${section.content}</p>`;
-                    });
-                }
-
-                // Linguistic Insights within General Analysis
-                if (ga.linguisticInsights) {
-                    html += `<h3>Ngôn ngữ & Biểu tượng</h3>`; // Sub-heading for linguistic insights
-                    const insights = ga.linguisticInsights;
-                    html += `<ul>`; // Start bullet list for insights
-                    if (insights.motifs?.length > 0) {
-                        html += `<li><strong>Mô-típ lặp lại:</strong><ul>`; // Nested list for motifs
-                        insights.motifs.forEach(item => {
-                            html += `<li>${item}</li>`;
-                        });
-                        html += `</ul></li>`;
-                    }
-                    if (insights.symbolsAndMetaphors?.length > 0) {
-                        html += `<li><strong>Biểu tượng & Ẩn dụ:</strong><ul>`; // Nested list for symbols
-                        insights.symbolsAndMetaphors.forEach(item => {
-                            html += `<li>${item}</li>`;
-                        });
-                        html += `</ul></li>`;
-                    }
-                    if (insights.temporalElements) {
-                        html += `<li><strong>Yếu tố Thời gian:</strong> ${insights.temporalElements}</li>`;
-                    }
-                    if (insights.natureAndScenery) {
-                        html += `<li><strong>Thiên nhiên & Phong cảnh:</strong> ${insights.natureAndScenery}</li>`;
-                    }
-                    html += `</ul>`; // End bullet list for insights
-                }
+                html += `<h2>Phân tích Chung</h2><div id="general-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
 
-
-            // --- Genre-Specific Analysis ---
             if (result.storyAnalysis) {
-                html += `<h2>Phân tích Truyện</h2>`;
-                const sa = result.storyAnalysis;
-                if (sa.character) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
-                if (sa.space) html += `<h3>Không gian</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
-                if (sa.time) html += `<h3>Thời gian</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
-                if (sa.dialogue) html += `<h3>Lời thoại & Độc thoại nội tâm</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
-                if (sa.narrator) html += `<h3>Người kể chuyện</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
-                if (sa.situation) html += `<h3>Tình huống truyện</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
-                if (sa.prominentDetails) html += `<h3>Chi tiết nổi bật</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
+                html += `<h2>Phân tích Truyện</h2><div id="story-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
 
             if (result.dramaAnalysis) {
-                html += `<h2>Phân tích Kịch</h2>`;
-                const da = result.dramaAnalysis;
-                if (da.characters) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
-                if (da.conflict) html += `<h3>Xung đột</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
-                if (da.action) html += `<h3>Hành động</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
-                if (da.structure) html += `<h3>Cấu trúc</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
-                if (da.dialogue) html += `<h3>Đối thoại</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
+                html += `<h2>Phân tích Kịch</h2><div id="drama-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
 
             if (result.poetryAnalysis) {
-                html += `<h2>Phân tích Thơ ca</h2>`;
-                const pa = result.poetryAnalysis;
-                if (pa.rhyming) html += `<h3>Gieo vần trong thơ</h3><p>${pa.rhyming}</p>`;
-                if (pa.emotionalFlow) html += `<h3>Mạch cảm xúc</h3><p>${pa.emotionalFlow}</p>`;
-                if (pa.structure) html += `<h3>Cấu trúc bài thơ</h3><p>${pa.structure}</p>`;
-                if (pa.imagery) html += `<h3>Hình ảnh trong thơ</h3><p>${pa.imagery}</p>`;
-                if (pa.rhythm) html += `<h3>Phân tích Nhịp điệu</h3><p>${pa.rhythm.replace(/\n/g, '<br>')}</p>`;
-                if (pa.spaceTimeOrganization) html += `<h3>Tổ chức không gian & thời gian</h3><p>${pa.spaceTimeOrganization}</p>`;
-                if (pa.rhetoricalDevices) html += `<h3>Biện pháp tu từ</h3><p>${pa.rhetoricalDevices}</p>`;
+                html += `<h2>Phân tích Thơ ca</h2><div id="poetry-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
 
-            // --- Concluding Sections ---
             if (result.concludingThoughts) {
-                html += `<h2>Bài học & Thông điệp</h2>`;
-                const ct = result.concludingThoughts;
-                if (ct.lesson) html += `<h3>Bài học</h3><p>${ct.lesson}</p>`;
-                if (ct.message) html += `<h3>Thông điệp</h3><p>${ct.message}</p>`;
+                html += `<h2>Bài học & Thông điệp</h2><div id="conclusion-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
 
             if (result.intertextuality) {
-                html += `<h2>Phân tích Liên văn bản</h2>`;
-                const it = result.intertextuality;
-                if (it.initialAnalysis) {
-                    html += `<p>${it.initialAnalysis}</p>`;
-                }
-                if (it.comparativeText) {
-                    html += `<h3>So sánh với tác phẩm tương đồng: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
-                }
-                if (it.comparison) {
-                    if (it.comparison.similarities) html += `<h4>Điểm tương đồng</h4><p>${it.comparison.similarities}</p>`;
-                    if (it.comparison.differences) html += `<h4>Điểm khác biệt/thay đổi</h4><p>${it.comparison.differences}</p>`;
-                    if (it.comparison.effects) html += `<h4>Hiệu quả</h4><p>${it.comparison.effects}</p>`;
-                }
+                html += `<h2>Phân tích Liên văn bản</h2><div id="intertextuality-images" class="mb-6"><div class="text-center py-4 text-slate-400"><svg class="animate-spin h-8 w-8 mx-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><p class="mt-2">Đang tạo hình ảnh...</p></div></div>`;
             }
-
-            html += `</div>`; // Close analysis-content
 
             html += `</div>`; // Close analysis-content
 
@@ -1322,16 +1616,22 @@
             tabQuiz.removeAttribute('disabled');
 
             // Initialize conversation history with initial analysis
-            conversationHistory = [
-                {
+            conversationHistory = [{
                     role: 'user',
-                    parts: [{ text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}` }]
+                    parts: [{
+                        text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}`
+                    }]
                 },
                 {
                     role: 'model',
-                    parts: [{ text: JSON.stringify(result) }]
+                    parts: [{
+                        text: JSON.stringify(result)
+                    }]
                 }
             ];
+
+            // Generate images asynchronously
+            generateContentImages(result);
         }
 
         function displaySlideshow(slideshowResult) {

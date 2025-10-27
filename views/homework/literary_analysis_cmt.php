@@ -604,22 +604,6 @@
             });
         }
 
-        function setupGeneratorTabs() {
-            contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Trình chiếu</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bản trình bày dựa trên kết quả phân tích.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Trình chiếu</button>
-            </div>`;
-            contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Bài kiểm tra</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bài kiểm tra ngắn dựa trên nội dung văn bản.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Câu hỏi</button>
-            </div>`;
-
-            document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
-            document.getElementById('generate-quiz-button').addEventListener('click', handleGenerateQuiz);
-        }
-
         // --- API & Analysis Functions ---
 
         /**

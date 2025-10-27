@@ -20,7 +20,7 @@ if (!defined('AUTH_PASSED')) {
 // This function now accepts a $contents array for chat-style requests.
 function callGeminiApi($systemPrompt, $contents, $schema)
 {
-    $apiKey = "AIzaSyBBPzAU_iuvVsHjZw7sdFhKUakA4HiAL3I"; // This is handled by the execution environment.
+    $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs"; // This is handled by the execution environment.
     $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
 
     $payload = [

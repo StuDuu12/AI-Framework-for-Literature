@@ -175,18 +175,11 @@
                                     <button id="tab-analysis"
                                         class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Phân
                                         tích Chi tiết</button>
-                                    <button id="tab-slideshow" disabled
-                                        class="hidden tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed">Trình
-                                        chiếu</button>
-                                    <button id="tab-quiz" disabled
-                                        class="hidden tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed">Kiểm
-                                        tra</button>
+
                                 </nav>
                             </div>
                             <div class="flex-grow overflow-auto p-8">
                                 <div id="content-analysis" class="tab-content prose-custom max-w-none"></div>
-                                <div id="content-slideshow" class="tab-content hidden h-full"></div>
-                                <div id="content-quiz" class="tab-content hidden"></div>
                             </div>
                         </div>
                     </div>
@@ -217,19 +210,15 @@
             placeholder = document.getElementById('placeholder'),
             resultsTabs = document.getElementById('results-tabs'),
             tabAnalysis = document.getElementById('tab-analysis'),
-            tabSlideshow = document.getElementById('tab-slideshow'),
-            tabQuiz = document.getElementById('tab-quiz'),
             contentAnalysis = document.getElementById('content-analysis'),
-            contentSlideshow = document.getElementById('content-slideshow'),
-            contentQuiz = document.getElementById('content-quiz'),
             fileInfo = document.getElementById('file-info'),
             deleteFileButton = document.getElementById('delete-file-button'),
             chatMessages = document.getElementById('chat-messages'),
             chatSection = document.getElementById('chat-section'),
             analysisInputSection = document.getElementById('analysis-input-section');
 
-        const tabs = [tabAnalysis, tabSlideshow, tabQuiz];
-        const contents = [contentAnalysis, contentSlideshow, contentQuiz];
+        const tabs = [tabAnalysis];
+        const contents = [contentAnalysis];
 
         // State
         let currentAnalysisData = null;
@@ -367,12 +356,6 @@
             chatButton.classList.add('hidden');
             chatButton.setAttribute('disabled', true); // Re-disable chat button
 
-            // Hide and disable tabs
-            tabSlideshow.classList.add('hidden');
-            tabSlideshow.setAttribute('disabled', true);
-            tabQuiz.classList.add('hidden');
-            tabQuiz.setAttribute('disabled', true);
-
             // Hide chat section
             chatSection.classList.add('hidden');
 
@@ -408,7 +391,9 @@
             // Add user message to conversation history
             conversationHistory.push({
                 role: 'user',
-                parts: [{ text: userMessage }]
+                parts: [{
+                    text: userMessage
+                }]
             });
 
             try {
@@ -438,7 +423,9 @@
                 // Add model response to conversation history
                 conversationHistory.push({
                     role: 'model',
-                    parts: [{ text: responseText }]
+                    parts: [{
+                        text: responseText
+                    }]
                 });
 
                 // Update the analysis display with new information
@@ -486,7 +473,10 @@
             analysisContent.appendChild(qaSection);
 
             // Scroll to the new section
-            qaSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            qaSection.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
 
         function handleTabClick(e) {
@@ -500,48 +490,6 @@
             switchTab(targetTab);
         }
 
-        async function handleGenerateSlideshow() {
-            // Security check: Prevent unauthorized slideshow generation
-            if (!isAnalyzed || !currentAnalysisData) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
-                return;
-            }
-
-            const btn = document.getElementById('generate-slideshow-button');
-            const container = btn.parentElement;
-            container.innerHTML = `<div class="loader-container">
-                <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            </div>`;
-
-            // Pass the full analysis context to the backend for summarization
-            const slideshowData = await generateSlideshowContent(JSON.stringify(currentAnalysisData));
-            if (slideshowData) {
-                displaySlideshow(slideshowData);
-            } else {
-                container.innerHTML = `<p class="text-red-500">Không thể tạo trình chiếu. Vui lòng thử lại.</p>`;
-            }
-        }
-
-        async function handleGenerateQuiz() {
-            // Security check: Prevent unauthorized quiz generation
-            if (!isAnalyzed || !currentAnalysisData) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
-                return;
-            }
-
-            const btn = document.getElementById('generate-quiz-button');
-            const container = btn.parentElement;
-            container.innerHTML = `<div class="loader-container">
-                <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            </div>`;
-            const quizData = await generateQuizContent(JSON.stringify(currentAnalysisData));
-            if (quizData) {
-                currentAnalysisData.quiz = quizData.quiz; // Merge quiz data
-                displayQuiz(currentAnalysisData);
-            } else {
-                container.innerHTML = `<p class="text-red-500">Không thể tạo câu hỏi. Vui lòng thử lại.</p>`;
-            }
-        }
 
         // --- UI Logic ---
         function setLoadingState(isLoading, mode = 'analyze') {
@@ -640,22 +588,7 @@
             });
         }
 
-        function setupGeneratorTabs() {
-            contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Trình chiếu</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bản trình bày dựa trên kết quả phân tích.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Trình chiếu</button>
-            </div>`;
-            contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Bài kiểm tra</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bài kiểm tra ngắn dựa trên nội dung văn bản.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Câu hỏi</button>
-            </div>`;
-
-            document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
-            document.getElementById('generate-quiz-button').addEventListener('click', handleGenerateQuiz);
-        }
-
+    
         // --- API & Analysis Functions ---
 
         /**
@@ -904,147 +837,20 @@
 
             contentAnalysis.innerHTML = html;
 
-            // Enable and show tab buttons for slideshow and quiz
-            tabSlideshow.classList.remove('hidden');
-            tabSlideshow.removeAttribute('disabled');
-            tabQuiz.classList.remove('hidden');
-            tabQuiz.removeAttribute('disabled');
-
             // Initialize conversation history with initial analysis
-            conversationHistory = [
-                {
+            conversationHistory = [{
                     role: 'user',
-                    parts: [{ text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}` }]
+                    parts: [{
+                        text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}`
+                    }]
                 },
                 {
                     role: 'model',
-                    parts: [{ text: JSON.stringify(result) }]
+                    parts: [{
+                        text: JSON.stringify(result)
+                    }]
                 }
             ];
-        }
-
-        function displaySlideshow(slideshowResult) {
-            if (!slideshowResult || !slideshowResult.slides) return;
-
-            let slideIndex = 0;
-            const slides = slideshowResult.slides || [];
-
-            if (slideshowResult.references) {
-                // Format references for display
-                const formattedReferences = slideshowResult.references.map(ref => {
-                    // Basic heuristic to italicize book/journal titles
-                    return ref.replace(/<i>(.*?)<\/i>/g, '<em>$1</em>'); // Use em for italics in prose context
-                }).join('<br>');
-                slides.push({
-                    heading: 'Tài liệu tham khảo',
-                    content: formattedReferences
-                });
-            }
-
-            let slideHTML = `<div id="slide-wrapper">`;
-            slides.forEach((slide, index) => {
-                slideHTML += `<div class="slide p-6 border border-slate-200 rounded-lg bg-slate-50">
-                    <h3 class="text-xl font-bold mb-4 text-indigo-700">${index + 1}. ${slide.heading}</h3>
-                    <div class="prose max-w-none">${slide.content}</div>
-                </div>`;
-            });
-            slideHTML += `</div>`;
-
-            const totalSlides = slides.length;
-            contentSlideshow.innerHTML = `
-                <div class="mb-4">
-                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Bản trình bày'}</h2>
-                    <p class="text-slate-600">Bản trình bày tóm tắt nội dung phân tích.</p>
-                </div>
-                <div id="slideshow-container" class="bg-white rounded-xl shadow-inner">${slideHTML}</div>
-                <div class="flex items-center justify-between mt-4">
-                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Trước</button>
-                    <span id="slide-counter" class="text-sm font-medium text-slate-600">1 / ${totalSlides}</span>
-                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Sau &rarr;</button>
-                </div>`;
-
-            const slideWrapper = contentSlideshow.querySelector('#slide-wrapper');
-            const prevButton = contentSlideshow.querySelector('#prev-slide');
-            const nextButton = contentSlideshow.querySelector('#next-slide');
-            const slideCounter = contentSlideshow.querySelector('#slide-counter');
-
-            function updateSlides() {
-                if (totalSlides === 0) return;
-                slideWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
-                slideCounter.textContent = `${slideIndex + 1} / ${totalSlides}`;
-                prevButton.disabled = slideIndex === 0;
-                nextButton.disabled = slideIndex === totalSlides - 1;
-            }
-
-            prevButton.addEventListener('click', () => {
-                if (slideIndex > 0) {
-                    slideIndex--;
-                    updateSlides();
-                }
-            });
-            nextButton.addEventListener('click', () => {
-                if (slideIndex < totalSlides - 1) {
-                    slideIndex++;
-                    updateSlides();
-                }
-            });
-
-            updateSlides();
-        }
-
-        function displayQuiz(result) {
-            if (!result || !result.quiz) return;
-            let quizHTML = `
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold">Bài kiểm tra: ${result.title || 'Văn bản'}</h2>
-                    <p class="text-slate-600">Kiểm tra kiến thức của bạn về tác phẩm.</p>
-                </div>
-                <div id="quiz-form" class="space-y-6">`;
-
-            result.quiz.forEach((item, index) => {
-                quizHTML += `<div class="question-block"><p class="font-semibold mb-2">${index + 1}. ${item.q}</p><div class="space-y-2">`;
-                item.o.forEach((option, optionIndex) => {
-                    quizHTML += `<div><label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                                <input type="radio" name="question-${index}" value="${optionIndex}" class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
-                                <span>${option}</span></label></div>`;
-                });
-                quizHTML += `</div></div>`;
-            });
-
-            quizHTML += `</div><div class="mt-8">
-                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Nộp bài</button>
-                <div id="quiz-results" class="mt-4 text-lg font-bold"></div>
-            </div>`;
-            contentQuiz.innerHTML = quizHTML;
-
-            const submitButton = contentQuiz.querySelector('#submit-quiz');
-            const resultsDiv = contentQuiz.querySelector('#quiz-results');
-
-            submitButton.addEventListener('click', () => {
-                let score = 0;
-                result.quiz.forEach((item, index) => {
-                    const selected = contentQuiz.querySelector(`input[name="question-${index}"]:checked`);
-                    const questionBlock = selected?.closest('.question-block');
-                    questionBlock?.querySelectorAll('label').forEach(l => {
-                        l.classList.remove('bg-red-100', 'border-red-400', 'bg-green-100', 'border-green-400');
-                    });
-                    if (selected) {
-                        const selectedLabel = selected.parentElement;
-                        if (parseInt(selected.value) === item.a) {
-                            score++;
-                            selectedLabel.classList.add('bg-green-100', 'border-green-400');
-                        } else {
-                            selectedLabel.classList.add('bg-red-100', 'border-red-400');
-                            const correctLabel = questionBlock.querySelector(`input[value="${item.a}"]`).parentElement;
-                            if (correctLabel) {
-                                correctLabel.classList.add('bg-green-100', 'border-green-400');
-                            }
-                        }
-                    }
-                });
-                resultsDiv.textContent = `Kết quả của bạn: ${score} / ${result.quiz.length}`;
-                resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
-            });
         }
     </script>
 

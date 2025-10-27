@@ -30,14 +30,5 @@
             </a>
         </li>
 
-        <li class="nav-heading">Công cụ</li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=literary_analysis">
-                <i class="bi bi-book"></i>
-                <span>Phân tích Văn học</span>
-            </a>
-        </li>
-
     </ul>
 </aside>
