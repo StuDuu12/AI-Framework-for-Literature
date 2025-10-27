@@ -33,7 +33,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -42,9 +42,39 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php
-    require_once 'views/templates/assets.php';
-    ?>
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- NiceAdmin Assets -->
+    <?php require_once 'views/templates/assets.php'; ?>
+
+    <style>
+        /* Áp dụng toàn bộ trang dùng font Inter */
+        body,
+        html {
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 400;
+        }
+
+        h5,
+        label,
+        button,
+        .form-control,
+        .alert,
+        .small {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        .btn-primary {
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-weight: 600;
+        }
+    </style>
 </head>
 
 <body>
@@ -88,14 +118,12 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
                                                 <span class="input-group-text" id="inputGroupPrepend">@</span>
                                                 <input type="text" name="username" class="form-control" id="username"
                                                     value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
-                                                <div class="invalid-feedback">Vui lòng nhập email!</div>
                                             </div>
                                         </div>
 
                                         <div class="col-12">
                                             <label for="password" class="form-label">Mật khẩu</label>
                                             <input type="password" name="password" class="form-control" id="password" required>
-                                            <div class="invalid-feedback">Vui lòng nhập mật khẩu!</div>
                                         </div>
 
                                         <div class="col-12">
@@ -110,6 +138,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
                                     </form>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -117,7 +146,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         </div>
     </main>
 
-    <?php require_once './views/templates/vendors.php' ?>
+    <?php require_once './views/templates/vendors.php'; ?>
 </body>
 
 </html>

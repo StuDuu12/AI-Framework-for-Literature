@@ -9,6 +9,9 @@ $route = isset($_GET['route']) ? $_GET['route'] : '';
 $route = trim($route, '/');
 
 $routes = [
+    // Default route
+    '' => ['file' => 'views/Landing/landing_page.html', 'title' => 'Trang chủ', 'require_auth' => false],
+    
     'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
     'landing' => ['file' => 'views/Landing/landing_page.html', 'require_auth' => false],
@@ -48,8 +51,6 @@ $routes = [
     '500' => ['file' => 'views/errors/500.php', 'title' => '500 Internal Server Error', 'require_auth' => false],
     '503' => ['file' => 'views/errors/503.php', 'title' => '503 Service Unavailable', 'require_auth' => false],
 
-
-    // '' => ['file' => '', 'require_auth' => false]
 ];
 
 function checkAuth()
