@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once 'config/helper_account.php';
 
 $error = '';
@@ -17,8 +17,8 @@ if (isset($_POST['login'])) {
     } else {
         // Kiểm tra đăng nhập
         if (login($username, $password)) {
-            // Đăng nhập thành công, chuyển hướng đến trang chính
-            header('Location: ' . URL_ROOT . '/');
+            // Đăng nhập thành công, chuyển hướng đến trang dashboard
+            header('Location: ' . URL_ROOT . '/dashboard');
             exit;
         } else {
             $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -27,8 +27,8 @@ if (isset($_POST['login'])) {
 }
 
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
-    // Nếu đã đăng nhập, chuyển hướng đến trang chính
-    header('Location: ' . URL_ROOT . '/');
+    // Nếu đã đăng nhập, chuyển hướng đến trang dashboard
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit;
 }
 ?>

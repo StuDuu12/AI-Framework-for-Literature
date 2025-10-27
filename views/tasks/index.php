@@ -59,7 +59,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="index.php?topic_id=<?= $topicId ?>">Pha học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học tập</a></li>
                     <li class="breadcrumb-item active">Nhiệm vụ - Bước <?= $phase['phase_number'] ?></li>
                 </ol>
             </nav>
@@ -182,9 +182,9 @@
 
     <script>
         // Initialize Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
@@ -239,7 +239,7 @@
 
             // Delete task
             document.querySelectorAll('.delete-task').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const taskId = this.dataset.taskId;
                     const taskTitle = this.dataset.taskTitle;
 

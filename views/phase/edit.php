@@ -65,7 +65,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="index.php?topic_id=<?= $topicId ?>">Pha học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học tập</a></li>
                     <li class="breadcrumb-item active">Chỉnh sửa</li>
                 </ol>
             </nav>
@@ -158,7 +158,7 @@
                                     <button type="submit" class="btn btn-primary" id="submitBtn">
                                         <i class="bi bi-check-circle"></i> Cập nhật
                                     </button>
-                                    <a href="index.php?topic_id=<?= $topicId ?>" class="btn btn-secondary">
+                                    <a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>" class="btn btn-secondary">
                                         <i class="bi bi-x-circle"></i> Hủy
                                     </a>
                                 </div>
@@ -246,7 +246,7 @@
     ?>
 
     <script>
-        (function () {
+        (function() {
             'use strict';
 
             // Toast utility function
@@ -298,7 +298,7 @@
 
             // Select phase type
             document.querySelectorAll('.phase-type-option').forEach(option => {
-                option.addEventListener('click', function (e) {
+                option.addEventListener('click', function(e) {
                     e.preventDefault();
 
                     const id = this.dataset.id;
@@ -312,7 +312,7 @@
             });
 
             // Form validation
-            document.getElementById('editPhaseForm').addEventListener('submit', async function (e) {
+            document.getElementById('editPhaseForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const startTime = document.getElementById('startTime').value;
