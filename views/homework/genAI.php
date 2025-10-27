@@ -122,15 +122,18 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
+
         .content-image-wrapper:hover {
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(79, 70, 229, 0.4);
             transform: translateY(-2px);
         }
+
         .content-image-wrapper.selected {
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 4px rgba(79, 70, 229, 0.6);
             transform: translateY(-2px);
             background-color: #f9fafb;
         }
+
         .content-image-wrapper img {
             max-width: 100%;
             height: auto;
@@ -1202,12 +1205,12 @@
         async function textToImage(text, width = 800, options = {}) {
             const {
                 fontSize = 16,
-                fontFamily = 'Inter, sans-serif',
-                lineHeight = 1.7,
-                padding = 30,
-                backgroundColor = '#ffffff',
-                textColor = '#334155',
-                maxWidth = width - padding * 2,
+                    fontFamily = 'Inter, sans-serif',
+                    lineHeight = 1.7,
+                    padding = 30,
+                    backgroundColor = '#ffffff',
+                    textColor = '#334155',
+                    maxWidth = width - padding * 2,
             } = options;
 
             const canvas = document.createElement('canvas');
@@ -1222,21 +1225,33 @@
 
                 while ((match = regex.exec(remainingText)) !== null) {
                     if (match.index > lastIndex) {
-                        segments.push({ text: remainingText.substring(lastIndex, match.index), style: {} });
+                        segments.push({
+                            text: remainingText.substring(lastIndex, match.index),
+                            style: {}
+                        });
                     }
                     const style = {};
                     if (match[1] === '*') style.bold = true;
                     if (match[1] === '_') style.italic = true;
-                    segments.push({ text: match[2], style: style });
+                    segments.push({
+                        text: match[2],
+                        style: style
+                    });
                     lastIndex = regex.lastIndex;
                 }
 
                 if (lastIndex < remainingText.length) {
-                    segments.push({ text: remainingText.substring(lastIndex), style: {} });
+                    segments.push({
+                        text: remainingText.substring(lastIndex),
+                        style: {}
+                    });
                 }
 
                 if (segments.length === 0 && line) {
-                    segments.push({ text: line, style: {} });
+                    segments.push({
+                        text: line,
+                        style: {}
+                    });
                 }
 
                 return segments;
@@ -1255,7 +1270,10 @@
             paragraphs.forEach((paragraph) => {
                 paragraph.split('\n').forEach((rawLine) => {
                     if (rawLine.trim() === '') {
-                        lines.push({ segments: [], height: lineHeight * fontSize * 0.5 });
+                        lines.push({
+                            segments: [],
+                            height: lineHeight * fontSize * 0.5
+                        });
                         return;
                     }
 
@@ -1271,23 +1289,38 @@
                             const wordWidth = ctx.measureText(word).width;
 
                             if (currentLineWidth + wordWidth > maxWidth && currentLineSegments.length > 0 && !/^\s+$/.test(word)) {
-                                lines.push({ segments: [...currentLineSegments], height: lineHeight * fontSize });
+                                lines.push({
+                                    segments: [...currentLineSegments],
+                                    height: lineHeight * fontSize
+                                });
                                 const startingWord = /^\s+$/.test(word) ? '' : word.trimStart();
-                                currentLineSegments = [{ text: startingWord, style: segment.style }];
+                                currentLineSegments = [{
+                                    text: startingWord,
+                                    style: segment.style
+                                }];
                                 currentLineWidth = startingWord ? ctx.measureText(startingWord).width : 0;
                             } else {
                                 if (currentLineSegments.length === 0 && /^\s+$/.test(word)) return;
-                                currentLineSegments.push({ text: word, style: segment.style });
+                                currentLineSegments.push({
+                                    text: word,
+                                    style: segment.style
+                                });
                                 currentLineWidth += wordWidth;
                             }
                         });
                     });
 
                     if (currentLineSegments.length > 0) {
-                        lines.push({ segments: [...currentLineSegments], height: lineHeight * fontSize });
+                        lines.push({
+                            segments: [...currentLineSegments],
+                            height: lineHeight * fontSize
+                        });
                     }
                 });
-                lines.push({ segments: [], height: lineHeight * fontSize * 0.7 });
+                lines.push({
+                    segments: [],
+                    height: lineHeight * fontSize * 0.7
+                });
             });
 
             if (lines.length > 0 && lines[lines.length - 1].segments.length === 0) lines.pop();
@@ -1317,25 +1350,25 @@
 
         // === FORMATTING FUNCTIONS FOR IMAGE GENERATION ===
         const formatForImage = (content) =>
-            content
-                ? String(content)
-                      .replace(/<br\s*\/?>/gi, '\n')
-                      .replace(/<\/?i>/gi, '_')
-                      .replace(/<\/?em>/gi, '_')
-                      .replace(/<\/?strong>/gi, '*')
-                      .replace(/<\/?b>/gi, '*')
-                : '';
+            content ?
+            String(content)
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<\/?i>/gi, '_')
+            .replace(/<\/?em>/gi, '_')
+            .replace(/<\/?strong>/gi, '*')
+            .replace(/<\/?b>/gi, '*') :
+            '';
 
         function formatGeneralAnalysisForImage(data) {
             let text = '';
-            
+
             // Thematic Analysis
             if (data.thematicAnalysis && data.thematicAnalysis.length > 0) {
                 data.thematicAnalysis.forEach(section => {
                     text += `*${section.heading}*\n${formatForImage(section.content)}\n\n`;
                 });
             }
-            
+
             // Linguistic Insights
             if (data.linguisticInsights) {
                 const insights = data.linguisticInsights;
@@ -1352,7 +1385,7 @@
                     text += `*Thiên nhiên & Phong cảnh:*\n${formatForImage(insights.natureAndScenery)}`;
                 }
             }
-            
+
             return text.trim();
         }
 
@@ -1367,7 +1400,7 @@
                 situation: 'Tình huống truyện',
                 prominentDetails: 'Chi tiết nổi bật'
             };
-            
+
             return order
                 .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
                 .filter(Boolean)
@@ -1383,7 +1416,7 @@
                 structure: 'Cấu trúc',
                 dialogue: 'Đối thoại'
             };
-            
+
             return order
                 .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
                 .filter(Boolean)
@@ -1401,7 +1434,7 @@
                 rhetoricalDevices: 'Biện pháp tu từ',
                 spaceTimeOrganization: 'Tổ chức không gian & thời gian'
             };
-            
+
             return order
                 .map(key => data[key] ? `*${titles[key]}:*\n${formatForImage(data[key])}` : null)
                 .filter(Boolean)
@@ -1440,8 +1473,7 @@
 
         // === GENERATE AND INSERT IMAGE BLOCKS ===
         async function generateContentImages(result) {
-            const sectionsToImage = [
-                {
+            const sectionsToImage = [{
                     id: 'general-images',
                     title: 'Phân tích Chung',
                     data: result.generalAnalysis,
@@ -1499,12 +1531,12 @@
                     const textContent = section.formatFunc(section.data);
                     if (textContent) {
                         const promise = textToImage(textContent, 750, {
-                            fontSize: 15,
-                            lineHeight: 1.7,
-                            backgroundColor: section.bgColor,
-                            textColor: section.textColor,
-                            padding: 25,
-                        })
+                                fontSize: 15,
+                                lineHeight: 1.7,
+                                backgroundColor: section.bgColor,
+                                textColor: section.textColor,
+                                padding: 25,
+                            })
                             .then((imageData) => {
                                 if (imageData) {
                                     container.innerHTML = createImageBlock(imageData, section.title);
@@ -1531,11 +1563,12 @@
 
         // === IMAGE BLOCK INTERACTION ===
         let selectedBlock = null;
+
         function setupImageBlockHandlers() {
             const wrappers = document.querySelectorAll('.content-image-wrapper');
             wrappers.forEach((wrapper) => {
                 const section = wrapper.dataset.section || 'Unknown';
-                wrapper.addEventListener('click', function (e) {
+                wrapper.addEventListener('click', function(e) {
                     if (selectedBlock && selectedBlock !== this) {
                         selectedBlock.classList.remove('selected');
                     }
