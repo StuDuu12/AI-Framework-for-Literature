@@ -108,8 +108,25 @@
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
-
-                            <a class="btn btn-success" href="/class/homework/analysis_start?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">
+                            <?php
+                            $href = '';
+                            $phaseCode = $phase['phase_code'];
+                            switch ($phaseCode) {
+                                case 'PHASE_START':
+                                    $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
+                                    break;
+                                case 'PHASE_CHUABAI':
+                                    $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
+                                    break;
+                                case 'PHASE_END':
+                                    $href = "/class/homework/end_phase?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
+                                    break;
+                                default:
+                                    $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
+                                    break;
+                            }
+                            ?>
+                            <a class="btn btn-success" href="<?= $href ?>">
                                 <i class="bi bi-check-circle"></i> Bắt đầu làm bài
                             </a>
                             <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"

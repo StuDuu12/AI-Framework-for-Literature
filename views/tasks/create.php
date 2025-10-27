@@ -51,6 +51,15 @@
         header('Location: /class');
         exit;
     }
+
+    // Check if this is an evaluation phase
+    $isEvaluationPhase = isEvaluationPhase($phase['phase_code']);
+
+    // Get source tasks if this is an evaluation phase
+    $sourceTasks = [];
+    if ($isEvaluationPhase) {
+        $sourceTasks = getEvaluationSourceTasks($topicId);
+    }
     ?>
 
     <main id="main" class="main">
@@ -94,51 +103,92 @@
                                         placeholder="Nhập mô tả nhiệm vụ (không bắt buộc)..."></textarea>
                                 </div>
 
-                                <!-- Content Type Selection -->
-                                <div class="mb-3">
-                                    <label class="form-label">Nội dung nhiệm vụ</label>
-                                    <div class="btn-group w-100 mb-3" role="group">
-                                        <input type="radio" class="btn-check" name="content_type" id="contentTypeText"
-                                            value="text" checked autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="contentTypeText">
-                                            <i class="bi bi-textarea-t"></i> Nhập văn bản
-                                        </label>
+                                <?php if ($isEvaluationPhase): ?>
+                                    <!-- Evaluation Phase: Select Source Task -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Đánh giá dựa trên nội dung của nhiệm vụ <span
+                                                class="text-danger">*</span></label>
+                                        <?php if (empty($sourceTasks)): ?>
+                                            <div class="alert alert-warning" role="alert">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                Không có nhiệm vụ nào từ pha <strong>Khởi động</strong> hoặc <strong>Bài tập về
+                                                    nhà</strong> để đánh giá.
+                                            </div>
+                                        <?php else: ?>
+                                            <select class="form-select" name="source_task_id" id="sourceTaskSelect" required>
+                                                <option value="">-- Chọn nhiệm vụ cần đánh giá --</option>
+                                                <?php foreach ($sourceTasks as $task): ?>
+                                                    <option value="<?= $task['task_id'] ?>"
+                                                        data-description="<?= htmlspecialchars($task['description']) ?>">
+                                                        [<?= htmlspecialchars($task['phase_name']) ?>]
+                                                        <?= htmlspecialchars($task['title']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle"></i>
+                                                Chọn nhiệm vụ từ pha <strong>Khởi động</strong> hoặc <strong>Bài tập về
+                                                    nhà</strong> để tạo nhiệm vụ đánh giá
+                                            </div>
 
-                                        <input type="radio" class="btn-check" name="content_type" id="contentTypeFile"
-                                            value="file" autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="contentTypeFile">
-                                            <i class="bi bi-file-earmark-arrow-up"></i> Tải file lên
-                                        </label>
-
-                                        <input type="radio" class="btn-check" name="content_type" id="contentTypeNone"
-                                            value="none" autocomplete="off">
-                                        <label class="btn btn-outline-secondary" for="contentTypeNone">
-                                            <i class="bi bi-x-circle"></i> Không có nội dung
-                                        </label>
+                                            <!-- Preview selected task -->
+                                            <!-- <div id="taskPreview" class="mt-3" style="display: none;">
+                                                <div class="card border-info">
+                                                    <div class="card-body">
+                                                        <h6 class="card-subtitle mb-2 text-muted">Mô tả nhiệm vụ được chọn:</h6>
+                                                        <p class="card-text" id="taskPreviewText"></p>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                        <?php endif; ?>
                                     </div>
+                                <?php else: ?>
+                                    <!-- Regular Phase: Content Input -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Nội dung nhiệm vụ</label>
+                                        <div class="btn-group w-100 mb-3" role="group">
+                                            <input type="radio" class="btn-check" name="content_type" id="contentTypeText"
+                                                value="text" checked autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="contentTypeText">
+                                                <i class="bi bi-textarea-t"></i> Nhập văn bản
+                                            </label>
 
-                                    <!-- Text Content Area -->
-                                    <div id="textContentArea">
-                                        <label class="form-label">Nhập nội dung văn bản</label>
-                                        <textarea class="form-control" id="contentText" name="content_text" rows="8"
-                                            placeholder="Paste nội dung vào đây..."></textarea>
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle"></i>
-                                            Bạn có thể paste nội dung trực tiếp vào đây
+                                            <input type="radio" class="btn-check" name="content_type" id="contentTypeFile"
+                                                value="file" autocomplete="off">
+                                            <label class="btn btn-outline-primary" for="contentTypeFile">
+                                                <i class="bi bi-file-earmark-arrow-up"></i> Tải file lên
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="content_type" id="contentTypeNone"
+                                                value="none" autocomplete="off">
+                                            <label class="btn btn-outline-secondary" for="contentTypeNone">
+                                                <i class="bi bi-x-circle"></i> Không có nội dung
+                                            </label>
+                                        </div>
+
+                                        <!-- Text Content Area -->
+                                        <div id="textContentArea">
+                                            <label class="form-label">Nhập nội dung văn bản</label>
+                                            <textarea class="form-control" id="contentText" name="content_text" rows="8"
+                                                placeholder="Paste nội dung vào đây..."></textarea>
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle"></i>
+                                                Bạn có thể paste nội dung trực tiếp vào đây
+                                            </div>
+                                        </div>
+
+                                        <!-- File Upload Area -->
+                                        <div id="fileContentArea" style="display: none;">
+                                            <label class="form-label">Tải file lên (chỉ chấp nhận .txt)</label>
+                                            <input class="form-control" type="file" id="contentFile" name="content_file"
+                                                accept=".txt">
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle"></i>
+                                                Chỉ chấp nhận file .txt
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <!-- File Upload Area -->
-                                    <div id="fileContentArea" style="display: none;">
-                                        <label class="form-label">Tải file lên (chỉ chấp nhận .txt)</label>
-                                        <input class="form-control" type="file" id="contentFile" name="content_file"
-                                            accept=".txt">
-                                        <div class="form-text">
-                                            <i class="bi bi-info-circle"></i>
-                                            Chỉ chấp nhận file .txt
-                                        </div>
-                                    </div>
-                                </div>
+                                <?php endif; ?>
 
                                 <!-- Buttons -->
                                 <div class="d-flex gap-2">
@@ -162,7 +212,8 @@
                             <h5 class="card-title">Thông tin</h5>
                             <p><strong>Chủ đề:</strong> <?= htmlspecialchars($topic['topic_name']) ?></p>
                             <p><strong>Pha:</strong> Bước <?= $phase['phase_number'] ?> -
-                                <?= htmlspecialchars($phase['phase_name']) ?></p>
+                                <?= htmlspecialchars($phase['phase_name']) ?>
+                            </p>
                             <p><strong>Loại pha:</strong> <?= htmlspecialchars($phase['m_phase_name']) ?></p>
                         </div>
                     </div>
@@ -240,36 +291,60 @@
                 toast.show();
             }
 
-            // Content type toggle
-            const textContentArea = document.getElementById('textContentArea');
-            const fileContentArea = document.getElementById('fileContentArea');
-            const contentTypeRadios = document.getElementsByName('content_type');
+            const isEvaluationPhase = <?= $isEvaluationPhase ? 'true' : 'false' ?>;
 
-            contentTypeRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === 'text') {
-                        textContentArea.style.display = 'block';
-                        fileContentArea.style.display = 'none';
-                        document.getElementById('contentFile').value = '';
-                    } else if (this.value === 'file') {
-                        textContentArea.style.display = 'none';
-                        fileContentArea.style.display = 'block';
-                        document.getElementById('contentText').value = '';
-                    } else {
-                        textContentArea.style.display = 'none';
-                        fileContentArea.style.display = 'none';
-                        document.getElementById('contentText').value = '';
-                        document.getElementById('contentFile').value = '';
-                    }
+            // Task preview for evaluation phase
+            if (isEvaluationPhase) {
+                const sourceTaskSelect = document.getElementById('sourceTaskSelect');
+                const taskPreview = document.getElementById('taskPreview');
+                const taskPreviewText = document.getElementById('taskPreviewText');
+
+                if (sourceTaskSelect) {
+                    sourceTaskSelect.addEventListener('change', function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const description = selectedOption.getAttribute('data-description');
+
+                        if (description && description.trim()) {
+                            taskPreviewText.textContent = description;
+                            taskPreview.style.display = 'block';
+                        } else {
+                            taskPreview.style.display = 'none';
+                        }
+                    });
+                }
+            }
+
+            // Content type toggle (only for non-evaluation phases)
+            if (!isEvaluationPhase) {
+                const textContentArea = document.getElementById('textContentArea');
+                const fileContentArea = document.getElementById('fileContentArea');
+                const contentTypeRadios = document.getElementsByName('content_type');
+
+                contentTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        if (this.value === 'text') {
+                            textContentArea.style.display = 'block';
+                            fileContentArea.style.display = 'none';
+                            document.getElementById('contentFile').value = '';
+                        } else if (this.value === 'file') {
+                            textContentArea.style.display = 'none';
+                            fileContentArea.style.display = 'block';
+                            document.getElementById('contentText').value = '';
+                        } else {
+                            textContentArea.style.display = 'none';
+                            fileContentArea.style.display = 'none';
+                            document.getElementById('contentText').value = '';
+                            document.getElementById('contentFile').value = '';
+                        }
+                    });
                 });
-            });
+            }
 
             // Form submission
             document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const title = document.getElementById('taskTitle').value.trim();
-                const contentType = document.querySelector('input[name="content_type"]:checked').value;
 
                 // Validate
                 if (!title) {
@@ -277,17 +352,28 @@
                     return;
                 }
 
-                if (contentType === 'text') {
-                    const contentText = document.getElementById('contentText').value.trim();
-                    if (!contentText) {
-                        showToast('Vui lòng nhập nội dung văn bản!', 'warning');
+                // Validate based on phase type
+                if (isEvaluationPhase) {
+                    const sourceTaskId = document.querySelector('select[name="source_task_id"]')?.value;
+                    if (!sourceTaskId) {
+                        showToast('Vui lòng chọn nhiệm vụ cần đánh giá!', 'warning');
                         return;
                     }
-                } else if (contentType === 'file') {
-                    const contentFile = document.getElementById('contentFile').files[0];
-                    if (!contentFile) {
-                        showToast('Vui lòng chọn file để tải lên!', 'warning');
-                        return;
+                } else {
+                    const contentType = document.querySelector('input[name="content_type"]:checked').value;
+
+                    if (contentType === 'text') {
+                        const contentText = document.getElementById('contentText').value.trim();
+                        if (!contentText) {
+                            showToast('Vui lòng nhập nội dung văn bản!', 'warning');
+                            return;
+                        }
+                    } else if (contentType === 'file') {
+                        const contentFile = document.getElementById('contentFile').files[0];
+                        if (!contentFile) {
+                            showToast('Vui lòng chọn file để tải lên!', 'warning');
+                            return;
+                        }
                     }
                 }
 
