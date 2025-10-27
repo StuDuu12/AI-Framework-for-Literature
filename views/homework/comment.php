@@ -8,323 +8,173 @@
     require_once './views/templates/assets.php';
     require_once './config/db.php';
     require_once './config/helper_homework.php';
+    require_once './config/helper_task.php';
+    require_once './config/helper_phase.php';
 
-    // Get response_id from URL
-    $response_id = isset($_GET['response_id']) ? intval($_GET['response_id']) : 0;
+    // Get task_id and user_id from URL
+    $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
+    $target_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 
-    if ($response_id <= 0) {
+    if ($task_id <= 0) {
         header("Location: /404");
         exit;
     }
 
-    // Get response with task info
-    $responseData = getResponseWithTaskInfo($response_id);
+    // Get current user info
+    $current_user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
+    $current_user_role = $_SESSION['user']['role'] ?? 'student';
 
-    if (!$responseData) {
+    // If no target user specified, use current user
+    if ($target_user_id <= 0) {
+        $target_user_id = $current_user_id;
+    }
+
+    // Get task details
+    $taskInfo = getTaskDetails($task_id);
+    if (!$taskInfo) {
         header("Location: /404");
         exit;
     }
 
-    // Check if user has permission
-    $user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
-    $user_role = $_SESSION['user']['role'] ?? 'student';
+    // Get phase details to check permissions
+    $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+    if (!$phaseInfo) {
+        header("Location: /404");
+        exit;
+    }
 
-    // Students can only view their own responses
-    if ($user_role === 'student' && $responseData['user_id'] != $user_id) {
+    // Check permissions
+    // Teachers can view all students' work
+    // Students can only view their own work (or assigned peer reviews - will handle later)
+    if ($current_user_role === 'student' && $target_user_id != $current_user_id) {
+        // TODO: Check if student is assigned to review this user's work
         header("Location: /403");
         exit;
     }
 
-    // Get all content blocks for this response
-    $contentBlocks = getContentByResponse($response_id);
+    // Get root response for this task and user
+    // Pass both target_user_id (student) and current_user_id (viewer)
+    $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
 
-    $task_id = $responseData['task_id'];
-    $task_title = $responseData['task_title'];
-    $allow_comment = $responseData['allow_comment'];
+    if (!$responseData) {
+        // No response found - automatically create empty response for user
+        try {
+            // Check if task has review_task (evaluation phase)
+            $taskStmt = $pdo->prepare("SELECT task_id, review_task FROM task WHERE task_id = :task_id");
+            $taskStmt->execute([':task_id' => $task_id]);
+            $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($taskData && $taskData['review_task']) {
+                // This is EVALUATION task
+                // Step 1: Find or create response for source task (parent_task)
+                $sourceTaskId = $taskData['review_task'];
+                
+                // Check if current user has response for source task
+                $sourceResponseStmt = $pdo->prepare("
+                    SELECT id_response 
+                    FROM response 
+                    WHERE user_id = :user_id 
+                    AND task_id = :task_id 
+                    AND owner_user_id = :owner_user_id
+                    AND parent_response IS NULL
+                    LIMIT 1
+                ");
+                $sourceResponseStmt->execute([
+                    ':user_id' => $current_user_id,
+                    ':task_id' => $sourceTaskId,
+                    ':owner_user_id' => $target_user_id
+                ]);
+                $sourceResponse = $sourceResponseStmt->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$sourceResponse) {
+                    // Create root response for source task first
+                    $insertSourceStmt = $pdo->prepare("
+                        INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
+                        VALUES (:user_id, :owner_user_id, NULL, :task_id, NOW(), NOW())
+                    ");
+                    $insertSourceStmt->execute([
+                        ':user_id' => $current_user_id,
+                        ':owner_user_id' => $target_user_id,
+                        ':task_id' => $sourceTaskId
+                    ]);
+                    $sourceResponseId = $pdo->lastInsertId();
+                } else {
+                    $sourceResponseId = $sourceResponse['id_response'];
+                }
+                
+                // Step 2: Create NEW response for current evaluation task
+                // with parent_response pointing to source task's response
+                $insertEvalStmt = $pdo->prepare("
+                    INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
+                    VALUES (:user_id, :owner_user_id, :parent_response, :task_id, NOW(), NOW())
+                ");
+                $insertEvalStmt->execute([
+                    ':user_id' => $current_user_id,
+                    ':owner_user_id' => $target_user_id,
+                    ':parent_response' => $sourceResponseId,
+                    ':task_id' => $task_id
+                ]);
+                
+                // Try to get response again
+                $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
+            } else {
+                // Regular task, create root response for this task
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
+                    VALUES (:user_id, :owner_user_id, NULL, :task_id, NOW(), NOW())
+                ");
+                $insertStmt->execute([
+                    ':user_id' => $current_user_id,
+                    ':owner_user_id' => $target_user_id,
+                    ':task_id' => $task_id
+                ]);
+                
+                // Try to get response again
+                $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
+            }
+        } catch (PDOException $e) {
+            error_log("Error creating response: " . $e->getMessage());
+            echo "<script>alert('Lỗi khi tạo bài làm. Vui lòng thử lại.'); window.location.href='/class';</script>";
+            exit;
+        }
+        
+        // If still no response after trying to create
+        if (!$responseData) {
+            echo "<script>alert('Không thể tạo bài làm. Vui lòng liên hệ giáo viên.'); window.location.href='/class';</script>";
+            exit;
+        }
+    }
+    
+    // Current user's response (for adding content/comments)
+    $response_id = $responseData['id_response'];
+    $task_title = $taskInfo['title'];
+    $allow_comment = $responseData['allow_comment'] ?? 0;
+
+    // If teacher is viewing student work, get student's response to display content
+    $display_response_id = $response_id;
+    $target_user_name = $responseData['user_fullname']; // Default to current user
+    
+    if ($current_user_role === 'teacher' && $target_user_id != $current_user_id) {
+        // Find student's response to display their content
+        $studentResponseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $target_user_id);
+        if ($studentResponseData) {
+            $display_response_id = $studentResponseData['id_response'];
+            $target_user_name = $studentResponseData['user_fullname']; // Get student's name
+        }
+    }
+
+    // Get all content blocks for display (from student's response if teacher is viewing)
+    $contentBlocks = getContentByResponse($display_response_id);
+    
+    // Check if there are no content blocks
+    $hasNoContent = empty($contentBlocks);
     ?>
     <title>Bình luận - <?= htmlspecialchars($task_title) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        /* Content Image Wrapper & Comment Styles */
-        .content-image-wrapper {
-            position: relative;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .content-image-wrapper:hover {
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .content-image-wrapper.selected {
-            border: 2px solid #4f46e5;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-        }
-
-        .content-image-wrapper img {
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            border-radius: 0.5rem;
-            display: block;
-            object-fit: contain;
-        }
-
-        .content-image-wrapper canvas {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Facebook-style Comment Block */
-        .fb-comment-block {
-            margin-top: 1rem;
-            display: none;
-        }
-
-        .fb-comment-block.active {
-            display: block;
-        }
-
-        .fb-comments-list {
-            max-height: 500px;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 0.5rem;
-        }
-
-        .fb-comment-item {
-            margin-bottom: 1rem;
-        }
-
-        .fb-comment-core {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .fb-comment-core img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .fb-comment-bubble {
-            background: #fff;
-            padding: 0.5rem 0.75rem;
-            border-radius: 1rem;
-            flex-grow: 1;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .comment-label {
-            display: inline-block;
-            padding: 0.125rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .label-teacher {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .label-student {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .label-phase {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .comment-content {
-            font-size: 0.875rem;
-            color: #374151;
-            line-height: 1.5;
-        }
-
-        .fb-comment-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.25rem;
-            margin-left: 2.75rem;
-            font-size: 0.75rem;
-        }
-
-        .fb-comment-actions button {
-            color: #6b7280;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            font-weight: 600;
-        }
-
-        .fb-comment-actions button:hover {
-            text-decoration: underline;
-        }
-
-        .fb-comment-actions .like-btn.liked {
-            color: #4f46e5;
-        }
-
-        .comment-time {
-            color: #9ca3af;
-            font-size: 0.75rem;
-        }
-
-        .fb-comment-input-area {
-            display: flex;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-            align-items: flex-start;
-        }
-
-        .fb-comment-input-area img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .fb-comment-input {
-            flex-grow: 1;
-            border: 1px solid #e5e7eb;
-            border-radius: 1rem;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            resize: vertical;
-            min-height: 36px;
-        }
-
-        .fb-comment-btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .fb-comment-btn:hover {
-            background: #4338ca;
-        }
-
-        .fb-comment-btn:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-        }
-
-        .fb-replies {
-            margin-left: 2.75rem;
-        }
-
-        .fb-reply-form {
-            margin-left: 2.75rem;
-        }
-
-        /* Visual indicator for max depth */
-        .fb-comment-item[data-depth="2"] {
-            border-left: 2px solid #e5e7eb;
-            padding-left: 0.5rem;
-        }
-
-        .fb-comment-item[data-depth="2"] .fb-comment-bubble {
-            background: #f9fafb;
-        }
-
-        /* Comment view toggle */
-        .comment-view-toggle {
-            position: sticky;
-            top: 80px;
-            z-index: 100;
-            background: white;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .toggle-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .toggle-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-
-        .toggle-btn:hover {
-            background: #f9fafb;
-        }
-
-        .toggle-btn.active {
-            background: #4f46e5;
-            color: white;
-            border-color: #4f46e5;
-        }
-
-        /* View modes */
-        .view-mode-individual .fb-comment-block {
-            display: none;
-        }
-
-        .view-mode-individual .fb-comment-block.active {
-            display: block;
-        }
-
-        .view-mode-all .fb-comment-block {
-            display: block !important;
-        }
-
-        .view-mode-all .content-image-wrapper {
-            cursor: default;
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/comment.css">
 </head>
 
 <body>
@@ -340,10 +190,16 @@
     <main id="main" class="main">
         <div class="pagetitle">
             <h1><?= htmlspecialchars($task_title) ?></h1>
+            <?php if ($target_user_id != $current_user_id): ?>
+                <p class="text-muted">
+                    <i class="bi bi-person"></i> 
+                    Bài làm của: <strong><?= htmlspecialchars($target_user_name) ?></strong>
+                </p>
+            <?php endif; ?>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
-                    <li class="breadcrumb-item"><a href="?route=genAI&task_id=<?= $task_id ?>">Phân tích</a></li>
+                    <li class="breadcrumb-item"><a href="?route=genAI&task_id=<?= $task_id ?>&user_id=<?= $target_user_id ?>">Phân tích</a></li>
                     <li class="breadcrumb-item active">Bình luận</li>
                 </ol>
             </nav>
@@ -356,7 +212,19 @@
             </div>
         <?php endif; ?>
 
-        <?php if ($allow_comment): ?>
+        <?php if ($hasNoContent): ?>
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Học sinh chưa có nội dung bài làm.</strong>
+                <?php if ($current_user_role === 'teacher'): ?>
+                    <br>Bạn có thể để lại nhận xét chung bằng cách thêm content block hoặc đợi học sinh nộp bài.
+                <?php else: ?>
+                    <br>Vui lòng hoàn thành bài làm của bạn trước khi truy cập trang này.
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($allow_comment && !$hasNoContent): ?>
             <!-- Comment View Toggle -->
             <div class="comment-view-toggle">
                 <div>
@@ -375,7 +243,13 @@
         <?php endif; ?>
 
         <section class="section view-mode-individual" id="comment-container">
-            <div id="content-blocks-container">
+            <?php if ($hasNoContent): ?>
+                <div class="text-center py-5">
+                    <i class="bi bi-file-earmark-x" style="font-size: 4rem; color: #6c757d;"></i>
+                    <p class="text-muted mt-3">Chưa có nội dung để hiển thị</p>
+                </div>
+            <?php else: ?>
+                <div id="content-blocks-container">
                 <?php foreach ($contentBlocks as $index => $block): ?>
                     <div class="content-image-wrapper" data-content-id="<?= $block['content_id'] ?>"
                         data-order="<?= $block['order'] ?>">
@@ -403,7 +277,8 @@
                         <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </section>
 
     </main>
@@ -417,9 +292,13 @@
         // PHP data
         const RESPONSE_ID = <?= $response_id ?>;
         const TASK_ID = <?= $task_id ?>;
+        const TARGET_USER_ID = <?= $target_user_id ?>;
+        const CURRENT_USER_ID = <?= $current_user_id ?>;
+        const CURRENT_USER_ROLE = <?= json_encode($current_user_role) ?>;
         const ALLOW_COMMENT = <?= $allow_comment ? 'true' : 'false' ?>;
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
+        const TARGET_USER_NAME = <?= json_encode($target_user_name) ?>;
 
         // Content blocks data from PHP
         const contentBlocksData = <?= json_encode($contentBlocks) ?>;
