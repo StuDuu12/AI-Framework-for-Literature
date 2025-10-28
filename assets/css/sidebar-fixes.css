@@ -629,7 +629,7 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
     .sidebar {
         left: -300px;
     }
-    
+
     #main {
         margin-left: 0;
     }
@@ -639,23 +639,23 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
     .header .logo {
         min-width: auto;
     }
-    
+
     .header .logo span {
         font-size: 16px;
     }
-    
+
     .search-bar {
         padding-left: 10px;
     }
-    
+
     .search-bar input {
         min-width: 200px;
     }
-    
+
     #main {
         padding: 20px 16px;
     }
-    
+
     .pagetitle h1 {
         font-size: 24px;
     }
@@ -665,15 +665,15 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
     .header {
         padding: 0 12px;
     }
-    
+
     .search-bar input {
         min-width: 150px;
     }
-    
+
     #main {
         padding: 16px 12px;
     }
-    
+
     .card-body {
         padding: 16px;
     }

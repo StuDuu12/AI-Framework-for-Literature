@@ -10,37 +10,37 @@ body.dark-theme {
     /* ==========================================
      * COLOR PALETTE - Doraemon Inspired
      * ========================================== */
-    --dark-bg-deep: #0a1929;           /* Nền tối chính */
-    --dark-bg-surface: #132f4c;        /* Nền card/surface */
-    --dark-bg-elevated: #1e4976;       /* Nền nâng cao (hover) */
-    --dark-bg-header: #0d2238;         /* Header/Sidebar nền */
-    
-    --dark-border: #3d5a80;            /* Viền */
-    --dark-border-light: #264966;      /* Viền nhạt */
-    
-    --dark-text-primary: #ffffff;      /* Chữ chính - Trắng */
-    --dark-text-secondary: #b0c4de;    /* Chữ phụ - Xanh nhạt */
-    --dark-text-tertiary: #8ba4c7;     /* Chữ mờ hơn */
-    --dark-text-disabled: #5a7a9e;     /* Chữ disabled */
-    
-    --dark-accent: #ffd43b;            /* Màu nhấn - Vàng Doraemon */
-    --dark-accent-hover: #ffec99;      /* Vàng sáng */
-    --dark-accent-text: #0a1929;       /* Chữ trên nền vàng */
-    
-    --dark-primary: #4dabf7;           /* Xanh chính - Doraemon */
-    --dark-primary-hover: #74c0fc;     /* Xanh hover */
+    --dark-bg-deep: #0a1929; /* Nền tối chính */
+    --dark-bg-surface: #132f4c; /* Nền card/surface */
+    --dark-bg-elevated: #1e4976; /* Nền nâng cao (hover) */
+    --dark-bg-header: #0d2238; /* Header/Sidebar nền */
+
+    --dark-border: #3d5a80; /* Viền */
+    --dark-border-light: #264966; /* Viền nhạt */
+
+    --dark-text-primary: #ffffff; /* Chữ chính - Trắng */
+    --dark-text-secondary: #b0c4de; /* Chữ phụ - Xanh nhạt */
+    --dark-text-tertiary: #8ba4c7; /* Chữ mờ hơn */
+    --dark-text-disabled: #5a7a9e; /* Chữ disabled */
+
+    --dark-accent: #ffd43b; /* Màu nhấn - Vàng Doraemon */
+    --dark-accent-hover: #ffec99; /* Vàng sáng */
+    --dark-accent-text: #0a1929; /* Chữ trên nền vàng */
+
+    --dark-primary: #4dabf7; /* Xanh chính - Doraemon */
+    --dark-primary-hover: #74c0fc; /* Xanh hover */
     --dark-primary-light: rgba(77, 171, 247, 0.15);
-    
+
     --dark-success: #51cf66;
     --dark-danger: #ff6b6b;
     --dark-warning: #ffd43b;
     --dark-info: #4dabf7;
-    
+
     /* Shadows */
     --dark-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
     --dark-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
     --dark-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    
+
     /* Apply */
     background-color: var(--dark-bg-deep);
     color: var(--dark-text-primary);

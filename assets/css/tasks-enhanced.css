@@ -68,7 +68,7 @@
     position: relative;
 }
 
-.task-checkbox input[type="checkbox"] {
+.task-checkbox input[type='checkbox'] {
     appearance: none;
     width: 24px;
     height: 24px;
@@ -79,23 +79,28 @@
     position: relative;
 }
 
-.task-checkbox input[type="checkbox"]:hover {
+.task-checkbox input[type='checkbox']:hover {
     border-color: #4154f1;
     box-shadow: 0 0 0 4px rgba(65, 84, 241, 0.1);
 }
 
-.task-checkbox input[type="checkbox"]:checked {
+.task-checkbox input[type='checkbox']:checked {
     background: linear-gradient(135deg, #4154f1 0%, #5969f3 100%);
     border-color: #4154f1;
     animation: checkBounce 0.4s ease;
 }
 
 @keyframes checkBounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
 }
 
-.task-checkbox input[type="checkbox"]:checked::after {
+.task-checkbox input[type='checkbox']:checked::after {
     content: '✓';
     position: absolute;
     top: 50%;
@@ -395,18 +400,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.3),
-        transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 /* ==========================================
@@ -485,12 +489,12 @@ body.dark-theme .task-card:hover .task-title {
     color: var(--dark-primary-hover);
 }
 
-body.dark-theme .task-checkbox input[type="checkbox"] {
+body.dark-theme .task-checkbox input[type='checkbox'] {
     border-color: var(--dark-border);
     background: var(--dark-bg-header);
 }
 
-body.dark-theme .task-checkbox input[type="checkbox"]:hover {
+body.dark-theme .task-checkbox input[type='checkbox']:hover {
     border-color: var(--dark-primary);
     box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.15);
 }
@@ -588,23 +592,23 @@ body.dark-theme .tasks-empty p {
         align-items: flex-start;
         gap: 16px;
     }
-    
+
     .task-actions {
         width: 100%;
         justify-content: flex-end;
     }
-    
+
     .task-meta {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
-    
+
     .task-controls {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .task-filter-group {
         justify-content: space-between;
     }
@@ -628,9 +632,21 @@ body.dark-theme .tasks-empty p {
     animation: taskSlideIn 0.4s ease forwards;
 }
 
-.task-card:nth-child(1) { animation-delay: 0.05s; }
-.task-card:nth-child(2) { animation-delay: 0.1s; }
-.task-card:nth-child(3) { animation-delay: 0.15s; }
-.task-card:nth-child(4) { animation-delay: 0.2s; }
-.task-card:nth-child(5) { animation-delay: 0.25s; }
-.task-card:nth-child(6) { animation-delay: 0.3s; }
+.task-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+.task-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+.task-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+.task-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
+.task-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+.task-card:nth-child(6) {
+    animation-delay: 0.3s;
+}
