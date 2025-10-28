@@ -63,12 +63,12 @@
             $taskStmt = $pdo->prepare("SELECT task_id, review_task FROM task WHERE task_id = :task_id");
             $taskStmt->execute([':task_id' => $task_id]);
             $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($taskData && $taskData['review_task']) {
                 // This is EVALUATION task
                 // Step 1: Find or create response for source task (parent_task)
                 $sourceTaskId = $taskData['review_task'];
-                
+
                 // Check if current user has response for source task
                 $sourceResponseStmt = $pdo->prepare("
                     SELECT id_response 
@@ -85,7 +85,7 @@
                     ':owner_user_id' => $target_user_id
                 ]);
                 $sourceResponse = $sourceResponseStmt->fetch(PDO::FETCH_ASSOC);
-                
+
                 if (!$sourceResponse) {
                     // Create root response for source task first
                     $insertSourceStmt = $pdo->prepare("
@@ -101,7 +101,7 @@
                 } else {
                     $sourceResponseId = $sourceResponse['id_response'];
                 }
-                
+
                 // Step 2: Create NEW response for current evaluation task
                 // with parent_response pointing to source task's response
                 $insertEvalStmt = $pdo->prepare("
@@ -114,7 +114,7 @@
                     ':parent_response' => $sourceResponseId,
                     ':task_id' => $task_id
                 ]);
-                
+
                 // Try to get response again
                 $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
             } else {
@@ -128,7 +128,7 @@
                     ':owner_user_id' => $target_user_id,
                     ':task_id' => $task_id
                 ]);
-                
+
                 // Try to get response again
                 $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
             }
@@ -137,14 +137,14 @@
             echo "<script>alert('Lỗi khi tạo bài làm. Vui lòng thử lại.'); window.location.href='/class';</script>";
             exit;
         }
-        
+
         // If still no response after trying to create
         if (!$responseData) {
             echo "<script>alert('Không thể tạo bài làm. Vui lòng liên hệ giáo viên.'); window.location.href='/class';</script>";
             exit;
         }
     }
-    
+
     // Current user's response (for adding content/comments)
     $response_id = $responseData['id_response'];
     $task_title = $taskInfo['title'];
@@ -165,7 +165,7 @@
 
     // Get all content blocks for display (from student's response if teacher is viewing)
     $contentBlocks = getContentByResponse($display_response_id);
-    
+
     // Check if there are no content blocks
     $hasNoContent = empty($contentBlocks);
     ?>
@@ -192,14 +192,16 @@
             <h1><?= htmlspecialchars($task_title) ?></h1>
             <?php if ($target_user_id != $current_user_id): ?>
                 <p class="text-muted">
-                    <i class="bi bi-person"></i> 
+                    <i class="bi bi-person"></i>
                     Bài làm của: <strong><?= htmlspecialchars($target_user_name) ?></strong>
                 </p>
             <?php endif; ?>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
-                    <li class="breadcrumb-item"><a href="?route=genAI&task_id=<?= $task_id ?>&user_id=<?= $target_user_id ?>">Phân tích</a></li>
+                    <li class="breadcrumb-item"><a
+                            href="?route=genAI&task_id=<?= $task_id ?>&user_id=<?= $target_user_id ?>">Phân tích</a>
+                    </li>
                     <li class="breadcrumb-item active">Bình luận</li>
                 </ol>
             </nav>
@@ -250,33 +252,33 @@
                 </div>
             <?php else: ?>
                 <div id="content-blocks-container">
-                <?php foreach ($contentBlocks as $index => $block): ?>
-                    <div class="content-image-wrapper" data-content-id="<?= $block['content_id'] ?>"
-                        data-order="<?= $block['order'] ?>">
-                        <!-- Image will be generated here -->
-                        <canvas id="canvas-<?= $block['content_id'] ?>" style="display:none;"></canvas>
-                        <img id="img-<?= $block['content_id'] ?>" src="" alt="Content Block <?= $index + 1 ?>">
+                    <?php foreach ($contentBlocks as $index => $block): ?>
+                        <div class="content-image-wrapper" data-content-id="<?= $block['content_id'] ?>"
+                            data-order="<?= $block['order'] ?>">
+                            <!-- Image will be generated here -->
+                            <canvas id="canvas-<?= $block['content_id'] ?>" style="display:none;"></canvas>
+                            <img id="img-<?= $block['content_id'] ?>" src="" alt="Content Block <?= $index + 1 ?>">
 
-                        <?php if ($allow_comment): ?>
-                            <!-- Comment Block -->
-                            <div class="fb-comment-block" id="comment-block-<?= $block['content_id'] ?>">
-                                <!-- Comments List -->
-                                <div class="fb-comments-list" id="comments-list-<?= $block['content_id'] ?>">
-                                    <div class="text-center text-slate-400 text-sm py-2">Đang tải bình luận...</div>
-                                </div>
+                            <?php if ($allow_comment): ?>
+                                <!-- Comment Block -->
+                                <div class="fb-comment-block" id="comment-block-<?= $block['content_id'] ?>">
+                                    <!-- Comments List -->
+                                    <div class="fb-comments-list" id="comments-list-<?= $block['content_id'] ?>">
+                                        <div class="text-center text-slate-400 text-sm py-2">Đang tải bình luận...</div>
+                                    </div>
 
-                                <!-- Comment Input -->
-                                <div class="fb-comment-input-area">
-                                    <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg"
-                                        alt="Avatar">
-                                    <textarea class="fb-comment-input" placeholder="Viết bình luận..."
-                                        data-content-id="<?= $block['content_id'] ?>" rows="1"></textarea>
-                                    <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Gửi</button>
+                                    <!-- Comment Input -->
+                                    <div class="fb-comment-input-area">
+                                        <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg"
+                                            alt="Avatar">
+                                        <textarea class="fb-comment-input" placeholder="Viết bình luận..."
+                                            data-content-id="<?= $block['content_id'] ?>" rows="1"></textarea>
+                                        <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Gửi</button>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </section>
