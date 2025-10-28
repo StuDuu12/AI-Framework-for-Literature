@@ -194,7 +194,8 @@
     <main id="main" class="main">
         <div class="pagetitle">
             <h1>Bộ Công cụ Phân tích Văn học<?php if ($taskTitle): ?> -
-                    <?= htmlspecialchars($taskTitle) ?><?php endif; ?></h1>
+                    <?= htmlspecialchars($taskTitle) ?><?php endif; ?>
+            </h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="?route=class">Lớp học</a></li>
@@ -488,7 +489,7 @@
                 alert('Bạn đã có phân tích được lưu cho bài tập này. Không thể phân tích lại.');
                 return;
             }
-            
+
             const textToAnalyze = textInput.value.trim();
             if (!textToAnalyze) {
                 alert('Vui lòng nhập văn bản hoặc tải lên một tệp tin.');
@@ -526,7 +527,7 @@
 
             // Hide analyze button
             analyzeButton.classList.add('hidden');
-            
+
             // Show chat button
             chatButton.classList.remove('hidden');
             chatButton.removeAttribute('disabled'); // Enable chat button
@@ -586,7 +587,7 @@
 
                 // Save current analysis first
                 const saveResult = await handleSaveAnalysis();
-                
+
                 if (!saveResult || !saveResult.success) {
                     throw new Error('Không thể lưu dữ liệu');
                 }
@@ -600,14 +601,14 @@
 
                 // Build comment page URL
                 const commentUrl = `/class/homework/comment?task_id=${taskId}&topic_id=${topicId}&phase_id=${phaseId}&user_id=${userId}`;
-                
+
                 // Redirect to comment page
                 window.location.href = commentUrl;
 
             } catch (error) {
                 console.error('Error during save and redirect:', error);
                 alert('Có lỗi xảy ra khi lưu và chuyển trang. Vui lòng thử lại.');
-                
+
                 // Restore button
                 resetButton.disabled = false;
                 resetButton.innerHTML = `
@@ -863,7 +864,7 @@
                 // Store response_id for future reference
                 if (result.response_id) {
                     currentResponseId = result.response_id;
-                    
+
                     // Update UI to show "Go to Comment" button if not already done
                     if (isAnalyzed) {
                         switchToChatMode();
@@ -888,14 +889,14 @@
                 }, 2000);
 
                 console.log('Save result:', result);
-                
+
                 // Return result for other functions to use
                 return result;
 
             } catch (error) {
                 console.error('Error saving analysis:', error);
                 alert('Có lỗi xảy ra khi lưu: ' + error.message);
-                
+
                 // Restore button
                 const saveButton = document.getElementById('save-analysis-button');
                 saveButton.disabled = false;
@@ -907,7 +908,7 @@
                     </svg>
                     Lưu thay đổi
                 `;
-                
+
                 // Return null to indicate failure
                 return null;
             }
@@ -1873,10 +1874,10 @@
                 // If we have analysis data, display it
                 if (currentAnalysisData) {
                     isAnalyzed = true;
-                    
+
                     // Display the saved analysis
                     displaySavedAnalysis(savedData);
-                    
+
                     // Setup UI
                     setupGeneratorTabs();
                     placeholder.classList.add('hidden');
@@ -2012,7 +2013,7 @@
         }
 
         // Call loadSavedAnalysis on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadSavedAnalysis();
         });
     </script>

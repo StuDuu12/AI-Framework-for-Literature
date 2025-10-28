@@ -62,7 +62,7 @@ try {
 
     foreach ($contents as $content) {
         $text = $content['content'];
-        
+
         // Check if first content is title (starts with #)
         if ($content['order'] == 0 && strpos(trim($text), '#') === 0) {
             $title = trim(str_replace('#', '', $text));

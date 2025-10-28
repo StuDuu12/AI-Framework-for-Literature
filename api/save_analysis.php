@@ -79,11 +79,11 @@ try {
     if ($existingResponse) {
         // Update existing response with new AI history
         $response_id = $existingResponse['id_response'];
-        
+
         // Update json_ai field
         if ($ai_history !== null) {
             $json_ai = is_array($ai_history) ? json_encode($ai_history, JSON_UNESCAPED_UNICODE) : $ai_history;
-            
+
             $stmt = $pdo->prepare("
                 UPDATE response 
                 SET json_ai = :json_ai, 
@@ -113,7 +113,7 @@ try {
 
     // Prepare content array with title and sections
     $contentArray = [];
-    
+
     // Add title as first content
     if (!empty($title)) {
         $contentArray[] = [
@@ -137,7 +137,7 @@ try {
 
     if ($existingResponse && !empty($existingContent)) {
         // Update mode: Update existing, Insert new, Delete extra
-        
+
         // Create a map of existing content by order
         $existingByOrder = [];
         foreach ($existingContent as $content) {
@@ -147,7 +147,7 @@ try {
         // Update or insert each content item
         foreach ($contentArray as $contentItem) {
             $order = $contentItem['order'];
-            
+
             if (isset($existingByOrder[$order])) {
                 // Update existing content
                 $content_id = $existingByOrder[$order]['content_id'];
@@ -164,7 +164,7 @@ try {
                     'content_id' => $content_id
                 ]);
                 $content_ids[] = $content_id;
-                
+
                 // Remove from existing map (so we know what to delete later)
                 unset($existingByOrder[$order]);
             } else {

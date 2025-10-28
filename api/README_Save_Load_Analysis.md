@@ -3,12 +3,13 @@
 ## Tổng quan
 
 Hệ thống lưu và tải kết quả phân tích văn học với các tính năng:
-- ✅ Kiểm tra response đã tồn tại cho user + task
-- ✅ Tạo mới hoặc cập nhật response
-- ✅ Lưu nội dung sections có thứ tự
-- ✅ Lưu lịch sử chat AI vào json_ai
-- ✅ Tự động load lại khi mở trang
-- ✅ Cho phép chỉnh sửa và lưu lại
+
+-   ✅ Kiểm tra response đã tồn tại cho user + task
+-   ✅ Tạo mới hoặc cập nhật response
+-   ✅ Lưu nội dung sections có thứ tự
+-   ✅ Lưu lịch sử chat AI vào json_ai
+-   ✅ Tự động load lại khi mở trang
+-   ✅ Cho phép chỉnh sửa và lưu lại
 
 ---
 
@@ -17,12 +18,14 @@ Hệ thống lưu và tải kết quả phân tích văn học với các tính 
 ### 1. Save Analysis - `POST /api/save_analysis.php`
 
 **Chức năng:**
-- Kiểm tra user đã có response cho task chưa
-- Nếu **chưa có** → tạo response mới
-- Nếu **có rồi** → update response + xóa content cũ + thêm content mới
-- Lưu lịch sử AI (analysis data + conversation) vào `json_ai`
+
+-   Kiểm tra user đã có response cho task chưa
+-   Nếu **chưa có** → tạo response mới
+-   Nếu **có rồi** → update response + xóa content cũ + thêm content mới
+-   Lưu lịch sử AI (analysis data + conversation) vào `json_ai`
 
 **Request Body:**
+
 ```json
 {
   "task_id": 8,
@@ -41,6 +44,7 @@ Hệ thống lưu và tải kết quả phân tích văn học với các tính 
 ```
 
 **Response - Success (New):**
+
 ```json
 {
   "success": true,
@@ -55,6 +59,7 @@ Hệ thống lưu và tải kết quả phân tích văn học với các tính 
 ```
 
 **Response - Success (Update):**
+
 ```json
 {
   "success": true,
@@ -69,10 +74,11 @@ Hệ thống lưu và tải kết quả phân tích văn học với các tính 
 ```
 
 **Response - Error:**
+
 ```json
 {
-  "error": "Invalid task_id",
-  "message": "Task ID không hợp lệ"
+    "error": "Invalid task_id",
+    "message": "Task ID không hợp lệ"
 }
 ```
 
@@ -81,17 +87,20 @@ Hệ thống lưu và tải kết quả phân tích văn học với các tính 
 ### 2. Load Analysis - `GET /api/load_analysis.php`
 
 **Chức năng:**
-- Lấy response hiện tại của user cho task
-- Lấy tất cả content sections đã lưu
-- Parse AI history từ json_ai
-- Trả về dữ liệu đã format
+
+-   Lấy response hiện tại của user cho task
+-   Lấy tất cả content sections đã lưu
+-   Parse AI history từ json_ai
+-   Trả về dữ liệu đã format
 
 **Query Parameters:**
+
 ```
 GET /api/load_analysis.php?task_id=8
 ```
 
 **Response - Has Data:**
+
 ```json
 {
   "success": true,
@@ -123,11 +132,12 @@ GET /api/load_analysis.php?task_id=8
 ```
 
 **Response - No Data:**
+
 ```json
 {
-  "success": true,
-  "has_data": false,
-  "message": "Chưa có dữ liệu đã lưu"
+    "success": true,
+    "has_data": false,
+    "message": "Chưa có dữ liệu đã lưu"
 }
 ```
 
@@ -189,6 +199,7 @@ GET /api/load_analysis.php?task_id=8
 ## Database Schema
 
 ### Bảng `response`
+
 ```sql
 id_response (PK)
 task_id (FK)
@@ -201,6 +212,7 @@ updated_at
 ```
 
 ### Bảng `content`
+
 ```sql
 content_id (PK)
 response_id (FK)
@@ -219,6 +231,7 @@ updated_at
 ### Scenario 1: Lần đầu phân tích và lưu
 
 **Bước 1:** User truy cập
+
 ```
 ?route=class/homework/analysis_chat&task_id=8
 ```
@@ -230,69 +243,76 @@ updated_at
 **Bước 4:** User chỉnh sửa một số sections
 
 **Bước 5:** User bấm "Lưu thay đổi"
-- API kiểm tra: `getResponseUserByTask(8, 388)` → **NULL**
-- API tạo mới: `INSERT INTO response` → response_id = 123
-- API lưu content: 15 sections → content_ids = [456-470]
-- Frontend: "Đã lưu kết quả thành công"
+
+-   API kiểm tra: `getResponseUserByTask(8, 388)` → **NULL**
+-   API tạo mới: `INSERT INTO response` → response_id = 123
+-   API lưu content: 15 sections → content_ids = [456-470]
+-   Frontend: "Đã lưu kết quả thành công"
 
 ---
 
 ### Scenario 2: Mở lại và chỉnh sửa
 
 **Bước 1:** User truy cập lại URL cũ
+
 ```
 ?route=class/homework/analysis_chat&task_id=8
 ```
 
 **Bước 2:** DOMContentLoaded → `loadSavedAnalysis()`
-- API: `GET /api/load_analysis.php?task_id=8`
-- Backend: `getResponseUserByTask(8, 388)` → response_id = 123
-- Backend: `getContentByResponse(123)` → 15 sections
-- Frontend: Render 15 sections với nút "Lưu thay đổi"
+
+-   API: `GET /api/load_analysis.php?task_id=8`
+-   Backend: `getResponseUserByTask(8, 388)` → response_id = 123
+-   Backend: `getContentByResponse(123)` → 15 sections
+-   Frontend: Render 15 sections với nút "Lưu thay đổi"
 
 **Bước 3:** User thấy kết quả cũ, chỉnh sửa thêm
 
 **Bước 4:** User drag & drop sắp xếp lại
 
 **Bước 5:** User bấm "Lưu thay đổi"
-- API: `getResponseUserByTask(8, 388)` → response_id = 123 (có rồi)
-- API: `UPDATE response SET json_ai = ... WHERE id = 123`
-- API: `DELETE FROM content WHERE response_id = 123`
-- API: `INSERT INTO content` → content_ids = [500-514]
-- Frontend: "Đã cập nhật kết quả thành công"
+
+-   API: `getResponseUserByTask(8, 388)` → response_id = 123 (có rồi)
+-   API: `UPDATE response SET json_ai = ... WHERE id = 123`
+-   API: `DELETE FROM content WHERE response_id = 123`
+-   API: `INSERT INTO content` → content_ids = [500-514]
+-   Frontend: "Đã cập nhật kết quả thành công"
 
 ---
 
 ## JavaScript Functions
 
 ### 1. handleSaveAnalysis()
+
 ```javascript
 async function handleSaveAnalysis() {
-  // Thu thập task_id, title, sections
-  // Chuẩn bị ai_history
-  // POST /api/save_analysis.php
-  // Hiển thị loading → success → restore button
+    // Thu thập task_id, title, sections
+    // Chuẩn bị ai_history
+    // POST /api/save_analysis.php
+    // Hiển thị loading → success → restore button
 }
 ```
 
 ### 2. loadSavedAnalysis()
+
 ```javascript
 async function loadSavedAnalysis() {
-  // Lấy task_id từ URL
-  // GET /api/load_analysis.php
-  // Restore currentAnalysisData + conversationHistory
-  // Gọi displaySavedAnalysis()
-  // Show notification
+    // Lấy task_id từ URL
+    // GET /api/load_analysis.php
+    // Restore currentAnalysisData + conversationHistory
+    // Gọi displaySavedAnalysis()
+    // Show notification
 }
 ```
 
 ### 3. displaySavedAnalysis(savedData)
+
 ```javascript
 function displaySavedAnalysis(savedData) {
-  // Tạo HTML cho title + sections
-  // Wrap mỗi section với createSortableSection()
-  // Add event listeners (save, add section, drag & drop)
-  // Initialize auto-resize
+    // Tạo HTML cho title + sections
+    // Wrap mỗi section với createSortableSection()
+    // Add event listeners (save, add section, drag & drop)
+    // Initialize auto-resize
 }
 ```
 
@@ -301,27 +321,32 @@ function displaySavedAnalysis(savedData) {
 ## Security
 
 ✅ **Authentication:**
-- Kiểm tra `$_SESSION['user']` có tồn tại
-- Trả 401 Unauthorized nếu chưa login
+
+-   Kiểm tra `$_SESSION['user']` có tồn tại
+-   Trả 401 Unauthorized nếu chưa login
 
 ✅ **Authorization:**
-- Student: Kiểm tra `checkTaskAssignedToStudent(task_id, user_id)`
-- Teacher: Cho phép truy cập mọi task trong class của mình
+
+-   Student: Kiểm tra `checkTaskAssignedToStudent(task_id, user_id)`
+-   Teacher: Cho phép truy cập mọi task trong class của mình
 
 ✅ **Input Validation:**
-- `intval()` cho tất cả IDs
-- `json_encode()` với `JSON_UNESCAPED_UNICODE`
-- `htmlspecialchars()` trong JavaScript escapeHtml()
+
+-   `intval()` cho tất cả IDs
+-   `json_encode()` với `JSON_UNESCAPED_UNICODE`
+-   `htmlspecialchars()` trong JavaScript escapeHtml()
 
 ✅ **SQL Injection Prevention:**
-- Sử dụng PDO prepared statements
-- `bindValue()` với type hints
+
+-   Sử dụng PDO prepared statements
+-   `bindValue()` với type hints
 
 ---
 
 ## Testing
 
 ### Test Case 1: Lưu lần đầu
+
 ```bash
 # Login as student (user_id = 388)
 # Truy cập task_id = 8
@@ -336,6 +361,7 @@ Expected:
 ```
 
 ### Test Case 2: Load lại
+
 ```bash
 # Refresh trang hoặc truy cập lại URL
 Expected:
@@ -346,6 +372,7 @@ Expected:
 ```
 
 ### Test Case 3: Chỉnh sửa và lưu lại
+
 ```bash
 # Thêm 1 section mới
 # Xóa 1 section cũ
@@ -360,6 +387,7 @@ Expected:
 ```
 
 ### Test Case 4: Không có quyền
+
 ```bash
 # Login as student A
 # Truy cập task không được assign cho A
@@ -374,46 +402,55 @@ Expected:
 ## Troubleshooting
 
 **Problem:** "Không tìm thấy task ID"
-- **Solution:** Kiểm tra URL có `?task_id=X`
+
+-   **Solution:** Kiểm tra URL có `?task_id=X`
 
 **Problem:** "Không có nội dung để lưu"
-- **Solution:** Phân tích văn bản trước khi lưu
+
+-   **Solution:** Phân tích văn bản trước khi lưu
 
 **Problem:** Load không thấy dữ liệu cũ
-- **Solution:** 
-  - Check console log
-  - Verify response tồn tại trong DB
-  - Check user_id match
+
+-   **Solution:**
+    -   Check console log
+    -   Verify response tồn tại trong DB
+    -   Check user_id match
 
 **Problem:** Save bị lỗi 500
-- **Solution:**
-  - Check PHP error log
-  - Verify PDO connection
-  - Check json_ai format
+
+-   **Solution:**
+    -   Check PHP error log
+    -   Verify PDO connection
+    -   Check json_ai format
 
 ---
 
 ## Future Enhancements
 
 🔮 **Version History:**
-- Lưu nhiều versions của cùng 1 response
-- Cho phép rollback về version cũ
+
+-   Lưu nhiều versions của cùng 1 response
+-   Cho phép rollback về version cũ
 
 🔮 **Collaborative Editing:**
-- Nhiều user cùng edit (teacher + student)
-- Real-time sync
+
+-   Nhiều user cùng edit (teacher + student)
+-   Real-time sync
 
 🔮 **Auto-save:**
-- Tự động lưu mỗi 30 giây
-- Draft mode
+
+-   Tự động lưu mỗi 30 giây
+-   Draft mode
 
 🔮 **Export:**
-- Export to PDF/Word
-- Email kết quả
+
+-   Export to PDF/Word
+-   Email kết quả
 
 🔮 **Comments:**
-- Teacher comment vào từng section
-- Student reply
+
+-   Teacher comment vào từng section
+-   Student reply
 
 ---
 
@@ -440,13 +477,15 @@ LiteratureVer2/
 ## Kết luận
 
 Hệ thống đã hoàn thiện:
-- ✅ Save analysis với check existing response
-- ✅ Load analysis tự động khi mở trang
-- ✅ Edit và re-save với update logic
-- ✅ Lưu AI history vào json_ai
-- ✅ Security + validation đầy đủ
+
+-   ✅ Save analysis với check existing response
+-   ✅ Load analysis tự động khi mở trang
+-   ✅ Edit và re-save với update logic
+-   ✅ Lưu AI history vào json_ai
+-   ✅ Security + validation đầy đủ
 
 User experience:
+
 1. Truy cập link bài tập → Nội dung tự động load
 2. Phân tích → Chỉnh sửa → Lưu
 3. Mở lại → Dữ liệu cũ tự động hiển thị
