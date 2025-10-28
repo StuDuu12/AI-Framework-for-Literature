@@ -151,22 +151,22 @@
     <?php
     // Get task information from URL parameters
     require_once __DIR__ . '/../../config/helper_homework.php';
-    
+
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : null;
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : null;
     $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : null;
-    
+
     $taskContent = '';
     $taskTitle = '';
     $taskInfo = null;
-    
+
     // Load task content if task_id is provided
     if ($taskId) {
         $taskInfo = getInfoTask($taskId);
         if ($taskInfo) {
             $taskTitle = $taskInfo['task_title'] ?? '';
             $filePath = $taskInfo['file_content'] ?? '';
-            
+
             // Read file content from uploads folder if file path exists
             if (!empty($filePath)) {
                 $fullPath = __DIR__ . '/../../uploads/' . $filePath;
@@ -182,7 +182,7 @@
             }
         }
     }
-    
+
     require_once './views/templates/header.php';
     if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
         require_once './views/templates/sidebar_teacher.php';
@@ -193,12 +193,15 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Bộ Công cụ Phân tích Văn học<?php if ($taskTitle): ?> - <?= htmlspecialchars($taskTitle) ?><?php endif; ?></h1>
+            <h1>Bộ Công cụ Phân tích Văn học<?php if ($taskTitle): ?> -
+                    <?= htmlspecialchars($taskTitle) ?><?php endif; ?></h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="?route=class">Lớp học</a></li>
                     <?php if ($taskInfo): ?>
-                    <li class="breadcrumb-item"><a href="?route=class&id=<?= $taskInfo['class_id'] ?>"><?= htmlspecialchars($taskInfo['topic_name']) ?></a></li>
+                        <li class="breadcrumb-item"><a
+                                href="?route=class&id=<?= $taskInfo['class_id'] ?>"><?= htmlspecialchars($taskInfo['topic_name']) ?></a>
+                        </li>
                     <?php endif; ?>
                     <li class="breadcrumb-item active">Phân tích Văn học</li>
                 </ol>
@@ -212,25 +215,29 @@
                 <div class="lg:col-span-4 h-full">
                     <div class="bg-white p-6 rounded-xl shadow-md sticky top-24">
                         <?php if ($taskInfo): ?>
-                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
-                            <div class="flex items-start gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600 flex-shrink-0 mt-0.5">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                </svg>
-                                <div class="text-sm">
-                                    <p class="font-semibold text-blue-900">Bài tập: <?= htmlspecialchars($taskTitle) ?></p>
-                                    <?php if (!empty($taskInfo['task_description'])): ?>
-                                    <p class="text-blue-700 mt-1"><?= htmlspecialchars($taskInfo['task_description']) ?></p>
-                                    <?php endif; ?>
-                                    <p class="text-blue-600 text-xs mt-1">
-                                        Giai đoạn: <?= htmlspecialchars($taskInfo['phase_name']) ?> 
-                                        (<?= htmlspecialchars($taskInfo['m_phase_name']) ?>)
-                                    </p>
+                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                                <div class="flex items-start gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="text-blue-600 flex-shrink-0 mt-0.5">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                    <div class="text-sm">
+                                        <p class="font-semibold text-blue-900">Bài tập: <?= htmlspecialchars($taskTitle) ?>
+                                        </p>
+                                        <?php if (!empty($taskInfo['task_description'])): ?>
+                                            <p class="text-blue-700 mt-1"><?= htmlspecialchars($taskInfo['task_description']) ?>
+                                            </p>
+                                        <?php endif; ?>
+                                        <p class="text-blue-600 text-xs mt-1">
+                                            Giai đoạn: <?= htmlspecialchars($taskInfo['phase_name']) ?>
+                                            (<?= htmlspecialchars($taskInfo['m_phase_name']) ?>)
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         <?php endif; ?>
                         <h2 class="text-lg font-semibold mb-4 text-slate-800">💬 Trò chuyện với AI</h2>
 
@@ -427,13 +434,14 @@
         let currentAnalysisData = null;
         let conversationHistory = []; // Store chat history for refinement
         let isAnalyzed = false; // Track if initial analysis is done
+        let currentResponseId = null; // Track if user already has a response saved
 
         // --- Event Listeners ---
         fileUpload.addEventListener('change', handleFileUpload);
         deleteFileButton.addEventListener('click', handleDeleteFile);
         analyzeButton.addEventListener('click', handleAnalysis);
         chatButton.addEventListener('click', handleChatSubmit);
-        resetButton.addEventListener('click', handleReset);
+        resetButton.addEventListener('click', handleResetOrComment); // Use wrapper function
         tabs.forEach(tab => tab.addEventListener('click', handleTabClick));
 
         // --- Handlers ---
@@ -475,6 +483,12 @@
         }
 
         async function handleAnalysis() {
+            // Check if user already has a saved response - prevent re-analysis
+            if (currentResponseId) {
+                alert('Bạn đã có phân tích được lưu cho bài tập này. Không thể phân tích lại.');
+                return;
+            }
+            
             const textToAnalyze = textInput.value.trim();
             if (!textToAnalyze) {
                 alert('Vui lòng nhập văn bản hoặc tải lên một tệp tin.');
@@ -510,18 +524,101 @@
             textInput.setAttribute('readonly', true);
             textInput.classList.add('bg-slate-100', 'cursor-not-allowed');
 
-            // Hide analyze button, show reset and chat buttons
+            // Hide analyze button
             analyzeButton.classList.add('hidden');
-            resetButton.classList.remove('hidden');
-            resetButton.removeAttribute('disabled'); // Enable reset button
+            
+            // Show chat button
             chatButton.classList.remove('hidden');
             chatButton.removeAttribute('disabled'); // Enable chat button
+
+            // Check if user already has a response (saved analysis)
+            if (currentResponseId) {
+                // User has saved work - show "Go to Comment" button instead of "Reset"
+                resetButton.classList.remove('hidden');
+                resetButton.removeAttribute('disabled');
+                resetButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="mr-2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Chuyển sang bình luận</span>
+                `;
+                resetButton.classList.remove('border-red-600', 'text-red-600', 'hover:bg-red-50', 'focus:ring-red-500');
+                resetButton.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'focus:ring-blue-500');
+            } else {
+                // No saved work yet - show normal "Reset" button
+                resetButton.classList.remove('hidden');
+                resetButton.removeAttribute('disabled'); // Enable reset button
+            }
 
             // Show chat section
             chatSection.classList.remove('hidden');
 
             // Clear chat messages placeholder
             chatMessages.innerHTML = '';
+        }
+
+        // Wrapper function to handle reset or comment redirect based on state
+        function handleResetOrComment() {
+            if (currentResponseId) {
+                // User has saved response - redirect to comment
+                handleCommentRedirect();
+            } else {
+                // No saved response - allow reset
+                handleReset();
+            }
+        }
+
+        // Handle redirect to comment page (save first, then redirect)
+        async function handleCommentRedirect() {
+            try {
+                // Show loading state
+                resetButton.disabled = true;
+                const originalHTML = resetButton.innerHTML;
+                resetButton.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Đang lưu...</span>
+                `;
+
+                // Save current analysis first
+                const saveResult = await handleSaveAnalysis();
+                
+                if (!saveResult || !saveResult.success) {
+                    throw new Error('Không thể lưu dữ liệu');
+                }
+
+                // Get URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const taskId = urlParams.get('task_id');
+                const topicId = urlParams.get('topic_id');
+                const phaseId = urlParams.get('phase_id');
+                const userId = '<?= $_SESSION['user_id'] ?? '' ?>'; // Get from PHP session
+
+                // Build comment page URL
+                const commentUrl = `/class/homework/comment?task_id=${taskId}&topic_id=${topicId}&phase_id=${phaseId}&user_id=${userId}`;
+                
+                // Redirect to comment page
+                window.location.href = commentUrl;
+
+            } catch (error) {
+                console.error('Error during save and redirect:', error);
+                alert('Có lỗi xảy ra khi lưu và chuyển trang. Vui lòng thử lại.');
+                
+                // Restore button
+                resetButton.disabled = false;
+                resetButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="mr-2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Chuyển sang bình luận</span>
+                `;
+            }
         }
 
         function handleReset() {
@@ -696,31 +793,89 @@
         }
 
         // Handle save analysis changes
-        function handleSaveAnalysis() {
+        async function handleSaveAnalysis() {
             try {
+                // Get task_id from URL params
+                const urlParams = new URLSearchParams(window.location.search);
+                const taskId = urlParams.get('task_id');
+
+                if (!taskId) {
+                    alert('Không tìm thấy task ID. Vui lòng truy cập từ link bài tập.');
+                    return;
+                }
+
                 // Collect all edited content in order
                 const title = document.querySelector('.editable-title')?.value || '';
-                const sections = document.querySelectorAll('.sortable-section');
+                const sectionElements = document.querySelectorAll('.sortable-section');
 
-                let savedContent = `Tiêu đề: ${title}\n\n`;
-                sections.forEach((section, index) => {
+                const sections = [];
+                sectionElements.forEach((section) => {
                     const textarea = section.querySelector('.editable-content');
-                    if (textarea) {
-                        savedContent += `--- Section ${index + 1} ---\n${textarea.value}\n\n`;
+                    if (textarea && textarea.value.trim()) {
+                        sections.push(textarea.value.trim());
                     }
                 });
 
-                // For now, just show confirmation and log to console
-                console.log('Saved Analysis:', savedContent);
+                if (sections.length === 0 && !title) {
+                    alert('Không có nội dung để lưu.');
+                    return;
+                }
 
-                // Show success notification
+                // Show loading state
                 const saveButton = document.getElementById('save-analysis-button');
                 const originalHTML = saveButton.innerHTML;
+                saveButton.disabled = true;
+                saveButton.innerHTML = `
+                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Đang lưu...
+                `;
+
+                // Prepare AI history data
+                const aiHistory = {
+                    analysisData: currentAnalysisData,
+                    conversationHistory: conversationHistory,
+                    savedAt: new Date().toISOString()
+                };
+
+                // Send to backend API
+                const response = await fetch('/api/save_analysis.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task_id: parseInt(taskId),
+                        title: title,
+                        sections: sections,
+                        ai_history: aiHistory
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Lưu thất bại');
+                }
+
+                // Store response_id for future reference
+                if (result.response_id) {
+                    currentResponseId = result.response_id;
+                    
+                    // Update UI to show "Go to Comment" button if not already done
+                    if (isAnalyzed) {
+                        switchToChatMode();
+                    }
+                }
+
+                // Show success notification
                 saveButton.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    Đã lưu!
+                    ${result.message}
                 `;
                 saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
                 saveButton.classList.add('bg-green-700');
@@ -729,14 +884,32 @@
                     saveButton.innerHTML = originalHTML;
                     saveButton.classList.add('bg-green-600', 'hover:bg-green-700');
                     saveButton.classList.remove('bg-green-700');
+                    saveButton.disabled = false;
                 }, 2000);
 
-                // TODO: Send to backend API to save in database
-                // await saveToDatabase(savedContent);
+                console.log('Save result:', result);
+                
+                // Return result for other functions to use
+                return result;
 
             } catch (error) {
                 console.error('Error saving analysis:', error);
-                alert('Có lỗi xảy ra khi lưu. Vui lòng thử lại.');
+                alert('Có lỗi xảy ra khi lưu: ' + error.message);
+                
+                // Restore button
+                const saveButton = document.getElementById('save-analysis-button');
+                saveButton.disabled = false;
+                saveButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Lưu thay đổi
+                `;
+                
+                // Return null to indicate failure
+                return null;
             }
         }
 
@@ -1655,6 +1828,193 @@
                 resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
             });
         }
+
+        // Load saved analysis data on page load
+        async function loadSavedAnalysis() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const taskId = urlParams.get('task_id');
+
+                if (!taskId) {
+                    return; // No task_id, nothing to load
+                }
+
+                const response = await fetch(`/api/load_analysis.php?task_id=${taskId}`);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    console.error('Error loading saved data:', result.message);
+                    return;
+                }
+
+                if (!result.has_data) {
+                    console.log('No saved data found for this task');
+                    return;
+                }
+
+                // Data exists, restore it
+                const savedData = result.data;
+
+                // Store response_id
+                if (savedData.response_id) {
+                    currentResponseId = savedData.response_id;
+                }
+
+                // Restore AI history if available
+                if (savedData.ai_history) {
+                    if (savedData.ai_history.analysisData) {
+                        currentAnalysisData = savedData.ai_history.analysisData;
+                    }
+                    if (savedData.ai_history.conversationHistory) {
+                        conversationHistory = savedData.ai_history.conversationHistory;
+                    }
+                }
+
+                // If we have analysis data, display it
+                if (currentAnalysisData) {
+                    isAnalyzed = true;
+                    
+                    // Display the saved analysis
+                    displaySavedAnalysis(savedData);
+                    
+                    // Setup UI
+                    setupGeneratorTabs();
+                    placeholder.classList.add('hidden');
+                    resultsTabs.classList.remove('hidden');
+                    switchTab(tabAnalysis);
+                    resultsTabs.querySelector('nav').classList.add('hidden');
+                    switchToChatMode();
+
+                    // Show notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-20 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+                    notification.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        Đã tải kết quả phân tích đã lưu
+                    `;
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
+                }
+
+            } catch (error) {
+                console.error('Error loading saved analysis:', error);
+            }
+        }
+
+        // Display saved analysis (similar to displayAnalysis but from saved data)
+        function displaySavedAnalysis(savedData) {
+            const { title, sections } = savedData;
+
+            // Helper function to create editable textarea
+            const createEditableTextarea = (content, minRows = 2) => {
+                if (!content) return '';
+                return `<textarea class="editable-content w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">${escapeHtml(content)}</textarea>`;
+            };
+
+            // Helper function to wrap content in sortable section
+            const createSortableSection = (content, sectionId = '') => {
+                const id = sectionId || `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                return `<div class="sortable-section" draggable="true" data-section-id="${id}">
+                    <div class="section-controls">
+                        <span class="drag-handle" title="Kéo để sắp xếp">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                            Kéo
+                        </span>
+                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xóa section này">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Xóa
+                        </button>
+                    </div>
+                    ${content}
+                </div>`;
+            };
+
+            // Create main analysis content
+            let html = `<div id="analysis-content">`;
+
+            // Save button at the top
+            html += `<div class="mb-6 flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Kết quả phân tích</h2>
+                    <p class="text-sm text-slate-600 mt-1">Bạn có thể chỉnh sửa, thêm mới hoặc sắp xếp lại nội dung</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="add-section-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Thêm Section
+                    </button>
+                    <button id="save-analysis-button" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </div>`;
+
+            html += `<div id="sortable-container">`;
+
+            // Title section
+            html += createSortableSection(`<div class="mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Tiêu đề</label>
+                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(title || 'Không có tiêu đề')}">
+            </div>`, 'title-section');
+
+            // Add all saved sections
+            sections.forEach((section, index) => {
+                html += createSortableSection(`<div class="mb-6">${createEditableTextarea(section.content, 4)}</div>`, `saved-section-${index}`);
+            });
+
+            html += `</div>`; // Close sortable-container
+            html += `</div>`; // Close analysis-content
+
+            contentAnalysis.innerHTML = html;
+
+            // Add event listeners
+            const saveButton = document.getElementById('save-analysis-button');
+            if (saveButton) {
+                saveButton.addEventListener('click', handleSaveAnalysis);
+            }
+
+            const addSectionButton = document.getElementById('add-section-button');
+            if (addSectionButton) {
+                addSectionButton.addEventListener('click', handleAddSection);
+            }
+
+            // Initialize drag and drop
+            initializeDragAndDrop();
+
+            // Initialize auto-resize
+            setTimeout(() => {
+                initializeTextareaAutoResize();
+            }, 50);
+
+            // Enable tabs
+            tabSlideshow.classList.remove('hidden');
+            tabSlideshow.removeAttribute('disabled');
+            tabQuiz.classList.remove('hidden');
+            tabQuiz.removeAttribute('disabled');
+        }
+
+        // Call loadSavedAnalysis on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedAnalysis();
+        });
     </script>
 
 </body>
