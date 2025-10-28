@@ -34,7 +34,7 @@
             <li class="nav-item dropdown pe-3">
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                        <i class="bi bi-person-fill text-white"></i>
+                        <i class="bi bi-person-fill text-white d-flex justify-content-around"></i>
                     </div>
                     <span class="d-none d-md-block dropdown-toggle ps-2" id="headerProfileName">
                         <?php echo isset($_SESSION['user']['fullname']) ? htmlspecialchars($_SESSION['user']['fullname']) : 'User'; ?>

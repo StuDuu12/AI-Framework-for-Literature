@@ -464,6 +464,52 @@
         resetButton.addEventListener('click', handleReset);
         tabs.forEach(tab => tab.addEventListener('click', handleTabClick));
 
+        // --- Setup Functions ---
+        function setupGeneratorTabs() {
+            // Setup slideshow tab with generate button
+            contentSlideshow.innerHTML = `
+                <div class="text-center py-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-indigo-400">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-slate-700 mb-2">Tạo Trình chiếu</h3>
+                    <p class="text-slate-500 mb-6">Tạo bản trình bày từ kết quả phân tích</p>
+                    <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
+                        Tạo Trình chiếu
+                    </button>
+                </div>
+            `;
+
+            // Setup quiz tab with generate button
+            contentQuiz.innerHTML = `
+                <div class="text-center py-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-indigo-400">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-slate-700 mb-2">Tạo Câu hỏi</h3>
+                    <p class="text-slate-500 mb-6">Tạo câu hỏi trắc nghiệm từ kết quả phân tích</p>
+                    <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition">
+                        Tạo Câu hỏi
+                    </button>
+                </div>
+            `;
+
+            // Attach event listeners to the buttons
+            const slideshowBtn = document.getElementById('generate-slideshow-button');
+            const quizBtn = document.getElementById('generate-quiz-button');
+
+            if (slideshowBtn) {
+                slideshowBtn.addEventListener('click', handleGenerateSlideshow);
+            }
+            if (quizBtn) {
+                quizBtn.addEventListener('click', handleGenerateQuiz);
+            }
+        }
+
         // --- Handlers ---
         function handleFileUpload(e) {
             const file = e.target.files[0];
@@ -938,22 +984,6 @@
                     content.classList.add('hidden');
                 }
             });
-        }
-
-        function setupGeneratorTabs() {
-            contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Trình chiếu</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bản trình bày dựa trên kết quả phân tích.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Trình chiếu</button>
-            </div>`;
-            contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Bài kiểm tra</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bài kiểm tra ngắn dựa trên nội dung văn bản.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Câu hỏi</button>
-            </div>`;
-
-            document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
-            document.getElementById('generate-quiz-button').addEventListener('click', handleGenerateQuiz);
         }
 
         // --- API & Analysis Functions ---

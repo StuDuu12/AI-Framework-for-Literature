@@ -11,6 +11,10 @@
             font-family: 'Nunito', 'Segoe UI', 'Open Sans', sans-serif;
         }
 
+        .card-title {
+            font-weight: bolder;
+        }
+
         .task-card {
             transition: transform 0.2s, box-shadow 0.2s;
             border-left: 4px solid #4154f1;
@@ -272,7 +276,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-                                <h5 class="card-title mb-0">
+                                <h5 class=" mb-0">
                                     Tất cả nhiệm vụ
                                     <span class="badge bg-primary rounded-pill"><?= $totalTasks ?></span>
                                 </h5>

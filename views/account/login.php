@@ -72,30 +72,30 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         }
 
         .card-title {
+            justify-content: center;
             font-weight: 600;
         }
     </style>
 </head>
 
 <body>
+    <img src="NiceAdmin/NiceAdmin/assets/img/logo.png" alt="">
     <main>
         <div class="container">
             <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-
-                            <div class="d-flex justify-content-center py-4">
-                                <a href="index.php" class="logo d-flex align-items-center w-auto">
-                                    <img src="NiceAdmin/NiceAdmin/assets/img/logo.png" alt="">
-                                    <span class="d-none d-lg-block">Literature System</span>
-                                </a>
-                            </div>
-
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <div class="pt-4 pb-2">
-                                        <h5 class="card-title text-center pb-0 fs-4">Đăng nhập tài khoản</h5>
+                                        <div class="d-flex justify-content-center py-4">
+                                            <a href="index.php" class="logo d-flex align-items-center w-auto">
+                                                <img src="NiceAdmin/NiceAdmin/assets/img/logo.png" alt="">
+                                                <span class="d-none d-lg-block">Literature System</span>
+                                            </a>
+                                        </div>
+                                        <h5 class="card-title text-center pb-0 m-10 fz-10">Đăng nhập tài khoản</h5>
                                         <p class="text-center small">Nhập tên đăng nhập và mật khẩu để đăng nhập</p>
                                     </div>
 

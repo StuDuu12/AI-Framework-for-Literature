@@ -52,23 +52,25 @@
 
                             <div class="list-group" id="topicsList">
                                 <?php if (empty($topics)): ?>
-                                    <div class="alert alert-info text-center">
+                                    <div class="alert alert-info text-center fade-in">
                                         <i class="bi bi-info-circle"></i> Chưa có chủ đề nào
                                     </div>
                                 <?php else: ?>
-                                    <?php foreach ($topics as $topic): ?>
-                                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3"
-                                            data-topic-id="<?= intval($topic['topic_id']) ?>">
+                                    <?php foreach ($topics as $index => $topic): ?>
+                                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 topic-item"
+                                            data-topic-id="<?= intval($topic['topic_id']) ?>"
+                                            style="animation-delay: <?= $index * 0.1 ?>s">
                                             <div class="flex-grow-1">
                                                 <div class="d-flex align-items-center mb-2">
-                                                    <h5 class="mb-0 me-3">
+                                                    <h5 class="mb-0 me-3 topic-title">
+                                                        <i class="bi bi-book text-primary me-2"></i>
                                                         <?= htmlspecialchars($topic['topic_name']) ?>
                                                     </h5>
-                                                    <span class="badge bg-primary">
+                                                    <span class="badge bg-primary topic-badge">
                                                         <i class="bi bi-file-text"></i> Chủ đề
                                                     </span>
                                                 </div>
-                                                <div class="text-muted small">
+                                                <div class="text-muted small topic-meta">
                                                     <i class="bi bi-person"></i>
                                                     <?= htmlspecialchars($topic['added_by_name'] ?? 'N/A') ?>
                                                     <span class="mx-2">•</span>
@@ -76,9 +78,11 @@
                                                     <?= date('d/m/Y H:i', strtotime($topic['created_at'])) ?>
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-2 align-items-center">
-                                                <a href="class/phases?topic_id=<?= intval($topic['topic_id']) ?>" class="btn btn-outline-primary btn-sm topic-link"
-                                                    data-topic-id="<?= intval($topic['topic_id']) ?>" title="Vào chủ đề">
+                                            <div class="d-flex gap-2 align-items-center topic-actions">
+                                                <a href="class/phases?topic_id=<?= intval($topic['topic_id']) ?>" 
+                                                   class="btn btn-primary btn-sm topic-link"
+                                                   data-topic-id="<?= intval($topic['topic_id']) ?>" 
+                                                   title="Vào chủ đề">
                                                     <i class="bi bi-box-arrow-in-right"></i> Vào chủ đề
                                                 </a>
                                                 <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
@@ -90,7 +94,8 @@
                                                     </button>
                                                     <button class="btn btn-outline-danger btn-sm delete-topic-btn"
                                                         data-topic-id="<?= intval($topic['topic_id']) ?>"
-                                                        data-topic-name="<?= htmlspecialchars($topic['topic_name']) ?>" title="Xóa">
+                                                        data-topic-name="<?= htmlspecialchars($topic['topic_name']) ?>" 
+                                                        title="Xóa">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -155,6 +160,119 @@
     require_once 'views/templates/footer.php';
     require_once 'views/templates/vendors.php';
     ?>
+
+    <style>
+        /* Topic List Animations */
+        .topic-item {
+            animation: slideInUp 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .topic-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(65, 84, 241, 0.15);
+        }
+        
+        .topic-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+        
+        .topic-item:hover .topic-title {
+            color: var(--primary-color);
+        }
+        
+        .topic-badge {
+            animation: fadeIn 0.6s ease;
+            box-shadow: 0 2px 8px rgba(65, 84, 241, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .topic-meta i {
+            color: var(--primary-color);
+            margin-right: 4px;
+        }
+        
+        .topic-actions .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .topic-actions .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .topic-link {
+            box-shadow: 0 2px 8px rgba(65, 84, 241, 0.2);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* Card enhancements */
+        .card {
+            animation: slideInUp 0.6s ease;
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        /* Dark theme adjustments */
+        body.dark-theme .topic-item {
+            background: rgba(19, 47, 76, 0.5);
+            border-color: #3d5a80;
+        }
+        
+        body.dark-theme .topic-item:hover {
+            background: linear-gradient(135deg, rgba(77, 171, 247, 0.2) 0%, rgba(116, 192, 252, 0.1) 100%);
+            box-shadow: 0 8px 24px rgba(77, 171, 247, 0.25);
+        }
+        
+        body.dark-theme .topic-title {
+            color: #ffffff !important;
+        }
+        
+        body.dark-theme .topic-item:hover .topic-title {
+            color: #74c0fc !important;
+        }
+        
+        body.dark-theme .topic-meta {
+            color: #b0c4de !important;
+        }
+        
+        body.dark-theme .topic-badge {
+            background: linear-gradient(135deg, #4dabf7 0%, #74c0fc 100%) !important;
+        }
+        
+        body.dark-theme .topic-link {
+            background: linear-gradient(135deg, #4dabf7 0%, #74c0fc 100%);
+            border: none;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .topic-link:hover {
+            background: linear-gradient(135deg, #74c0fc 0%, #a5d8ff 100%);
+        }
+    </style>
 
     <script>
         // Topic Management JavaScript
