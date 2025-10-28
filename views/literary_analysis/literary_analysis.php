@@ -305,15 +305,11 @@
                             <div class="border-b border-slate-200">
                                 <nav class="-mb-px flex space-x-6 px-8" aria-label="Tabs">
                                     <button id="tab-analysis" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Phân tích Chi tiết</button>
-                                    <button id="tab-slideshow" class="tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm">Trình chiếu</button>
-                                    <button id="tab-quiz" class="tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm">Kiểm tra</button>
                                 </nav>
                             </div>
                             <!-- Tab Content -->
                             <div class="flex-grow overflow-auto p-8">
                                 <div id="content-analysis" class="tab-content prose-custom max-w-none"></div>
-                                <div id="content-slideshow" class="tab-content hidden h-full"></div>
-                                <div id="content-quiz" class="tab-content hidden"></div>
                             </div>
                         </div>
                     </div>
@@ -340,16 +336,12 @@
             placeholder = document.getElementById('placeholder'),
             resultsTabs = document.getElementById('results-tabs'),
             tabAnalysis = document.getElementById('tab-analysis'),
-            tabSlideshow = document.getElementById('tab-slideshow'),
-            tabQuiz = document.getElementById('tab-quiz'),
             contentAnalysis = document.getElementById('content-analysis'),
-            contentSlideshow = document.getElementById('content-slideshow'),
-            contentQuiz = document.getElementById('content-quiz'),
             fileInfo = document.getElementById('file-info'),
             deleteFileButton = document.getElementById('delete-file-button');
 
-        const tabs = [tabAnalysis, tabSlideshow, tabQuiz];
-        const contents = [contentAnalysis, contentSlideshow, contentQuiz];
+        const tabs = [tabAnalysis];
+        const contents = [contentAnalysis];
 
         // State
         let currentAnalysisData = null;
@@ -733,130 +725,6 @@
 
 
             contentAnalysis.innerHTML = html;
-        }
-
-        function displaySlideshow(slideshowResult) {
-            if (!slideshowResult || !slideshowResult.slides) return;
-
-            let slideIndex = 0;
-            const slides = slideshowResult.slides || [];
-
-            if (slideshowResult.references) {
-                // Format references for display
-                const formattedReferences = slideshowResult.references.map(ref => {
-                    // Basic heuristic to italicize book/journal titles
-                    return ref.replace(/<i>(.*?)<\/i>/g, '<em>$1</em>'); // Use em for italics in prose context
-                }).join('<br>');
-                slides.push({
-                    heading: 'Tài liệu tham khảo',
-                    content: formattedReferences
-                });
-            }
-
-            let slideHTML = `<div id="slide-wrapper">`;
-            slides.forEach((slide, index) => {
-                slideHTML += `<div class="slide p-6 border border-slate-200 rounded-lg bg-slate-50">
-                    <h3 class="text-xl font-bold mb-4 text-indigo-700">${index + 1}. ${slide.heading}</h3>
-                    <div class="prose max-w-none">${slide.content}</div>
-                </div>`;
-            });
-            slideHTML += `</div>`;
-
-            const totalSlides = slides.length;
-            contentSlideshow.innerHTML = `
-                <div class="mb-4">
-                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Bản trình bày'}</h2>
-                    <p class="text-slate-600">Bản trình bày tóm tắt nội dung phân tích.</p>
-                </div>
-                <div id="slideshow-container" class="bg-white rounded-xl shadow-inner">${slideHTML}</div>
-                <div class="flex items-center justify-between mt-4">
-                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Trước</button>
-                    <span id="slide-counter" class="text-sm font-medium text-slate-600">1 / ${totalSlides}</span>
-                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Sau &rarr;</button>
-                </div>`;
-
-            const slideWrapper = contentSlideshow.querySelector('#slide-wrapper');
-            const prevButton = contentSlideshow.querySelector('#prev-slide');
-            const nextButton = contentSlideshow.querySelector('#next-slide');
-            const slideCounter = contentSlideshow.querySelector('#slide-counter');
-
-            function updateSlides() {
-                if (totalSlides === 0) return;
-                slideWrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
-                slideCounter.textContent = `${slideIndex + 1} / ${totalSlides}`;
-                prevButton.disabled = slideIndex === 0;
-                nextButton.disabled = slideIndex === totalSlides - 1;
-            }
-
-            prevButton.addEventListener('click', () => {
-                if (slideIndex > 0) {
-                    slideIndex--;
-                    updateSlides();
-                }
-            });
-            nextButton.addEventListener('click', () => {
-                if (slideIndex < totalSlides - 1) {
-                    slideIndex++;
-                    updateSlides();
-                }
-            });
-
-            updateSlides();
-        }
-
-        function displayQuiz(result) {
-            if (!result || !result.quiz) return;
-            let quizHTML = `
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold">Bài kiểm tra: ${result.title || 'Văn bản'}</h2>
-                    <p class="text-slate-600">Kiểm tra kiến thức của bạn về tác phẩm.</p>
-                </div>
-                <div id="quiz-form" class="space-y-6">`;
-
-            result.quiz.forEach((item, index) => {
-                quizHTML += `<div class="question-block"><p class="font-semibold mb-2">${index + 1}. ${item.q}</p><div class="space-y-2">`;
-                item.o.forEach((option, optionIndex) => {
-                    quizHTML += `<div><label class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50 cursor-pointer">
-                                <input type="radio" name="question-${index}" value="${optionIndex}" class="h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
-                                <span>${option}</span></label></div>`;
-                });
-                quizHTML += `</div></div>`;
-            });
-
-            quizHTML += `</div><div class="mt-8">
-                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Nộp bài</button>
-                <div id="quiz-results" class="mt-4 text-lg font-bold"></div>
-            </div>`;
-            contentQuiz.innerHTML = quizHTML;
-
-            const submitButton = contentQuiz.querySelector('#submit-quiz');
-            const resultsDiv = contentQuiz.querySelector('#quiz-results');
-
-            submitButton.addEventListener('click', () => {
-                let score = 0;
-                result.quiz.forEach((item, index) => {
-                    const selected = contentQuiz.querySelector(`input[name="question-${index}"]:checked`);
-                    const questionBlock = selected?.closest('.question-block');
-                    questionBlock?.querySelectorAll('label').forEach(l => {
-                        l.classList.remove('bg-red-100', 'border-red-400', 'bg-green-100', 'border-green-400');
-                    });
-                    if (selected) {
-                        const selectedLabel = selected.parentElement;
-                        if (parseInt(selected.value) === item.a) {
-                            score++;
-                            selectedLabel.classList.add('bg-green-100', 'border-green-400');
-                        } else {
-                            selectedLabel.classList.add('bg-red-100', 'border-red-400');
-                            const correctLabel = questionBlock.querySelector(`input[value="${item.a}"]`).parentElement;
-                            if (correctLabel) {
-                                correctLabel.classList.add('bg-green-100', 'border-green-400');
-                            }
-                        }
-                    }
-                });
-                resultsDiv.textContent = `Kết quả của bạn: ${score} / ${result.quiz.length}`;
-                resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
-            });
         }
     </script>
 
