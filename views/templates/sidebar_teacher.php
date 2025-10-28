@@ -50,7 +50,14 @@
                 </a>
             </li>
         <?php endif; ?>
-
+        <?php if(isset($_GET['phase_id']) && $_GET['phase_id'] > 0): ?>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/task?topic_id=<?= $_GET['topic_id'] ?>&phase_id=<?= $_GET['phase_id'] ?>">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Các nhiệm vụ của pha hiện tại</span>
+            </a>
+        </li>
+        <?php endif; ?>
     </ul>
 
 </aside><!-- End Sidebar-->
