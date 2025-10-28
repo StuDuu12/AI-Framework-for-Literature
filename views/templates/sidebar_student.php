@@ -2,7 +2,7 @@
 <aside id="sidebar" class="sidebar">
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/dashboard">
                 <i class="bi bi-grid"></i>
                 <span>Danh sách các lớp học</span>
             </a>
@@ -17,25 +17,16 @@
         <li class="nav-heading">Học tập</li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=student_tasks">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/my_tasks">
                 <i class="bi bi-list-task"></i>
                 <span>Nhiệm vụ của tôi</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=student_groups">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/my_groups">
                 <i class="bi bi-people"></i>
                 <span>Nhóm của tôi</span>
-            </a>
-        </li>
-
-        <li class="nav-heading">Công cụ</li>
-
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="<?= URL_ROOT ?>?route=literary_analysis">
-                <i class="bi bi-book"></i>
-                <span>Phân tích Văn học</span>
             </a>
         </li>
 

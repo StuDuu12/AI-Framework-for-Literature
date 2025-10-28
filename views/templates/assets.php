@@ -3,8 +3,9 @@
 <link href="<?= URL_ROOT ?>/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
 <!-- Google Fonts -->
-<link href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Vendor CSS Files -->
 <link href="<?= URL_ROOT ?>/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -17,5 +18,10 @@
 
 <!-- Template Main CSS File -->
 <link href="<?= URL_ROOT ?>/assets/css/style.css" rel="stylesheet">
+
+<!-- Enhanced Theme CSS -->
+<link href="<?= URL_ROOT ?>/assets/css/enhanced-theme.css" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/dark-theme-enhanced.css" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/sidebar-fixes.css" rel="stylesheet">
 
 <?php require_once './views/templates/theme-toggle.php'; ?>

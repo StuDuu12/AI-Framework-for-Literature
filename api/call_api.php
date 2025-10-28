@@ -20,7 +20,7 @@ if (!defined('AUTH_PASSED')) {
 // This function now accepts a $contents array for chat-style requests.
 function callGeminiApi($systemPrompt, $contents, $schema)
 {
-    $apiKey = "AIzaSyBBPzAU_iuvVsHjZw7sdFhKUakA4HiAL3I"; // This is handled by the execution environment.
+    $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs"; // This is handled by the execution environment.
     $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
 
     $payload = [
@@ -309,58 +309,61 @@ switch ($action) {
         $response = callGeminiApi($systemPrompt, $contents, $schema);
         break;
 
-    case 'slideshow':
-        $systemPrompt = 'Bạn là một chuyên gia biên tập nội dung. Dựa trên phân tích văn học chi tiết sau (dạng JSON), hãy tóm tắt các điểm chính từ các phần phân tích chuyên sâu (poetryAnalysis, storyAnalysis, dramaAnalysis) và các phần khác thành nội dung ngắn gọn cho các slide thuyết trình. Mỗi slide nên có tiêu đề (heading) và nội dung (content) súc tích, dễ đọc. Đồng thời, cung cấp thêm 3-4 bài báo nghiên cứu học thuật liên quan (về tác phẩm, tác giả, hoặc thể loại), định dạng theo chuẩn MLA Việt hóa (Tác giả. <i>Tên sách</i>. NXB, Năm. hoặc Tác giả. "Tên bài báo." <i>Tên tạp chí</i>, số, năm, trang.). Trả về một đối tượng JSON.';
-        $schema = [
-            "type" => "OBJECT",
-            "properties" => [
-                "slides" => [
-                    "type" => "ARRAY",
-                    "items" => [
-                        "type" => "OBJECT",
-                        "properties" => [
-                            "heading" => ["type" => "STRING"],
-                            "content" => ["type" => "STRING"]
-                        ],
-                        "required" => ["heading", "content"]
-                    ]
-                ],
-                "references" => ["type" => "ARRAY", "items" => ["type" => "STRING"]],
+    case 'chat':
+        // Multi-turn chat conversation (similar to refine but for task-based chat)
+        $input = json_decode(file_get_contents('php://input'), true);
+        $history = $input['history'] ?? [];
+        $userMessage = $input['data'] ?? '';
+
+        if (empty($history)) {
+            $response = ['error' => 'No conversation history provided'];
+            break;
+        }
+
+        $systemPrompt = 'Bạn là một chuyên gia phân tích văn học. Dựa trên cuộc hội thoại trước đó và phân tích hiện tại, hãy trả lời câu hỏi của người dùng một cách chi tiết, chuyên sâu. Trả lời ngắn gọn, súc tích nhưng đầy đủ ý. Sử dụng văn bản thuần, không dùng markdown phức tạp.';
+
+        // Call API without schema for free-form text response
+        $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
+
+        $payload = [
+            'contents' => $history,
+            'systemInstruction' => [
+                'parts' => [['text' => $systemPrompt]]
             ],
-            "required" => ["slides", "references"]
+            'generationConfig' => [
+                'temperature' => 0.7,
+                'maxOutputTokens' => 2000
+            ]
         ];
 
-        // Format the analysis context as a chat 'contents' array
-        $contents = [
-            ['role' => 'user', 'parts' => [['text' => $data]]]
-        ];
+        $jsonData = json_encode($payload);
 
-        $response = callGeminiApi($systemPrompt, $contents, $schema);
-        break;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($jsonData)
+        ]);
 
-    case 'quiz':
-        $systemPrompt = 'Dựa trên phân tích văn học sau đây, hãy tạo một bài kiểm tra trắc nghiệm gồm 3 câu hỏi. Mỗi câu hỏi phải có 3 lựa chọn và một câu trả lời đúng. Trả về một đối tượng JSON.';
-        $schema = [
-            "type" => "OBJECT",
-            "properties" => [
-                "quiz" => [
-                    "type" => "ARRAY",
-                    "items" => [
-                        "type" => "OBJECT",
-                        "properties" => ["q" => ["type" => "STRING"], "o" => ["type" => "ARRAY", "items" => ["type" => "STRING"]], "a" => ["type" => "INTEGER"],],
-                        "required" => ["q", "o", "a"]
-                    ]
-                ]
-            ],
-            "required" => ["quiz"]
-        ];
+        $apiResponse = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        // Format the analysis context as a chat 'contents' array
-        $contents = [
-            ['role' => 'user', 'parts' => [['text' => $data]]]
-        ];
-
-        $response = callGeminiApi($systemPrompt, $contents, $schema);
+        if ($httpcode == 200) {
+            $result = json_decode($apiResponse, true);
+            if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
+                $responseText = $result['candidates'][0]['content']['parts'][0]['text'];
+                $response = ['answer' => $responseText];
+            } else {
+                $response = ['error' => 'Invalid response structure from API.'];
+            }
+        } else {
+            $response = ['error' => "API call failed with status code $httpcode"];
+        }
         break;
 
     case 'refine':
@@ -383,7 +386,7 @@ switch ($action) {
         ];
 
         // Call API without schema for free-form text response
-        $apiKey = "AIzaSyBBPzAU_iuvVsHjZw7sdFhKUakA4HiAL3I";
+        $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
         $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
 
         $payload = [
