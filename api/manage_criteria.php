@@ -35,7 +35,7 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 try {
     switch ($action) {
         // ==================== CRITERIA GROUP ACTIONS ====================
-        
+
         case 'get_groups':
             // Get all groups for a class or specific group by ID
             if (isset($_GET['nhom_tc_id'])) {
@@ -95,8 +95,8 @@ try {
         case 'delete_group':
             // Delete criteria group
             $input = json_decode(file_get_contents('php://input'), true);
-            $nhom_tc_id = isset($input['nhom_tc_id']) ? intval($input['nhom_tc_id']) : 
-                         (isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0);
+            $nhom_tc_id = isset($input['nhom_tc_id']) ? intval($input['nhom_tc_id']) :
+                (isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0);
 
             if ($nhom_tc_id <= 0) {
                 echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
@@ -108,7 +108,7 @@ try {
             break;
 
         // ==================== CRITERIA ACTIONS ====================
-        
+
         case 'get_criteria':
             // Get all criteria for a group or specific criterion by ID
             if (isset($_GET['tc_id'])) {
@@ -171,8 +171,8 @@ try {
         case 'delete_criteria':
             // Delete criterion
             $input = json_decode(file_get_contents('php://input'), true);
-            $tc_id = isset($input['tc_id']) ? intval($input['tc_id']) : 
-                    (isset($_POST['tc_id']) ? intval($_POST['tc_id']) : 0);
+            $tc_id = isset($input['tc_id']) ? intval($input['tc_id']) :
+                (isset($_POST['tc_id']) ? intval($_POST['tc_id']) : 0);
 
             if ($tc_id <= 0) {
                 echo json_encode(['success' => false, 'message' => 'Invalid criteria ID']);

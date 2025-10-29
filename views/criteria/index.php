@@ -14,50 +14,61 @@
             right: 20px;
             z-index: 9999;
         }
-        
+
         .group-card {
             cursor: pointer;
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
         }
+
         .group-card:hover {
             border-left-color: #4154f1;
             box-shadow: 0 0 20px rgba(65, 84, 241, 0.1);
         }
+
         .group-card.active {
             border-left-color: #4154f1;
             background-color: #f8f9ff;
         }
+
         .criteria-item {
             transition: all 0.2s ease;
         }
+
         .criteria-item:hover {
             background-color: #f8f9fa;
         }
+
         .badge-score {
             font-size: 0.85rem;
             padding: 0.35rem 0.65rem;
         }
+
         .empty-state {
             text-align: center;
             padding: 3rem;
             color: #6c757d;
         }
+
         .empty-state i {
             font-size: 4rem;
             opacity: 0.3;
             margin-bottom: 1rem;
         }
+
         .group-actions {
             opacity: 0;
             transition: opacity 0.2s ease;
         }
+
         .group-card:hover .group-actions {
             opacity: 1;
         }
+
         .list-group-item {
             border-left: 3px solid transparent;
         }
+
         .list-group-item.active {
             background-color: #f8f9ff;
             border-left-color: #4154f1;
@@ -71,10 +82,10 @@
     require_once './views/templates/header.php';
     if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
         require_once './views/templates/sidebar_teacher.php';
-    } else if(isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
+    } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
         require_once './views/templates/sidebar_student.php';
     }
-    
+
     // Get class_id from session or URL
     $class_id = isset($_SESSION['current_class_id']) ? $_SESSION['current_class_id'] : (isset($_GET['class_id']) ? intval($_GET['class_id']) : null);
     ?>
@@ -102,7 +113,7 @@
                                     <i class="bi bi-plus-circle"></i> Thêm nhóm
                                 </button>
                             </div>
-                            
+
                             <div id="groupsList" class="list-group">
                                 <!-- Groups will be loaded here -->
                                 <div class="text-center py-4">
@@ -124,11 +135,12 @@
                                     <h5 class="card-title mb-0" id="criteriaTitle">Tiêu chí</h5>
                                     <small class="text-muted" id="groupDescription"></small>
                                 </div>
-                                <button class="btn btn-success btn-sm" id="addCriteriaBtn" onclick="showAddCriteriaModal()" disabled>
+                                <button class="btn btn-success btn-sm" id="addCriteriaBtn"
+                                    onclick="showAddCriteriaModal()" disabled>
                                     <i class="bi bi-plus-circle"></i> Thêm tiêu chí
                                 </button>
                             </div>
-                            
+
                             <div id="criteriaList">
                                 <!-- Criteria will be loaded here -->
                                 <div class="empty-state">
@@ -155,14 +167,15 @@
                         <form id="groupForm">
                             <input type="hidden" id="groupId" name="nhom_tc_id">
                             <div class="mb-3">
-                                <label for="groupName" class="form-label">Tên nhóm <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="groupName" name="ten_nhom_tc" required 
-                                       placeholder="Ví dụ: Đánh giá nội dung">
+                                <label for="groupName" class="form-label">Tên nhóm <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="groupName" name="ten_nhom_tc" required
+                                    placeholder="Ví dụ: Đánh giá nội dung">
                             </div>
                             <div class="mb-3">
                                 <label for="groupDescription" class="form-label">Mô tả</label>
-                                <textarea class="form-control" id="groupDescription" name="description" rows="3" 
-                                          placeholder="Mô tả chi tiết về nhóm tiêu chí này"></textarea>
+                                <textarea class="form-control" id="groupDescription" name="description" rows="3"
+                                    placeholder="Mô tả chi tiết về nhóm tiêu chí này"></textarea>
                             </div>
                         </form>
                     </div>
@@ -188,32 +201,35 @@
                         <form id="criteriaForm">
                             <input type="hidden" id="criteriaId" name="tc_id">
                             <input type="hidden" id="criteriaGroupId" name="nhom_tc_id">
-                            
+
                             <div class="mb-3">
-                                <label for="criteriaName" class="form-label">Tên tiêu chí <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="criteriaName" name="name_tc" required 
-                                       placeholder="Ví dụ: Độ chính xác của nội dung">
+                                <label for="criteriaName" class="form-label">Tên tiêu chí <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="criteriaName" name="name_tc" required
+                                    placeholder="Ví dụ: Độ chính xác của nội dung">
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="criteriaDescription" class="form-label">Mô tả</label>
-                                <textarea class="form-control" id="criteriaDescription" name="description" rows="2" 
-                                          placeholder="Mô tả chi tiết về tiêu chí"></textarea>
+                                <textarea class="form-control" id="criteriaDescription" name="description" rows="2"
+                                    placeholder="Mô tả chi tiết về tiêu chí"></textarea>
                             </div>
-                            
+
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="minScore" class="form-label">Điểm tối thiểu <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="minScore" name="min_score" 
-                                               min="0" step="1" value="0" required>
+                                        <label for="minScore" class="form-label">Điểm tối thiểu <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="minScore" name="min_score" min="0"
+                                            step="1" value="0" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="maxScore" class="form-label">Điểm tối đa <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="maxScore" name="max_score" 
-                                               min="0" step="1" value="10" required>
+                                        <label for="maxScore" class="form-label">Điểm tối đa <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="maxScore" name="max_score" min="0"
+                                            step="1" value="10" required>
                                     </div>
                                 </div>
                             </div>
@@ -230,44 +246,48 @@
         </div>
 
     </main><!-- End #main -->
-    
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="bi bi-check-circle me-2"></i>
                     <span id="successToastMessage"></span>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
-        
-        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="bi bi-exclamation-circle me-2"></i>
                     <span id="errorToastMessage"></span>
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
-    
+
     <?php
     require_once 'views/templates/footer.php';
     require_once 'views/templates/vendors.php';
     ?>
-    
+
     <script>
         let currentClassId = <?php echo $class_id ? $class_id : 'null'; ?>;
         let selectedGroupId = null;
         let groupModal, criteriaModal;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             groupModal = new bootstrap.Modal(document.getElementById('groupModal'));
             criteriaModal = new bootstrap.Modal(document.getElementById('criteriaModal'));
-            
+
             if (currentClassId) {
                 loadGroups();
             } else {
@@ -280,7 +300,7 @@
             try {
                 const response = await fetch(`/api/manage_criteria.php?action=get_groups&class_id=${currentClassId}`);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     displayGroups(result.data);
                 } else {
@@ -295,7 +315,7 @@
         // Display groups
         function displayGroups(groups) {
             const container = document.getElementById('groupsList');
-            
+
             if (groups.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -306,7 +326,7 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = groups.map(group => `
                 <div class="list-group-item list-group-item-action ${group.nhom_tc_id == selectedGroupId ? 'active' : ''}" 
                      onclick="selectGroup(${group.nhom_tc_id}, '${escapeHtml(group.ten_nhom_tc)}', '${escapeHtml(group.description || '')}')">
@@ -337,13 +357,13 @@
             document.getElementById('criteriaTitle').textContent = groupName;
             document.getElementById('groupDescription').textContent = description;
             document.getElementById('addCriteriaBtn').disabled = false;
-            
+
             // Update active state
             document.querySelectorAll('#groupsList .list-group-item').forEach(item => {
                 item.classList.remove('active');
             });
             event.currentTarget.classList.add('active');
-            
+
             await loadCriteria(groupId);
         }
 
@@ -352,7 +372,7 @@
             try {
                 const response = await fetch(`/api/manage_criteria.php?action=get_criteria&nhom_tc_id=${groupId}`);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     displayCriteria(result.data);
                 } else {
@@ -367,7 +387,7 @@
         // Display criteria
         function displayCriteria(criteria) {
             const container = document.getElementById('criteriaList');
-            
+
             if (criteria.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -378,7 +398,7 @@
                 `;
                 return;
             }
-            
+
             container.innerHTML = `
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -427,7 +447,7 @@
             try {
                 const response = await fetch(`/api/manage_criteria.php?action=get_groups&nhom_tc_id=${groupId}`);
                 const result = await response.json();
-                
+
                 if (result.success && result.data) {
                     const group = result.data;
                     document.getElementById('groupModalTitle').textContent = 'Sửa Nhóm Tiêu chí';
@@ -449,26 +469,26 @@
                 form.reportValidity();
                 return;
             }
-            
+
             const formData = new FormData(form);
             formData.append('class_id', currentClassId);
-            
+
             const groupId = document.getElementById('groupId').value;
             formData.append('action', groupId ? 'update_group' : 'create_group');
             const url = '/api/manage_criteria.php';
-            
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     body: formData
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     showSuccess(result.message);
                     groupModal.hide();
                     await loadGroups();
-                    
+
                     if (groupId && selectedGroupId == groupId) {
                         // Reload criteria if we edited the selected group
                         await loadCriteria(groupId);
@@ -487,7 +507,7 @@
             if (!confirm(`Bạn có chắc chắn muốn xóa nhóm "${groupName}"?\n\nLưu ý: Phải xóa hết các tiêu chí trong nhóm trước khi xóa nhóm.`)) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/manage_criteria.php', {
                     method: 'POST',
@@ -495,7 +515,7 @@
                     body: JSON.stringify({ action: 'delete_group', nhom_tc_id: groupId })
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     showSuccess(result.message);
                     if (selectedGroupId == groupId) {
@@ -523,7 +543,7 @@
                 showError('Vui lòng chọn một nhóm tiêu chí trước');
                 return;
             }
-            
+
             document.getElementById('criteriaModalTitle').textContent = 'Thêm Tiêu chí';
             document.getElementById('criteriaForm').reset();
             document.getElementById('criteriaId').value = '';
@@ -538,7 +558,7 @@
             try {
                 const response = await fetch(`/api/manage_criteria.php?action=get_criteria&tc_id=${criteriaId}`);
                 const result = await response.json();
-                
+
                 if (result.success && result.data) {
                     const criteria = result.data;
                     document.getElementById('criteriaModalTitle').textContent = 'Sửa Tiêu chí';
@@ -563,27 +583,27 @@
                 form.reportValidity();
                 return;
             }
-            
+
             const minScore = parseInt(document.getElementById('minScore').value);
             const maxScore = parseInt(document.getElementById('maxScore').value);
-            
+
             if (minScore > maxScore) {
                 showError('Điểm tối thiểu không được lớn hơn điểm tối đa');
                 return;
             }
-            
+
             const formData = new FormData(form);
             const criteriaId = document.getElementById('criteriaId').value;
             formData.append('action', criteriaId ? 'update_criteria' : 'create_criteria');
             const url = '/api/manage_criteria.php';
-            
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     body: formData
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     showSuccess(result.message);
                     criteriaModal.hide();
@@ -603,7 +623,7 @@
             if (!confirm(`Bạn có chắc chắn muốn xóa tiêu chí "${criteriaName}"?`)) {
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/manage_criteria.php', {
                     method: 'POST',
@@ -611,7 +631,7 @@
                     body: JSON.stringify({ action: 'delete_criteria', tc_id: criteriaId })
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     showSuccess(result.message);
                     await loadCriteria(selectedGroupId);
