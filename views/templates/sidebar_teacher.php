@@ -36,6 +36,12 @@
         <li class="nav-heading">Quản lý nội dung</li>
         <?php if (isset($_SESSION['current_class_id']) && $_SESSION['current_class_id'] > 0): ?>
             <li class="nav-item">
+                <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class/criteria">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Quản lý tiêu chí</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class">
                     <i class="bi bi-box-seam"></i>
                     <span>Danh sách chủ đề</span>
