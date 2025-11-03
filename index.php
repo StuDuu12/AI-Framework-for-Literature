@@ -11,7 +11,7 @@ $route = trim($route, '/');
 $routes = [
     // Default route
     '' => ['file' => 'views/Landing/landing_page.html', 'title' => 'Trang chủ', 'require_auth' => false],
-    
+
     'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
     'landing' => ['file' => 'views/Landing/landing_page.html', 'require_auth' => false],
@@ -35,12 +35,14 @@ $routes = [
     'class/task/edit' => ['file' => 'views/tasks/edit.php', 'title' => 'Chỉnh sửa nhiệm vụ', 'require_auth' => true],
     'class/task/assign' => ['file' => 'views/tasks/assign.php', 'title' => 'Phân công nhiệm vụ', 'require_auth' => true],
     'class/task/perform' => ['file' => 'views/tasks/perform.php', 'title' => 'Thực hiện nhiệm vụ', 'require_auth' => true],
+    'class/task/view' => ['file' => 'views/tasks/view.php', 'title' => 'Xem nhiệm vụ', 'require_auth' => true],
+    'class/task/review' => ['file' => 'views/tasks/review_submissions.php', 'title' => 'Xem bài phân tích học sinh', 'require_auth' => true],
     'class/my_tasks' => ['file' => 'views/tasks/my_tasks.php', 'title' => 'Nhiệm vụ của tôi', 'require_auth' => true],
     'class/homework/ai' => ['file' => 'views/homework/literary_analysis2.php', 'title' => 'Trợ lý AI', 'require_auth' => true],
     'class/homework/analysis_start' => ['file' => 'views/homework/genAI.php', 'title' => 'Phân tích Văn học - Bắt đầu', 'require_auth' => true],
     'class/my_groups' => ['file' => 'views/participants_groups/my_groups.php', 'title' => 'Nhóm của tôi', 'require_auth' => true],
     'class/homework/analysis_chat' => ['file' => 'views/homework/genAI_BTVN.php', 'title' => 'Phân tích Văn học - Trò chuyện', 'require_auth' => true],
-    
+
     // Gen AI and Comment routes
     'class/homework/comment' => ['file' => 'views/homework/comment.php', 'title' => 'Bình luận phân tích', 'require_auth' => true],
 
