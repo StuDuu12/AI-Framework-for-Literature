@@ -42,7 +42,8 @@ $routes = [
     'class/homework/analysis_start' => ['file' => 'views/homework/genAI.php', 'title' => 'Phân tích Văn học - Bắt đầu', 'require_auth' => true],
     'class/my_groups' => ['file' => 'views/participants_groups/my_groups.php', 'title' => 'Nhóm của tôi', 'require_auth' => true],
     'class/homework/analysis_chat' => ['file' => 'views/homework/genAI_BTVN.php', 'title' => 'Phân tích Văn học - Trò chuyện', 'require_auth' => true],
-
+    'class/criteria' => ['file' => 'views/criteria/index.php', 'title' => 'Tiêu chí đánh giá', 'require_auth' => true],
+    
     // Gen AI and Comment routes
     'class/homework/comment' => ['file' => 'views/homework/comment.php', 'title' => 'Bình luận phân tích', 'require_auth' => true],
 
