@@ -14,7 +14,7 @@
     // Get task_id and user_id from URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $target_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
-    
+
     // Get viewing_from_task parameter - this indicates we're viewing from a different phase
     // For example: viewing Phase 1 submissions from Phase 2 review page
     $viewing_from_task_id = isset($_GET['viewing_from_task']) ? intval($_GET['viewing_from_task']) : 0;
@@ -52,7 +52,7 @@
     } else {
         $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
     }
-    
+
     if (!$phaseInfo) {
         header("Location: /404");
         exit;
@@ -319,7 +319,7 @@
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
         const TARGET_USER_NAME = <?= json_encode($target_user_name) ?>;
-        
+
         // Viewing context - if we're viewing from a different phase (e.g., Phase 2 viewing Phase 1 data)
         const VIEWING_FROM_TASK_ID = <?= $viewing_from_task_id > 0 ? $viewing_from_task_id : 'null' ?>;
         // Use viewing task for new comments if provided, otherwise use original task
@@ -338,7 +338,7 @@
             if (VIEWING_FROM_TASK_ID) {
                 alert('Đang xem từ Pha 2, Pha hiện tại: ' + CURRENT_PHASE_NAME);
             }
-            
+
             // Generate images for all content blocks
             generateAllContentImages();
 
