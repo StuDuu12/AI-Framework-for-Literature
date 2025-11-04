@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 03, 2025 at 09:55 AM
+-- Generation Time: Oct 28, 2025 at 07:48 PM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -148,8 +148,7 @@ INSERT INTO `comment` (`comment_id`, `content_id`, `user_id`, `comment_text`, `c
 (19, 85, 388, 'Chữa bài', '2025-10-28 19:41:20', 7, 0),
 (20, 247, 384, 'Em đã phân tích dc...', '2025-10-28 19:43:28', 5, 0),
 (21, 260, 2, 'Chữa bài', '2025-10-28 19:46:35', 7, 0),
-(22, 247, 2, 'jád', '2025-10-28 19:48:46', 7, 0),
-(23, 247, 2, 'em đã phân tích được những gì', '2025-10-28 19:48:57', 7, 20);
+(22, 247, 2, 'jád', '2025-10-28 19:48:46', 7, 0);
 
 -- --------------------------------------------------------
 
@@ -360,6 +359,7 @@ INSERT INTO `deliver` (`id_deliver`, `task_id`, `type`, `value`, `added_by`, `cr
 (19, 9, 'group', 4, 2, '2025-10-28 19:51:46', '2025-10-28 19:51:46'),
 (20, 9, 'user', 358, 2, '2025-10-28 19:51:52', '2025-10-28 19:51:52'),
 (21, 13, 'class', 1, 2, '2025-11-03 08:42:01', '2025-11-03 08:42:01');
+(18, 12, 'user', 360, 2, '2025-10-28 19:36:40', '2025-10-28 19:36:40');
 
 -- --------------------------------------------------------
 
@@ -707,6 +707,7 @@ INSERT INTO `task` (`task_id`, `phase_id`, `title`, `description`, `file_content
 (11, 3, 'Phân tích bài thơ Đồng Chí', '', 'tasks/task_6900827d21ab7.txt', 2, NULL, 2, '2025-10-28 15:44:44', '2025-10-28 15:44:44'),
 (12, 7, 'Phân tích tác phẩm Hồn trương ba', 'Các em phân tích đặc trưng nghệ thuật', 'tasks/task_6900b832c9074_vonhat.txt', NULL, NULL, 2, '2025-10-28 19:33:55', '2025-10-28 19:34:24'),
 (13, 5, 'Chấm bài tập về nhà', 'Chấm điểm một số bạn', NULL, NULL, 11, 2, '2025-11-03 08:41:57', '2025-11-03 08:41:57');
+(12, 7, 'Phân tích tác phẩm Hồn trương ba', 'Các em phân tích đặc trưng nghệ thuật', 'tasks/task_6900b832c9074_vonhat.txt', NULL, NULL, 2, '2025-10-28 19:33:55', '2025-10-28 19:34:24');
 
 -- --------------------------------------------------------
 
@@ -1056,6 +1057,7 @@ ALTER TABLE `class`
 --
 ALTER TABLE `comment`
   MODIFY `comment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `content`
@@ -1068,6 +1070,7 @@ ALTER TABLE `content`
 --
 ALTER TABLE `deliver`
   MODIFY `id_deliver` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id_deliver` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `detail_evaluate`
@@ -1164,6 +1167,7 @@ ALTER TABLE `setting_detail`
 --
 ALTER TABLE `task`
   MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `task_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `tieu_chi`
