@@ -14,6 +14,10 @@
     // Get task_id and user_id from URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $target_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
+    
+    // Get viewing_from_task parameter - this indicates we're viewing from a different phase
+    // For example: viewing Phase 1 submissions from Phase 2 review page
+    $viewing_from_task_id = isset($_GET['viewing_from_task']) ? intval($_GET['viewing_from_task']) : 0;
 
     if ($task_id <= 0) {
         header("Location: /404");
@@ -37,11 +41,25 @@
     }
 
     // Get phase details to check permissions
-    $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+    // If viewing_from_task is provided, use that task's phase for context
+    if ($viewing_from_task_id > 0) {
+        $viewingTaskInfo = getTaskDetails($viewing_from_task_id);
+        if ($viewingTaskInfo) {
+            $phaseInfo = getPhaseDetails($viewingTaskInfo['phase_id']);
+        } else {
+            $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+        }
+    } else {
+        $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+    }
+    
     if (!$phaseInfo) {
         header("Location: /404");
         exit;
     }
+
+    // Get current phase name for display (from viewing context)
+    $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
 
     // Check permissions
     // Teachers can view all students' work
@@ -301,6 +319,13 @@
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
         const TARGET_USER_NAME = <?= json_encode($target_user_name) ?>;
+        
+        // Viewing context - if we're viewing from a different phase (e.g., Phase 2 viewing Phase 1 data)
+        const VIEWING_FROM_TASK_ID = <?= $viewing_from_task_id > 0 ? $viewing_from_task_id : 'null' ?>;
+        // Use viewing task for new comments if provided, otherwise use original task
+        const COMMENT_TASK_ID = VIEWING_FROM_TASK_ID || TASK_ID;
+        // Current phase name for badge display
+        const CURRENT_PHASE_NAME = <?= json_encode($currentPhaseName) ?>;
 
         // Content blocks data from PHP
         const contentBlocksData = <?= json_encode($contentBlocks) ?>;
@@ -309,6 +334,11 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            // Debug: Show current phase
+            if (VIEWING_FROM_TASK_ID) {
+                alert('Đang xem từ Pha 2, Pha hiện tại: ' + CURRENT_PHASE_NAME);
+            }
+            
             // Generate images for all content blocks
             generateAllContentImages();
 
@@ -769,7 +799,8 @@
             // Labels
             const roleLabel = comment.role_label || 'Học sinh';
             const roleClass = (comment.role_label === 'Giáo viên') ? 'label-teacher' : 'label-student';
-            const phaseLabel = comment.phase_label || 'Không rõ';
+            // Always use current phase name, not the phase from when comment was created
+            const phaseLabel = CURRENT_PHASE_NAME || 'Không rõ';
 
             let html = `
                 <div class="fb-comment-item" data-comment-id="${comment.comment_id}" data-depth="${depth}">
@@ -826,7 +857,9 @@
                 body: JSON.stringify({
                     action: 'add_comment',
                     content_id: contentId,
-                    task_id: TASK_ID,
+                    // Use COMMENT_TASK_ID: if viewing from Phase 2, save comment with Phase 2 task_id
+                    // Otherwise use original TASK_ID (Phase 1)
+                    task_id: COMMENT_TASK_ID,
                     response_id: RESPONSE_ID,
                     comment_text: commentText,
                     reply_comment_id: replyToId

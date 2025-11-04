@@ -119,6 +119,7 @@
         SELECT 
             r.id_response,
             r.user_id,
+            r.task_id,
             r.created_at as submitted_at,
             u.username as student_name,
             (SELECT COUNT(c2.comment_id) 
@@ -418,7 +419,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                         </div>
 
                         <div class="d-grid gap-2">
-                            <a href="/class/homework/comment?task_id=<?= $taskId ?>&user_id=<?= $submission['user_id'] ?>"
+                            <a href="/class/homework/comment?task_id=<?= $submission['task_id'] ?>&user_id=<?= $submission['user_id'] ?>&viewing_from_task=<?= $taskId ?>"
                                 class="btn btn-primary btn-sm">
                                 <i class="bi bi-eye"></i> Xem & Phản hồi
                             </a>
