@@ -113,6 +113,50 @@
         exit;
     }
 
+    // Determine if this phase should view data from a previous phase
+    // Only Phase 2 (CHỮA BÀI - phase_code: 'review' or 'CHUABAI') should look back to Phase 1
+    // Phase 3 (LÀM BÀI TẬP VỀ NHÀ - phase_code: 'homework' or 'BTVN') is independent
+    $shouldLookBack = false;
+
+    // Check current phase's main_phase_code
+    $phaseCheckStmt = $pdo->prepare("
+        SELECT mp.phase_code
+        FROM phase p
+        INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE p.phase_id = :phase_id
+    ");
+    $phaseCheckStmt->execute([':phase_id' => $phaseId]);
+    $currentPhaseCode = $phaseCheckStmt->fetchColumn();
+
+    // Only CHỮA BÀI (review phase) should look back to previous phase
+    if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
+        $shouldLookBack = true;
+    }
+
+    $submissionTaskId = $taskId; // Default: use current task
+
+    if ($shouldLookBack) {
+        // Find task from previous phase (where submissions actually exist)
+        // This is important for Phase 2 (CHỮA BÀI) to view Phase 1 submissions
+        $sourceTaskStmt = $pdo->prepare("
+            SELECT t.task_id, p.phase_number, p.topic_id
+            FROM task t
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            WHERE p.topic_id = (SELECT topic_id FROM phase WHERE phase_id = :current_phase_id)
+            AND p.phase_number < (SELECT phase_number FROM phase WHERE phase_id = :current_phase_id)
+            ORDER BY p.phase_number DESC
+            LIMIT 1
+        ");
+        $sourceTaskStmt->execute([':current_phase_id' => $phaseId]);
+        $sourceTask = $sourceTaskStmt->fetch(PDO::FETCH_ASSOC);
+
+        // Use source task if found (Phase 1), otherwise use current task
+        if ($sourceTask) {
+            $submissionTaskId = $sourceTask['task_id'];
+        }
+    }
+
+
     // Get all student submissions with comment counts
     // Fixed: Only count comments where comment_id IS NOT NULL
     $stmt = $pdo->prepare("
@@ -145,7 +189,7 @@
         ORDER BY r.created_at DESC
     ");
 
-    $stmt->execute([':task_id' => $taskId]);
+    $stmt->execute([':task_id' => $submissionTaskId]);
     $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Remove duplicates by user_id (keep only the first response per user)
@@ -200,7 +244,7 @@
             INNER JOIN response r ON ct.response_id = r.id_response
             WHERE r.task_id = :task_id
         ");
-        $debugStmt->execute([':task_id' => $taskId]);
+        $debugStmt->execute([':task_id' => $submissionTaskId]);
         $debugCount = $debugStmt->fetchColumn();
 
         if ($debugCount > 0 && $totalSubmissions > 0 && $submissionsWithComments == 0):
