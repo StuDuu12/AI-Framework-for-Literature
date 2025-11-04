@@ -6,6 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
     <title>Giao nhiệm vụ</title>
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .group-members {
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:has(.group-checkbox:checked) {
+            box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.25);
+            border-color: #0d6efd;
+        }
+
+        .list-group-item {
+            transition: background-color 0.2s ease;
+        }
+    </style>
 </head>
 
 <body>
@@ -69,6 +91,15 @@
     // Get class students, groups
     $classStudents = getClassStudents($classId);
     $classGroups = getClassGroupsForTask($classId);
+
+    // Get members for each group
+    $groupMembers = [];
+    foreach ($classGroups as $group) {
+        $groupDetails = getGroupDetails($group['group_id']);
+        if ($groupDetails && isset($groupDetails['members'])) {
+            $groupMembers[$group['group_id']] = $groupDetails['members'];
+        }
+    }
     ?>
 
     <main id="main" class="main">
@@ -92,6 +123,12 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-body">
+                            <div class="mb-3">
+                                <a href="/class/task/view?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                    class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-left"></i> Quay lại chi tiết nhiệm vụ
+                                </a>
+                            </div>
                             <h5 class="card-title">
                                 <i class="bi bi-bell"></i> Giao nhiệm vụ: <?= htmlspecialchars($task['title']) ?>
                             </h5>
@@ -145,16 +182,52 @@
                                             Chưa có nhóm nào trong lớp này.
                                         </div>
                                     <?php else: ?>
-                                        <div class="list-group" style="max-height: 400px; overflow-y: auto;">
+                                        <div style="max-height: 500px; overflow-y: auto;">
                                             <?php foreach ($classGroups as $group): ?>
-                                                <label class="list-group-item">
-                                                    <input class="form-check-input me-2" type="checkbox" name="group_values[]"
-                                                        value="<?= $group['group_id'] ?>">
-                                                    <i class="bi bi-diagram-3"></i>
-                                                    <?= htmlspecialchars($group['group_name']) ?>
-                                                    <span class="badge bg-secondary ms-2"><?= $group['member_count'] ?> thành
-                                                        viên</span>
-                                                </label>
+                                                <div class="card mb-3">
+                                                    <div class="card-body p-3">
+                                                        <label class="d-flex align-items-center mb-0 cursor-pointer">
+                                                            <input class="form-check-input me-2 group-checkbox"
+                                                                type="checkbox"
+                                                                name="group_values[]"
+                                                                value="<?= $group['group_id'] ?>"
+                                                                data-group-id="<?= $group['group_id'] ?>">
+                                                            <div class="flex-grow-1">
+                                                                <i class="bi bi-diagram-3"></i>
+                                                                <strong><?= htmlspecialchars($group['group_name']) ?></strong>
+                                                                <span class="badge bg-secondary ms-2"><?= $group['member_count'] ?> thành viên</span>
+                                                            </div>
+                                                        </label>
+
+                                                        <!-- Member list (hidden by default) -->
+                                                        <div class="group-members mt-2 ms-4"
+                                                            id="members-<?= $group['group_id'] ?>"
+                                                            style="display: none;">
+                                                            <div class="border-start border-2 border-primary ps-3">
+                                                                <small class="text-muted d-block mb-2">
+                                                                    <i class="bi bi-people"></i> Thành viên trong nhóm:
+                                                                </small>
+                                                                <?php if (!empty($groupMembers[$group['group_id']])): ?>
+                                                                    <div class="list-group list-group-flush">
+                                                                        <?php foreach ($groupMembers[$group['group_id']] as $member): ?>
+                                                                            <div class="list-group-item px-2 py-1 bg-light border-0">
+                                                                                <i class="bi bi-person-fill text-primary"></i>
+                                                                                <small>
+                                                                                    <?= htmlspecialchars($member['fullname']) ?>
+                                                                                    <span class="text-muted">(<?= htmlspecialchars($member['username']) ?>)</span>
+                                                                                </small>
+                                                                            </div>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                <?php else: ?>
+                                                                    <small class="text-muted">
+                                                                        <i class="bi bi-info-circle"></i> Chưa có thành viên
+                                                                    </small>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             <?php endforeach; ?>
                                         </div>
                                     <?php endif; ?>
@@ -346,6 +419,23 @@
                         assignGroupArea.style.display = 'block';
                     } else if (this.value === '3') {
                         assignIndividualArea.style.display = 'block';
+                    }
+                });
+            });
+
+            // Toggle group members display when checkbox is checked/unchecked
+            const groupCheckboxes = document.querySelectorAll('.group-checkbox');
+            groupCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const groupId = this.dataset.groupId;
+                    const membersDiv = document.getElementById('members-' + groupId);
+
+                    if (membersDiv) {
+                        if (this.checked) {
+                            membersDiv.style.display = 'block';
+                        } else {
+                            membersDiv.style.display = 'none';
+                        }
                     }
                 });
             });

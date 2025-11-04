@@ -153,7 +153,7 @@
     // If teacher is viewing student work, get student's response to display content
     $display_response_id = $response_id;
     $target_user_name = $responseData['user_fullname']; // Default to current user
-    
+
     if ($current_user_role === 'teacher' && $target_user_id != $current_user_id) {
         // Find student's response to display their content
         $studentResponseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $target_user_id);
@@ -308,7 +308,7 @@
         let selectedBlockId = null;
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Generate images for all content blocks
             generateAllContentImages();
 
@@ -381,26 +381,10 @@
 
                 y += maxFontSize;
 
-                // Check if this is a heading or last line (don't justify)
+                // Check if this is a heading
                 const isHeading = line.some(seg => seg.style === '#' || seg.style === '##');
-                const isLastLine = lineIndex === lines.length - 1;
 
-                // Calculate total line width without justification
-                let totalLineWidth = 0;
-                let spaceCount = 0;
-                line.forEach(seg => {
-                    ctx.font = applyStyle(seg.style, fontSize, fontFamily);
-                    totalLineWidth += ctx.measureText(seg.text).width;
-                    if (seg.text === ' ') spaceCount++;
-                });
-
-                // Calculate extra spacing for justification
-                let extraSpacing = 0;
-                if (!isHeading && !isLastLine && spaceCount > 0 && totalLineWidth < maxLineWidth) {
-                    extraSpacing = (maxLineWidth - totalLineWidth) / spaceCount;
-                }
-
-                // Draw text with justification
+                // Draw text with normal spacing (NO justification)
                 line.forEach(seg => {
                     ctx.font = applyStyle(seg.style, fontSize, fontFamily);
                     ctx.textBaseline = 'bottom';
@@ -419,12 +403,8 @@
                     ctx.fillText(seg.text, x, y);
                     const segmentWidth = ctx.measureText(seg.text).width;
 
-                    // Add extra spacing for justification on spaces
-                    if (seg.text === ' ' && extraSpacing > 0) {
-                        x += segmentWidth + extraSpacing;
-                    } else {
-                        x += segmentWidth;
-                    }
+                    // Move x position by exact width (no extra spacing)
+                    x += segmentWidth;
                 });
 
                 // Add extra spacing after headings
@@ -448,7 +428,10 @@
                 if (!line.trim()) {
                     // Empty line = paragraph break
                     if (segments.length > 0) {
-                        segments.push({ text: '\n', style: 'break' });
+                        segments.push({
+                            text: '\n',
+                            style: 'break'
+                        });
                     }
                     return;
                 }
@@ -462,18 +445,36 @@
                     const segment = match[0];
 
                     if (segment.startsWith('**') && segment.endsWith('**')) {
-                        segments.push({ text: segment.slice(2, -2), style: '**' });
+                        segments.push({
+                            text: segment.slice(2, -2),
+                            style: '**'
+                        });
                         hasContent = true;
                     } else if (segment.startsWith('## ')) {
-                        segments.push({ text: segment.slice(3).trim(), style: '##' });
-                        segments.push({ text: '\n', style: 'break' });
+                        segments.push({
+                            text: segment.slice(3).trim(),
+                            style: '##'
+                        });
+                        segments.push({
+                            text: '\n',
+                            style: 'break'
+                        });
                         hasContent = true;
                     } else if (segment.startsWith('# ')) {
-                        segments.push({ text: segment.slice(2).trim(), style: '#' });
-                        segments.push({ text: '\n', style: 'break' });
+                        segments.push({
+                            text: segment.slice(2).trim(),
+                            style: '#'
+                        });
+                        segments.push({
+                            text: '\n',
+                            style: 'break'
+                        });
                         hasContent = true;
                     } else if (segment.trim()) {
-                        segments.push({ text: segment, style: '' });
+                        segments.push({
+                            text: segment,
+                            style: ''
+                        });
                         hasContent = true;
                     }
                 }
@@ -482,7 +483,10 @@
                 if (hasContent && index < lines.length - 1) {
                     const lastSeg = segments[segments.length - 1];
                     if (lastSeg && lastSeg.style !== 'break') {
-                        segments.push({ text: ' ', style: '' });
+                        segments.push({
+                            text: ' ',
+                            style: ''
+                        });
                     }
                 }
             });
@@ -528,20 +532,32 @@
                     if (currentWidth + wordWidth > maxWidth && currentLine.length > 0) {
                         // Start new line
                         lines.push(currentLine);
-                        currentLine = [{ text: word, style: seg.style }];
+                        currentLine = [{
+                            text: word,
+                            style: seg.style
+                        }];
                         currentWidth = ctx.measureText(word).width;
 
                         if (!isLastWord) {
-                            currentLine.push({ text: ' ', style: seg.style });
+                            currentLine.push({
+                                text: ' ',
+                                style: seg.style
+                            });
                             currentWidth += ctx.measureText(' ').width;
                         }
                     } else {
                         // Add word to current line
-                        currentLine.push({ text: word, style: seg.style });
+                        currentLine.push({
+                            text: word,
+                            style: seg.style
+                        });
                         currentWidth += wordWidth;
 
                         if (!isLastWord) {
-                            currentLine.push({ text: ' ', style: seg.style });
+                            currentLine.push({
+                                text: ' ',
+                                style: seg.style
+                            });
                         }
                     }
                 });
@@ -586,7 +602,7 @@
 
         // Regenerate images on window resize
         let resizeTimeout;
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 generateAllContentImages();
@@ -598,7 +614,7 @@
             const wrappers = document.querySelectorAll('.content-image-wrapper');
 
             wrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function () {
+                wrapper.addEventListener('click', function() {
                     // Only handle click in individual mode
                     const container = document.getElementById('comment-container');
                     if (container.classList.contains('view-mode-all')) {
@@ -640,7 +656,7 @@
             const container = document.getElementById('comment-container');
 
             toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const viewMode = this.dataset.view;
 
                     // Update active button
@@ -670,7 +686,7 @@
             const buttons = document.querySelectorAll('.fb-comment-btn');
 
             buttons.forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const contentId = this.dataset.contentId;
                     const textarea = document.querySelector(`textarea[data-content-id="${contentId}"]`);
                     const commentText = textarea.value.trim();
@@ -708,7 +724,9 @@
             try {
                 const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'load_comments',
                         content_id: contentId
@@ -802,7 +820,9 @@
         async function addComment(contentId, commentText, replyToId = null) {
             const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     action: 'add_comment',
                     content_id: contentId,
@@ -829,7 +849,7 @@
 
             // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
@@ -838,7 +858,7 @@
 
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
@@ -846,7 +866,9 @@
                     try {
                         const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({
                                 action: 'delete_comment',
                                 comment_id: commentId
@@ -868,7 +890,7 @@
 
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const parentId = this.dataset.parentId;
                     const textarea = this.previousElementSibling;
                     const replyText = textarea.value.trim();

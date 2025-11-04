@@ -149,6 +149,12 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
+                            <div class="mb-3">
+                                <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                    class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-left"></i> Quay lại danh sách nhiệm vụ
+                                </a>
+                            </div>
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <h5 class="card-title mb-1">
@@ -203,12 +209,12 @@
                                     $commentCount = $commentCountStmt->fetchColumn();
                                     ?>
                                     <a href="/class/task/review?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="btn btn-info position-relative" title="Xem bài phân tích học sinh">
-                                        <i class="bi bi-chat-square-text"></i> Xem bài phân tích
+                                        class="btn btn-info d-flex align-items-center gap-2" title="Xem bài phân tích học sinh">
+                                        <i class="bi bi-chat-square-text"></i>
+                                        <span>Xem bài phân tích</span>
                                         <?php if ($commentCount > 0): ?>
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            <span class="badge rounded-pill bg-danger ms-1">
                                                 <?= $commentCount ?>
-                                                <span class="visually-hidden">bài có comment</span>
                                             </span>
                                         <?php endif; ?>
                                     </a>

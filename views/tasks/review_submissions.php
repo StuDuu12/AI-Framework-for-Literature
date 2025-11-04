@@ -114,23 +114,24 @@
     }
 
     // Get all student submissions with comment counts
+    // Fixed: Only count comments where comment_id IS NOT NULL
     $stmt = $pdo->prepare("
         SELECT 
             r.id_response,
             r.user_id,
             r.created_at as submitted_at,
             u.username as student_name,
-            (SELECT COUNT(DISTINCT c2.comment_id) 
+            (SELECT COUNT(c2.comment_id) 
              FROM content ct2 
-             LEFT JOIN comment c2 ON c2.content_id = ct2.content_id 
+             INNER JOIN comment c2 ON c2.content_id = ct2.content_id 
              WHERE ct2.response_id = r.id_response) as total_comments,
-            (SELECT COUNT(DISTINCT c3.comment_id) 
+            (SELECT COUNT(c3.comment_id) 
              FROM content ct3 
-             LEFT JOIN comment c3 ON c3.content_id = ct3.content_id 
+             INNER JOIN comment c3 ON c3.content_id = ct3.content_id 
              WHERE ct3.response_id = r.id_response AND c3.user_id != r.user_id) as teacher_comments,
-            (SELECT COUNT(DISTINCT c4.comment_id) 
+            (SELECT COUNT(c4.comment_id) 
              FROM content ct4 
-             LEFT JOIN comment c4 ON c4.content_id = ct4.content_id 
+             INNER JOIN comment c4 ON c4.content_id = ct4.content_id 
              WHERE ct4.response_id = r.id_response AND c4.user_id = r.user_id) as student_comments,
             (SELECT COUNT(ct5.content_id) 
              FROM content ct5 
@@ -188,6 +189,27 @@
                 </ol>
             </nav>
         </div>
+
+        <?php
+        // Debug: Check if there are any comments in the database for this task
+        $debugStmt = $pdo->prepare("
+            SELECT COUNT(*) as comment_count 
+            FROM comment c 
+            INNER JOIN content ct ON c.content_id = ct.content_id
+            INNER JOIN response r ON ct.response_id = r.id_response
+            WHERE r.task_id = :task_id
+        ");
+        $debugStmt->execute([':task_id' => $taskId]);
+        $debugCount = $debugStmt->fetchColumn();
+
+        if ($debugCount > 0 && $totalSubmissions > 0 && $submissionsWithComments == 0):
+        ?>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Thông báo:</strong> Có <?= $debugCount ?> comment trong database nhưng không hiển thị. Có thể do vấn đề query hoặc cấu trúc dữ liệu.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
 
         <section class="section">
             <!-- Task Info Card -->
