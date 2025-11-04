@@ -82,6 +82,12 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-body">
+                            <div class="mb-3">
+                                <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                    class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-arrow-left"></i> Quay lại danh sách nhiệm vụ
+                                </a>
+                            </div>
                             <h5 class="card-title">Thông tin nhiệm vụ</h5>
 
                             <form id="createTaskForm" enctype="multipart/form-data">
@@ -300,7 +306,7 @@
                 const taskPreviewText = document.getElementById('taskPreviewText');
 
                 if (sourceTaskSelect) {
-                    sourceTaskSelect.addEventListener('change', function () {
+                    sourceTaskSelect.addEventListener('change', function() {
                         const selectedOption = this.options[this.selectedIndex];
                         const description = selectedOption.getAttribute('data-description');
 
@@ -321,7 +327,7 @@
                 const contentTypeRadios = document.getElementsByName('content_type');
 
                 contentTypeRadios.forEach(radio => {
-                    radio.addEventListener('change', function () {
+                    radio.addEventListener('change', function() {
                         if (this.value === 'text') {
                             textContentArea.style.display = 'block';
                             fileContentArea.style.display = 'none';
