@@ -126,16 +126,17 @@
                                                                 <i class="bi bi-people"></i> Nhóm:
                                                                 <?= htmlspecialchars($task['assigned_to_name']) ?>
                                                             </span>
-                                                        <?php elseif ($task['delivery_type'] == 'class'): ?>
-                                                            <span class="badge bg-secondary">
-                                                                <i class="bi bi-building"></i> Cả lớp
-                                                            </span>
                                                         <?php endif; ?>
 
                                                         <!-- Status Badge -->
-                                                        <?php if ($task['delivery_status'] == 1): ?>
-                                                            <span class="badge bg-success">
+                                                        <?php $status = (int) ($task['delivery_status'] ?? 0); ?>
+                                                        <?php if ($status === 2): ?>
+                                                            <span class="badge bg-success"></span>
                                                                 <i class="bi bi-check-circle"></i> Đã hoàn thành
+                                                            </span>
+                                                        <?php elseif ($status === 1): ?>
+                                                            <span class="badge bg-primary">
+                                                                <i class="bi bi-arrow-repeat"></i> Đang thực hiện
                                                             </span>
                                                         <?php else: ?>
                                                             <span class="badge bg-warning text-dark">

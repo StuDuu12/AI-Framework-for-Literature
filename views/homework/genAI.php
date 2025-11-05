@@ -1,149 +1,113 @@
+<?php
+// ALL VALIDATION AND REDIRECTS MUST HAPPEN BEFORE ANY OUTPUT
+require_once './views/templates/assets.php';
+require_once './config/db.php';
+require_once './config/helper_homework.php';
+require_once './config/helper_task.php';
+require_once './config/helper_redirect.php';
+
+// Lấy parameters từ URL
+$task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
+$topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
+$phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
+$deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
+
+// Validate required parameters
+if (!$task_id || !$topic_id || !$phase_id || !$deliver_id) {
+    redirectWithError('/class', 'invalid_data');
+}
+
+// Get current user ID
+$user_id = null;
+if (isset($_SESSION['user']['user_id'])) {
+    $user_id = $_SESSION['user']['user_id'];
+} elseif (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+}
+
+if (!$user_id) {
+    redirectWithError('/class', 'unauthorized');
+}
+
+// Validate deliver access - CRITICAL SECURITY CHECK
+if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+    $redirectUrl = buildUrl('/class/task', [
+        'topic_id' => $topic_id,
+        'phase_id' => $phase_id
+    ]);
+    redirectWithError($redirectUrl, 'unauthorized');
+}
+
+// Khởi tạo biến
+$taskData = null;
+$mainPhaseCode = '';
+$fileContent = '';
+$isPhaseStart = false;
+
+// Validate task
+try {
+    // Sử dụng hàm helper để lấy thông tin task
+    $taskData = getInfoTask($task_id);
+
+    if (!$taskData) {
+        redirectWithError('/class', 'not_found');
+    }
+
+    $mainPhaseCode = $taskData['phase_code'];
+    $isPhaseStart = ($mainPhaseCode === 'PHASE_START');
+
+    // Validate topic_id
+    if ($taskData['topic_id'] != $topic_id) {
+        redirectWithError('/class', 'invalid_data');
+    }
+
+    // Đọc nội dung file nếu có
+    if (!empty($taskData['file_content'])) {
+        $filePath = __DIR__ . '/../../uploads/' . $taskData['file_content'];
+        if (file_exists($filePath)) {
+            $fileContent = file_get_contents($filePath);
+        }
+    }
+
+    // Kiểm tra quyền truy cập của student (double check)
+    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
+        if (!checkTaskAssignedToStudent($task_id, $user_id)) {
+            $redirectUrl = buildUrl('/class/task', [
+                'topic_id' => $topic_id,
+                'phase_id' => $phase_id
+            ]);
+            redirectWithError($redirectUrl, 'unauthorized');
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error fetching task data: " . $e->getMessage());
+    redirectWithError('/class', 'not_found');
+}
+
+// Kiểm tra xem người dùng đã tạo phân tích chưa
+$json_data = null;
+$id_response = null;
+
+if ($user_id) {
+    $analysisData = getResponseUserByTask($task_id, $user_id);
+    if ($analysisData && isset($analysisData['id_response'])) {
+        $json_data = json_decode($analysisData['json_ai'], true);
+        $id_response = $analysisData['id_response'];
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php
-    require_once './views/templates/assets.php';
-    require_once './config/db.php';
-    require_once './config/helper_homework.php';
-
-    // Lấy parameters từ URL
-    $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
-    $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
-    $phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
-
-    // Khởi tạo biến
-    $taskData = null;
-    $mainPhaseCode = '';
-    $fileContent = '';
-    $isPhaseStart = false;
-    $errorMessage = '';
-
-    // Validate parameters
-    if ($task_id > 0) {
-        try {
-            // Sử dụng hàm helper để lấy thông tin task
-            $taskData = getInfoTask($task_id);
-
-            if ($taskData) {
-                $mainPhaseCode = $taskData['phase_code'];
-
-                // Kiểm tra xem có phải PHASE_START không
-                $isPhaseStart = ($mainPhaseCode === 'PHASE_START');
-
-                // Validate topic_id nếu được cung cấp
-                if ($topic_id > 0 && $taskData['topic_id'] != $topic_id) {
-                    $errorMessage = 'Topic ID không khớp với nhiệm vụ.';
-                    $taskData = null;
-                }
-
-                // Đọc nội dung file nếu có
-                if ($taskData && !empty($taskData['file_content'])) {
-                    $filePath = __DIR__ . '/../../uploads/' . $taskData['file_content'];
-                    if (file_exists($filePath)) {
-                        $fileContent = file_get_contents($filePath);
-                    }
-                }
-
-                // Kiểm tra quyền truy cập của student
-                if ($taskData && isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-                    $student_id = $_SESSION['user']['user_id'];
-                    if (!checkTaskAssignedToStudent($task_id, $student_id)) {
-                        $errorMessage = 'Bạn không có quyền truy cập nhiệm vụ này.';
-                        $taskData = null;
-                    }
-                }
-            } else {
-                $errorMessage = 'Không tìm thấy nhiệm vụ.';
-            }
-        } catch (Exception $e) {
-            error_log("Error fetching task data: " . $e->getMessage());
-            $errorMessage = 'Đã xảy ra lỗi khi tải dữ liệu.';
-            $taskData = null;
-        }
-    } else {
-        $errorMessage = 'Thông tin nhiệm vụ không hợp lệ.';
-    }
-
-    // Nếu không tìm thấy task hoặc có lỗi, redirect về trang trước
-    if (!$taskData) {
-        if ($topic_id > 0) {
-            header("Location: /404");
-        } else {
-            header("Location: /404");
-        }
-        exit;
-    }
-
-    // Kiểm tra xem người dùng đã tạo phân tích chưa
-    $json_data = null;
-    $id_response = null;
-
-    // Get user_id with flexible session structure
-    $user_id = null;
-    if (isset($_SESSION['user']['user_id'])) {
-        $user_id = $_SESSION['user']['user_id'];
-    } elseif (isset($_SESSION['user_id'])) {
-        $user_id = $_SESSION['user_id'];
-    }
-
-    if ($user_id) {
-        $analysisData = getResponseUserByTask($task_id, $user_id);
-        if ($analysisData && isset($analysisData['id_response'])) {
-            $json_data = json_decode($analysisData['json_ai'], true);
-            $id_response = $analysisData['id_response'];
-        }
-    }
-
-    ?>
     <title><?= htmlspecialchars($taskData['task_title']) ?> - Phân tích Văn học</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
-    <style>
-        /* Image Block Styles - từ v4.html */
-        .content-image-wrapper {
-            margin: 1.5rem 0;
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            padding: 0;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-
-        .content-image-wrapper:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(79, 70, 229, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .content-image-wrapper.selected {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 4px rgba(79, 70, 229, 0.6);
-            transform: translateY(-2px);
-            background-color: #f9fafb;
-        }
-
-        .content-image-wrapper img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0;
-            box-shadow: none;
-            pointer-events: none;
-            display: block;
-            width: 100%;
-        }
-    </style>
 </head>
 
 <body>
@@ -164,7 +128,7 @@
                     <li class="breadcrumb-item"><a
                             href="/class"><?= htmlspecialchars($_SESSION['current_class_name']) ?></a></li>
                     <li class="breadcrumb-item"><a
-                            href="class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>">Nhiệm vụ</a></li>
+                            href="/class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>">Nhiệm vụ</a></li>
                     <li class="breadcrumb-item active"><?= htmlspecialchars($taskData['phase_name']) ?></li>
                 </ol>
             </nav>
@@ -354,6 +318,9 @@
         const MAIN_PHASE_CODE = <?= json_encode($mainPhaseCode) ?>;
         const TASK_TITLE = <?= json_encode($taskData['task_title']) ?>;
         const TASK_ID = <?= $task_id ?>;
+        const TOPIC_ID = <?= $topic_id ?>;
+        const PHASE_ID = <?= $phase_id ?>;
+        const DELIVER_ID = <?= $deliver_id ?>;
         const HAS_TASK_CONTENT = <?= !empty($fileContent) ? 'true' : 'false' ?>;
 
         // DOM Elements
@@ -748,6 +715,7 @@
                     body: JSON.stringify({
                         action: 'chat',
                         task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         data: userMessage,
                         history: conversationHistory
                     })
@@ -1004,6 +972,7 @@
                     body: JSON.stringify({
                         action: action,
                         task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         data: data
                     })
                 });
@@ -1071,6 +1040,7 @@
                     },
                     body: JSON.stringify({
                         task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         action_type: actionType,
                         ai_response: aiResponse,
                         user_content: userContent,

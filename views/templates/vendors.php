@@ -10,3 +10,6 @@
 
 <!-- Template Main JS File -->
 <script src="<?= URL_ROOT ?>/assets/js/main.js"></script>
+
+<!-- Toast Notification System -->
+<script src="<?= URL_ROOT ?>/assets/js/toast.js"></script>
