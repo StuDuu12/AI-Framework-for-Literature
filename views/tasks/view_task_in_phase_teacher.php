@@ -11,22 +11,26 @@
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
         }
+
         .list-group-item:hover {
             border-left-color: #0d6efd;
             box-shadow: 0 0 15px rgba(13, 110, 253, 0.1);
             background-color: #f8f9fa;
         }
+
         .badge {
             font-size: 0.85rem;
             padding: 0.4rem 0.7rem;
             font-weight: 500;
         }
+
         .task-stats {
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             margin-top: 0.5rem;
         }
+
         .stat-item {
             display: flex;
             align-items: center;
@@ -73,7 +77,7 @@
 
     // Check if user is teacher
     $isTeacher = isTeacherInTopicClass($topicId, $_SESSION['user']['user_id']);
-    
+
     if (!$isTeacher) {
         header('Location: /class');
         exit;
@@ -81,7 +85,7 @@
 
     // Get all tasks for this phase with assignment stats
     $tasks = getPhaseTasks($phaseId);
-    
+
     // Get assignment stats for each task
     foreach ($tasks as &$task) {
         $task['assignment_stats'] = getTaskAssignmentStats($task['task_id']);
@@ -95,7 +99,8 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học
+                            tập</a></li>
                     <li class="breadcrumb-item active">Nhiệm vụ - Bước <?= $phase['phase_number'] ?></li>
                 </ol>
             </nav>
@@ -144,7 +149,8 @@
                                                         </p>
                                                     <?php endif; ?>
 
-                                                    <div class="d-flex flex-wrap gap-3 align-items-center small text-muted mb-2">
+                                                    <div
+                                                        class="d-flex flex-wrap gap-3 align-items-center small text-muted mb-2">
                                                         <span>
                                                             <i class="bi bi-person"></i>
                                                             Tạo bởi:
@@ -165,19 +171,23 @@
                                                         <div class="task-stats mb-2">
                                                             <div class="stat-item stat-total">
                                                                 <i class="bi bi-people-fill"></i>
-                                                                <span>Đã giao: <strong><?= $task['assignment_stats']['total_assigned'] ?></strong></span>
+                                                                <span>Đã giao:
+                                                                    <strong><?= $task['assignment_stats']['total_assigned'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-completed">
                                                                 <i class="bi bi-check-circle-fill"></i>
-                                                                <span>Hoàn thành: <strong><?= $task['assignment_stats']['completed'] ?></strong></span>
+                                                                <span>Hoàn thành:
+                                                                    <strong><?= $task['assignment_stats']['completed'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-progress">
                                                                 <i class="bi bi-hourglass-split"></i>
-                                                                <span>Đang làm: <strong><?= $task['assignment_stats']['in_progress'] ?></strong></span>
+                                                                <span>Đang làm:
+                                                                    <strong><?= $task['assignment_stats']['in_progress'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-pending">
                                                                 <i class="bi bi-clock-fill"></i>
-                                                                <span>Chưa làm: <strong><?= $task['assignment_stats']['not_started'] ?></strong></span>
+                                                                <span>Chưa làm:
+                                                                    <strong><?= $task['assignment_stats']['not_started'] ?></strong></span>
                                                             </div>
                                                         </div>
 
@@ -201,7 +211,8 @@
                                                                             break;
                                                                     }
                                                                     ?>
-                                                                    <span class="badge bg-<?= $typeColor ?>" title="<?= htmlspecialchars($typeInfo['names']) ?>">
+                                                                    <span class="badge bg-<?= $typeColor ?>"
+                                                                        title="<?= htmlspecialchars($typeInfo['names']) ?>">
                                                                         <?= $typeLabel ?>: <?= $typeInfo['count'] ?>
                                                                     </span>
                                                                 <?php endforeach; ?>
@@ -268,9 +279,9 @@
 
     <script>
         // Initialize Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function(tooltipTriggerEl) {
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
@@ -325,7 +336,7 @@
 
             // Delete task
             document.querySelectorAll('.delete-task').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const taskId = this.dataset.taskId;
                     const taskTitle = this.dataset.taskTitle;
 

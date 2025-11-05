@@ -288,7 +288,7 @@ function getTaskAssignmentStats($taskId)
 
         $stmt->execute([':task_id' => $taskId]);
         $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         // Get assignment type details
         $typeStmt = $pdo->prepare("
             SELECT 
@@ -309,10 +309,10 @@ function getTaskAssignmentStats($taskId)
             WHERE d.task_id = :task_id
             GROUP BY type
         ");
-        
+
         $typeStmt->execute([':task_id' => $taskId]);
         $stats['types'] = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         return $stats;
     } catch (PDOException $e) {
         error_log("Error in getTaskAssignmentStats: " . $e->getMessage());
@@ -556,10 +556,10 @@ function getStudentAssignedTasks($phaseId, $userId)
         // Build conditions based on what assignments exist
         $conditions = [];
         $params = [':phase_id' => $phaseId, ':user_id' => $userId];
-        
+
         // Always include individual assignments
         $conditions[] = "(d.type = 'user' AND d.value = :user_id)";
-        
+
         // Add group conditions if user is in any groups
         if (!empty($userGroups)) {
             $groupPlaceholders = [];
@@ -570,7 +570,7 @@ function getStudentAssignedTasks($phaseId, $userId)
             }
             $conditions[] = "(d.type = 'group' AND d.value IN (" . implode(',', $groupPlaceholders) . "))";
         }
-        
+
         // Add class conditions if user is in any classes
         if (!empty($userClasses)) {
             $classPlaceholders = [];
@@ -581,7 +581,7 @@ function getStudentAssignedTasks($phaseId, $userId)
             }
             $conditions[] = "(d.type = 'class' AND d.value IN (" . implode(',', $classPlaceholders) . "))";
         }
-        
+
         // If no conditions (shouldn't happen), return empty
         if (empty($conditions)) {
             return [];
@@ -617,7 +617,7 @@ function getStudentAssignedTasks($phaseId, $userId)
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log("Error in getStudentAssignedTasks: " . $e->getMessage());
