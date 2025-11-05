@@ -10,7 +10,7 @@ $route = trim($route, '/');
 
 $routes = [
     // Default route
-    '' => ['file' => 'views/Landing/landing_page.html', 'title' => 'Trang chủ', 'require_auth' => false],
+    '' => ['file' => 'views/Landing/landing_page.php', 'title' => 'Trang chủ', 'require_auth' => false],
 
     'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
@@ -19,7 +19,6 @@ $routes = [
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
     'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng ký', 'require_auth' => false],
 
-    '' => ['file' => 'views/Landing/landing_page.html', 'title' => 'Trang chủ', 'require_auth' => false],
     'dashboard' => ['file' => 'views/index.php', 'title' => 'Dashboard', 'require_auth' => true],
     'joinclass' => ['file' => 'api/joinclass.php', 'require_auth' => true],
 
