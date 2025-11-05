@@ -84,16 +84,15 @@ try {
     redirectWithError('/class', 'not_found');
 }
 
-// Kiểm tra xem người dùng đã tạo phân tích chưa
+// Kiểm tra xem deliver này đã có response chưa (lấy từ bảng deliver)
 $json_data = null;
 $id_response = null;
 
-if ($user_id) {
-    $analysisData = getResponseUserByTask($task_id, $user_id);
-    if ($analysisData && isset($analysisData['id_response'])) {
-        $json_data = json_decode($analysisData['json_ai'], true);
-        $id_response = $analysisData['id_response'];
-    }
+// Lấy response từ deliver (nếu có)
+$analysisData = getResponseFromDeliver($deliver_id);
+if ($analysisData && isset($analysisData['id_response'])) {
+    $json_data = json_decode($analysisData['json_ai'], true);
+    $id_response = $analysisData['id_response'];
 }
 ?>
 <!DOCTYPE html>

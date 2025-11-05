@@ -771,4 +771,32 @@ function getDeliverDetails($deliverId)
     }
 }
 
+/**
+ * Get response data from deliver
+ * Returns the response record associated with a deliver, if exists
+ * 
+ * @param int $deliverId Deliver ID
+ * @return array|null Response data with json_ai and id_response, or null if not found
+ */
+function getResponseFromDeliver($deliverId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT r.id_response, r.json_ai, r.user_id, r.owner_user_id, r.created_at, r.updated_at
+            FROM deliver d
+            INNER JOIN response r ON d.response = r.id_response
+            WHERE d.id_deliver = :deliver_id AND d.response IS NOT NULL
+        ");
+        $stmt->execute(['deliver_id' => $deliverId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getResponseFromDeliver: " . $e->getMessage());
+        return null;
+    }
+}
+
+
+
 
