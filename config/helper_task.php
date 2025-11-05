@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Helper functions for Task management
  */
@@ -461,3 +462,201 @@ function isEvaluationPhase($phaseCode)
     return in_array($phaseCode, $evaluationPhaseCodes);
 }
 
+/**
+ * Check for assignment conflicts
+ * Returns array with 'has_conflict' and 'message' if there's a conflict
+ * 
+ * Logic:
+ * - If assigning to class (type=1): check if any individual students already assigned
+ * - If assigning to group (type=2): check if any members already assigned individually or class assigned
+ * - If assigning to user (type=3): check if user's class or group already assigned
+ * 
+ * @param int $taskId
+ * @param int $assignType (1=class, 2=group, 3=user)
+ * @param int $assignValue (class_id, group_id, or user_id)
+ * @return array ['has_conflict' => bool, 'message' => string, 'conflict_type' => string]
+ */
+function checkAssignmentConflict($taskId, $assignType, $assignValue)
+{
+    global $pdo;
+
+    try {
+        // Type 1: Assigning to entire class
+        if ($assignType == 1) {
+            // Check if any individual students from this class are already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(DISTINCT d.id_deliver) as count,
+                       u.username as student_name
+                FROM deliver d
+                INNER JOIN users u ON d.value = u.user_id
+                INNER JOIN class_member cm ON u.user_id = cm.user_id
+                WHERE d.task_id = :task_id 
+                AND d.type = 'user'
+                AND cm.class_id = :class_id
+                LIMIT 1
+            ");
+            $stmt->execute([':task_id' => $taskId, ':class_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Không thể giao cho cả lớp vì đã có học sinh được giao riêng lẻ. Vui lòng hủy các giao bài cá nhân trước.',
+                    'conflict_type' => 'class_vs_individual'
+                ];
+            }
+
+            // Check if class is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count 
+                FROM deliver 
+                WHERE task_id = :task_id 
+                AND type = 'class' 
+                AND value = :class_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':class_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Lớp học này đã được giao nhiệm vụ rồi.',
+                    'conflict_type' => 'duplicate_class'
+                ];
+            }
+        }
+
+        // Type 2: Assigning to group
+        elseif ($assignType == 2) {
+            // Check if class of this group is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count
+                FROM deliver d
+                INNER JOIN `group` g ON d.value = g.class_id
+                WHERE d.task_id = :task_id
+                AND d.type = 'class'
+                AND g.group_id = :group_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Không thể giao cho nhóm vì cả lớp đã được giao nhiệm vụ này.',
+                    'conflict_type' => 'class_already_assigned'
+                ];
+            }
+
+            // Check if any group members are already assigned individually
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count
+                FROM deliver d
+                INNER JOIN group_member gm ON d.value = gm.user_id
+                WHERE d.task_id = :task_id
+                AND d.type = 'user'
+                AND gm.group_id = :group_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Không thể giao cho nhóm vì một số thành viên đã được giao riêng lẻ.',
+                    'conflict_type' => 'group_vs_individual'
+                ];
+            }
+
+            // Check if group is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count 
+                FROM deliver 
+                WHERE task_id = :task_id 
+                AND type = 'group' 
+                AND value = :group_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Nhóm này đã được giao nhiệm vụ rồi.',
+                    'conflict_type' => 'duplicate_group'
+                ];
+            }
+        }
+
+        // Type 3: Assigning to individual user
+        elseif ($assignType == 3) {
+            // Check if user's class is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count
+                FROM deliver d
+                INNER JOIN class_member cm ON d.value = cm.class_id
+                WHERE d.task_id = :task_id
+                AND d.type = 'class'
+                AND cm.user_id = :user_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Không thể giao cho học sinh này vì cả lớp đã được giao nhiệm vụ.',
+                    'conflict_type' => 'class_already_assigned'
+                ];
+            }
+
+            // Check if user's group is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count
+                FROM deliver d
+                INNER JOIN group_member gm ON d.value = gm.group_id
+                WHERE d.task_id = :task_id
+                AND d.type = 'group'
+                AND gm.user_id = :user_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Không thể giao cho học sinh này vì nhóm của học sinh đã được giao nhiệm vụ.',
+                    'conflict_type' => 'group_already_assigned'
+                ];
+            }
+
+            // Check if user is already assigned
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as count 
+                FROM deliver 
+                WHERE task_id = :task_id 
+                AND type = 'user' 
+                AND value = :user_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result['count'] > 0) {
+                return [
+                    'has_conflict' => true,
+                    'message' => 'Học sinh này đã được giao nhiệm vụ rồi.',
+                    'conflict_type' => 'duplicate_user'
+                ];
+            }
+        }
+
+        return ['has_conflict' => false, 'message' => '', 'conflict_type' => ''];
+    } catch (PDOException $e) {
+        error_log("Error in checkAssignmentConflict: " . $e->getMessage());
+        return [
+            'has_conflict' => true,
+            'message' => 'Lỗi kiểm tra xung đột: ' . $e->getMessage(),
+            'conflict_type' => 'error'
+        ];
+    }
+}

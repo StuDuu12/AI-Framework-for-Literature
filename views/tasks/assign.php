@@ -27,6 +27,34 @@
         .list-group-item {
             transition: background-color 0.2s ease;
         }
+
+        .assignment-item {
+            transition: all 0.2s ease;
+        }
+
+        .assignment-item:has(.assignment-checkbox:checked) {
+            background-color: #fff5f5;
+            border-left: 3px solid #dc3545;
+        }
+
+        .assignment-checkbox {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remove-assignment {
+            transition: all 0.2s ease;
+        }
+
+        .remove-assignment:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
@@ -143,14 +171,8 @@
                                     <label class="form-label">Loại giao nhiệm vụ <span
                                             class="text-danger">*</span></label>
                                     <div class="btn-group w-100" role="group">
-                                        <input type="radio" class="btn-check" name="assign_type" id="assignTypeClass"
-                                            value="1" checked autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="assignTypeClass">
-                                            <i class="bi bi-people-fill"></i> Cả lớp
-                                        </label>
-
                                         <input type="radio" class="btn-check" name="assign_type" id="assignTypeGroup"
-                                            value="2" autocomplete="off">
+                                            value="2" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="assignTypeGroup">
                                             <i class="bi bi-diagram-3-fill"></i> Nhóm
                                         </label>
@@ -163,18 +185,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Class Assignment -->
-                                <div id="assignClassArea">
-                                    <div class="alert alert-info">
-                                        <i class="bi bi-info-circle"></i>
-                                        Giao nhiệm vụ cho <strong>toàn bộ lớp học</strong>:
-                                        <?= htmlspecialchars($_SESSION['current_class_name']) ?>
-                                    </div>
-                                    <input type="hidden" name="class_value" value="<?= $classId ?>">
-                                </div>
-
                                 <!-- Group Assignment -->
-                                <div id="assignGroupArea" style="display: none;">
+                                <div id="assignGroupArea">
                                     <label class="form-label">Chọn nhóm</label>
                                     <?php if (empty($classGroups)): ?>
                                         <div class="alert alert-warning">
@@ -235,7 +247,17 @@
 
                                 <!-- Individual Assignment -->
                                 <div id="assignIndividualArea" style="display: none;">
-                                    <label class="form-label">Chọn học sinh</label>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label mb-0">Chọn học sinh</label>
+                                        <?php if (!empty($classStudents)): ?>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="selectAllStudents">
+                                                <label class="form-check-label" for="selectAllStudents">
+                                                    Chọn tất cả
+                                                </label>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                     <?php if (empty($classStudents)): ?>
                                         <div class="alert alert-warning">
                                             <i class="bi bi-exclamation-triangle"></i>
@@ -252,7 +274,7 @@
                                                 <label class="list-group-item student-item"
                                                     data-name="<?= strtolower(htmlspecialchars($student['fullname'])) ?>"
                                                     data-username="<?= strtolower(htmlspecialchars($student['username'])) ?>">
-                                                    <input class="form-check-input me-2" type="checkbox"
+                                                    <input class="form-check-input me-2 student-checkbox" type="checkbox"
                                                         name="individual_values[]" value="<?= $student['user_id'] ?>">
                                                     <i class="bi bi-person"></i>
                                                     <?= htmlspecialchars($student['fullname']) ?>
@@ -283,7 +305,15 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Đã giao cho</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Đã giao cho</h5>
+                                <button type="button"
+                                    id="deleteSelectedBtn"
+                                    class="btn btn-sm btn-danger"
+                                    style="display: none;">
+                                    <i class="bi bi-trash"></i> Xóa đã chọn (<span id="selectedCount">0</span>)
+                                </button>
+                            </div>
 
                             <?php if (empty($existingAssignments)): ?>
                                 <div class="alert alert-info">
@@ -293,25 +323,29 @@
                             <?php else: ?>
                                 <div class="list-group">
                                     <?php foreach ($existingAssignments as $assignment): ?>
-                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <?php if ($assignment['type'] == 'class'): ?>
-                                                    <i class="bi bi-people-fill text-primary"></i>
-                                                    <strong>Cả lớp:</strong>
-                                                <?php elseif ($assignment['type'] == 'group'): ?>
-                                                    <i class="bi bi-diagram-3-fill text-success"></i>
-                                                    <strong>Nhóm:</strong>
-                                                <?php else: ?>
-                                                    <i class="bi bi-person-fill text-info"></i>
-                                                    <strong>Cá nhân:</strong>
-                                                <?php endif; ?>
-                                                <br>
-                                                <small><?= htmlspecialchars($assignment['assigned_to_name'] ?? '') ?></small>
+                                        <div class="list-group-item assignment-item" data-deliver-id="<?= $assignment['id_deliver'] ?>">
+                                            <div class="d-flex align-items-center">
+                                                <input class="form-check-input me-2 assignment-checkbox"
+                                                    type="checkbox"
+                                                    id="assign-<?= $assignment['id_deliver'] ?>"
+                                                    data-deliver-id="<?= $assignment['id_deliver'] ?>">
+                                                <label class="form-check-label flex-grow-1" for="assign-<?= $assignment['id_deliver'] ?>">
+                                                    <div>
+                                                        <?php if ($assignment['type'] == 'class'): ?>
+                                                            <i class="bi bi-people-fill text-primary"></i>
+                                                            <strong>Cả lớp:</strong>
+                                                        <?php elseif ($assignment['type'] == 'group'): ?>
+                                                            <i class="bi bi-diagram-3-fill text-success"></i>
+                                                            <strong>Nhóm:</strong>
+                                                        <?php else: ?>
+                                                            <i class="bi bi-person-fill text-info"></i>
+                                                            <strong>Cá nhân:</strong>
+                                                        <?php endif; ?>
+                                                        <br>
+                                                        <small><?= htmlspecialchars($assignment['assigned_to_name'] ?? '') ?></small>
+                                                    </div>
+                                                </label>
                                             </div>
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-assignment"
-                                                data-deliver-id="<?= $assignment['id_deliver'] ?>" title="Hủy giao">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -401,24 +435,87 @@
                 toast.show();
             }
 
+            // Conflict warning alert
+            let conflictAlert = null;
+
+            // Function to show conflict warning
+            function showConflictWarning(message) {
+                // Remove existing alert if any
+                if (conflictAlert) {
+                    conflictAlert.remove();
+                }
+
+                // Create new alert
+                conflictAlert = document.createElement('div');
+                conflictAlert.className = 'alert alert-danger alert-dismissible fade show';
+                conflictAlert.innerHTML = `
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Không thể giao bài!</strong>
+                    <p class="mb-0 mt-2">${message}</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+
+                // Insert before the assignment type selection
+                const form = document.getElementById('assignTaskForm');
+                form.insertBefore(conflictAlert, form.firstChild);
+
+                // Disable submit button
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+                submitBtn.innerHTML = '<i class="bi bi-exclamation-circle"></i> Không thể giao (Có xung đột)';
+            }
+
+            // Function to hide conflict warning
+            function hideConflictWarning() {
+                if (conflictAlert) {
+                    conflictAlert.remove();
+                    conflictAlert = null;
+                }
+
+                // Enable submit button
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('disabled');
+                submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Giao nhiệm vụ';
+            }
+
+            // Function to check conflict for current selection
+            async function checkCurrentConflict() {
+                const assignType = document.querySelector('input[name="assign_type"]:checked').value;
+                const taskId = <?= $taskId ?>;
+
+                hideConflictWarning();
+
+                // For class assignment - check immediately
+                if (assignType === '1') {
+                    const classId = <?= $classId ?>;
+                    const response = await fetch(`/api/manage_tasks.php?action=check_assignment_conflict&task_id=${taskId}&assign_type=1&assign_value=${classId}`);
+                    const data = await response.json();
+
+                    if (data.success && data.has_conflict) {
+                        showConflictWarning(data.message);
+                    }
+                }
+                // For group/individual - check when selection changes
+            }
+
             // Toggle assignment areas
             const assignTypeRadios = document.getElementsByName('assign_type');
-            const assignClassArea = document.getElementById('assignClassArea');
             const assignGroupArea = document.getElementById('assignGroupArea');
             const assignIndividualArea = document.getElementById('assignIndividualArea');
 
             assignTypeRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
-                    assignClassArea.style.display = 'none';
                     assignGroupArea.style.display = 'none';
                     assignIndividualArea.style.display = 'none';
 
-                    if (this.value === '1') {
-                        assignClassArea.style.display = 'block';
-                    } else if (this.value === '2') {
+                    if (this.value === '2') {
                         assignGroupArea.style.display = 'block';
+                        hideConflictWarning();
                     } else if (this.value === '3') {
                         assignIndividualArea.style.display = 'block';
+                        hideConflictWarning();
                     }
                 });
             });
@@ -426,15 +523,94 @@
             // Toggle group members display when checkbox is checked/unchecked
             const groupCheckboxes = document.querySelectorAll('.group-checkbox');
             groupCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
+                checkbox.addEventListener('change', async function() {
                     const groupId = this.dataset.groupId;
                     const membersDiv = document.getElementById('members-' + groupId);
 
                     if (membersDiv) {
                         if (this.checked) {
                             membersDiv.style.display = 'block';
+
+                            // Check conflict for this group
+                            const taskId = <?= $taskId ?>;
+                            const response = await fetch(`/api/manage_tasks.php?action=check_assignment_conflict&task_id=${taskId}&assign_type=2&assign_value=${groupId}`);
+                            const data = await response.json();
+
+                            if (data.success && data.has_conflict) {
+                                showConflictWarning(data.message);
+                                // Uncheck the checkbox
+                                this.checked = false;
+                                membersDiv.style.display = 'none';
+                            } else {
+                                hideConflictWarning();
+                            }
                         } else {
                             membersDiv.style.display = 'none';
+                            // Check if any other group is still checked
+                            const anyChecked = document.querySelector('.group-checkbox:checked');
+                            if (!anyChecked) {
+                                hideConflictWarning();
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Select all students functionality
+            const selectAllStudents = document.getElementById('selectAllStudents');
+            if (selectAllStudents) {
+                selectAllStudents.addEventListener('change', function() {
+                    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+                    const visibleCheckboxes = Array.from(studentCheckboxes).filter(cb => {
+                        const item = cb.closest('.student-item');
+                        return item && item.style.display !== 'none';
+                    });
+
+                    visibleCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            }
+
+            // Check conflict for individual students
+            const studentCheckboxes = document.querySelectorAll('input[name="individual_values[]"]');
+            studentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', async function() {
+                    const userId = this.value;
+                    const taskId = <?= $taskId ?>;
+
+                    // Update "select all" checkbox state
+                    if (selectAllStudents) {
+                        const allCheckboxes = document.querySelectorAll('.student-checkbox');
+                        const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => {
+                            const item = cb.closest('.student-item');
+                            return item && item.style.display !== 'none';
+                        });
+                        const allChecked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(cb => cb.checked);
+                        selectAllStudents.checked = allChecked;
+                    }
+
+                    if (this.checked) {
+                        // Check conflict for this user
+                        const response = await fetch(`/api/manage_tasks.php?action=check_assignment_conflict&task_id=${taskId}&assign_type=3&assign_value=${userId}`);
+                        const data = await response.json();
+
+                        if (data.success && data.has_conflict) {
+                            showConflictWarning(data.message);
+                            // Uncheck the checkbox
+                            this.checked = false;
+                            // Update select all state
+                            if (selectAllStudents) {
+                                selectAllStudents.checked = false;
+                            }
+                        } else {
+                            hideConflictWarning();
+                        }
+                    } else {
+                        // Check if any other student is still checked
+                        const anyChecked = document.querySelector('input[name="individual_values[]"]:checked');
+                        if (!anyChecked) {
+                            hideConflictWarning();
                         }
                     }
                 });
@@ -457,6 +633,17 @@
                             item.style.display = 'none';
                         }
                     });
+
+                    // Update "select all" checkbox state after search
+                    if (selectAllStudents) {
+                        const allCheckboxes = document.querySelectorAll('.student-checkbox');
+                        const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => {
+                            const item = cb.closest('.student-item');
+                            return item && item.style.display !== 'none';
+                        });
+                        const allChecked = visibleCheckboxes.length > 0 && visibleCheckboxes.every(cb => cb.checked);
+                        selectAllStudents.checked = allChecked;
+                    }
                 });
             }
 
@@ -467,9 +654,7 @@
                 const assignType = document.querySelector('input[name="assign_type"]:checked').value;
                 let assignValues = [];
 
-                if (assignType === '1') {
-                    assignValues = [document.querySelector('input[name="class_value"]').value];
-                } else if (assignType === '2') {
+                if (assignType === '2') {
                     const checkedGroups = document.querySelectorAll('input[name="group_values[]"]:checked');
                     if (checkedGroups.length === 0) {
                         showToast('Vui lòng chọn ít nhất một nhóm!', 'warning');
@@ -524,42 +709,98 @@
                 }
             });
 
-            // Remove assignment
-            document.querySelectorAll('.remove-assignment').forEach(btn => {
-                btn.addEventListener('click', async function() {
-                    const deliverId = this.dataset.deliverId;
+            // Handle assignment checkbox changes - update delete button visibility
+            function updateDeleteButton() {
+                const checkedBoxes = document.querySelectorAll('.assignment-checkbox:checked');
+                const deleteBtn = document.getElementById('deleteSelectedBtn');
+                const countSpan = document.getElementById('selectedCount');
 
-                    if (!confirm('Bạn có chắc chắn muốn hủy giao nhiệm vụ này?')) {
+                if (checkedBoxes.length > 0) {
+                    deleteBtn.style.display = 'inline-block';
+                    countSpan.textContent = checkedBoxes.length;
+                } else {
+                    deleteBtn.style.display = 'none';
+                    countSpan.textContent = '0';
+                }
+            }
+
+            document.querySelectorAll('.assignment-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateDeleteButton();
+                });
+            });
+
+            // Delete selected assignments
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.addEventListener('click', async function() {
+                    const checkedBoxes = document.querySelectorAll('.assignment-checkbox:checked');
+                    const deliverIds = Array.from(checkedBoxes).map(cb => cb.dataset.deliverId);
+
+                    if (deliverIds.length === 0) {
+                        showToast('Vui lòng chọn ít nhất một mục để xóa!', 'warning');
                         return;
                     }
 
+                    const count = deliverIds.length;
+                    if (!confirm(`Bạn có chắc chắn muốn hủy giao nhiệm vụ cho ${count} mục đã chọn?`)) {
+                        return;
+                    }
+
+                    // Disable button while processing
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xóa...';
+
+                    let successCount = 0;
+                    let failCount = 0;
+
                     try {
-                        const formData = new FormData();
-                        formData.append('action', 'remove_assignment');
-                        formData.append('deliver_id', deliverId);
-                        formData.append('topic_id', <?= $topicId ?>);
+                        // Delete each assignment
+                        for (const deliverId of deliverIds) {
+                            try {
+                                const formData = new FormData();
+                                formData.append('action', 'remove_assignment');
+                                formData.append('deliver_id', deliverId);
+                                formData.append('topic_id', <?= $topicId ?>);
 
-                        const response = await fetch('/api/manage_tasks.php', {
-                            method: 'POST',
-                            body: formData
-                        });
+                                const response = await fetch('/api/manage_tasks.php', {
+                                    method: 'POST',
+                                    body: formData
+                                });
 
-                        const data = await response.json();
+                                const data = await response.json();
 
-                        if (data.success) {
-                            showToast('Hủy giao nhiệm vụ thành công!', 'success');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            showToast(data.message || 'Không thể hủy giao nhiệm vụ', 'error');
+                                if (data.success) {
+                                    successCount++;
+                                } else {
+                                    failCount++;
+                                }
+                            } catch (error) {
+                                console.error('Error deleting:', deliverId, error);
+                                failCount++;
+                            }
                         }
+
+                        // Show result
+                        if (successCount > 0) {
+                            showToast(`Đã hủy giao ${successCount} nhiệm vụ thành công!`, 'success');
+                        }
+                        if (failCount > 0) {
+                            showToast(`Không thể hủy ${failCount} nhiệm vụ!`, 'error');
+                        }
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+
                     } catch (error) {
                         console.error('Error:', error);
                         showToast('Có lỗi xảy ra khi hủy giao nhiệm vụ', 'error');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-trash"></i> Xóa đã chọn (<span id="selectedCount">' + count + '</span>)';
                     }
                 });
-            });
+            }
         })();
     </script>
 </body>

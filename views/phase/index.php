@@ -62,12 +62,17 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="card-title"><?= htmlspecialchars($topic['topic_name']) ?></h5>
-                                <?php if ($isTeacher): ?>
-                                    <a href="<?= URL_ROOT ?>/class/phases/create?topic_id=<?= $topicId ?>"
-                                        class="btn btn-primary">
-                                        <i class="bi bi-plus-circle"></i> Tạo pha mới
+                                <div class="d-flex gap-2">
+                                    <a href="/class" class="btn btn-secondary">
+                                        <i class="bi bi-arrow-left"></i> Quay lại danh sách chủ đề
                                     </a>
-                                <?php endif; ?>
+                                    <?php if ($isTeacher): ?>
+                                        <a href="<?= URL_ROOT ?>/class/phases/create?topic_id=<?= $topicId ?>"
+                                            class="btn btn-primary">
+                                            <i class="bi bi-plus-circle"></i> Tạo pha mới
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
                             <?php if (empty($phases)): ?>
@@ -197,9 +202,9 @@
 
     <script>
         // Initialize Bootstrap tooltips for all users
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
@@ -254,7 +259,7 @@
 
             // Delete Phase
             document.querySelectorAll('.delete-phase-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const phaseId = this.dataset.phaseId;
                     const phaseName = this.dataset.phaseName;
 

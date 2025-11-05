@@ -1,0 +1,468 @@
+/* ===== BACKGROUND IMAGE FOR ALL PAGES ===== */
+
+/* Apply background to body */
+body {
+    background-image: url('/assets/img/vanhoc.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    position: relative;
+}
+
+/* Overlay for better readability */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9));
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Dark theme overlay */
+body.dark-theme::before {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8));
+}
+
+/* Make main content area slightly transparent to show background */
+#main {
+    background: transparent !important;
+}
+
+/* Card backgrounds - semi-transparent */
+.card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Dark theme cards */
+body.dark-theme .card {
+    background: rgba(30, 30, 30, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-theme .card *:not(.btn):not(.badge) {
+    color: #f5f5f5 !important;
+}
+
+/* Section backgrounds */
+.section {
+    background: transparent !important;
+}
+
+/* Dashboard section */
+.section.dashboard {
+    background: transparent !important;
+}
+
+/* Table backgrounds */
+.table {
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+body.dark-theme .table {
+    background: rgba(30, 30, 30, 0.9) !important;
+}
+
+body.dark-theme .table th,
+body.dark-theme .table td {
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-theme .table thead th {
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* List group items */
+.list-group-item {
+    background: rgba(255, 255, 255, 0.9) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+body.dark-theme .list-group-item {
+    background: rgba(40, 40, 40, 0.9) !important;
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Modal backgrounds */
+.modal-content {
+    background: rgba(255, 255, 255, 0.98) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(15px) !important;
+}
+
+body.dark-theme .modal-content {
+    background: rgba(30, 30, 30, 0.98) !important;
+}
+
+body.dark-theme .modal-header,
+body.dark-theme .modal-body,
+body.dark-theme .modal-footer {
+    color: #f5f5f5 !important;
+}
+
+body.dark-theme .modal-title {
+    color: #ffffff !important;
+}
+
+body.dark-theme .modal-content label {
+    color: #f0f0f0 !important;
+}
+
+/* Sidebar background */
+#sidebar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(15px) !important;
+}
+
+body.dark-theme #sidebar {
+    background: rgba(20, 20, 20, 0.95) !important;
+}
+
+body.dark-theme #sidebar .nav-link,
+body.dark-theme #sidebar .nav-link span {
+    color: #ffffff !important;
+}
+
+body.dark-theme #sidebar .nav-link.collapsed,
+body.dark-theme #sidebar .nav-link.collapsed span {
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme #sidebar .nav-link i {
+    color: #b0c4de !important;
+}
+
+body.dark-theme #sidebar .nav-heading {
+    color: #ffffff !important;
+}
+
+/* ==========================================
+ * LIGHT THEME - Active Section Highlight
+ * ========================================== */
+/* Nav link active (không có class collapsed) - Light theme */
+.sidebar-nav .nav-link:not(.collapsed) {
+    background: linear-gradient(135deg, #4154f1 0%, #5969f3 100%) !important;
+    color: #ffffff !important;
+    border: 2px solid #4154f1 !important;
+    box-shadow: 0 4px 12px rgba(65, 84, 241, 0.4), 0 2px 4px rgba(65, 84, 241, 0.2) !important;
+    transform: translateX(8px) scale(1.02) !important;
+    position: relative;
+}
+
+.sidebar-nav .nav-link:not(.collapsed)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #ffd43b 0%, #ffc107 100%);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(255, 212, 59, 0.6);
+}
+
+.sidebar-nav .nav-link:not(.collapsed) span {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.sidebar-nav .nav-link:not(.collapsed) i {
+    color: #ffffff !important;
+}
+
+.sidebar-nav .nav-link:not(.collapsed):hover {
+    background: linear-gradient(135deg, #5969f3 0%, #6b7aff 100%) !important;
+    box-shadow: 0 6px 16px rgba(65, 84, 241, 0.5) !important;
+    transform: translateX(10px) scale(1.03) !important;
+}
+
+/* Header background */
+#header {
+    background: rgba(255, 255, 255, 0.95) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(15px) !important;
+}
+
+body.dark-theme #header {
+    background: rgba(20, 20, 20, 0.95) !important;
+}
+
+body.dark-theme #header * {
+    color: #f5f5f5 !important;
+}
+
+body.dark-theme #header .logo span {
+    color: #ffd43b !important;
+}
+
+/* Page title area */
+.pagetitle {
+    background: transparent !important;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent !important;
+}
+
+body.dark-theme .breadcrumb-item,
+body.dark-theme .breadcrumb-item a {
+    color: #b0c4de !important;
+}
+
+body.dark-theme .breadcrumb-item.active {
+    color: #ffffff !important;
+}
+
+body.dark-theme .breadcrumb-item + .breadcrumb-item::before {
+    color: #8ba4c7 !important;
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+    background: rgba(40, 40, 40, 0.9) !important;
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.dark-theme .form-control::placeholder {
+    color: #b0b0b0 !important;
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus {
+    color: #ffffff !important;
+    border-color: #4dabf7 !important;
+}
+
+/* Alerts */
+.alert {
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.98) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(15px) !important;
+}
+
+body.dark-theme .dropdown-menu {
+    background: rgba(30, 30, 30, 0.98) !important;
+}
+
+body.dark-theme .dropdown-item {
+    color: #f5f5f5 !important;
+}
+
+body.dark-theme .dropdown-item:hover {
+    color: #ffffff !important;
+    background: rgba(77, 171, 247, 0.3) !important;
+}
+
+/* Toast notifications */
+.toast {
+    background: rgba(255, 255, 255, 0.98) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    backdrop-filter: blur(15px) !important;
+}
+
+body.dark-theme .toast {
+    background: rgba(30, 30, 30, 0.98) !important;
+}
+
+/* Nav tabs */
+.nav-tabs {
+    background: transparent !important;
+}
+
+.nav-tabs .nav-link {
+    background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.nav-tabs .nav-link.active {
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+body.dark-theme .nav-tabs .nav-link {
+    background: rgba(40, 40, 40, 0.7) !important;
+}
+
+body.dark-theme .nav-tabs .nav-link.active {
+    background: rgba(40, 40, 40, 0.95) !important;
+}
+
+/* Ensure text remains readable */
+body {
+    color: #333 !important;
+}
+
+body.dark-theme {
+    color: #f5f5f5 !important;
+}
+
+/* Dark theme - Improve text contrast */
+body.dark-theme .card-title,
+body.dark-theme .card-text,
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6 {
+    color: #ffffff !important;
+}
+
+body.dark-theme p,
+body.dark-theme span:not(.badge),
+body.dark-theme div,
+body.dark-theme label {
+    color: #f0f0f0 !important;
+}
+
+body.dark-theme .text-muted,
+body.dark-theme small {
+    color: #d0d0d0 !important;
+}
+
+body.dark-theme a {
+    color: #74c0fc !important;
+}
+
+body.dark-theme a:hover {
+    color: #a5d8ff !important;
+}
+
+/* Buttons text color in dark theme */
+body.dark-theme .btn,
+body.dark-theme button {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-primary {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-secondary {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-success {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-warning {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-warning *,
+body.dark-theme .btn-warning i {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-info {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-danger {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn-outline-primary,
+body.dark-theme .btn-outline-secondary,
+body.dark-theme .btn-outline-success,
+body.dark-theme .btn-outline-warning,
+body.dark-theme .btn-outline-info,
+body.dark-theme .btn-outline-danger {
+    color: #ffffff !important;
+}
+
+body.dark-theme .btn i {
+    color: inherit !important;
+}
+
+/* Badge colors */
+body.dark-theme .badge {
+    color: #ffffff !important;
+}
+
+body.dark-theme .badge.bg-primary,
+body.dark-theme .badge.bg-info {
+    color: #ffffff !important;
+}
+
+body.dark-theme .badge.bg-warning {
+    color: #0a1929 !important;
+}
+
+/* Phase badges (BƯỚC 1, BƯỚC 2, BƯỚC 3) */
+body.dark-theme .badge.bg-secondary {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+/* List group items text */
+body.dark-theme .list-group-item h5,
+body.dark-theme .list-group-item p,
+body.dark-theme .list-group-item span {
+    color: #f5f5f5 !important;
+}
+
+body.dark-theme .list-group-item .text-muted {
+    color: #d0d0d0 !important;
+}
+
+/* Card header text */
+body.dark-theme .card-header,
+body.dark-theme .card-header * {
+    color: #ffffff !important;
+}
+
+/* Alert text */
+body.dark-theme .alert {
+    color: #f5f5f5 !important;
+}
+
+body.dark-theme .alert * {
+    color: inherit !important;
+}
+
+/* Task/Phase titles */
+body.dark-theme .pagetitle h1,
+body.dark-theme .pagetitle * {
+    color: #ffffff !important;
+}
+
+/* Remove any conflicting backgrounds */
+.container-fluid,
+.container {
+    background: transparent !important;
+}
+
+/* Row and column backgrounds */
+.row {
+    background: transparent !important;
+}
+
+[class*='col-'] {
+    background: transparent !important;
+}

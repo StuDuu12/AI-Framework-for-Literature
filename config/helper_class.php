@@ -21,6 +21,97 @@ function infoClass($classId = '')
 }
 
 /**
+ * Create a new class
+ */
+function createClass($className, $createdBy)
+{
+    global $pdo;
+    try {
+        $pdo->beginTransaction();
+
+        // Create class
+        $stmt = $pdo->prepare('INSERT INTO `class` (class_name, created_at) VALUES (:class_name, NOW())');
+        $stmt->bindParam(':class_name', $className, PDO::PARAM_STR);
+        $stmt->execute();
+        $classId = $pdo->lastInsertId();
+
+        // Add creator as teacher
+        $stmt2 = $pdo->prepare('INSERT INTO class_member (class_id, user_id, role, added_by) VALUES (:class_id, :user_id, "teacher", :added_by)');
+        $stmt2->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $stmt2->bindParam(':user_id', $createdBy, PDO::PARAM_INT);
+        $stmt2->bindParam(':added_by', $createdBy, PDO::PARAM_INT);
+        $stmt2->execute();
+
+        $pdo->commit();
+        return $classId;
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        return false;
+    }
+}
+
+/**
+ * Update class name
+ */
+function updateClassName($classId, $className)
+{
+    global $pdo;
+    $stmt = $pdo->prepare('UPDATE `class` SET class_name = :class_name WHERE class_id = :class_id');
+    $stmt->bindParam(':class_name', $className, PDO::PARAM_STR);
+    $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+    return $stmt->execute();
+}
+
+/**
+ * Delete a class and all related data
+ */
+function deleteClass($classId)
+{
+    global $pdo;
+    try {
+        $pdo->beginTransaction();
+
+        // Delete all related data in order (to avoid foreign key constraints)
+        // 1. Delete group members first
+        $stmt = $pdo->prepare('DELETE gm FROM group_member gm 
+                              INNER JOIN `group` g ON gm.group_id = g.group_id 
+                              WHERE g.class_id = :class_id');
+        $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // 2. Delete groups
+        $stmt = $pdo->prepare('DELETE FROM `group` WHERE class_id = :class_id');
+        $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // 3. Delete class members
+        $stmt = $pdo->prepare('DELETE FROM class_member WHERE class_id = :class_id');
+        $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // 4. Delete topics (this will cascade to phases and tasks if FK constraints are set)
+        $stmt = $pdo->prepare('DELETE FROM topic WHERE class_id = :class_id');
+        $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // 5. Finally delete the class
+        $stmt = $pdo->prepare('DELETE FROM `class` WHERE class_id = :class_id');
+        $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
+        $result = $stmt->execute();
+
+        $pdo->commit();
+        return $result;
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        return false;
+    }
+}
+
+/**
  * Get all members of a class
  */
 function getClassMembers($classId = null)
@@ -223,10 +314,27 @@ function createGroup($classId, $groupName)
 function deleteGroup($groupId)
 {
     global $pdo;
-    // Members will be deleted automatically via CASCADE
-    $stmt = $pdo->prepare('DELETE FROM `group` WHERE group_id = :group_id');
-    $stmt->bindParam(':group_id', $groupId, PDO::PARAM_INT);
-    return $stmt->execute();
+    // First delete all members in the group to avoid foreign key constraint issues
+    try {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare('DELETE FROM group_member WHERE group_id = :group_id');
+        $stmt->bindParam(':group_id', $groupId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $stmt2 = $pdo->prepare('DELETE FROM `group` WHERE group_id = :group_id');
+        $stmt2->bindParam(':group_id', $groupId, PDO::PARAM_INT);
+        $result = $stmt2->execute();
+
+        $pdo->commit();
+        return $result;
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        // Log error if logging available, return false
+        return false;
+    }
 }
 
 /**
