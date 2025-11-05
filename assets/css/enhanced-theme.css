@@ -178,24 +178,73 @@ h6 {
 
 /* Hover effect với gradient */
 .sidebar-nav .nav-link:hover {
-    background: linear-gradient(135deg, #eaecfe 0%, #f0f2ff 100%);
+    background: linear-gradient(135deg, rgba(65, 84, 241, 0.15) 0%, rgba(89, 105, 243, 0.1) 100%);
     transform: translateX(8px);
-    border-color: var(--primary-light);
-    box-shadow: var(--shadow-sm);
+    border-color: rgba(65, 84, 241, 0.3);
+    box-shadow: 0 2px 8px rgba(65, 84, 241, 0.15);
+    color: var(--primary-color) !important;
 }
 
-/* Active state */
-.sidebar-nav .nav-link.active {
-    background: linear-gradient(135deg, #4154f1 0%, #5969f3 100%);
+.sidebar-nav .nav-link:hover span {
+    color: var(--primary-color) !important;
+}
+
+.sidebar-nav .nav-link:hover i {
+    color: var(--primary-hover) !important;
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Collapsed link hover */
+.sidebar-nav .nav-link.collapsed:hover {
+    background: linear-gradient(135deg, rgba(65, 84, 241, 0.08) 0%, rgba(89, 105, 243, 0.05) 100%);
+    border-color: rgba(65, 84, 241, 0.2);
+}
+
+/* Active state - Section đang được chọn */
+.sidebar-nav .nav-link.active,
+.sidebar-nav .nav-link:not(.collapsed) {
+    background: linear-gradient(135deg, #4154f1 0%, #5969f3 100%) !important;
     color: #ffffff !important;
-    border-color: var(--primary-color);
-    box-shadow: 0 4px 12px rgba(65, 84, 241, 0.3);
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(65, 84, 241, 0.4), 0 2px 4px rgba(65, 84, 241, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     transform: translateX(8px) scale(1.02);
+    position: relative;
 }
 
-.sidebar-nav .nav-link.active i {
+/* Highlight bar bên trái cho active state */
+.sidebar-nav .nav-link.active::before,
+.sidebar-nav .nav-link:not(.collapsed)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #ffd43b 0%, #ffc107 100%);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 8px rgba(255, 212, 59, 0.6);
+}
+
+.sidebar-nav .nav-link.active span,
+.sidebar-nav .nav-link:not(.collapsed) span {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-link.active i,
+.sidebar-nav .nav-link:not(.collapsed) i {
     color: #ffffff !important;
     animation: bounceIcon 0.5s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Active state hover - Làm sáng hơn khi hover */
+.sidebar-nav .nav-link.active:hover,
+.sidebar-nav .nav-link:not(.collapsed):hover {
+    background: linear-gradient(135deg, #5969f3 0%, #6b7aff 100%) !important;
+    box-shadow: 0 6px 16px rgba(65, 84, 241, 0.5), 0 3px 6px rgba(65, 84, 241, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transform: translateX(10px) scale(1.03);
 }
 
 @keyframes bounceIcon {
@@ -219,14 +268,18 @@ h6 {
     transform: scale(1.1) rotate(5deg);
 }
 
-/* Collapsed nav link */
+/* Collapsed nav link (không active) */
 .sidebar-nav .nav-link.collapsed {
-    background: transparent;
-    color: var(--text-primary);
+    background: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.sidebar-nav .nav-link.collapsed span {
+    color: var(--text-primary) !important;
 }
 
 .sidebar-nav .nav-link.collapsed i {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
 }
 
 /* Chevron animation */

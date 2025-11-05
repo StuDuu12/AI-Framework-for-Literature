@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Helper functions for Task management
  */
