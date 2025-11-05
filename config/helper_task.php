@@ -328,8 +328,9 @@ function getTaskAssignmentStats($taskId)
 /**
  * Assign task to targets
  * @param int $taskId
- * @param int $type (1=class, 2=group, 3=individual)
+ * @param int $type (1=class, 2=group, 3=user)
  * @param array $values
+ * @param int $userId
  * @return bool
  */
 function assignTask($taskId, $type, $values, $userId)
@@ -337,6 +338,14 @@ function assignTask($taskId, $type, $values, $userId)
     global $pdo;
 
     try {
+        // Map numeric type to string type for database
+        $typeMap = [
+            1 => 'class',
+            2 => 'group',
+            3 => 'user'
+        ];
+        $deliverType = $typeMap[$type] ?? 'user';
+
         $pdo->beginTransaction();
 
         $stmt = $pdo->prepare("
@@ -347,7 +356,7 @@ function assignTask($taskId, $type, $values, $userId)
         foreach ($values as $value) {
             $stmt->execute([
                 ':task_id' => $taskId,
-                ':type' => $type,
+                ':type' => $deliverType,
                 ':value' => $value,
                 ':added_by' => $userId
             ]);
@@ -942,6 +951,70 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
     }
 }
 
+/**
+ * Check if there's a conflict when assigning a task
+ * Checks for duplicate assignments
+ * 
+ * @param int $taskId Task ID
+ * @param int $assignType Assignment type (1=class, 2=group, 3=user)
+ * @param int $assignValue The ID to assign to (class_id, group_id, or user_id)
+ * @return array ['has_conflict' => bool, 'message' => string, 'conflict_type' => string]
+ */
+function checkAssignmentConflict($taskId, $assignType, $assignValue)
+{
+    global $pdo;
 
+    try {
+        // Map assign type to deliver type string
+        $typeMap = [
+            1 => 'class',
+            2 => 'group',
+            3 => 'user'
+        ];
+        $deliverType = $typeMap[$assignType] ?? 'user';
 
+        // Check if exact same assignment exists
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count
+            FROM deliver
+            WHERE task_id = :task_id
+            AND type = :type
+            AND value = :value
+        ");
 
+        $stmt->execute([
+            ':task_id' => $taskId,
+            ':type' => $deliverType,
+            ':value' => $assignValue
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['count'] > 0) {
+            $nameMap = [
+                'class' => 'lớp học',
+                'group' => 'nhóm',
+                'user' => 'học sinh'
+            ];
+
+            return [
+                'has_conflict' => true,
+                'message' => 'Nhiệm vụ đã được giao cho ' . $nameMap[$deliverType] . ' này rồi',
+                'conflict_type' => 'duplicate'
+            ];
+        }
+
+        return [
+            'has_conflict' => false,
+            'message' => '',
+            'conflict_type' => ''
+        ];
+    } catch (PDOException $e) {
+        error_log("Error in checkAssignmentConflict: " . $e->getMessage());
+        return [
+            'has_conflict' => true,
+            'message' => 'Có lỗi khi kiểm tra xung đột: ' . $e->getMessage(),
+            'conflict_type' => 'error'
+        ];
+    }
+}

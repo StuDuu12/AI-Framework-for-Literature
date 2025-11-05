@@ -41,9 +41,27 @@ body.dark-theme {
     --dark-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
     --dark-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 
-    /* Apply */
-    background-color: var(--dark-bg-deep);
+    /* Apply - Background image cho toàn bộ body */
+    background-image: url('/assets/img/vanhoc.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--dark-text-primary);
+    position: relative;
+}
+
+/* Overlay tối cho toàn bộ body dark theme */
+body.dark-theme::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85));
+    z-index: -1;
+    pointer-events: none;
 }
 
 /* ==========================================
@@ -78,8 +96,8 @@ body.dark-theme .header {
     background: linear-gradient(135deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
     border-bottom: 1px solid var(--dark-border);
     box-shadow: var(--dark-shadow-md);
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 }
 
 body.dark-theme .logo {
@@ -937,4 +955,26 @@ body.dark-theme .theme-toggle:hover {
 
 body.dark-theme .theme-toggle i {
     color: var(--dark-accent);
+}
+
+/* ==========================================
+ * MAIN - Dark Theme (Transparent để hiển thị ảnh nền)
+ * ========================================== */
+body.dark-theme #main {
+    background: transparent !important;
+}
+
+/* ==========================================
+ * FOOTER - Dark Theme (Transparent để hiển thị ảnh nền)
+ * ========================================== */
+body.dark-theme .footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(128, 174, 236, 0.4) !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .footer .copyright,
+body.dark-theme .footer .credits {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
