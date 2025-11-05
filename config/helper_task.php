@@ -526,7 +526,7 @@ function getEvaluationSourceTasks($topicId)
  */
 function isEvaluationPhase($phaseCode)
 {
-    $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
+    $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_TAKENOTE', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
     return in_array($phaseCode, $evaluationPhaseCodes);
 }
 
@@ -666,6 +666,7 @@ function getDeliverIdForUser($taskId, $userId)
 /**
  * Validate if a user has access to a specific deliver
  * Checks if the user is the assigned recipient (directly or through group membership)
+ * Teachers can access all delivers in their classes
  * 
  * @param int $deliverId Deliver ID
  * @param int $userId User ID
@@ -676,11 +677,14 @@ function validateUserDeliverAccess($deliverId, $userId)
     global $pdo;
 
     try {
-        // Get deliver details
+        // Get deliver details with task and phase info
         $stmt = $pdo->prepare("
-            SELECT type, value, task_id
-            FROM deliver 
-            WHERE id_deliver = :deliver_id
+            SELECT d.type, d.value, d.task_id, p.topic_id, t.class_id
+            FROM deliver d
+            INNER JOIN task tk ON d.task_id = tk.task_id
+            INNER JOIN phase p ON tk.phase_id = p.phase_id
+            INNER JOIN topic t ON p.topic_id = t.topic_id
+            WHERE d.id_deliver = :deliver_id
         ");
         $stmt->execute(['deliver_id' => $deliverId]);
         $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -689,7 +693,25 @@ function validateUserDeliverAccess($deliverId, $userId)
             return false;
         }
 
-        // Check based on assignment type
+        // Check if user is a teacher in this class
+        $stmt = $pdo->prepare("
+            SELECT role 
+            FROM class_member 
+            WHERE class_id = :class_id 
+            AND user_id = :user_id
+        ");
+        $stmt->execute([
+            'class_id' => $deliver['class_id'],
+            'user_id' => $userId
+        ]);
+        $membership = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Teachers can access all delivers in their class
+        if ($membership && $membership['role'] === 'teacher') {
+            return true;
+        }
+
+        // For students, check based on assignment type
         if ($deliver['type'] === 'user') {
             // Direct assignment - check if value matches user_id
             return (int) $deliver['value'] === (int) $userId;
@@ -706,6 +728,9 @@ function validateUserDeliverAccess($deliverId, $userId)
                 'user_id' => $userId
             ]);
             return $stmt->fetch() !== false;
+        } elseif ($deliver['type'] === 'class') {
+            // Class assignment - check if user is member of the class
+            return $membership !== false;
         }
 
         return false;
@@ -788,19 +813,138 @@ function getDeliverDetails($deliverId)
  * @param int $deliverId Deliver ID
  * @return array|null Response data with json_ai and id_response, or null if not found
  */
-function getResponseFromDeliver($deliverId)
+function getResponseFromDeliver($deliverId, $currentUserId = null)
 {
     global $pdo;
 
     try {
+        // First, try to get response directly from this deliver
         $stmt = $pdo->prepare("
-            SELECT r.id_response, r.json_ai, r.user_id, r.owner_user_id, r.created_at, r.updated_at
+            SELECT 
+                r.id_response, 
+                r.json_ai, 
+                r.user_id, 
+                r.owner_user_id,
+                r.parent_response,
+                r.created_at, 
+                r.updated_at,
+                r.task_id,
+                t.title as task_title,
+                t.description as task_description,
+                p.phase_name,
+                mp.m_phase_name,
+                mp.phase_code,
+                mp.Comment as allow_comment,
+                u.fullname,
+                u.fullname as user_fullname,
+                owner.fullname as owner_fullname
             FROM deliver d
             INNER JOIN response r ON d.response = r.id_response
+            INNER JOIN task t ON r.task_id = t.task_id
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+            INNER JOIN users u ON r.user_id = u.user_id
+            LEFT JOIN users owner ON r.owner_user_id = owner.user_id
             WHERE d.id_deliver = :deliver_id AND d.response IS NOT NULL
         ");
         $stmt->execute(['deliver_id' => $deliverId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return $result;
+        }
+
+        // If no response found, try to find response from parent task (review chain)
+        // Get current deliver details
+        $deliverStmt = $pdo->prepare("
+            SELECT d.id_deliver, d.task_id, d.type, d.value, t.review_task
+            FROM deliver d
+            INNER JOIN task t ON d.task_id = t.task_id
+            WHERE d.id_deliver = :deliver_id
+        ");
+        $deliverStmt->execute(['deliver_id' => $deliverId]);
+        $deliverInfo = $deliverStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$deliverInfo || !$deliverInfo['review_task']) {
+            // No parent task to search
+            return null;
+        }
+
+        // This task is reviewing another task
+        // Find deliver in parent task with same type and value
+        $parentDeliverStmt = $pdo->prepare("
+            SELECT id_deliver
+            FROM deliver
+            WHERE task_id = :parent_task_id
+            AND type = :type
+            AND value = :value
+            LIMIT 1
+        ");
+        $parentDeliverStmt->execute([
+            ':parent_task_id' => $deliverInfo['review_task'],
+            ':type' => $deliverInfo['type'],
+            ':value' => $deliverInfo['value']
+        ]);
+        $parentDeliver = $parentDeliverStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$parentDeliver) {
+            return null;
+        }
+
+        // Recursively get response from parent deliver (pass null to NOT auto-create)
+        $parentResponse = getResponseFromDeliver($parentDeliver['id_deliver'], null);
+
+        if (!$parentResponse) {
+            return null;
+        }
+
+        // If currentUserId is provided, create a new response for current deliver
+        // and link it to parent response via content blocks
+        if ($currentUserId) {
+            try {
+                $pdo->beginTransaction();
+
+                // Create new response for current task
+                $createResponseStmt = $pdo->prepare("
+                    INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
+                    VALUES (:user_id, :owner_user_id, :parent_response, :task_id, NOW(), NOW())
+                ");
+                $createResponseStmt->execute([
+                    ':user_id' => $currentUserId,
+                    ':owner_user_id' => $parentResponse['owner_user_id'],
+                    ':parent_response' => $parentResponse['id_response'],
+                    ':task_id' => $deliverInfo['task_id']
+                ]);
+                $newResponseId = $pdo->lastInsertId();
+
+                // Update deliver with new response and set status = 1 (đang thực hiện)
+                $updateDeliverStmt = $pdo->prepare("
+                    UPDATE deliver 
+                    SET response = :response_id, status = 1
+                    WHERE id_deliver = :deliver_id
+                ");
+                $updateDeliverStmt->execute([
+                    ':response_id' => $newResponseId,
+                    ':deliver_id' => $deliverId
+                ]);
+
+                // Do NOT copy content - will be retrieved recursively via parent_response
+
+                $pdo->commit();
+
+                // Recursively call again to get the newly created response with all details
+                return getResponseFromDeliver($deliverId, null);
+
+            } catch (PDOException $e) {
+                $pdo->rollBack();
+                error_log("Error creating response for deliver: " . $e->getMessage());
+                // If creation fails, still return parent response for viewing
+                return $parentResponse;
+            }
+        }
+
+        return $parentResponse;
+
     } catch (PDOException $e) {
         error_log("Error in getResponseFromDeliver: " . $e->getMessage());
         return null;
