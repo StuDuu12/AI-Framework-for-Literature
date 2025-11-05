@@ -75,12 +75,18 @@
                                     <i class="bi bi-list-task"></i>
                                     <?= htmlspecialchars($phase['phase_name']) ?>
                                 </h5>
-                                <?php if ($isTeacher): ?>
-                                    <a href="<?= URL_ROOT ?>/class/task/create?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="btn btn-primary">
-                                        <i class="bi bi-plus-circle"></i> Tạo nhiệm vụ
+                                <div class="d-flex gap-2">
+                                    <a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>"
+                                        class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left"></i> Quay lại
                                     </a>
-                                <?php endif; ?>
+                                    <?php if ($isTeacher): ?>
+                                        <a href="<?= URL_ROOT ?>/class/task/create?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                            class="btn btn-primary">
+                                            <i class="bi bi-plus-circle"></i> Tạo nhiệm vụ
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
                             <?php if (empty($tasks)): ?>

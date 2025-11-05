@@ -1,3 +1,57 @@
+<!-- Optimized Dropdown Styles - Ultra Smooth -->
+<style>
+    /* Force GPU acceleration */
+    .dropdown-menu {
+        will-change: transform;
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
+
+    /* Smooth show animation */
+    .dropdown-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* Hidden state - keep display: none for Bootstrap */
+    .dropdown-menu:not(.show) {
+        display: none;
+    }
+
+    /* Ultra fast hover - minimal transition */
+    .dropdown-item {
+        transition: background-color 0.1s ease !important;
+        transform: translate3d(0, 0, 0);
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: rgba(13, 110, 253, 0.08) !important;
+    }
+
+    /* Profile dropdown optimization */
+    .nav-profile {
+        cursor: pointer;
+        transform: translate3d(0, 0, 0);
+    }
+
+    /* Fixed width to prevent layout shift */
+    .dropdown-menu.profile {
+        min-width: 280px;
+        max-width: 280px;
+        right: 0 !important;
+        left: auto !important;
+    }
+
+    /* Optimize text rendering */
+    .dropdown-menu * {
+        text-rendering: optimizeSpeed;
+        -webkit-font-smoothing: subpixel-antialiased;
+    }
+</style>
+
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -31,8 +85,8 @@
                 </button>
             </li><!-- End Theme Toggle -->
 
-            <li class="nav-item dropdown pe-3">
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+            <li class="nav-item dropdown pe-3" id="profileDropdown">
+                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                         <i class="bi bi-person-fill text-white d-flex justify-content-around"></i>
                     </div>
@@ -99,3 +153,37 @@
     </nav><!-- End Icons Navigation -->
 
 </header><!-- End Header -->
+
+<!-- Optimized Dropdown Script -->
+<script>
+    (function() {
+        'use strict';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileDropdown = document.getElementById('profileDropdown');
+            if (!profileDropdown) return;
+
+            const dropdownMenu = profileDropdown.querySelector('.dropdown-menu');
+            if (!dropdownMenu) return;
+
+            // Force hardware acceleration for smooth rendering
+            dropdownMenu.style.transform = 'translate3d(0, 0, 0)';
+
+            // Prevent multiple rapid clicks
+            const dropdownToggle = profileDropdown.querySelector('[data-bs-toggle="dropdown"]');
+            if (dropdownToggle) {
+                let clickTimeout = null;
+                dropdownToggle.addEventListener('click', function(e) {
+                    if (clickTimeout) {
+                        clearTimeout(clickTimeout);
+                    }
+                    clickTimeout = setTimeout(() => {
+                        clickTimeout = null;
+                    }, 150);
+                }, {
+                    passive: true
+                });
+            }
+        });
+    })();
+</script>

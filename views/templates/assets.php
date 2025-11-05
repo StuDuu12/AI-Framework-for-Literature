@@ -2,10 +2,10 @@
 <link href="<?= URL_ROOT ?>/assets/img/favicon.png" rel="icon">
 <link href="<?= URL_ROOT ?>/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-<!-- Google Fonts -->
+<!-- Google Fonts - Backup fonts only -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <!-- Vendor CSS Files -->
 <link href="<?= URL_ROOT ?>/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -18,6 +18,9 @@
 
 <!-- Template Main CSS File -->
 <link href="<?= URL_ROOT ?>/assets/css/style.css" rel="stylesheet">
+
+<!-- Enhanced Typography -->
+<link href="<?= URL_ROOT ?>/assets/css/typography-enhanced.css" rel="stylesheet">
 
 <!-- Enhanced Theme CSS -->
 <link href="<?= URL_ROOT ?>/assets/css/enhanced-theme.css" rel="stylesheet">

@@ -29,8 +29,17 @@ if ($user_role !== 'teacher') {
     exit;
 }
 
-// Get action from POST/GET
-$action = $_POST['action'] ?? $_GET['action'] ?? '';
+// Read JSON input once and store it
+$jsonInput = json_decode(file_get_contents('php://input'), true);
+
+// Get action from POST/GET or JSON body
+$action = $_POST['action'] ?? $_GET['action'] ?? ($jsonInput['action'] ?? '');
+
+// Debug logging
+error_log("Manage Criteria - Action: " . $action);
+error_log("Manage Criteria - JSON Input: " . print_r($jsonInput, true));
+error_log("Manage Criteria - POST: " . print_r($_POST, true));
+error_log("Manage Criteria - GET: " . print_r($_GET, true));
 
 try {
     switch ($action) {
@@ -94,9 +103,7 @@ try {
 
         case 'delete_group':
             // Delete criteria group
-            $input = json_decode(file_get_contents('php://input'), true);
-            $nhom_tc_id = isset($input['nhom_tc_id']) ? intval($input['nhom_tc_id']) :
-                (isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0);
+            $nhom_tc_id = isset($jsonInput['nhom_tc_id']) ? intval($jsonInput['nhom_tc_id']) : (isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0);
 
             if ($nhom_tc_id <= 0) {
                 echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
@@ -170,12 +177,18 @@ try {
 
         case 'delete_criteria':
             // Delete criterion
-            $input = json_decode(file_get_contents('php://input'), true);
-            $tc_id = isset($input['tc_id']) ? intval($input['tc_id']) :
-                (isset($_POST['tc_id']) ? intval($_POST['tc_id']) : 0);
+            $tc_id = isset($jsonInput['tc_id']) ? intval($jsonInput['tc_id']) : (isset($_POST['tc_id']) ? intval($_POST['tc_id']) : 0);
 
             if ($tc_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid criteria ID']);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Invalid criteria ID',
+                    'debug' => [
+                        'tc_id' => $tc_id,
+                        'jsonInput' => $jsonInput,
+                        'post' => $_POST
+                    ]
+                ]);
                 exit;
             }
 
