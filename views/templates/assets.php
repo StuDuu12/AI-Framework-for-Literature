@@ -25,6 +25,8 @@
 <!-- Enhanced Theme CSS -->
 <link href="<?= URL_ROOT ?>/assets/css/enhanced-theme.css" rel="stylesheet">
 <link href="<?= URL_ROOT ?>/assets/css/dark-theme-enhanced.css" rel="stylesheet">
-<link href="<?= URL_ROOT ?>/assets/css/sidebar-fixes.css" rel="stylesheet">
+
+<!-- Background Theme CSS -->
+<link href="<?= URL_ROOT ?>/assets/css/background-theme.css" rel="stylesheet">
 
 <?php require_once './views/templates/theme-toggle.php'; ?>

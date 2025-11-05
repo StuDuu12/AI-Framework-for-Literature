@@ -391,23 +391,39 @@ try {
                 exit;
             }
 
-            // Check for duplicates
-            $duplicates = [];
+            // Convert assign_type to string type for deliver table
+            $typeMap = [
+                1 => 'class',
+                2 => 'group',
+                3 => 'user'
+            ];
+            $deliverType = $typeMap[$assignType] ?? 'user';
+
+            // Check for conflicts for each value
+            $conflicts = [];
             foreach ($assignValues as $value) {
-                if (isTaskAssigned($taskId, $assignType, $value)) {
-                    $duplicates[] = $value;
+                $conflictCheck = checkAssignmentConflict($taskId, $assignType, $value);
+                if ($conflictCheck['has_conflict']) {
+                    $conflicts[] = [
+                        'value' => $value,
+                        'message' => $conflictCheck['message'],
+                        'type' => $conflictCheck['conflict_type']
+                    ];
                 }
             }
 
-            if (!empty($duplicates)) {
+            // If there are conflicts, return error with details
+            if (!empty($conflicts)) {
                 ob_end_clean();
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Một số đối tượng đã được giao nhiệm vụ này trước đó'
+                    'message' => $conflicts[0]['message'], // Show first conflict message
+                    'conflicts' => $conflicts
                 ]);
                 exit;
             }
 
+            // All checks passed, proceed with assignment
             if (assignTask($taskId, $assignType, $assignValues, $userId)) {
                 ob_end_clean();
                 echo json_encode(['success' => true, 'message' => 'Giao nhiệm vụ thành công']);
@@ -441,6 +457,28 @@ try {
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'Không thể hủy giao nhiệm vụ']);
             }
+            break;
+
+        case 'check_assignment_conflict':
+            $taskId = intval($_POST['task_id'] ?? $_GET['task_id'] ?? 0);
+            $assignType = intval($_POST['assign_type'] ?? $_GET['assign_type'] ?? 0);
+            $assignValue = intval($_POST['assign_value'] ?? $_GET['assign_value'] ?? 0);
+
+            if (!$taskId || !$assignType || !$assignValue) {
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ']);
+                exit;
+            }
+
+            $conflictCheck = checkAssignmentConflict($taskId, $assignType, $assignValue);
+
+            ob_end_clean();
+            echo json_encode([
+                'success' => true,
+                'has_conflict' => $conflictCheck['has_conflict'],
+                'message' => $conflictCheck['message'],
+                'conflict_type' => $conflictCheck['conflict_type']
+            ]);
             break;
 
         default:

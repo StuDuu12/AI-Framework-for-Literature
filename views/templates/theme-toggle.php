@@ -1,5 +1,4 @@
-<!-- Dark Theme CSS -->
-<link href="<?= URL_ROOT ?>/assets/css/dark-theme.css" rel="stylesheet">
+<!-- Dark Theme CSS is already included in assets.php (dark-theme-enhanced.css) -->
 
 <!-- Theme Toggle Script -->
 <script>
