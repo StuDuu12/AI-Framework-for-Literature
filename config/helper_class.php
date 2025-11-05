@@ -323,7 +323,7 @@ function getClassTopics($classId = null)
                           FROM topic t
                           LEFT JOIN users u ON t.added_by = u.user_id
                           WHERE t.class_id = :class_id
-                          ORDER BY t.created_at DESC");
+                          ORDER BY t.created_at ASC");
     $stmt->bindParam(':class_id', $classId, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

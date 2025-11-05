@@ -245,14 +245,14 @@ function getTaskAssignments($taskId)
             SELECT 
                 d.*,
                 CASE 
-                    WHEN d.type = 1 THEN c.class_name
-                    WHEN d.type = 2 THEN g.group_name
-                    WHEN d.type = 3 THEN u.fullname
+                    WHEN d.type = 'class' THEN c.class_name
+                    WHEN d.type = 'group' THEN g.group_name
+                    WHEN d.type = 'user' THEN u.fullname
                 END as assigned_to_name
             FROM deliver d
-            LEFT JOIN class c ON d.type = 1 AND d.value = c.class_id
-            LEFT JOIN `group` g ON d.type = 2 AND d.value = g.group_id
-            LEFT JOIN users u ON d.type = 3 AND d.value = u.user_id
+            LEFT JOIN class c ON d.type = 'class' AND d.value = c.class_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
             WHERE d.task_id = :task_id
             ORDER BY d.type, d.id_deliver
         ");
@@ -264,6 +264,69 @@ function getTaskAssignments($taskId)
         return [];
     }
 }
+
+/**
+ * Get task assignment statistics
+ * @param int $taskId
+ * @return array
+ */
+function getTaskAssignmentStats($taskId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                COUNT(*) as total_assigned,
+                SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as not_started,
+                SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as in_progress,
+                SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed,
+                COUNT(DISTINCT type) as assignment_types
+            FROM deliver
+            WHERE task_id = :task_id
+        ");
+
+        $stmt->execute([':task_id' => $taskId]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Get assignment type details
+        $typeStmt = $pdo->prepare("
+            SELECT 
+                type,
+                COUNT(*) as count,
+                GROUP_CONCAT(
+                    CASE 
+                        WHEN type = 'class' THEN c.class_name
+                        WHEN type = 'group' THEN g.group_name
+                        WHEN type = 'user' THEN u.fullname
+                    END
+                    SEPARATOR ', '
+                ) as names
+            FROM deliver d
+            LEFT JOIN class c ON d.type = 'class' AND d.value = c.class_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
+            WHERE d.task_id = :task_id
+            GROUP BY type
+        ");
+        
+        $typeStmt->execute([':task_id' => $taskId]);
+        $stats['types'] = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $stats;
+    } catch (PDOException $e) {
+        error_log("Error in getTaskAssignmentStats: " . $e->getMessage());
+        return [
+            'total_assigned' => 0,
+            'not_started' => 0,
+            'in_progress' => 0,
+            'completed' => 0,
+            'assignment_types' => 0,
+            'types' => []
+        ];
+    }
+}
+
 
 /**
  * Assign task to targets
@@ -459,5 +522,106 @@ function isEvaluationPhase($phaseCode)
 {
     $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
     return in_array($phaseCode, $evaluationPhaseCodes);
+}
+
+/**
+ * Get tasks assigned to a student in a specific phase
+ * @param int $phaseId
+ * @param int $userId - Student user ID
+ * @return array
+ */
+function getStudentAssignedTasks($phaseId, $userId)
+{
+    global $pdo;
+
+    try {
+        // Get student's groups
+        $groupStmt = $pdo->prepare("
+            SELECT group_id 
+            FROM group_member 
+            WHERE user_id = :user_id
+        ");
+        $groupStmt->execute([':user_id' => $userId]);
+        $userGroups = $groupStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Get student's class from the current session or class_member table
+        $classStmt = $pdo->prepare("
+            SELECT class_id 
+            FROM class_member 
+            WHERE user_id = :user_id AND role = 'student'
+        ");
+        $classStmt->execute([':user_id' => $userId]);
+        $userClasses = $classStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Build conditions based on what assignments exist
+        $conditions = [];
+        $params = [':phase_id' => $phaseId, ':user_id' => $userId];
+        
+        // Always include individual assignments
+        $conditions[] = "(d.type = 'user' AND d.value = :user_id)";
+        
+        // Add group conditions if user is in any groups
+        if (!empty($userGroups)) {
+            $groupPlaceholders = [];
+            foreach ($userGroups as $index => $groupId) {
+                $key = ":group_$index";
+                $groupPlaceholders[] = $key;
+                $params[$key] = $groupId;
+            }
+            $conditions[] = "(d.type = 'group' AND d.value IN (" . implode(',', $groupPlaceholders) . "))";
+        }
+        
+        // Add class conditions if user is in any classes
+        if (!empty($userClasses)) {
+            $classPlaceholders = [];
+            foreach ($userClasses as $index => $classId) {
+                $key = ":class_$index";
+                $classPlaceholders[] = $key;
+                $params[$key] = $classId;
+            }
+            $conditions[] = "(d.type = 'class' AND d.value IN (" . implode(',', $classPlaceholders) . "))";
+        }
+        
+        // If no conditions (shouldn't happen), return empty
+        if (empty($conditions)) {
+            return [];
+        }
+
+        // Build and execute query
+        $sql = "
+            SELECT DISTINCT
+                t.*,
+                u.fullname as added_by_name,
+                uc.fullname as content_creator_name,
+                d.type as delivery_type,
+                d.value as delivery_value,
+                d.status as delivery_status,
+                d.response as delivery_response,
+                d.id_deliver,
+                CASE 
+                    WHEN d.type = 'class' THEN c.class_name
+                    WHEN d.type = 'group' THEN g.group_name
+                    WHEN d.type = 'user' THEN u2.fullname
+                END as assigned_to_name
+            FROM task t
+            INNER JOIN deliver d ON t.task_id = d.task_id
+            LEFT JOIN users u ON t.added_by = u.user_id
+            LEFT JOIN users uc ON t.content_creator = uc.user_id
+            LEFT JOIN class c ON d.type = 'class' AND d.value = c.class_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u2 ON d.type = 'user' AND d.value = u2.user_id
+            WHERE t.phase_id = :phase_id
+            AND (" . implode(' OR ', $conditions) . ")
+            ORDER BY t.created_at DESC
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getStudentAssignedTasks: " . $e->getMessage());
+        return [];
+    }
 }
 
