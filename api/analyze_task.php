@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/helper_homework.php';
+require_once __DIR__ . '/../config/helper_task.php';
 
 // Check authentication - more flexible check
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
@@ -36,6 +37,7 @@ if (!$input) {
 
 $action = $input['action'] ?? '';
 $task_id = isset($input['task_id']) ? intval($input['task_id']) : 0;
+$deliver_id = isset($input['deliver_id']) ? intval($input['deliver_id']) : 0;
 
 // Get user info from session - handle different session structures
 if (isset($_SESSION['user']['user_id'])) {
@@ -53,6 +55,18 @@ if (!$user_id) {
         'message' => 'Không tìm thấy thông tin người dùng'
     ]);
     exit;
+}
+
+// Validate deliver_id if provided
+if ($deliver_id > 0) {
+    if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+        http_response_code(403);
+        echo json_encode([
+            'error' => 'Forbidden',
+            'message' => 'Bạn không có quyền truy cập phân công này'
+        ]);
+        exit;
+    }
 }
 
 // Validate action

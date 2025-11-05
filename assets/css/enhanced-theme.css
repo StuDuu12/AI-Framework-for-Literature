@@ -534,6 +534,100 @@ h6 {
     box-shadow: 0 6px 20px rgba(65, 84, 241, 0.3);
 }
 
+.btn-outline-secondary {
+    border-color: var(--text-secondary);
+    color: var(--text-secondary);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--text-secondary);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
+/* Outline buttons - remaining variants */
+.btn-outline-success {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: transparent;
+    box-shadow: none;
+    transition: all var(--transition-base);
+}
+.btn-outline-success:hover {
+    background: var(--success-color);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(81, 207, 102, 0.3);
+}
+
+.btn-outline-danger {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+    background: transparent;
+    transition: all var(--transition-base);
+}
+.btn-outline-danger:hover {
+    background: var(--danger-color);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+}
+
+.btn-outline-warning {
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+    background: transparent;
+    transition: all var(--transition-base);
+}
+.btn-outline-warning:hover {
+    background: var(--warning-color);
+    /* keep readable text on yellow */
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 212, 59, 0.3);
+}
+
+.btn-outline-info {
+    border-color: var(--info-color);
+    color: var(--info-color);
+    background: transparent;
+    transition: all var(--transition-base);
+}
+.btn-outline-info:hover {
+    background: var(--info-color);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(77, 171, 247, 0.3);
+}
+
+/* Optional: light & dark outline variants */
+.btn-outline-light {
+    border-color: #f8f9fa;
+    color: #495057;
+    background: transparent;
+    transition: all var(--transition-base);
+}
+.btn-outline-light:hover {
+    background: #f8f9fa;
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.btn-outline-dark {
+    border-color: #343a40;
+    color: #343a40;
+    background: transparent;
+    transition: all var(--transition-base);
+}
+.btn-outline-dark:hover {
+    background: #343a40;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 58, 64, 0.3);
+}
+
 /* ==========================================
  * CARDS - Hiệu ứng thẻ đẹp
  * ========================================== */

@@ -246,14 +246,12 @@ function getTaskAssignments($taskId)
             SELECT 
                 d.*,
                 CASE 
-                    WHEN d.type = 1 THEN c.class_name
-                    WHEN d.type = 2 THEN g.group_name
-                    WHEN d.type = 3 THEN u.fullname
+                    WHEN d.type = 'group' THEN g.group_name
+                    WHEN d.type = 'user' THEN u.fullname
                 END as assigned_to_name
             FROM deliver d
-            LEFT JOIN class c ON d.type = 1 AND d.value = c.class_id
-            LEFT JOIN `group` g ON d.type = 2 AND d.value = g.group_id
-            LEFT JOIN users u ON d.type = 3 AND d.value = u.user_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
             WHERE d.task_id = :task_id
             ORDER BY d.type, d.id_deliver
         ");
@@ -265,6 +263,67 @@ function getTaskAssignments($taskId)
         return [];
     }
 }
+
+/**
+ * Get task assignment statistics
+ * @param int $taskId
+ * @return array
+ */
+function getTaskAssignmentStats($taskId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                COUNT(*) as total_assigned,
+                SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as not_started,
+                SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as in_progress,
+                SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed,
+                COUNT(DISTINCT type) as assignment_types
+            FROM deliver
+            WHERE task_id = :task_id
+        ");
+
+        $stmt->execute([':task_id' => $taskId]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Get assignment type details
+        $typeStmt = $pdo->prepare("
+            SELECT 
+                type,
+                COUNT(*) as count,
+                GROUP_CONCAT(
+                    CASE 
+                        WHEN type = 'group' THEN g.group_name
+                        WHEN type = 'user' THEN u.fullname
+                    END
+                    SEPARATOR ', '
+                ) as names
+            FROM deliver d
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
+            WHERE d.task_id = :task_id
+            GROUP BY type
+        ");
+
+        $typeStmt->execute([':task_id' => $taskId]);
+        $stats['types'] = $typeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $stats;
+    } catch (PDOException $e) {
+        error_log("Error in getTaskAssignmentStats: " . $e->getMessage());
+        return [
+            'total_assigned' => 0,
+            'not_started' => 0,
+            'in_progress' => 0,
+            'completed' => 0,
+            'assignment_types' => 0,
+            'types' => []
+        ];
+    }
+}
+
 
 /**
  * Assign task to targets
@@ -463,200 +522,282 @@ function isEvaluationPhase($phaseCode)
 }
 
 /**
- * Check for assignment conflicts
- * Returns array with 'has_conflict' and 'message' if there's a conflict
- * 
- * Logic:
- * - If assigning to class (type=1): check if any individual students already assigned
- * - If assigning to group (type=2): check if any members already assigned individually or class assigned
- * - If assigning to user (type=3): check if user's class or group already assigned
- * 
- * @param int $taskId
- * @param int $assignType (1=class, 2=group, 3=user)
- * @param int $assignValue (class_id, group_id, or user_id)
- * @return array ['has_conflict' => bool, 'message' => string, 'conflict_type' => string]
+ * Get tasks assigned to a student in a specific phase
+ * @param int $phaseId
+ * @param int $userId - Student user ID
+ * @return array
  */
-function checkAssignmentConflict($taskId, $assignType, $assignValue)
+function getStudentAssignedTasks($phaseId, $userId)
 {
     global $pdo;
 
     try {
-        // Type 1: Assigning to entire class
-        if ($assignType == 1) {
-            // Check if any individual students from this class are already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(DISTINCT d.id_deliver) as count,
-                       u.username as student_name
-                FROM deliver d
-                INNER JOIN users u ON d.value = u.user_id
-                INNER JOIN class_member cm ON u.user_id = cm.user_id
-                WHERE d.task_id = :task_id 
-                AND d.type = 'user'
-                AND cm.class_id = :class_id
-                LIMIT 1
-            ");
-            $stmt->execute([':task_id' => $taskId, ':class_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Get student's groups
+        $groupStmt = $pdo->prepare("
+            SELECT group_id 
+            FROM group_member 
+            WHERE user_id = :user_id
+        ");
+        $groupStmt->execute([':user_id' => $userId]);
+        $userGroups = $groupStmt->fetchAll(PDO::FETCH_COLUMN);
 
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Không thể giao cho cả lớp vì đã có học sinh được giao riêng lẻ. Vui lòng hủy các giao bài cá nhân trước.',
-                    'conflict_type' => 'class_vs_individual'
-                ];
+        // Build conditions based on what assignments exist
+        $conditions = [];
+        $params = [':phase_id' => $phaseId, ':user_id' => $userId];
+
+        // Always include individual assignments
+        $conditions[] = "(d.type = 'user' AND d.value = :user_id)";
+
+        // Add group conditions if user is in any groups
+        if (!empty($userGroups)) {
+            $groupPlaceholders = [];
+            foreach ($userGroups as $index => $groupId) {
+                $key = ":group_$index";
+                $groupPlaceholders[] = $key;
+                $params[$key] = $groupId;
             }
-
-            // Check if class is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count 
-                FROM deliver 
-                WHERE task_id = :task_id 
-                AND type = 'class' 
-                AND value = :class_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':class_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Lớp học này đã được giao nhiệm vụ rồi.',
-                    'conflict_type' => 'duplicate_class'
-                ];
-            }
+            $conditions[] = "(d.type = 'group' AND d.value IN (" . implode(',', $groupPlaceholders) . "))";
         }
 
-        // Type 2: Assigning to group
-        elseif ($assignType == 2) {
-            // Check if class of this group is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count
-                FROM deliver d
-                INNER JOIN `group` g ON d.value = g.class_id
-                WHERE d.task_id = :task_id
-                AND d.type = 'class'
-                AND g.group_id = :group_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Không thể giao cho nhóm vì cả lớp đã được giao nhiệm vụ này.',
-                    'conflict_type' => 'class_already_assigned'
-                ];
-            }
-
-            // Check if any group members are already assigned individually
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count
-                FROM deliver d
-                INNER JOIN group_member gm ON d.value = gm.user_id
-                WHERE d.task_id = :task_id
-                AND d.type = 'user'
-                AND gm.group_id = :group_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Không thể giao cho nhóm vì một số thành viên đã được giao riêng lẻ.',
-                    'conflict_type' => 'group_vs_individual'
-                ];
-            }
-
-            // Check if group is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count 
-                FROM deliver 
-                WHERE task_id = :task_id 
-                AND type = 'group' 
-                AND value = :group_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':group_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Nhóm này đã được giao nhiệm vụ rồi.',
-                    'conflict_type' => 'duplicate_group'
-                ];
-            }
+        // If no conditions (shouldn't happen), return empty
+        if (empty($conditions)) {
+            return [];
         }
 
-        // Type 3: Assigning to individual user
-        elseif ($assignType == 3) {
-            // Check if user's class is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count
-                FROM deliver d
-                INNER JOIN class_member cm ON d.value = cm.class_id
-                WHERE d.task_id = :task_id
-                AND d.type = 'class'
-                AND cm.user_id = :user_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Build and execute query
+        $sql = "
+            SELECT DISTINCT
+                t.*,
+                u.fullname as added_by_name,
+                uc.fullname as content_creator_name,
+                d.type as delivery_type,
+                d.value as delivery_value,
+                d.status as delivery_status,
+                d.response as delivery_response,
+                d.id_deliver,
+                CASE 
+                    WHEN d.type = 'group' THEN g.group_name
+                    WHEN d.type = 'user' THEN u2.fullname
+                END as assigned_to_name
+            FROM task t
+            INNER JOIN deliver d ON t.task_id = d.task_id
+            LEFT JOIN users u ON t.added_by = u.user_id
+            LEFT JOIN users uc ON t.content_creator = uc.user_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u2 ON d.type = 'user' AND d.value = u2.user_id
+            WHERE t.phase_id = :phase_id
+            AND (" . implode(' OR ', $conditions) . ")
+            ORDER BY t.created_at DESC
+        ";
 
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Không thể giao cho học sinh này vì cả lớp đã được giao nhiệm vụ.',
-                    'conflict_type' => 'class_already_assigned'
-                ];
-            }
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
 
-            // Check if user's group is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count
-                FROM deliver d
-                INNER JOIN group_member gm ON d.value = gm.group_id
-                WHERE d.task_id = :task_id
-                AND d.type = 'group'
-                AND gm.user_id = :user_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Không thể giao cho học sinh này vì nhóm của học sinh đã được giao nhiệm vụ.',
-                    'conflict_type' => 'group_already_assigned'
-                ];
-            }
-
-            // Check if user is already assigned
-            $stmt = $pdo->prepare("
-                SELECT COUNT(*) as count 
-                FROM deliver 
-                WHERE task_id = :task_id 
-                AND type = 'user' 
-                AND value = :user_id
-            ");
-            $stmt->execute([':task_id' => $taskId, ':user_id' => $assignValue]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($result['count'] > 0) {
-                return [
-                    'has_conflict' => true,
-                    'message' => 'Học sinh này đã được giao nhiệm vụ rồi.',
-                    'conflict_type' => 'duplicate_user'
-                ];
-            }
-        }
-
-        return ['has_conflict' => false, 'message' => '', 'conflict_type' => ''];
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        error_log("Error in checkAssignmentConflict: " . $e->getMessage());
-        return [
-            'has_conflict' => true,
-            'message' => 'Lỗi kiểm tra xung đột: ' . $e->getMessage(),
-            'conflict_type' => 'error'
-        ];
+        error_log("Error in getStudentAssignedTasks: " . $e->getMessage());
+        return [];
     }
 }
+
+/**
+ * Get deliver_id for a specific task and user
+ * Checks if user is assigned to the task (directly or through group)
+ * Note: Class-wide assignments have been removed from the system
+ * 
+ * @param int $taskId Task ID
+ * @param int $userId User ID
+ * @return int|null Deliver ID if found and user is authorized, null otherwise
+ */
+function getDeliverIdForUser($taskId, $userId)
+{
+    global $pdo;
+
+    try {
+        // First check if assigned directly to user
+        $stmt = $pdo->prepare("
+            SELECT id_deliver 
+            FROM deliver 
+            WHERE task_id = :task_id 
+            AND type = 'user' 
+            AND value = :user_id
+        ");
+        $stmt->execute(['task_id' => $taskId, 'user_id' => $userId]);
+        $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($deliver) {
+            return (int) $deliver['id_deliver'];
+        }
+
+        // Check if assigned to user's group
+        $stmt = $pdo->prepare("
+            SELECT d.id_deliver 
+            FROM deliver d
+            INNER JOIN group_member gm ON d.value = gm.group_id
+            WHERE d.task_id = :task_id 
+            AND d.type = 'group' 
+            AND gm.user_id = :user_id
+            LIMIT 1
+        ");
+        $stmt->execute(['task_id' => $taskId, 'user_id' => $userId]);
+        $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($deliver) {
+            return (int) $deliver['id_deliver'];
+        }
+
+        return null;
+    } catch (PDOException $e) {
+        error_log("Error in getDeliverIdForUser: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Validate if a user has access to a specific deliver
+ * Checks if the user is the assigned recipient (directly or through group membership)
+ * 
+ * @param int $deliverId Deliver ID
+ * @param int $userId User ID
+ * @return bool True if user has access, false otherwise
+ */
+function validateUserDeliverAccess($deliverId, $userId)
+{
+    global $pdo;
+
+    try {
+        // Get deliver details
+        $stmt = $pdo->prepare("
+            SELECT type, value, task_id
+            FROM deliver 
+            WHERE id_deliver = :deliver_id
+        ");
+        $stmt->execute(['deliver_id' => $deliverId]);
+        $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$deliver) {
+            return false;
+        }
+
+        // Check based on assignment type
+        if ($deliver['type'] === 'user') {
+            // Direct assignment - check if value matches user_id
+            return (int) $deliver['value'] === (int) $userId;
+        } elseif ($deliver['type'] === 'group') {
+            // Group assignment - check if user is member of the group
+            $stmt = $pdo->prepare("
+                SELECT 1 
+                FROM group_member 
+                WHERE group_id = :group_id 
+                AND user_id = :user_id
+            ");
+            $stmt->execute([
+                'group_id' => $deliver['value'],
+                'user_id' => $userId
+            ]);
+            return $stmt->fetch() !== false;
+        }
+
+        return false;
+    } catch (PDOException $e) {
+        error_log("Error in validateUserDeliverAccess: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Update deliver status and response
+ * Updates the deliver record with response_id and/or status
+ * 
+ * @param int $deliverId Deliver ID
+ * @param int|null $responseId Response ID (reference to response.id_response)
+ * @param int|null $status Status: 0=assigned, 1=in_progress, 2=completed
+ * @return bool True if updated successfully, false otherwise
+ */
+function updateDeliverStatus($deliverId, $responseId = null, $status = null)
+{
+    global $pdo;
+
+    try {
+        $updates = [];
+        $params = ['deliver_id' => $deliverId];
+
+        if ($responseId !== null) {
+            $updates[] = "response = :response";
+            $params['response'] = $responseId;
+        }
+
+        if ($status !== null) {
+            $updates[] = "status = :status";
+            $params['status'] = $status;
+        }
+
+        if (empty($updates)) {
+            return false;
+        }
+
+        $sql = "UPDATE deliver SET " . implode(', ', $updates) . " WHERE id_deliver = :deliver_id";
+        $stmt = $pdo->prepare($sql);
+
+        return $stmt->execute($params);
+    } catch (PDOException $e) {
+        error_log("Error in updateDeliverStatus: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get deliver details by ID
+ * 
+ * @param int $deliverId Deliver ID
+ * @return array|null Deliver details or null if not found
+ */
+function getDeliverDetails($deliverId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT d.*, t.title as task_title
+            FROM deliver d
+            INNER JOIN task t ON d.task_id = t.task_id
+            WHERE d.id_deliver = :deliver_id
+        ");
+        $stmt->execute(['deliver_id' => $deliverId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getDeliverDetails: " . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Get response data from deliver
+ * Returns the response record associated with a deliver, if exists
+ * 
+ * @param int $deliverId Deliver ID
+ * @return array|null Response data with json_ai and id_response, or null if not found
+ */
+function getResponseFromDeliver($deliverId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT r.id_response, r.json_ai, r.user_id, r.owner_user_id, r.created_at, r.updated_at
+            FROM deliver d
+            INNER JOIN response r ON d.response = r.id_response
+            WHERE d.id_deliver = :deliver_id AND d.response IS NOT NULL
+        ");
+        $stmt->execute(['deliver_id' => $deliverId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getResponseFromDeliver: " . $e->getMessage());
+        return null;
+    }
+}
+
+
+
+
