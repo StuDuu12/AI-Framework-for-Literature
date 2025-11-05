@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/helper_homework.php';
+require_once __DIR__ . '/../config/helper_task.php';
 
 // Check authentication
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
@@ -47,6 +48,7 @@ if (!$user_id) {
 
 // Validate required fields
 $task_id = isset($input['task_id']) ? intval($input['task_id']) : 0;
+$deliver_id = isset($input['deliver_id']) ? intval($input['deliver_id']) : 0;
 $action_type = $input['action_type'] ?? ''; // 'analyze', 'chat', 'slideshow', 'quiz'
 $ai_response = $input['ai_response'] ?? null;
 $user_content = $input['user_content'] ?? '';
@@ -56,6 +58,19 @@ $target_user_id = isset($input['target_user_id']) ? intval($input['target_user_i
 if ($task_id <= 0) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid task_id', 'message' => 'Task ID không hợp lệ']);
+    exit;
+}
+
+if ($deliver_id <= 0) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Deliver ID không hợp lệ']);
+    exit;
+}
+
+// Validate deliver access
+if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập phân công này']);
     exit;
 }
 
@@ -100,6 +115,9 @@ try {
         $content_ids = insertContent($response_id, $user_content, $user_id);
     }
 
+    // Update deliver with response_id and status = 1 (in progress)
+    updateDeliverStatus($deliver_id, $response_id, 1);
+
     // Return success with IDs
     echo json_encode([
         'success' => true,
@@ -107,7 +125,8 @@ try {
         'data' => [
             'response_id' => $response_id,
             'content_ids' => $content_ids,
-            'action_type' => $action_type
+            'action_type' => $action_type,
+            'deliver_id' => $deliver_id
         ]
     ]);
 

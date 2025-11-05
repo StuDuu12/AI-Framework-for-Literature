@@ -80,11 +80,19 @@
                     <a href="#about" class="text-gray-600 hover:text-blue-500 transition duration-300">Về chúng tôi</a>
                     <a href="#testimonials" class="text-gray-600 hover:text-blue-500 transition duration-300">Đánh giá</a>
 
-                    <!-- Nút Đăng Nhập (Theo yêu cầu) --><button
+                    <!-- Nút Đăng Nhập (Theo yêu cầu) -->
+                    <?php if (!isset($_SESSION['user'])): ?>
+                    <button
                         id="login-button"
                         class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 button-press-effect">
                         Đăng nhập
                     </button>
+                    <?php elseif (isset($_SESSION['user'])): ?>
+                        <button class="hidden" id="login-button"></button>
+                        <a href="/dashboard" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 button-press-effect">
+                            Vào hệ thống
+                        </a>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Nút Menu cho Mobile -->
