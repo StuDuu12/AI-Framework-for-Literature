@@ -359,7 +359,7 @@ if ($user_id) {
         let currentResponseId = <?php echo isset($id_response) ? $id_response : 'null'; ?>; // Track current response ID for chat threading
 
         // Initialize: Load file content if available
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
             if (FILE_CONTENT) {
                 textInput.value = FILE_CONTENT;
 
@@ -396,17 +396,17 @@ if ($user_id) {
 
                 // Initialize conversation history with the existing analysis
                 conversationHistory = [{
-                        role: 'user',
-                        parts: [{
-                            text: `Phân tích văn bản sau:\n\n${FILE_CONTENT || textInput.value.trim()}`
-                        }]
-                    },
-                    {
-                        role: 'model',
-                        parts: [{
-                            text: JSON.stringify(currentAnalysisData)
-                        }]
-                    }
+                    role: 'user',
+                    parts: [{
+                        text: `Phân tích văn bản sau:\n\n${FILE_CONTENT || textInput.value.trim()}`
+                    }]
+                },
+                {
+                    role: 'model',
+                    parts: [{
+                        text: JSON.stringify(currentAnalysisData)
+                    }]
+                }
                 ];
 
                 // Add initial message to chat
@@ -1205,12 +1205,12 @@ if ($user_id) {
         async function textToImage(text, width = 800, options = {}) {
             const {
                 fontSize = 16,
-                    fontFamily = 'Inter, sans-serif',
-                    lineHeight = 1.7,
-                    padding = 30,
-                    backgroundColor = '#ffffff',
-                    textColor = '#334155',
-                    maxWidth = width - padding * 2,
+                fontFamily = 'Inter, sans-serif',
+                lineHeight = 1.7,
+                padding = 30,
+                backgroundColor = '#ffffff',
+                textColor = '#334155',
+                maxWidth = width - padding * 2,
             } = options;
 
             const canvas = document.createElement('canvas');
@@ -1351,13 +1351,13 @@ if ($user_id) {
         // === FORMATTING FUNCTIONS FOR IMAGE GENERATION ===
         const formatForImage = (content) =>
             content ?
-            String(content)
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<\/?i>/gi, '_')
-            .replace(/<\/?em>/gi, '_')
-            .replace(/<\/?strong>/gi, '*')
-            .replace(/<\/?b>/gi, '*') :
-            '';
+                String(content)
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<\/?i>/gi, '_')
+                    .replace(/<\/?em>/gi, '_')
+                    .replace(/<\/?strong>/gi, '*')
+                    .replace(/<\/?b>/gi, '*') :
+                '';
 
         function formatGeneralAnalysisForImage(data) {
             let text = '';
@@ -1474,53 +1474,53 @@ if ($user_id) {
         // === GENERATE AND INSERT IMAGE BLOCKS ===
         async function generateContentImages(result) {
             const sectionsToImage = [{
-                    id: 'general-images',
-                    title: 'Phân tích Chung',
-                    data: result.generalAnalysis,
-                    formatFunc: formatGeneralAnalysisForImage,
-                    bgColor: '#f9fafb',
-                    textColor: '#1f2937',
-                },
-                {
-                    id: 'story-images',
-                    title: 'Phân tích Truyện',
-                    data: result.storyAnalysis,
-                    formatFunc: formatStoryAnalysisForImage,
-                    bgColor: '#f0f9ff',
-                    textColor: '#1e40af',
-                },
-                {
-                    id: 'drama-images',
-                    title: 'Phân tích Kịch',
-                    data: result.dramaAnalysis,
-                    formatFunc: formatDramaAnalysisForImage,
-                    bgColor: '#fef3c7',
-                    textColor: '#92400e',
-                },
-                {
-                    id: 'poetry-images',
-                    title: 'Phân tích Thơ ca',
-                    data: result.poetryAnalysis,
-                    formatFunc: formatPoetryAnalysisForImage,
-                    bgColor: '#fce7f3',
-                    textColor: '#831843',
-                },
-                {
-                    id: 'conclusion-images',
-                    title: 'Bài học & Thông điệp',
-                    data: result.concludingThoughts,
-                    formatFunc: formatConclusionForImage,
-                    bgColor: '#dcfce7',
-                    textColor: '#14532d',
-                },
-                {
-                    id: 'intertextuality-images',
-                    title: 'Phân tích Liên văn bản',
-                    data: result.intertextuality,
-                    formatFunc: formatIntertextualityForImage,
-                    bgColor: '#ede9fe',
-                    textColor: '#4c1d95',
-                },
+                id: 'general-images',
+                title: 'Phân tích Chung',
+                data: result.generalAnalysis,
+                formatFunc: formatGeneralAnalysisForImage,
+                bgColor: '#f9fafb',
+                textColor: '#1f2937',
+            },
+            {
+                id: 'story-images',
+                title: 'Phân tích Truyện',
+                data: result.storyAnalysis,
+                formatFunc: formatStoryAnalysisForImage,
+                bgColor: '#f0f9ff',
+                textColor: '#1e40af',
+            },
+            {
+                id: 'drama-images',
+                title: 'Phân tích Kịch',
+                data: result.dramaAnalysis,
+                formatFunc: formatDramaAnalysisForImage,
+                bgColor: '#fef3c7',
+                textColor: '#92400e',
+            },
+            {
+                id: 'poetry-images',
+                title: 'Phân tích Thơ ca',
+                data: result.poetryAnalysis,
+                formatFunc: formatPoetryAnalysisForImage,
+                bgColor: '#fce7f3',
+                textColor: '#831843',
+            },
+            {
+                id: 'conclusion-images',
+                title: 'Bài học & Thông điệp',
+                data: result.concludingThoughts,
+                formatFunc: formatConclusionForImage,
+                bgColor: '#dcfce7',
+                textColor: '#14532d',
+            },
+            {
+                id: 'intertextuality-images',
+                title: 'Phân tích Liên văn bản',
+                data: result.intertextuality,
+                formatFunc: formatIntertextualityForImage,
+                bgColor: '#ede9fe',
+                textColor: '#4c1d95',
+            },
             ];
 
             const imagePromises = [];
@@ -1531,12 +1531,12 @@ if ($user_id) {
                     const textContent = section.formatFunc(section.data);
                     if (textContent) {
                         const promise = textToImage(textContent, 750, {
-                                fontSize: 15,
-                                lineHeight: 1.7,
-                                backgroundColor: section.bgColor,
-                                textColor: section.textColor,
-                                padding: 25,
-                            })
+                            fontSize: 15,
+                            lineHeight: 1.7,
+                            backgroundColor: section.bgColor,
+                            textColor: section.textColor,
+                            padding: 25,
+                        })
                             .then((imageData) => {
                                 if (imageData) {
                                     container.innerHTML = createImageBlock(imageData, section.title);
@@ -1568,7 +1568,7 @@ if ($user_id) {
             const wrappers = document.querySelectorAll('.content-image-wrapper');
             wrappers.forEach((wrapper) => {
                 const section = wrapper.dataset.section || 'Unknown';
-                wrapper.addEventListener('click', function(e) {
+                wrapper.addEventListener('click', function (e) {
                     if (selectedBlock && selectedBlock !== this) {
                         selectedBlock.classList.remove('selected');
                     }
@@ -1650,17 +1650,17 @@ if ($user_id) {
 
             // Initialize conversation history with initial analysis
             conversationHistory = [{
-                    role: 'user',
-                    parts: [{
-                        text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}`
-                    }]
-                },
-                {
-                    role: 'model',
-                    parts: [{
-                        text: JSON.stringify(result)
-                    }]
-                }
+                role: 'user',
+                parts: [{
+                    text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}`
+                }]
+            },
+            {
+                role: 'model',
+                parts: [{
+                    text: JSON.stringify(result)
+                }]
+            }
             ];
 
             // Generate images asynchronously

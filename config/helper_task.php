@@ -738,7 +738,7 @@ function updateDeliverStatus($deliverId, $responseId = null, $status = null)
 
         $sql = "UPDATE deliver SET " . implode(', ', $updates) . " WHERE id_deliver = :deliver_id";
         $stmt = $pdo->prepare($sql);
-        
+
         return $stmt->execute($params);
     } catch (PDOException $e) {
         error_log("Error in updateDeliverStatus: " . $e->getMessage());

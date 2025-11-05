@@ -3,23 +3,26 @@
 ## Thay đổi
 
 ### 1. `api/save_response.php`
-- ✅ Thêm `require_once helper_task.php`
-- ✅ Validate `deliver_id` từ request
-- ✅ Kiểm tra quyền truy cập: `validateUserDeliverAccess($deliver_id, $user_id)`
-- ✅ Sau khi insert response, cập nhật deliver:
-  ```php
-  updateDeliverStatus($deliver_id, $response_id, 1);
-  ```
+
+-   ✅ Thêm `require_once helper_task.php`
+-   ✅ Validate `deliver_id` từ request
+-   ✅ Kiểm tra quyền truy cập: `validateUserDeliverAccess($deliver_id, $user_id)`
+-   ✅ Sau khi insert response, cập nhật deliver:
+    ```php
+    updateDeliverStatus($deliver_id, $response_id, 1);
+    ```
 
 ### 2. `api/analyze_task.php`
-- ✅ Thêm `require_once helper_task.php`
-- ✅ Validate `deliver_id` từ request nếu có
-- ✅ Kiểm tra quyền truy cập: `validateUserDeliverAccess($deliver_id, $user_id)`
+
+-   ✅ Thêm `require_once helper_task.php`
+-   ✅ Validate `deliver_id` từ request nếu có
+-   ✅ Kiểm tra quyền truy cập: `validateUserDeliverAccess($deliver_id, $user_id)`
 
 ### 3. `config/helper_task.php`
-- ✅ Cập nhật comment cho function `updateDeliverStatus()`:
-  - Parameter: `$responseId` (INT) - ID tham chiếu đến `response.id_response`
-  - Không phải JSON text, là ID
+
+-   ✅ Cập nhật comment cho function `updateDeliverStatus()`:
+    -   Parameter: `$responseId` (INT) - ID tham chiếu đến `response.id_response`
+    -   Không phải JSON text, là ID
 
 ## Cấu trúc Database (giữ nguyên)
 
@@ -49,9 +52,9 @@ response table:
 5. Backend gọi `insertResponse()` → nhận `$response_id`
 6. Backend gọi `updateDeliverStatus($deliver_id, $response_id, 1)`
 7. Kết quả:
-   - `response.json_ai` = AI response (JSON)
-   - `deliver.response` = `$response_id` (INT)
-   - `deliver.status` = 1 (in progress)
+    - `response.json_ai` = AI response (JSON)
+    - `deliver.response` = `$response_id` (INT)
+    - `deliver.status` = 1 (in progress)
 
 ## Không cần migration
 
