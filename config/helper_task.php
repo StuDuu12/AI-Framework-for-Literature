@@ -517,7 +517,7 @@ function getEvaluationSourceTasks($topicId)
  */
 function isEvaluationPhase($phaseCode)
 {
-    $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
+    $evaluationPhaseCodes = ['PHASE_CHUABAI', 'PHASE_TAKENOTE', 'PHASE_DANHGIANGUOIHOC', 'PHASE_CHAMDIEM'];
     return in_array($phaseCode, $evaluationPhaseCodes);
 }
 
