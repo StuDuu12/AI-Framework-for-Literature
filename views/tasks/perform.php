@@ -147,8 +147,11 @@ if ($task['file_content']) {
                                 case 'PHASE_CHUABAI':
                                     $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
                                     break;
-                                case 'PHASE_END':
-                                    $href = "/class/homework/end_phase?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                case 'PHASE_TAKENOTE':
+                                    $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    break;
+                                case 'PHASE_BTVN':
+                                    $href = "/class/homework/ai?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
                                     break;
                                 default:
                                     $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
