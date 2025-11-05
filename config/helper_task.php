@@ -840,11 +840,11 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
         ");
         $stmt->execute(['deliver_id' => $deliverId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($result) {
             return $result;
         }
-        
+
         // If no response found, try to find response from parent task (review chain)
         // Get current deliver details
         $deliverStmt = $pdo->prepare("
@@ -855,12 +855,12 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
         ");
         $deliverStmt->execute(['deliver_id' => $deliverId]);
         $deliverInfo = $deliverStmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$deliverInfo || !$deliverInfo['review_task']) {
             // No parent task to search
             return null;
         }
-        
+
         // This task is reviewing another task
         // Find deliver in parent task with same type and value
         $parentDeliverStmt = $pdo->prepare("
@@ -877,24 +877,24 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
             ':value' => $deliverInfo['value']
         ]);
         $parentDeliver = $parentDeliverStmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$parentDeliver) {
             return null;
         }
-        
+
         // Recursively get response from parent deliver (pass null to NOT auto-create)
         $parentResponse = getResponseFromDeliver($parentDeliver['id_deliver'], null);
-        
+
         if (!$parentResponse) {
             return null;
         }
-        
+
         // If currentUserId is provided, create a new response for current deliver
         // and link it to parent response via content blocks
         if ($currentUserId) {
             try {
                 $pdo->beginTransaction();
-                
+
                 // Create new response for current task
                 $createResponseStmt = $pdo->prepare("
                     INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
@@ -907,7 +907,7 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                     ':task_id' => $deliverInfo['task_id']
                 ]);
                 $newResponseId = $pdo->lastInsertId();
-                
+
                 // Update deliver with new response and set status = 1 (đang thực hiện)
                 $updateDeliverStmt = $pdo->prepare("
                     UPDATE deliver 
@@ -918,14 +918,14 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                     ':response_id' => $newResponseId,
                     ':deliver_id' => $deliverId
                 ]);
-                
+
                 // Do NOT copy content - will be retrieved recursively via parent_response
-                
+
                 $pdo->commit();
-                
+
                 // Recursively call again to get the newly created response with all details
                 return getResponseFromDeliver($deliverId, null);
-                
+
             } catch (PDOException $e) {
                 $pdo->rollBack();
                 error_log("Error creating response for deliver: " . $e->getMessage());
@@ -933,9 +933,9 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                 return $parentResponse;
             }
         }
-        
+
         return $parentResponse;
-        
+
     } catch (PDOException $e) {
         error_log("Error in getResponseFromDeliver: " . $e->getMessage());
         return null;

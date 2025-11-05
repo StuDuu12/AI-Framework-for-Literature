@@ -195,7 +195,7 @@ function getResponseUserByTask($taskId, $userId)
 function getContentByResponse($responseId)
 {
     global $pdo;
-    
+
     // First, try to get content for this response
     $stmt = $pdo->prepare("
         SELECT content_id, response_id, content, `order`, type_create, added_by, created_at
@@ -205,12 +205,12 @@ function getContentByResponse($responseId)
     ");
     $stmt->execute(['response_id' => $responseId]);
     $content = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // If content exists, return it
     if (!empty($content)) {
         return $content;
     }
-    
+
     // If no content, check if this response has a parent_response
     $parentStmt = $pdo->prepare("
         SELECT parent_response
@@ -220,12 +220,12 @@ function getContentByResponse($responseId)
     ");
     $parentStmt->execute(['response_id' => $responseId]);
     $parentData = $parentStmt->fetch(PDO::FETCH_ASSOC);
-    
+
     // If has parent, recursively get content from parent
     if ($parentData && $parentData['parent_response']) {
         return getContentByResponse($parentData['parent_response']);
     }
-    
+
     // No content and no parent - return empty array
     return [];
 }

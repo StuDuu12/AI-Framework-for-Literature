@@ -16,7 +16,7 @@
     $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
     $phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
     $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
-    
+
     // Legacy support: allow user_id parameter for backward compatibility
     $target_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 
@@ -92,7 +92,7 @@
     //     header("Location: /403");
     //     exit;
     // }
-
+    
     // Get response based on deliver_id or legacy method
     $responseData = null;
     $display_response_id = null;
@@ -101,25 +101,25 @@
     // Get response from deliver (REQUIRED)
     // Pass current_user_id to auto-create response if needed
     $responseData = getResponseFromDeliver($deliver_id, $current_user_id);
-    
+
     if (!$responseData) {
         // No response yet for this deliver - show empty state
         echo "<script>alert('Chưa có bài làm cho giao hàng này. Vui lòng hoàn thành bài làm trước.'); window.location.href='/class/task?topic_id={$topic_id}&phase_id={$phase_id}';</script>";
         exit;
     }
-    
+
     // Get deliver details to identify the owner
     $deliverDetails = getDeliverDetails($deliver_id);
     if ($deliverDetails) {
         $target_user_id = $deliverDetails['type'] === 'user' ? $deliverDetails['value'] : $current_user_id;
-        
+
         // Get user name
         $userStmt = $pdo->prepare("SELECT fullname FROM users WHERE user_id = :user_id");
         $userStmt->execute([':user_id' => $target_user_id]);
         $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
         $target_user_name = $userData['fullname'] ?? 'Không rõ';
     }
-    
+
     $response_id = $responseData['id_response'];
     $display_response_id = $response_id;
 
@@ -175,7 +175,8 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Phân tích</a>
+                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Phân
+                            tích</a>
                     </li>
                     <li class="breadcrumb-item active">Bình luận</li>
                 </ol>
@@ -290,7 +291,7 @@
         let selectedBlockId = null;
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Generate images for all content blocks
             generateAllContentImages(); // Setup click handlers for content blocks
             setupContentBlockHandlers();
@@ -582,7 +583,7 @@
 
         // Regenerate images on window resize
         let resizeTimeout;
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 generateAllContentImages();
@@ -594,7 +595,7 @@
             const wrappers = document.querySelectorAll('.content-image-wrapper');
 
             wrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function() {
+                wrapper.addEventListener('click', function () {
                     // Only handle click in individual mode
                     const container = document.getElementById('comment-container');
                     if (container.classList.contains('view-mode-all')) {
@@ -636,7 +637,7 @@
             const container = document.getElementById('comment-container');
 
             toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const viewMode = this.dataset.view;
 
                     // Update active button
@@ -666,7 +667,7 @@
             const buttons = document.querySelectorAll('.fb-comment-btn');
 
             buttons.forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const contentId = this.dataset.contentId;
                     const textarea = document.querySelector(`textarea[data-content-id="${contentId}"]`);
                     const commentText = textarea.value.trim();
@@ -832,7 +833,7 @@
 
             // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
@@ -841,7 +842,7 @@
 
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
@@ -873,7 +874,7 @@
 
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const parentId = this.dataset.parentId;
                     const textarea = this.previousElementSibling;
                     const replyText = textarea.value.trim();
