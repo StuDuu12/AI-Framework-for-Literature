@@ -188,12 +188,15 @@ function getResponseUserByTask($taskId, $userId)
 
 /**
  * Get all content blocks for a response (for comment page)
+ * Recursively retrieves content from parent_response if current response has no content
  * @param int $responseId - ID of the response
  * @return array - Array of content blocks ordered by 'order' field
  */
 function getContentByResponse($responseId)
 {
     global $pdo;
+    
+    // First, try to get content for this response
     $stmt = $pdo->prepare("
         SELECT content_id, response_id, content, `order`, type_create, added_by, created_at
         FROM content
@@ -201,7 +204,30 @@ function getContentByResponse($responseId)
         ORDER BY `order` ASC
     ");
     $stmt->execute(['response_id' => $responseId]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $content = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // If content exists, return it
+    if (!empty($content)) {
+        return $content;
+    }
+    
+    // If no content, check if this response has a parent_response
+    $parentStmt = $pdo->prepare("
+        SELECT parent_response
+        FROM response
+        WHERE id_response = :response_id
+        AND parent_response IS NOT NULL
+    ");
+    $parentStmt->execute(['response_id' => $responseId]);
+    $parentData = $parentStmt->fetch(PDO::FETCH_ASSOC);
+    
+    // If has parent, recursively get content from parent
+    if ($parentData && $parentData['parent_response']) {
+        return getContentByResponse($parentData['parent_response']);
+    }
+    
+    // No content and no parent - return empty array
+    return [];
 }
 
 /**

@@ -11,15 +11,21 @@
     require_once './config/helper_task.php';
     require_once './config/helper_phase.php';
 
-    // Get task_id and user_id from URL
+    // Get parameters from URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
+    $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
+    $phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
+    $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
+    
+    // Legacy support: allow user_id parameter for backward compatibility
     $target_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : 0;
 
     // Get viewing_from_task parameter - this indicates we're viewing from a different phase
     // For example: viewing Phase 1 submissions from Phase 2 review page
     $viewing_from_task_id = isset($_GET['viewing_from_task']) ? intval($_GET['viewing_from_task']) : 0;
 
-    if ($task_id <= 0) {
+    // Validate required parameters
+    if ($task_id <= 0 || $deliver_id <= 0) {
         header("Location: /404");
         exit;
     }
@@ -28,9 +34,15 @@
     $current_user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
     $current_user_role = $_SESSION['user']['role'] ?? 'student';
 
-    // If no target user specified, use current user
-    if ($target_user_id <= 0) {
-        $target_user_id = $current_user_id;
+    if (!$current_user_id) {
+        header("Location: /login");
+        exit;
+    }
+
+    // Validate access to deliver
+    if (!validateUserDeliverAccess($deliver_id, $current_user_id)) {
+        header("Location: /403");
+        exit;
     }
 
     // Get task details
@@ -61,9 +73,13 @@
     // Get current phase name for display (from viewing context)
     $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
 
-    // Get topic_id and phase_id for navigation
-    $topic_id = $phaseInfo['topic_id'] ?? 0;
-    $phase_id = $phaseInfo['phase_id'] ?? 0;
+    // Only override topic_id and phase_id if they weren't provided in URL
+    if (!isset($_GET['topic_id']) || $_GET['topic_id'] <= 0) {
+        $topic_id = $phaseInfo['topic_id'] ?? 0;
+    }
+    if (!isset($_GET['phase_id']) || $_GET['phase_id'] <= 0) {
+        $phase_id = $phaseInfo['phase_id'] ?? 0;
+    }
 
     // If viewing from different task, use that task's ID for back link
     $back_task_id = $viewing_from_task_id > 0 ? $viewing_from_task_id : $task_id;
@@ -71,122 +87,45 @@
     // Check permissions
     // Teachers can view all students' work
     // Students can only view their own work (or assigned peer reviews - will handle later)
-    if ($current_user_role === 'student' && $target_user_id != $current_user_id) {
-        // TODO: Check if student is assigned to review this user's work
-        header("Location: /403");
+    // if ($current_user_role === 'student' && $target_user_id != $current_user_id) {
+    //     // TODO: Check if student is assigned to review this user's work
+    //     header("Location: /403");
+    //     exit;
+    // }
+
+    // Get response based on deliver_id or legacy method
+    $responseData = null;
+    $display_response_id = null;
+    $target_user_name = '';
+
+    // Get response from deliver (REQUIRED)
+    // Pass current_user_id to auto-create response if needed
+    $responseData = getResponseFromDeliver($deliver_id, $current_user_id);
+    
+    if (!$responseData) {
+        // No response yet for this deliver - show empty state
+        echo "<script>alert('Chưa có bài làm cho giao hàng này. Vui lòng hoàn thành bài làm trước.'); window.location.href='/class/task?topic_id={$topic_id}&phase_id={$phase_id}';</script>";
         exit;
     }
-
-    // Get root response for this task and user
-    // Pass both target_user_id (student) and current_user_id (viewer)
-    $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
-
-    if (!$responseData) {
-        // No response found - automatically create empty response for user
-        try {
-            // Check if task has review_task (evaluation phase)
-            $taskStmt = $pdo->prepare("SELECT task_id, review_task FROM task WHERE task_id = :task_id");
-            $taskStmt->execute([':task_id' => $task_id]);
-            $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($taskData && $taskData['review_task']) {
-                // This is EVALUATION task
-                // Step 1: Find or create response for source task (parent_task)
-                $sourceTaskId = $taskData['review_task'];
-
-                // Check if current user has response for source task
-                $sourceResponseStmt = $pdo->prepare("
-                    SELECT id_response 
-                    FROM response 
-                    WHERE user_id = :user_id 
-                    AND task_id = :task_id 
-                    AND owner_user_id = :owner_user_id
-                    AND parent_response IS NULL
-                    LIMIT 1
-                ");
-                $sourceResponseStmt->execute([
-                    ':user_id' => $current_user_id,
-                    ':task_id' => $sourceTaskId,
-                    ':owner_user_id' => $target_user_id
-                ]);
-                $sourceResponse = $sourceResponseStmt->fetch(PDO::FETCH_ASSOC);
-
-                if (!$sourceResponse) {
-                    // Create root response for source task first
-                    $insertSourceStmt = $pdo->prepare("
-                        INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
-                        VALUES (:user_id, :owner_user_id, NULL, :task_id, NOW(), NOW())
-                    ");
-                    $insertSourceStmt->execute([
-                        ':user_id' => $current_user_id,
-                        ':owner_user_id' => $target_user_id,
-                        ':task_id' => $sourceTaskId
-                    ]);
-                    $sourceResponseId = $pdo->lastInsertId();
-                } else {
-                    $sourceResponseId = $sourceResponse['id_response'];
-                }
-
-                // Step 2: Create NEW response for current evaluation task
-                // with parent_response pointing to source task's response
-                $insertEvalStmt = $pdo->prepare("
-                    INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
-                    VALUES (:user_id, :owner_user_id, :parent_response, :task_id, NOW(), NOW())
-                ");
-                $insertEvalStmt->execute([
-                    ':user_id' => $current_user_id,
-                    ':owner_user_id' => $target_user_id,
-                    ':parent_response' => $sourceResponseId,
-                    ':task_id' => $task_id
-                ]);
-
-                // Try to get response again
-                $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
-            } else {
-                // Regular task, create root response for this task
-                $insertStmt = $pdo->prepare("
-                    INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
-                    VALUES (:user_id, :owner_user_id, NULL, :task_id, NOW(), NOW())
-                ");
-                $insertStmt->execute([
-                    ':user_id' => $current_user_id,
-                    ':owner_user_id' => $target_user_id,
-                    ':task_id' => $task_id
-                ]);
-
-                // Try to get response again
-                $responseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $current_user_id);
-            }
-        } catch (PDOException $e) {
-            error_log("Error creating response: " . $e->getMessage());
-            echo "<script>alert('Lỗi khi tạo bài làm. Vui lòng thử lại.'); window.location.href='/class';</script>";
-            exit;
-        }
-
-        // If still no response after trying to create
-        if (!$responseData) {
-            echo "<script>alert('Không thể tạo bài làm. Vui lòng liên hệ giáo viên.'); window.location.href='/class';</script>";
-            exit;
-        }
+    
+    // Get deliver details to identify the owner
+    $deliverDetails = getDeliverDetails($deliver_id);
+    if ($deliverDetails) {
+        $target_user_id = $deliverDetails['type'] === 'user' ? $deliverDetails['value'] : $current_user_id;
+        
+        // Get user name
+        $userStmt = $pdo->prepare("SELECT fullname FROM users WHERE user_id = :user_id");
+        $userStmt->execute([':user_id' => $target_user_id]);
+        $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $target_user_name = $userData['fullname'] ?? 'Không rõ';
     }
-
-    // Current user's response (for adding content/comments)
+    
     $response_id = $responseData['id_response'];
+    $display_response_id = $response_id;
+
+    // Get task title and allow_comment setting
     $task_title = $taskInfo['title'];
     $allow_comment = $responseData['allow_comment'] ?? 0;
-
-    // If teacher is viewing student work, get student's response to display content
-    $display_response_id = $response_id;
-    $target_user_name = $responseData['user_fullname']; // Default to current user
-
-    if ($current_user_role === 'teacher' && $target_user_id != $current_user_id) {
-        // Find student's response to display their content
-        $studentResponseData = getRootResponseForTaskAndUser($task_id, $target_user_id, $target_user_id);
-        if ($studentResponseData) {
-            $display_response_id = $studentResponseData['id_response'];
-            $target_user_name = $studentResponseData['user_fullname']; // Get student's name
-        }
-    }
 
     // Get all content blocks for display (from student's response if teacher is viewing)
     $contentBlocks = getContentByResponse($display_response_id);
@@ -236,7 +175,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
                     <li class="breadcrumb-item"><a
-                            href="?route=genAI&task_id=<?= $task_id ?>&user_id=<?= $target_user_id ?>">Phân tích</a>
+                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Phân tích</a>
                     </li>
                     <li class="breadcrumb-item active">Bình luận</li>
                 </ol>
@@ -821,8 +760,8 @@
                             <div class="fb-comment-bubble">
                                 <div class="comment-author">
                                     <span>${comment.fullname}</span>
-                                    <span class="comment-label ${roleClass}">${roleLabel}</span>
-                                    <span class="comment-label label-phase">${phaseLabel}</span>
+                                    <span class="comment-label ${roleClass}">${comment.role_label}</span>
+                                    <span class="comment-label label-phase">${comment.m_phase_name}</span>
                                 </div>
                                 <div class="comment-content">${escapeHtml(comment.comment_text)}</div>
                             </div>
