@@ -61,6 +61,13 @@
     // Get current phase name for display (from viewing context)
     $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
 
+    // Get topic_id and phase_id for navigation
+    $topic_id = $phaseInfo['topic_id'] ?? 0;
+    $phase_id = $phaseInfo['phase_id'] ?? 0;
+
+    // If viewing from different task, use that task's ID for back link
+    $back_task_id = $viewing_from_task_id > 0 ? $viewing_from_task_id : $task_id;
+
     // Check permissions
     // Teachers can view all students' work
     // Students can only view their own work (or assigned peer reviews - will handle later)
@@ -207,13 +214,24 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><?= htmlspecialchars($task_title) ?></h1>
-            <?php if ($target_user_id != $current_user_id): ?>
-                <p class="text-muted">
-                    <i class="bi bi-person"></i>
-                    Bài làm của: <strong><?= htmlspecialchars($target_user_name) ?></strong>
-                </p>
-            <?php endif; ?>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <?php if ($target_user_id != $current_user_id): ?>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-person"></i>
+                            Bài làm của: <strong><?= htmlspecialchars($target_user_name) ?></strong>
+                        </p>
+                    <?php endif; ?>
+                </div>
+                <?php if ($current_user_role === 'teacher'): ?>
+                    <div>
+                        <a href="/class/task/review?task_id=<?= $back_task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
+                            class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
@@ -334,15 +352,8 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Debug: Show current phase
-            if (VIEWING_FROM_TASK_ID) {
-                alert('Đang xem từ Pha 2, Pha hiện tại: ' + CURRENT_PHASE_NAME);
-            }
-
             // Generate images for all content blocks
-            generateAllContentImages();
-
-            // Setup click handlers for content blocks
+            generateAllContentImages(); // Setup click handlers for content blocks
             setupContentBlockHandlers();
 
             // Setup view mode toggle

@@ -61,7 +61,7 @@
             transition: opacity 0.2s ease;
         }
 
-        .group-card:hover .group-actions {
+        .list-group-item:hover .group-actions {
             opacity: 1;
         }
 
@@ -284,7 +284,7 @@
         let selectedGroupId = null;
         let groupModal, criteriaModal;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             groupModal = new bootstrap.Modal(document.getElementById('groupModal'));
             criteriaModal = new bootstrap.Modal(document.getElementById('criteriaModal'));
 
@@ -511,8 +511,13 @@
             try {
                 const response = await fetch('/api/manage_criteria.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete_group', nhom_tc_id: groupId })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete_group',
+                        nhom_tc_id: groupId
+                    })
                 });
                 const result = await response.json();
 
@@ -627,8 +632,13 @@
             try {
                 const response = await fetch('/api/manage_criteria.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'delete_criteria', tc_id: criteriaId })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete_criteria',
+                        tc_id: criteriaId
+                    })
                 });
                 const result = await response.json();
 

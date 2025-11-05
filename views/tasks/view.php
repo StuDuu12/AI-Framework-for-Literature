@@ -114,11 +114,54 @@
         exit;
     }
 
-    // Get task assignments with detailed info
-    $assignments = getTaskAssignmentsDetailed($taskId);
+    // Determine if this phase should view data from a previous phase
+    // Only Phase 2 (CHỮA BÀI - phase_code: 'review' or 'CHUABAI') should look back to Phase 1
+    // Phase 3 (LÀM BÀI TẬP VỀ NHÀ - phase_code: 'homework' or 'BTVN') is independent
+    $shouldLookBack = false;
+
+    // Check current phase's main_phase_code
+    $phaseCheckStmt = $pdo->prepare("
+        SELECT mp.phase_code
+        FROM phase p
+        INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE p.phase_id = :phase_id
+    ");
+    $phaseCheckStmt->execute([':phase_id' => $phaseId]);
+    $currentPhaseCode = $phaseCheckStmt->fetchColumn();
+
+    // Only CHỮA BÀI (review phase) should look back to previous phase
+    if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
+        $shouldLookBack = true;
+    }
+
+    $dataTaskId = $taskId; // Default: use current task
+
+    if ($shouldLookBack) {
+        // Find task from previous phase (for Phase 2 to view Phase 1 submissions)
+        $sourceTaskStmt = $pdo->prepare("
+            SELECT t.task_id, p.phase_number
+            FROM task t
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            WHERE p.topic_id = (SELECT topic_id FROM phase WHERE phase_id = :current_phase_id)
+            AND p.phase_number < (SELECT phase_number FROM phase WHERE phase_id = :current_phase_id)
+            ORDER BY p.phase_number DESC
+            LIMIT 1
+        ");
+        $sourceTaskStmt->execute([':current_phase_id' => $phaseId]);
+        $sourceTask = $sourceTaskStmt->fetch(PDO::FETCH_ASSOC);
+
+        // Use source task if found (Phase 1), otherwise use current task
+        if ($sourceTask) {
+            $dataTaskId = $sourceTask['task_id'];
+        }
+    }
+
+    // Get task assignments with detailed info - use dataTaskId to get Phase 1 assignments
+    $assignments = getTaskAssignmentsDetailed($dataTaskId);
 
     // Calculate statistics - need to count actual students, not just assignment records
-    $studentStats = getTaskStudentStatistics($taskId, $topic['class_id']);
+    // Use dataTaskId for both assignments and submission data
+    $studentStats = getTaskStudentStatistics($dataTaskId, $topic['class_id'], $dataTaskId);
 
     $totalAssignments = $studentStats['total'];
     $completedCount = $studentStats['completed'];
@@ -149,12 +192,6 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="mb-3">
-                                <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                    class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-left"></i> Quay lại danh sách nhiệm vụ
-                                </a>
-                            </div>
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
                                     <h5 class="card-title mb-1">
@@ -205,7 +242,7 @@
                                         AND u.role = 'student'
                                         AND c.comment_id IS NOT NULL
                                     ");
-                                    $commentCountStmt->execute([':task_id' => $taskId]);
+                                    $commentCountStmt->execute([':task_id' => $dataTaskId]);
                                     $commentCount = $commentCountStmt->fetchColumn();
                                     ?>
                                     <a href="/class/task/review?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
@@ -346,22 +383,22 @@
                                 <div class="tab-content" id="assignmentTabsContent">
                                     <!-- All Assignments -->
                                     <div class="tab-pane fade show active" id="all" role="tabpanel">
-                                        <?php renderAssignmentsList($assignments); ?>
+                                        <?php renderAssignmentsList($assignments, $dataTaskId); ?>
                                     </div>
 
                                     <!-- Completed -->
                                     <div class="tab-pane fade" id="completed" role="tabpanel">
-                                        <?php renderStudentsByStatus($taskId, $assignments, 'completed'); ?>
+                                        <?php renderStudentsByStatus($dataTaskId, $assignments, 'completed'); ?>
                                     </div>
 
                                     <!-- In Progress -->
                                     <div class="tab-pane fade" id="progress" role="tabpanel">
-                                        <?php renderStudentsByStatus($taskId, $assignments, 'in_progress'); ?>
+                                        <?php renderStudentsByStatus($dataTaskId, $assignments, 'in_progress'); ?>
                                     </div>
 
                                     <!-- Not Started -->
                                     <div class="tab-pane fade" id="notstarted" role="tabpanel">
-                                        <?php renderStudentsByStatus($taskId, $assignments, 'not_started'); ?>
+                                        <?php renderStudentsByStatus($dataTaskId, $assignments, 'not_started'); ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -477,9 +514,14 @@
 /**
  * Helper function to render assignments list
  */
-function renderAssignmentsList($assignments)
+function renderAssignmentsList($assignments, $dataTaskId = null)
 {
     global $taskId, $topicId, $phaseId;
+
+    // If dataTaskId not provided, use taskId (backward compatibility)
+    if ($dataTaskId === null) {
+        $dataTaskId = $taskId;
+    }
 
     if (empty($assignments)): ?>
         <div class="alert alert-info">
@@ -507,8 +549,8 @@ function renderAssignmentsList($assignments)
                 $typeBadge = 'success';
             }
 
-            // Get students for this assignment
-            $students = getStudentsForAssignment($taskId, $assignment);
+            // Get students for this assignment - use dataTaskId to get correct submission data
+            $students = getStudentsForAssignment($dataTaskId, $assignment);
             ?>
 
             <div class="list-group-item">
@@ -614,6 +656,8 @@ function getStudentsForAssignment($taskId, $assignment)
     global $pdo;
 
     try {
+        // $taskId here is actually the dataTaskId passed from caller
+        // It represents the task where actual submissions exist (Phase 1 for Phase 2 viewing)
         $params = [':task_id' => $taskId];
 
         if ($assignment['type'] == 'class') {
@@ -767,21 +811,28 @@ function getTaskAssignmentsDetailed($taskId)
  * @param int $classId
  * @return array
  */
-function getTaskStudentStatistics($taskId, $classId)
+function getTaskStudentStatistics($taskId, $classId, $dataTaskId = null)
 {
     global $pdo;
+
+    // If dataTaskId not provided, use taskId (backward compatibility)
+    if ($dataTaskId === null) {
+        $dataTaskId = $taskId;
+    }
 
     try {
         // Get all unique students assigned to this task
         $allStudents = [];
 
-        // Get all assignments for this task
+        // Get all assignments - use dataTaskId because assignments were created for Phase 1 task
+        // For Phase 2 viewing Phase 1 data, we need to get Phase 1 assignments
         $stmt = $pdo->prepare("SELECT * FROM deliver WHERE task_id = :task_id");
-        $stmt->execute([':task_id' => $taskId]);
+        $stmt->execute([':task_id' => $dataTaskId]);
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($assignments as $assignment) {
-            $students = getStudentsForAssignment($taskId, $assignment);
+            // Use dataTaskId to get actual submission data
+            $students = getStudentsForAssignment($dataTaskId, $assignment);
             foreach ($students as $student) {
                 // Use user_id as key to avoid duplicates
                 $allStudents[$student['user_id']] = $student;
@@ -824,14 +875,17 @@ function getTaskStudentStatistics($taskId, $classId)
  * @param array $assignments
  * @param string $status ('completed', 'in_progress', 'not_started')
  */
-function renderStudentsByStatus($taskId, $assignments, $status)
+function renderStudentsByStatus($dataTaskId, $assignments, $status)
 {
-    global $topicId, $phaseId;
+    global $topicId, $phaseId, $taskId;
+
+    // $dataTaskId is the task where actual submissions exist (Phase 1 for Phase 2 viewing)
+    // $taskId is the current task (Phase 2) - needed for links
 
     // Collect all unique students from all assignments
     $allStudents = [];
     foreach ($assignments as $assignment) {
-        $students = getStudentsForAssignment($taskId, $assignment);
+        $students = getStudentsForAssignment($dataTaskId, $assignment);
         foreach ($students as $student) {
             // Use user_id as key to avoid duplicates, store assignment info
             if (!isset($allStudents[$student['user_id']])) {
