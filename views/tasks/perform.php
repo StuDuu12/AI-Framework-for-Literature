@@ -151,7 +151,7 @@ if ($task['file_content']) {
                                     $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
                                     break;
                                 case 'PHASE_BTVN':
-                                    $href = "/class/homework/ai?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/analysis_chat?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
                                     break;
                                 default:
                                     $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";

@@ -865,8 +865,62 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
         $deliverStmt->execute(['deliver_id' => $deliverId]);
         $deliverInfo = $deliverStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$deliverInfo || !$deliverInfo['review_task']) {
-            // No parent task to search
+        if (!$deliverInfo) {
+            return null; // Deliver not found
+        }
+
+        // If no review_task, this is a direct task (not a review)
+        // Auto-create response if currentUserId is provided
+        if (!$deliverInfo['review_task']) {
+            if ($currentUserId) {
+                try {
+                    $pdo->beginTransaction();
+
+                    // Determine owner_user_id based on deliver type
+                    $ownerUserId = $currentUserId;
+                    if ($deliverInfo['type'] === 'user') {
+                        $ownerUserId = $deliverInfo['value'];
+                    } elseif ($deliverInfo['type'] === 'group') {
+                        // For group delivery, owner is the current user (first to access)
+                        $ownerUserId = $currentUserId;
+                    }
+
+                    // Create new response for this task
+                    $createResponseStmt = $pdo->prepare("
+                        INSERT INTO response (user_id, owner_user_id, parent_response, task_id, created_at, updated_at)
+                        VALUES (:user_id, :owner_user_id, NULL, :task_id, NOW(), NOW())
+                    ");
+                    $createResponseStmt->execute([
+                        ':user_id' => $currentUserId,
+                        ':owner_user_id' => $ownerUserId,
+                        ':task_id' => $deliverInfo['task_id']
+                    ]);
+                    $newResponseId = $pdo->lastInsertId();
+
+                    // Update deliver with new response and set status = 1 (đang thực hiện)
+                    $updateDeliverStmt = $pdo->prepare("
+                        UPDATE deliver 
+                        SET response = :response_id, status = 1
+                        WHERE id_deliver = :deliver_id
+                    ");
+                    $updateDeliverStmt->execute([
+                        ':response_id' => $newResponseId,
+                        ':deliver_id' => $deliverId
+                    ]);
+
+                    $pdo->commit();
+
+                    // Recursively call again to get the newly created response with all details
+                    return getResponseFromDeliver($deliverId, null);
+
+                } catch (PDOException $e) {
+                    $pdo->rollBack();
+                    error_log("Error creating response for non-review deliver: " . $e->getMessage());
+                    return null;
+                }
+            }
+
+            // No currentUserId provided, cannot create response
             return null;
         }
 
