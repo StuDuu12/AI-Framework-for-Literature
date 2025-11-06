@@ -36,13 +36,14 @@ $user_role = $_SESSION['user']['role'] ?? 'student';
 
 // Validate required fields
 $task_id = isset($input['task_id']) ? intval($input['task_id']) : 0;
+$deliver_id = isset($input['deliver_id']) ? intval($input['deliver_id']) : 0;
 $sections = $input['sections'] ?? [];
 $title = $input['title'] ?? '';
 $ai_history = $input['ai_history'] ?? null; // Full analysis data + conversation history
 
-if ($task_id <= 0) {
+if ($task_id <= 0 || $deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid task_id', 'message' => 'Task ID không hợp lệ']);
+    echo json_encode(['error' => 'Invalid parameters', 'message' => 'Task ID hoặc Deliver ID không hợp lệ']);
     exit;
 }
 
@@ -53,32 +54,28 @@ if (empty($sections)) {
 }
 
 try {
-    // Verify task exists and user has permission
-    $taskData = getInfoTask($task_id);
-
-    if (!$taskData) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Task not found', 'message' => 'Không tìm thấy nhiệm vụ']);
+    // Verify deliver exists and user has access
+    require_once __DIR__ . '/../config/helper_task.php';
+    
+    if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập deliver này']);
         exit;
     }
 
-    // Check student permission
-    if ($user_role === 'student') {
-        if (!checkTaskAssignedToStudent($task_id, $user_id)) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập nhiệm vụ này']);
-            exit;
-        }
-    }
-
-    // Check if user already has a response for this task
-    $existingResponse = getResponseUserByTask($task_id, $user_id);
+    // Check if deliver already has a response
+    $stmtDeliver = $pdo->prepare("SELECT response FROM deliver WHERE id_deliver = :deliver_id");
+    $stmtDeliver->execute([':deliver_id' => $deliver_id]);
+    $deliverInfo = $stmtDeliver->fetch(PDO::FETCH_ASSOC);
 
     $response_id = null;
+    $existingContent = [];
+    $existingResponse = false; // Track if updating existing or creating new
 
-    if ($existingResponse) {
-        // Update existing response with new AI history
-        $response_id = $existingResponse['id_response'];
+    if ($deliverInfo && !empty($deliverInfo['response'])) {
+        // Deliver already has response - update it
+        $response_id = $deliverInfo['response'];
+        $existingResponse = true;
 
         // Update json_ai field
         if ($ai_history !== null) {
@@ -100,15 +97,60 @@ try {
         $existingContent = getContentByResponse($response_id);
 
     } else {
+        // Deliver doesn't have response yet - create new one
+        // Get deliver type and value to determine owner
+        $stmtDeliverType = $pdo->prepare("
+            SELECT type, value 
+            FROM deliver 
+            WHERE id_deliver = :deliver_id
+        ");
+        $stmtDeliverType->execute([':deliver_id' => $deliver_id]);
+        $deliverTypeInfo = $stmtDeliverType->fetch(PDO::FETCH_ASSOC);
+        
+        $owner_user_id = $user_id; // Default owner is current user
+        
+        if ($deliverTypeInfo) {
+            if ($deliverTypeInfo['type'] === 'user') {
+                // Individual delivery - owner is the assigned user
+                $owner_user_id = $deliverTypeInfo['value'];
+            } elseif ($deliverTypeInfo['type'] === 'group') {
+                // Group delivery - owner is current user (first to save)
+                $owner_user_id = $user_id;
+            }
+        }
+
         // Create new response
-        $response_id = insertResponse($task_id, $user_id, [
-            'owner_user_id' => $user_id,
-            'json_ai' => $ai_history
+        $json_ai = null;
+        if ($ai_history !== null) {
+            $json_ai = is_array($ai_history) ? json_encode($ai_history, JSON_UNESCAPED_UNICODE) : $ai_history;
+        }
+
+        $stmtCreateResponse = $pdo->prepare("
+            INSERT INTO response (user_id, owner_user_id, parent_response, task_id, json_ai, created_at, updated_at)
+            VALUES (:user_id, :owner_user_id, NULL, :task_id, :json_ai, NOW(), NOW())
+        ");
+        $stmtCreateResponse->execute([
+            ':user_id' => $user_id,
+            ':owner_user_id' => $owner_user_id,
+            ':task_id' => $task_id,
+            ':json_ai' => $json_ai
         ]);
+        $response_id = $pdo->lastInsertId();
 
         if (!$response_id) {
-            throw new Exception('Failed to insert response');
+            throw new Exception('Failed to create response');
         }
+
+        // Update deliver with response_id and status = 1 (đang thực hiện)
+        $updateDeliverStmt = $pdo->prepare("
+            UPDATE deliver 
+            SET response = :response_id, status = 1
+            WHERE id_deliver = :deliver_id
+        ");
+        $updateDeliverStmt->execute([
+            ':response_id' => $response_id,
+            ':deliver_id' => $deliver_id
+        ]);
     }
 
     // Prepare content array with title and sections
