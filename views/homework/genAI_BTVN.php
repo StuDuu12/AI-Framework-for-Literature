@@ -210,7 +210,7 @@
     $id_response = null;
     $hasExistingResponse = false;
     $savedContent = null; // To store title and sections from database
-
+    
     if ($current_user_id && $deliver_id) {
         // Get deliver info to check if response exists
         $stmtDeliver = $pdo->prepare("SELECT response FROM deliver WHERE id_deliver = :deliver_id");
@@ -220,14 +220,14 @@
         if ($deliverInfo && !empty($deliverInfo['response'])) {
             // Deliver has existing response - load it
             $hasExistingResponse = true;
-            
+
             // Get response data and validate access
             $responseData = getResponseFromDeliver($deliver_id, null); // Don't auto-create
-            
+    
             if ($responseData && isset($responseData['id_response'])) {
                 // Additional access check for group deliveries
                 $canAccess = true;
-                
+
                 // Get deliver type to check group membership
                 $stmtDeliverType = $pdo->prepare("
                     SELECT type, value 
@@ -236,7 +236,7 @@
                 ");
                 $stmtDeliverType->execute([':deliver_id' => $deliver_id]);
                 $deliverTypeInfo = $stmtDeliverType->fetch(PDO::FETCH_ASSOC);
-                
+
                 if ($deliverTypeInfo && $deliverTypeInfo['type'] === 'group') {
                     // Check if user is member of this group
                     $stmtGroupMember = $pdo->prepare("
@@ -251,22 +251,22 @@
                     $memberCheck = $stmtGroupMember->fetch(PDO::FETCH_ASSOC);
                     $canAccess = ($memberCheck['is_member'] > 0);
                 }
-                
+
                 if ($canAccess) {
                     // User has access - load the response data
                     $json_data = json_decode($responseData['json_ai'], true);
                     $id_response = $responseData['id_response'];
-                    
+
                     // Load saved content (title and sections) from database
                     $contents = getContentByResponse($id_response);
-                    
+
                     // Extract title and sections
                     $title = '';
                     $sections = [];
-                    
+
                     foreach ($contents as $content) {
                         $text = $content['content'];
-                        
+
                         // Check if first content is title (order 0 and starts with #)
                         if ($content['order'] == 0 && strpos(trim($text), '#') === 0) {
                             $title = trim(str_replace('#', '', $text));
@@ -278,7 +278,7 @@
                             ];
                         }
                     }
-                    
+
                     // Store for JavaScript
                     $savedContent = [
                         'title' => $title,
@@ -2131,10 +2131,10 @@
             if (savedContent && currentResponseId) {
                 // Mark as analyzed
                 isAnalyzed = true;
-                
+
                 // Display the saved content (title and sections from database)
                 displaySavedAnalysis(savedContent);
-                
+
                 // Setup UI
                 setupGeneratorTabs();
                 placeholder.classList.add('hidden');
@@ -2142,14 +2142,14 @@
                 switchTab(tabAnalysis);
                 resultsTabs.querySelector('nav').classList.add('hidden');
                 switchToChatMode();
-                
+
             } else if (currentAnalysisData && currentResponseId) {
                 // Fallback: If we have AI analysis data but no saved content yet
                 isAnalyzed = true;
-                
+
                 // Display the analysis
                 displayAnalysis(currentAnalysisData);
-                
+
                 // Setup UI
                 setupGeneratorTabs();
                 placeholder.classList.add('hidden');
@@ -2157,10 +2157,10 @@
                 switchTab(tabAnalysis);
                 resultsTabs.querySelector('nav').classList.add('hidden');
                 switchToChatMode();
-                
+
             } else {
                 // No saved data yet - show fresh analysis interface
-                
+
                 // If task has content, pre-fill it
                 const taskContent = <?php echo json_encode($taskContent); ?>;
                 if (taskContent && textInput) {

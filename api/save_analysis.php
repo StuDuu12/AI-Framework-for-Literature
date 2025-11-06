@@ -56,7 +56,7 @@ if (empty($sections)) {
 try {
     // Verify deliver exists and user has access
     require_once __DIR__ . '/../config/helper_task.php';
-    
+
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
         echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập deliver này']);
@@ -106,9 +106,9 @@ try {
         ");
         $stmtDeliverType->execute([':deliver_id' => $deliver_id]);
         $deliverTypeInfo = $stmtDeliverType->fetch(PDO::FETCH_ASSOC);
-        
+
         $owner_user_id = $user_id; // Default owner is current user
-        
+
         if ($deliverTypeInfo) {
             if ($deliverTypeInfo['type'] === 'user') {
                 // Individual delivery - owner is the assigned user
