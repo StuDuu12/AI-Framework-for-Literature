@@ -656,6 +656,24 @@ function getDeliverIdForUser($taskId, $userId)
             return (int) $deliver['id_deliver'];
         }
 
+        // Check if assigned to user's class
+        $stmt = $pdo->prepare("
+            SELECT d.id_deliver 
+            FROM deliver d
+            INNER JOIN class_member cm ON d.value = cm.class_id
+            WHERE d.task_id = :task_id 
+            AND d.type = 'class' 
+            AND cm.user_id = :user_id
+            AND cm.role = 'student'
+            LIMIT 1
+        ");
+        $stmt->execute(['task_id' => $taskId, 'user_id' => $userId]);
+        $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($deliver) {
+            return (int) $deliver['id_deliver'];
+        }
+
         return null;
     } catch (PDOException $e) {
         error_log("Error in getDeliverIdForUser: " . $e->getMessage());
@@ -912,7 +930,6 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
 
                     // Recursively call again to get the newly created response with all details
                     return getResponseFromDeliver($deliverId, null);
-
                 } catch (PDOException $e) {
                     $pdo->rollBack();
                     error_log("Error creating response for non-review deliver: " . $e->getMessage());
@@ -988,7 +1005,6 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
 
                 // Recursively call again to get the newly created response with all details
                 return getResponseFromDeliver($deliverId, null);
-
             } catch (PDOException $e) {
                 $pdo->rollBack();
                 error_log("Error creating response for deliver: " . $e->getMessage());
@@ -998,7 +1014,6 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
         }
 
         return $parentResponse;
-
     } catch (PDOException $e) {
         error_log("Error in getResponseFromDeliver: " . $e->getMessage());
         return null;
@@ -1070,5 +1085,42 @@ function checkAssignmentConflict($taskId, $assignType, $assignValue)
             'message' => 'Có lỗi khi kiểm tra xung đột: ' . $e->getMessage(),
             'conflict_type' => 'error'
         ];
+    }
+}
+
+/**
+ * Get group submission for a deliver
+ * For group assignments, all members share the same response
+ * @param int $taskId
+ * @param int $deliverId
+ * @return array|null
+ */
+function getGroupSubmission($taskId, $deliverId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                r.id_response,
+                r.created_at as submitted_at,
+                r.user_id
+            FROM response r
+            WHERE r.task_id = :task_id
+            AND r.deliver_id = :deliver_id
+            AND r.parent_response IS NULL
+            ORDER BY r.created_at DESC
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            ':task_id' => $taskId,
+            ':deliver_id' => $deliverId
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getGroupSubmission: " . $e->getMessage());
+        return null;
     }
 }

@@ -8,11 +8,13 @@
     require_once './views/templates/assets.php';
     require_once './config/db.php';
     require_once './config/helper_homework.php';
+    require_once './config/helper_task.php';
 
     // Lấy parameters từ URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
     $phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
+    $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
     // Khởi tạo biến
     $taskData = null;
@@ -20,6 +22,14 @@
     $fileContent = '';
     $isPhaseStart = false;
     $errorMessage = '';
+
+    // Get user_id early for access checks
+    $user_id = null;
+    if (isset($_SESSION['user']['user_id'])) {
+        $user_id = $_SESSION['user']['user_id'];
+    } elseif (isset($_SESSION['user_id'])) {
+        $user_id = $_SESSION['user_id'];
+    }
 
     // Validate parameters
     if ($task_id > 0) {
@@ -48,11 +58,20 @@
                 }
 
                 // Kiểm tra quyền truy cập của student
-                if ($taskData && isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-                    $student_id = $_SESSION['user']['user_id'];
-                    if (!checkTaskAssignedToStudent($task_id, $student_id)) {
-                        $errorMessage = 'Bạn không có quyền truy cập nhiệm vụ này.';
-                        $taskData = null;
+                if ($taskData && isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student' && $user_id) {
+                    // Check if deliver_id provided, validate specific deliver access
+                    if ($deliver_id > 0) {
+                        if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+                            $errorMessage = 'Bạn không có quyền truy cập nhiệm vụ này.';
+                            $taskData = null;
+                        }
+                    } else {
+                        // No deliver_id, get one for this user
+                        $deliver_id = getDeliverIdForUser($task_id, $user_id);
+                        if ($deliver_id === null) {
+                            $errorMessage = 'Nhiệm vụ này chưa được giao cho bạn.';
+                            $taskData = null;
+                        }
                     }
                 }
             } else {
@@ -77,23 +96,34 @@
         exit;
     }
 
-    // Kiểm tra xem người dùng đã tạo phân tích chưa
+    // Kiểm tra xem người dùng đã tạo phân tích chưa (dựa vào deliver_id)
     $json_data = null;
     $id_response = null;
 
-    // Get user_id with flexible session structure
-    $user_id = null;
-    if (isset($_SESSION['user']['user_id'])) {
-        $user_id = $_SESSION['user']['user_id'];
-    } elseif (isset($_SESSION['user_id'])) {
-        $user_id = $_SESSION['user_id'];
-    }
+    if ($user_id && $deliver_id > 0) {
+        // Get response from deliver instead of user+task
+        try {
+            $stmt = $pdo->prepare("
+                SELECT r.* 
+                FROM response r
+                WHERE r.deliver_id = :deliver_id
+                AND r.task_id = :task_id
+                AND r.parent_response IS NULL
+                ORDER BY r.created_at DESC
+                LIMIT 1
+            ");
+            $stmt->execute([
+                ':deliver_id' => $deliver_id,
+                ':task_id' => $task_id
+            ]);
+            $analysisData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user_id) {
-        $analysisData = getResponseUserByTask($task_id, $user_id);
-        if ($analysisData && isset($analysisData['id_response'])) {
-            $json_data = json_decode($analysisData['json_ai'], true);
-            $id_response = $analysisData['id_response'];
+            if ($analysisData && isset($analysisData['id_response'])) {
+                $json_data = json_decode($analysisData['json_ai'], true);
+                $id_response = $analysisData['id_response'];
+            }
+        } catch (PDOException $e) {
+            error_log("Error fetching response: " . $e->getMessage());
         }
     }
 
@@ -389,6 +419,7 @@
         const MAIN_PHASE_CODE = <?= json_encode($mainPhaseCode) ?>;
         const TASK_TITLE = <?= json_encode($taskData['task_title']) ?>;
         const TASK_ID = <?= $task_id ?>;
+        const DELIVER_ID = <?= $deliver_id ?>;
         const HAS_TASK_CONTENT = <?= !empty($fileContent) ? 'true' : 'false' ?>;
 
         // DOM Elements
@@ -1039,6 +1070,7 @@
                     body: JSON.stringify({
                         action: action,
                         task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         data: data
                     })
                 });
@@ -1106,6 +1138,7 @@
                     },
                     body: JSON.stringify({
                         task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         action_type: actionType,
                         ai_response: aiResponse,
                         user_content: userContent,

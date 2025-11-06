@@ -19,6 +19,63 @@ if (!$taskId || !$phaseId || !$topicId) {
 // Get current user ID
 $userId = $_SESSION['user']['user_id'];
 
+// Check if current task has review_task (points to previous phase's task)
+$reviewTaskStmt = $pdo->prepare("
+    SELECT review_task 
+    FROM task 
+    WHERE task_id = :task_id
+");
+$reviewTaskStmt->execute([':task_id' => $taskId]);
+$reviewTask = $reviewTaskStmt->fetchColumn();
+
+$shouldLookBack = false;
+$dataTaskId = $taskId;
+$dataPhaseId = $phaseId;
+
+// If this task reviews another task, use that task's data
+if ($reviewTask && $reviewTask > 0) {
+    $shouldLookBack = true;
+    $dataTaskId = $reviewTask;
+
+    // Get the phase_id of the review task
+    $reviewPhaseStmt = $pdo->prepare("SELECT phase_id FROM task WHERE task_id = :task_id");
+    $reviewPhaseStmt->execute([':task_id' => $reviewTask]);
+    $dataPhaseId = $reviewPhaseStmt->fetchColumn();
+} else {
+    // Fallback: Check phase code for backward compatibility
+    $phaseCheckStmt = $pdo->prepare("
+        SELECT mp.phase_code
+        FROM phase p
+        INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE p.phase_id = :phase_id
+    ");
+    $phaseCheckStmt->execute([':phase_id' => $phaseId]);
+    $currentPhaseCode = $phaseCheckStmt->fetchColumn();
+
+    // If this is CHỮA BÀI phase, look back to previous phase for data
+    if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
+        $shouldLookBack = true;
+
+        // Find task from previous phase
+        $sourceTaskStmt = $pdo->prepare("
+            SELECT t.task_id, p.phase_id
+            FROM task t
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            WHERE p.topic_id = (SELECT topic_id FROM phase WHERE phase_id = :current_phase_id)
+            AND p.phase_number < (SELECT phase_number FROM phase WHERE phase_id = :current_phase_id)
+            ORDER BY p.phase_number DESC
+            LIMIT 1
+        ");
+        $sourceTaskStmt->execute([':current_phase_id' => $phaseId]);
+        $sourceTask = $sourceTaskStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($sourceTask) {
+            $dataTaskId = $sourceTask['task_id'];
+            $dataPhaseId = $sourceTask['phase_id'];
+        }
+    }
+}
+
 // If deliver_id is provided, validate user access
 if ($deliverId > 0) {
     if (!validateUserDeliverAccess($deliverId, $userId)) {
@@ -31,7 +88,8 @@ if ($deliverId > 0) {
     }
 } else {
     // No deliver_id provided, try to get it for the user
-    $deliverId = getDeliverIdForUser($taskId, $userId);
+    // Use dataTaskId (Phase 1 if in review phase, otherwise current task)
+    $deliverId = getDeliverIdForUser($dataTaskId, $userId);
     if ($deliverId === null) {
         // Task not assigned to this user
         $redirectUrl = buildUrl('/class/task', [
@@ -142,19 +200,19 @@ if ($task['file_content']) {
                             $phaseCode = $phase['phase_code'];
                             switch ($phaseCode) {
                                 case 'PHASE_START':
-                                    $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/analysis_start?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
                                 case 'PHASE_CHUABAI':
-                                    $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/comment?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
                                 case 'PHASE_TAKENOTE':
-                                    $href = "/class/homework/comment?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/comment?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
                                 case 'PHASE_BTVN':
-                                    $href = "/class/homework/analysis_chat?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/analysis_chat?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
                                 default:
-                                    $href = "/class/homework/analysis_start?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    $href = "/class/homework/analysis_start?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
                             }
                             ?>
