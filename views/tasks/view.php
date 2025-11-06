@@ -566,7 +566,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
 
             if ($isGroupAssignment) {
                 $groupSubmission = getGroupSubmission($dataTaskId, $assignment['id_deliver']);
-                
+
                 // Debug: Check if any student in group has submitted
                 if (!$groupSubmission && !empty($students)) {
                     // Try to find any response from group members
@@ -602,7 +602,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                             <?php if (!empty($students)): ?>
                                 <br><strong>Students Debug:</strong>
                                 <?php foreach ($students as $student): ?>
-                                    <br>→ <?= $student['fullname'] ?> 
+                                    <br>→ <?= $student['fullname'] ?>
                                     | User: <?= $student['user_id'] ?>
                                     | Deliver: <?= $student['deliver_id'] ?? 'NULL' ?>
                                     | Response: <?= $student['submission_id'] ?? 'NULL' ?>
@@ -656,7 +656,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
 
                 <?php if ($isGroupAssignment): ?>
                     <!-- GROUP ASSIGNMENT: Show single comment button for the whole group -->
-                    
+
                     <!-- Show list of group members as table -->
                     <?php if (!empty($students)): ?>
                         <div class="table-responsive">
@@ -670,15 +670,15 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php 
+                                    <?php
                                     $rowCount = 0;
                                     // For group: if group has submitted, all members show "Đã nộp"
                                     $groupStatus = $groupSubmission ? 'submitted' : 'not_submitted';
                                     $groupSubmittedTime = $groupSubmission ? $groupSubmission['submitted_at'] : null;
-                                    
-                                    foreach ($students as $student): 
+
+                                    foreach ($students as $student):
                                         $rowCount++;
-                                        
+
                                         // Use group status for all members
                                         if ($groupStatus === 'submitted') {
                                             $statusBadge = 'success';

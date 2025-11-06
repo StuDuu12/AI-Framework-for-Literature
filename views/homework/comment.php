@@ -55,7 +55,7 @@
     // Get phase details to check permissions
     // Use phase_id from URL if provided (for Phase 4 viewing Phase 1 data)
     $display_phase_id = isset($_GET['phase_id']) && $_GET['phase_id'] > 0 ? intval($_GET['phase_id']) : $taskInfo['phase_id'];
-    
+
     // If viewing_from_task is provided, use that task's phase for context
     if ($viewing_from_task_id > 0) {
         $viewingTaskInfo = getTaskDetails($viewing_from_task_id);
