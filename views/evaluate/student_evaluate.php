@@ -358,6 +358,7 @@ if (!empty($evaluation['details'])) {
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -386,6 +387,7 @@ if (!empty($evaluation['details'])) {
                 transform: translateY(50px);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -523,6 +525,7 @@ if (!empty($evaluation['details'])) {
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -621,7 +624,8 @@ if (!empty($evaluation['details'])) {
                 font-size: 2rem;
             }
 
-            .col-md-2, .col-md-8 {
+            .col-md-2,
+            .col-md-8 {
                 margin-bottom: 20px;
             }
         }
@@ -711,11 +715,13 @@ if (!empty($evaluation['details'])) {
                                     <i class="bi bi-circle-fill"></i> Nháp
                                 </span>
                             <?php elseif ($evaluation['status'] == 1): ?>
-                                <span class="evaluation-status status-1" style="background: rgba(255,255,255,0.25); color: white;">
+                                <span class="evaluation-status status-1"
+                                    style="background: rgba(255,255,255,0.25); color: white;">
                                     <i class="bi bi-hourglass-split"></i> Đang chấm
                                 </span>
                             <?php else: ?>
-                                <span class="evaluation-status status-2" style="background: rgba(255,255,255,0.25); color: white;">
+                                <span class="evaluation-status status-2"
+                                    style="background: rgba(255,255,255,0.25); color: white;">
                                     <i class="bi bi-check-circle-fill"></i> Hoàn thành
                                 </span>
                             <?php endif; ?>
@@ -726,7 +732,8 @@ if (!empty($evaluation['details'])) {
                             <div class="col-md-2">
                                 <div class="total-score-badge">
                                     <div class="total-score-label">Tổng điểm</div>
-                                    <div class="total-score-value" id="totalScoreDisplay"><?= $evaluation['total_score'] ?></div>
+                                    <div class="total-score-value" id="totalScoreDisplay">
+                                        <?= $evaluation['total_score'] ?></div>
                                 </div>
                             </div>
 
@@ -746,13 +753,11 @@ if (!empty($evaluation['details'])) {
                                                     <?= htmlspecialchars($criterion['name_tc']) ?>
                                                 </div>
                                                 <div class="criteria-quick-score">
-                                                    <input type="number" 
-                                                        name="scores[<?= $criterion['tc_id'] ?>]"
+                                                    <input type="number" name="scores[<?= $criterion['tc_id'] ?>]"
                                                         class="score-input-compact score-input"
                                                         data-tc-id="<?= $criterion['tc_id'] ?>"
                                                         min="<?= $criterion['min_score'] ?>"
-                                                        max="<?= $criterion['max_score'] ?>"
-                                                        step="0.5"
+                                                        max="<?= $criterion['max_score'] ?>" step="0.5"
                                                         value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
                                                         <?= $evaluation['status'] == 2 ? 'readonly' : 'required' ?>>
                                                     <span class="score-range-compact">
@@ -770,18 +775,21 @@ if (!empty($evaluation['details'])) {
                                 <button type="button" class="btn-detail mb-2" id="btnShowDetailCriteria">
                                     <i class="bi bi-list-ul"></i> Chi tiết
                                 </button>
-                                
+
                                 <?php if ($evaluation['status'] != 2): ?>
                                     <div class="action-buttons-vertical">
-                                        <button type="submit" form="evaluationForm" data-action="draft" class="btn-action btn-draft">
+                                        <button type="submit" form="evaluationForm" data-action="draft"
+                                            class="btn-action btn-draft">
                                             <i class="bi bi-save-fill"></i> Lưu
                                         </button>
-                                        <button type="submit" form="evaluationForm" data-action="submit" class="btn-action btn-submit">
+                                        <button type="submit" form="evaluationForm" data-action="submit"
+                                            class="btn-action btn-submit">
                                             <i class="bi bi-send-fill"></i> Hoàn thành
                                         </button>
                                     </div>
                                 <?php else: ?>
-                                    <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; text-align: center;">
+                                    <div
+                                        style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; text-align: center;">
                                         <i class="bi bi-check-circle-fill" style="font-size: 1.5rem;"></i>
                                         <p style="margin: 8px 0 0 0; font-weight: 600; font-size: 0.85rem;">Hoàn thành</p>
                                     </div>
@@ -801,11 +809,13 @@ if (!empty($evaluation['details'])) {
                                 <div id="content-blocks-container" class="content-display-container">
                                     <?php foreach ($responseInfo['contents'] as $index => $content): ?>
                                         <div class="content-image-wrapper" data-content-id="<?= $content['content_id'] ?>">
-                                            <img id="img-<?= $content['content_id'] ?>" src="" alt="Content Block <?= $index + 1 ?>">
+                                            <img id="img-<?= $content['content_id'] ?>" src=""
+                                                alt="Content Block <?= $index + 1 ?>">
                                         </div>
 
                                         <!-- Comment Section for this content block -->
-                                        <div class="fb-comment-section" id="comment-section-<?= $content['content_id'] ?>" style="display: none;">
+                                        <div class="fb-comment-section" id="comment-section-<?= $content['content_id'] ?>"
+                                            style="display: none;">
                                             <h6 style="color: #667eea; font-weight: 700; margin-bottom: 16px;">
                                                 <i class="bi bi-chat-dots-fill"></i> Bình luận
                                             </h6>
@@ -815,7 +825,7 @@ if (!empty($evaluation['details'])) {
 
                                             <!-- Add Comment Form -->
                                             <div class="fb-comment-form">
-                                                <textarea class="fb-comment-input" 
+                                                <textarea class="fb-comment-input"
                                                     data-content-id="<?= $content['content_id'] ?>"
                                                     placeholder="Viết bình luận của bạn..."></textarea>
                                                 <button class="fb-comment-btn" data-content-id="<?= $content['content_id'] ?>">
@@ -856,12 +866,9 @@ if (!empty($evaluation['details'])) {
                                         <?= htmlspecialchars($criterion['name_tc']) ?>
                                     </div>
                                     <div class="criteria-detail-score-box">
-                                        <input type="number" 
-                                            class="criteria-detail-score-input score-input-modal"
-                                            data-tc-id="<?= $criterion['tc_id'] ?>"
-                                            min="<?= $criterion['min_score'] ?>"
-                                            max="<?= $criterion['max_score'] ?>"
-                                            step="0.5"
+                                        <input type="number" class="criteria-detail-score-input score-input-modal"
+                                            data-tc-id="<?= $criterion['tc_id'] ?>" min="<?= $criterion['min_score'] ?>"
+                                            max="<?= $criterion['max_score'] ?>" step="0.5"
                                             value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
                                             <?= $evaluation['status'] == 2 ? 'readonly' : '' ?>>
                                         <div class="criteria-detail-range">
@@ -935,7 +942,7 @@ if (!empty($evaluation['details'])) {
         document.querySelectorAll('.score-input').forEach(input => {
             input.addEventListener('input', function () {
                 updateTotalScore();
-                
+
                 // Sync with modal inputs
                 const tcId = this.getAttribute('data-tc-id');
                 const modalInput = document.querySelector(`.score-input-modal[data-tc-id="${tcId}"]`);
@@ -963,19 +970,19 @@ if (!empty($evaluation['details'])) {
         const modal = document.getElementById('modalCriteria');
 
         if (btnShowModal) {
-            btnShowModal.addEventListener('click', function() {
+            btnShowModal.addEventListener('click', function () {
                 modal.classList.add('active');
             });
         }
 
         if (btnCloseModal) {
-            btnCloseModal.addEventListener('click', function() {
+            btnCloseModal.addEventListener('click', function () {
                 modal.classList.remove('active');
             });
         }
 
         // Close modal on outside click
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === modal) {
                 modal.classList.remove('active');
             }
@@ -1052,7 +1059,7 @@ if (!empty($evaluation['details'])) {
         }
 
         // ========== TEXT TO IMAGE AND COMMENT FUNCTIONALITY ==========
-        
+
         // PHP data for comments
         const RESPONSE_ID = <?= $responseInfo['id_response'] ?>;
         const TASK_ID = <?= $taskId ?>;
@@ -1070,10 +1077,10 @@ if (!empty($evaluation['details'])) {
         document.addEventListener('DOMContentLoaded', function () {
             // Generate images for all content blocks
             generateAllContentImages();
-            
+
             // Setup click handlers for content blocks
             setupContentBlockHandlers();
-            
+
             // Load comments for all blocks
             loadAllComments();
         });
