@@ -214,7 +214,9 @@ if (!empty($evaluation['details'])) {
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
                     <li class="breadcrumb-item"><a href="/homeclass">Lớp học</a></li>
-                    <li class="breadcrumb-item"><a href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Danh sách đánh giá</a></li>
+                    <li class="breadcrumb-item"><a
+                            href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Danh
+                            sách đánh giá</a></li>
                     <li class="breadcrumb-item active">Thực hiện đánh giá</li>
                 </ol>
             </nav>
@@ -239,8 +241,10 @@ if (!empty($evaluation['details'])) {
                     <div class="row">
                         <div class="col-md-9">
                             <p><strong>Bài tập:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
-                            <p><strong>Người làm bài:</strong> <?= htmlspecialchars($responseInfo['response_author']) ?></p>
-                            <p><strong>Ngày nộp:</strong> <?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
+                            <p><strong>Người làm bài:</strong> <?= htmlspecialchars($responseInfo['response_author']) ?>
+                            </p>
+                            <p><strong>Ngày nộp:</strong>
+                                <?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
                         </div>
                         <div class="col-md-3 text-end">
                             <?php if ($evaluation['status'] == 0): ?>
@@ -267,25 +271,25 @@ if (!empty($evaluation['details'])) {
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-file-text"></i> Bài làm cần đánh giá</h5>
-                            
+
                             <?php if (!empty($responseInfo['contents'])): ?>
                                 <?php foreach ($responseInfo['contents'] as $content): ?>
                                     <div class="response-content markdown-content">
                                         <?php
                                         // Simple markdown to HTML conversion
                                         $html = $content['content'];
-                                        
+
                                         // Headers
                                         $html = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $html);
                                         $html = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $html);
                                         $html = preg_replace('/^# (.+)$/m', '<h1>$1</h1>', $html);
-                                        
+
                                         // Bold
                                         $html = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html);
-                                        
+
                                         // Line breaks
                                         $html = nl2br($html);
-                                        
+
                                         echo $html;
                                         ?>
                                     </div>
@@ -304,20 +308,20 @@ if (!empty($evaluation['details'])) {
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title"><i class="bi bi-clipboard-check"></i> Đánh giá theo tiêu chí</h5>
-                            
+
                             <form id="evaluationForm" method="POST" action="/api/evaluate/submit_evaluation.php">
                                 <input type="hidden" name="evaluate_id" value="<?= $evaluation['id_evaluate'] ?>">
                                 <input type="hidden" name="deliver_id" value="<?= $deliverId ?>">
                                 <input type="hidden" name="task_id" value="<?= $taskId ?>">
                                 <input type="hidden" name="topic_id" value="<?= $topicId ?>">
                                 <input type="hidden" name="phase_id" value="<?= $phaseId ?>">
-                                
+
                                 <?php foreach ($criteria as $criterion): ?>
                                     <div class="criteria-card">
                                         <div class="d-flex justify-content-between align-items-start mb-3">
                                             <div class="flex-grow-1">
                                                 <h6 class="mb-2">
-                                                    <i class="bi bi-check-square"></i> 
+                                                    <i class="bi bi-check-square"></i>
                                                     <?= htmlspecialchars($criterion['name_tc']) ?>
                                                 </h6>
                                                 <?php if ($criterion['description']): ?>
@@ -327,20 +331,15 @@ if (!empty($evaluation['details'])) {
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div>
                                                 <label class="form-label mb-0">Điểm:</label>
-                                                <input 
-                                                    type="number" 
-                                                    name="scores[<?= $criterion['tc_id'] ?>]"
-                                                    class="score-input"
-                                                    min="<?= $criterion['min_score'] ?>"
-                                                    max="<?= $criterion['max_score'] ?>"
-                                                    step="0.5"
+                                                <input type="number" name="scores[<?= $criterion['tc_id'] ?>]"
+                                                    class="score-input" min="<?= $criterion['min_score'] ?>"
+                                                    max="<?= $criterion['max_score'] ?>" step="0.5"
                                                     value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
-                                                    <?= $evaluation['status'] == 2 ? 'readonly' : 'required' ?>
-                                                >
+                                                    <?= $evaluation['status'] == 2 ? 'readonly' : 'required' ?>>
                                                 <span class="score-range">
                                                     (<?= $criterion['min_score'] ?> - <?= $criterion['max_score'] ?>)
                                                 </span>
@@ -348,13 +347,13 @@ if (!empty($evaluation['details'])) {
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
-                                
+
                                 <!-- Total Score Display -->
                                 <div class="total-score-display">
                                     <div>Tổng điểm</div>
                                     <div id="totalScore"><?= $evaluation['total_score'] ?></div>
                                 </div>
-                                
+
                                 <!-- Action Buttons -->
                                 <?php if ($evaluation['status'] != 2): ?>
                                     <div class="d-flex gap-2 justify-content-end">
@@ -386,7 +385,7 @@ if (!empty($evaluation['details'])) {
     <script>
         // Calculate total score on input change
         document.querySelectorAll('.score-input').forEach(input => {
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 let total = 0;
                 document.querySelectorAll('.score-input').forEach(inp => {
                     total += parseFloat(inp.value) || 0;
@@ -398,19 +397,19 @@ if (!empty($evaluation['details'])) {
         // Form submission
         const form = document.getElementById('evaluationForm');
         if (form) {
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
                 const formData = new FormData(this);
                 const action = e.submitter.value; // 'draft' or 'submit'
-                
+
                 // Validate scores
                 let isValid = true;
                 document.querySelectorAll('.score-input').forEach(input => {
                     const min = parseFloat(input.min);
                     const max = parseFloat(input.max);
                     const value = parseFloat(input.value);
-                    
+
                     if (value < min || value > max) {
                         isValid = false;
                         input.classList.add('is-invalid');
@@ -418,27 +417,27 @@ if (!empty($evaluation['details'])) {
                         input.classList.remove('is-invalid');
                     }
                 });
-                
+
                 if (!isValid) {
                     alert('Vui lòng nhập điểm hợp lệ cho tất cả tiêu chí!');
                     return;
                 }
-                
+
                 // Confirm before submit
                 if (action === 'submit') {
                     if (!confirm('Bạn có chắc muốn hoàn thành đánh giá này? Sau khi hoàn thành, bạn không thể chỉnh sửa.')) {
                         return;
                     }
                 }
-                
+
                 try {
                     const response = await fetch(this.action, {
                         method: 'POST',
                         body: formData
                     });
-                    
+
                     const result = await response.json();
-                    
+
                     if (result.success) {
                         alert(result.message);
                         if (action === 'submit') {

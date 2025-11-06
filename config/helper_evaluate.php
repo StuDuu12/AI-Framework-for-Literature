@@ -18,7 +18,7 @@ require_once __DIR__ . '/db.php';
 function checkDeliverAccess($userId, $deliverId)
 {
     global $pdo;
-    
+
     try {
         // Get deliver info
         $stmt = $pdo->prepare("
@@ -30,15 +30,15 @@ function checkDeliverAccess($userId, $deliverId)
             FROM deliver
             WHERE id_deliver = :deliver_id
         ");
-        
+
         $stmt->execute([':deliver_id' => $deliverId]);
         $deliver = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$deliver) {
             error_log("checkDeliverAccess: Deliver $deliverId not found");
             return false;
         }
-        
+
         // Check access based on type
         if ($deliver['type'] === 'user') {
             // Individual assignment: check if user_id matches value
@@ -49,20 +49,19 @@ function checkDeliverAccess($userId, $deliverId)
                 error_log("checkDeliverAccess: User $userId != deliver value {$deliver['value']}");
                 return false;
             }
-        } 
-        elseif ($deliver['type'] === 'group') {
+        } elseif ($deliver['type'] === 'group') {
             // Group assignment: check if user is member of group
             $memberStmt = $pdo->prepare("
                 SELECT 1 
                 FROM group_member 
                 WHERE group_id = :group_id AND user_id = :user_id
             ");
-            
+
             $memberStmt->execute([
                 ':group_id' => $deliver['value'],
                 ':user_id' => $userId
             ]);
-            
+
             if ($memberStmt->fetch()) {
                 error_log("checkDeliverAccess: User $userId has access (group member of {$deliver['value']})");
                 return $deliver;
@@ -71,10 +70,10 @@ function checkDeliverAccess($userId, $deliverId)
                 return false;
             }
         }
-        
+
         error_log("checkDeliverAccess: Unknown deliver type: {$deliver['type']}");
         return false;
-        
+
     } catch (PDOException $e) {
         error_log("checkDeliverAccess ERROR: " . $e->getMessage());
         return false;
@@ -90,7 +89,7 @@ function checkDeliverAccess($userId, $deliverId)
 function getResponseToEvaluate($deliverId)
 {
     global $pdo;
-    
+
     try {
         // Get response_review from deliver_evaluate
         $stmt = $pdo->prepare("
@@ -105,15 +104,15 @@ function getResponseToEvaluate($deliverId)
             LEFT JOIN users u ON r.user_id = u.user_id
             WHERE de.id_deliver = :deliver_id
         ");
-        
+
         $stmt->execute([':deliver_id' => $deliverId]);
         $response = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$response) {
             error_log("getResponseToEvaluate: No response found for deliver $deliverId");
             return false;
         }
-        
+
         // Get response content blocks
         $contentStmt = $pdo->prepare("
             SELECT 
@@ -125,14 +124,14 @@ function getResponseToEvaluate($deliverId)
             WHERE response_id = :response_id
             ORDER BY `order` ASC
         ");
-        
+
         $contentStmt->execute([':response_id' => $response['id_response']]);
         $response['contents'] = $contentStmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         error_log("getResponseToEvaluate: Found response {$response['id_response']} with " . count($response['contents']) . " content blocks");
-        
+
         return $response;
-        
+
     } catch (PDOException $e) {
         error_log("getResponseToEvaluate ERROR: " . $e->getMessage());
         return false;
@@ -151,10 +150,10 @@ function getResponseToEvaluate($deliverId)
 function getOrCreateEvaluation($userId, $deliverId, $responseId)
 {
     global $pdo;
-    
+
     try {
         $pdo->beginTransaction();
-        
+
         // Check if evaluation exists for this user + deliver combination
         $stmt = $pdo->prepare("
             SELECT 
@@ -167,17 +166,17 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
             FROM evaluate
             WHERE deliver_id = :deliver_id AND user_id = :user_id
         ");
-        
+
         $stmt->execute([
             ':deliver_id' => $deliverId,
             ':user_id' => $userId
         ]);
-        
+
         $evaluation = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if ($evaluation) {
             error_log("getOrCreateEvaluation: Found existing evaluation {$evaluation['id_evaluate']}");
-            
+
             // Get detail scores
             $detailStmt = $pdo->prepare("
                 SELECT 
@@ -187,29 +186,29 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
                 FROM detail_evaluate
                 WHERE id_evaluate = :evaluate_id
             ");
-            
+
             $detailStmt->execute([':evaluate_id' => $evaluation['id_evaluate']]);
             $evaluation['details'] = $detailStmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             $pdo->commit();
             return $evaluation;
         }
-        
+
         // Create new evaluation with status = 1 (in progress)
         $insertStmt = $pdo->prepare("
             INSERT INTO evaluate (deliver_id, user_id, response_id, status, total_score, is_teacher)
             VALUES (:deliver_id, :user_id, :response_id, 1, 0, 0)
         ");
-        
+
         $insertStmt->execute([
             ':deliver_id' => $deliverId,
             ':user_id' => $userId,
             ':response_id' => $responseId
         ]);
-        
+
         $evaluateId = $pdo->lastInsertId();
         error_log("getOrCreateEvaluation: Created new evaluation $evaluateId");
-        
+
         // Initialize detail_evaluate with NULL scores for all criteria
         error_log("DEBUG: About to get criteria for deliver_id=$deliverId");
         $criteriaStmt = $pdo->prepare("
@@ -219,27 +218,27 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
             INNER JOIN deliver d ON te.id_task = d.task_id
             WHERE d.id_deliver = :deliver_id
         ");
-        
+
         $criteriaStmt->execute([':deliver_id' => $deliverId]);
         $criteria = $criteriaStmt->fetchAll(PDO::FETCH_ASSOC);
         error_log("DEBUG: Found " . count($criteria) . " criteria");
-        
+
         foreach ($criteria as $criterion) {
             $detailInsertStmt = $pdo->prepare("
                 INSERT INTO detail_evaluate (tc_id, diem, id_evaluate)
                 VALUES (:tc_id, NULL, :evaluate_id)
             ");
-            
+
             $detailInsertStmt->execute([
                 ':tc_id' => $criterion['tc_id'],
                 ':evaluate_id' => $evaluateId
             ]);
         }
-        
+
         error_log("getOrCreateEvaluation: Initialized " . count($criteria) . " detail records");
-        
+
         $pdo->commit();
-        
+
         // Return newly created evaluation
         return [
             'id_evaluate' => $evaluateId,
@@ -250,19 +249,19 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
             'user_id' => $userId,
             'details' => []
         ];
-        
+
     } catch (PDOException $e) {
         $pdo->rollBack();
         $errorMsg = "getOrCreateEvaluation ERROR: " . $e->getMessage();
         error_log($errorMsg);
         error_log("SQL State: " . $e->getCode());
         error_log("Stack trace: " . $e->getTraceAsString());
-        
+
         // Store error in session for display
         if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION['last_db_error'] = $errorMsg;
         }
-        
+
         return false;
     }
 }
@@ -276,7 +275,7 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
 function getEvaluationCriteria($taskId)
 {
     global $pdo;
-    
+
     try {
         $stmt = $pdo->prepare("
             SELECT 
@@ -291,14 +290,14 @@ function getEvaluationCriteria($taskId)
             WHERE te.id_task = :task_id
             ORDER BY tc.tc_id ASC
         ");
-        
+
         $stmt->execute([':task_id' => $taskId]);
         $criteria = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         error_log("getEvaluationCriteria: Found " . count($criteria) . " criteria for task $taskId");
-        
+
         return $criteria;
-        
+
     } catch (PDOException $e) {
         error_log("getEvaluationCriteria ERROR: " . $e->getMessage());
         return [];
@@ -314,7 +313,7 @@ function getEvaluationCriteria($taskId)
 function getTaskInfo($taskId)
 {
     global $pdo;
-    
+
     try {
         $stmt = $pdo->prepare("
             SELECT 
@@ -325,12 +324,12 @@ function getTaskInfo($taskId)
             FROM task
             WHERE task_id = :task_id
         ");
-        
+
         $stmt->execute([':task_id' => $taskId]);
         $task = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         return $task ?: false;
-        
+
     } catch (PDOException $e) {
         error_log("getTaskInfo ERROR: " . $e->getMessage());
         return false;
@@ -346,30 +345,30 @@ function getTaskInfo($taskId)
 function saveEvaluation($data)
 {
     global $pdo;
-    
+
     try {
         $pdo->beginTransaction();
-        
+
         $evaluateId = $data['evaluate_id'];
         $scores = $data['scores']; // Array of tc_id => score
         $status = $data['status']; // 0=draft, 2=submit
-        
+
         // Calculate total score
         $totalScore = array_sum($scores);
-        
+
         // Update evaluate record
         $updateStmt = $pdo->prepare("
             UPDATE evaluate
             SET status = :status, total_score = :total_score
             WHERE id_evaluate = :evaluate_id
         ");
-        
+
         $updateStmt->execute([
             ':status' => $status,
             ':total_score' => $totalScore,
             ':evaluate_id' => $evaluateId
         ]);
-        
+
         // Update detail_evaluate scores
         foreach ($scores as $tcId => $score) {
             $detailStmt = $pdo->prepare("
@@ -377,20 +376,20 @@ function saveEvaluation($data)
                 SET diem = :diem
                 WHERE id_evaluate = :evaluate_id AND tc_id = :tc_id
             ");
-            
+
             $detailStmt->execute([
                 ':diem' => $score,
                 ':evaluate_id' => $evaluateId,
                 ':tc_id' => $tcId
             ]);
         }
-        
+
         $pdo->commit();
-        
+
         error_log("saveEvaluation: Updated evaluation $evaluateId with total score $totalScore");
-        
+
         return true;
-        
+
     } catch (PDOException $e) {
         $pdo->rollBack();
         error_log("saveEvaluation ERROR: " . $e->getMessage());
@@ -409,7 +408,7 @@ function saveEvaluation($data)
 function getAssignedEvaluations($userId, $taskId)
 {
     global $pdo;
-    
+
     try {
         $stmt = $pdo->prepare("
             SELECT 
@@ -443,20 +442,20 @@ function getAssignedEvaluations($userId, $taskId)
             )
             ORDER BY d.id_deliver ASC
         ");
-        
+
         $stmt->execute([
             ':task_id' => $taskId,
             ':user_id' => $userId,
             ':user_id_check' => $userId,
             ':user_id_group' => $userId
         ]);
-        
+
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         error_log("getAssignedEvaluations: Found " . count($assignments) . " assignments for user $userId in task $taskId");
-        
+
         return $assignments;
-        
+
     } catch (PDOException $e) {
         error_log("getAssignedEvaluations ERROR: " . $e->getMessage());
         return [];

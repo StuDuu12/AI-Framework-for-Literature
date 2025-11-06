@@ -140,7 +140,8 @@ $assignments = getAssignedEvaluations($userId, $taskId);
                     <div class="row">
                         <div class="col-md-8">
                             <p><strong>Tên bài tập:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
-                            <p><strong>Mô tả:</strong> <?= htmlspecialchars($taskInfo['task_description'] ?? 'Không có mô tả') ?></p>
+                            <p><strong>Mô tả:</strong>
+                                <?= htmlspecialchars($taskInfo['task_description'] ?? 'Không có mô tả') ?></p>
                         </div>
                         <div class="col-md-4 text-end">
                             <?php
@@ -155,16 +156,19 @@ $assignments = getAssignedEvaluations($userId, $taskId);
                             ?>
                             <div class="d-flex align-items-center justify-content-end gap-3">
                                 <div>
-                                    <div class="progress-text text-primary"><?= $completed ?> / <?= $totalAssigned ?></div>
+                                    <div class="progress-text text-primary"><?= $completed ?> / <?= $totalAssigned ?>
+                                    </div>
                                     <small class="text-muted">Đã hoàn thành</small>
                                 </div>
                                 <div class="progress-ring">
                                     <svg width="60" height="60">
-                                        <circle cx="30" cy="30" r="25" fill="none" stroke="#e0e0e0" stroke-width="5"></circle>
+                                        <circle cx="30" cy="30" r="25" fill="none" stroke="#e0e0e0" stroke-width="5">
+                                        </circle>
                                         <circle cx="30" cy="30" r="25" fill="none" stroke="#2196F3" stroke-width="5"
-                                            stroke-dasharray="<?= $percentage * 1.57 ?> 157"
-                                            stroke-dashoffset="0" transform="rotate(-90 30 30)"></circle>
-                                        <text x="30" y="35" text-anchor="middle" font-size="12" font-weight="bold" fill="#2196F3">
+                                            stroke-dasharray="<?= $percentage * 1.57 ?> 157" stroke-dashoffset="0"
+                                            transform="rotate(-90 30 30)"></circle>
+                                        <text x="30" y="35" text-anchor="middle" font-size="12" font-weight="bold"
+                                            fill="#2196F3">
                                             <?= $percentage ?>%
                                         </text>
                                     </svg>
@@ -202,7 +206,7 @@ $assignments = getAssignedEvaluations($userId, $taskId);
                                             Nộp lúc: <?= date('d/m/Y H:i', strtotime($assignment['created_at'] ?? 'now')) ?>
                                         </small>
                                     </div>
-                                    
+
                                     <div class="col-md-3 text-center">
                                         <?php if ($assignment['eval_status'] !== null): ?>
                                             <span class="status-badge status-<?= $assignment['eval_status'] ?>">
@@ -226,16 +230,16 @@ $assignments = getAssignedEvaluations($userId, $taskId);
                                             </span>
                                         <?php endif; ?>
                                     </div>
-                                    
+
                                     <div class="col-md-3 text-end">
                                         <?php if ($assignment['eval_status'] == 2): ?>
-                                            <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>" 
-                                               class="btn btn-outline-primary">
+                                            <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>"
+                                                class="btn btn-outline-primary">
                                                 <i class="bi bi-eye"></i> Xem đánh giá
                                             </a>
                                         <?php else: ?>
-                                            <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>" 
-                                               class="btn btn-primary">
+                                            <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>"
+                                                class="btn btn-primary">
                                                 <i class="bi bi-pencil-square"></i>
                                                 <?= $assignment['eval_status'] !== null ? 'Tiếp tục' : 'Bắt đầu' ?> đánh giá
                                             </a>

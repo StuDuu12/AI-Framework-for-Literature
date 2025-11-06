@@ -64,17 +64,17 @@ $criteria = getEvaluationCriteria($taskId);
 // Validate each score
 foreach ($criteria as $criterion) {
     $tcId = $criterion['tc_id'];
-    
+
     if (!isset($scores[$tcId])) {
         echo json_encode(['success' => false, 'message' => 'Thiếu điểm cho tiêu chí: ' . $criterion['name_tc']]);
         exit;
     }
-    
+
     $score = floatval($scores[$tcId]);
-    
+
     if ($score < $criterion['min_score'] || $score > $criterion['max_score']) {
         echo json_encode([
-            'success' => false, 
+            'success' => false,
             'message' => "Điểm cho tiêu chí '{$criterion['name_tc']}' phải từ {$criterion['min_score']} đến {$criterion['max_score']}"
         ]);
         exit;
