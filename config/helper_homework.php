@@ -699,7 +699,7 @@ function setTaskCriteriaGroup($taskId, $nhomTcId)
         $stmt = $pdo->prepare("SELECT id_task FROM task_evaluate WHERE id_task = :task_id");
         $stmt->execute([':task_id' => $taskId]);
         $exists = $stmt->fetch();
-        
+
         if ($exists) {
             // Update
             $stmt = $pdo->prepare("
@@ -714,7 +714,7 @@ function setTaskCriteriaGroup($taskId, $nhomTcId)
                 VALUES (:task_id, :nhom_tc_id)
             ");
         }
-        
+
         return $stmt->execute([
             ':task_id' => $taskId,
             ':nhom_tc_id' => $nhomTcId
@@ -763,10 +763,10 @@ function getResponsesForEvaluation($taskId)
         $taskStmt = $pdo->prepare("SELECT review_task FROM task WHERE task_id = :task_id");
         $taskStmt->execute([':task_id' => $taskId]);
         $taskInfo = $taskStmt->fetch(PDO::FETCH_ASSOC);
-        
+
         // Use review_task if it exists, otherwise use the current task_id
         $sourceTaskId = $taskInfo['review_task'] ?? $taskId;
-        
+
         $stmt = $pdo->prepare("
             SELECT 
                 d.id_deliver,
@@ -829,7 +829,7 @@ function getEvaluatorAssignments($taskId)
         ");
         $stmt->execute([':task_id' => $taskId]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         // Group by response_review
         $assignments = [];
         foreach ($results as $row) {
@@ -839,7 +839,7 @@ function getEvaluatorAssignments($taskId)
             }
             $assignments[$responseId][] = $row;
         }
-        
+
         return $assignments;
     } catch (PDOException $e) {
         error_log("Error in getEvaluatorAssignments: " . $e->getMessage());
@@ -859,10 +859,10 @@ function getEvaluatorAssignments($taskId)
 function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, $addedBy)
 {
     global $pdo;
-    
+
     try {
         $pdo->beginTransaction();
-        
+
         // Check if evaluator is trying to evaluate their own work
         $stmt = $pdo->prepare("
             SELECT d.type, d.value, r.user_id
@@ -872,23 +872,23 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
         ");
         $stmt->execute([':response_id' => $responseId]);
         $submission = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$submission) {
             $pdo->rollBack();
             return "Response không tồn tại";
         }
-        
+
         // Prevent self-evaluation
         if ($evaluatorType === 'user' && $submission['type'] === 'user' && $submission['value'] == $evaluatorValue) {
             $pdo->rollBack();
             return "Không thể phân công người nộp bài tự chấm bài của chính họ";
         }
-        
+
         if ($evaluatorType === 'group' && $submission['type'] === 'group' && $submission['value'] == $evaluatorValue) {
             $pdo->rollBack();
             return "Không thể phân công nhóm nộp bài tự chấm bài của chính họ";
         }
-        
+
         // Find or create deliver record for evaluator
         $stmt = $pdo->prepare("
             SELECT id_deliver 
@@ -903,7 +903,7 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
             ':value' => $evaluatorValue
         ]);
         $deliverRecord = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$deliverRecord) {
             // Create new deliver record for evaluator
             $stmt = $pdo->prepare("
@@ -920,7 +920,7 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
         } else {
             $evaluatorDeliverId = $deliverRecord['id_deliver'];
         }
-        
+
         // Check if assignment already exists
         $stmt = $pdo->prepare("
             SELECT 1 FROM deliver_evaluate 
@@ -931,7 +931,7 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
             ':id_deliver' => $evaluatorDeliverId,
             ':response_review' => $responseId
         ]);
-        
+
         if (!$stmt->fetch()) {
             // Create deliver_evaluate record
             $stmt = $pdo->prepare("
@@ -943,10 +943,10 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
                 ':response_review' => $responseId
             ]);
         }
-        
+
         $pdo->commit();
         return true;
-        
+
     } catch (PDOException $e) {
         $pdo->rollBack();
         error_log("Error in assignEvaluator: " . $e->getMessage());

@@ -33,37 +33,37 @@ if ($userRole !== 'teacher') {
 try {
     $taskId = isset($_POST['task_id']) ? intval($_POST['task_id']) : 0;
     $nhomTcId = isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0;
-    
+
     if (!$taskId || !$nhomTcId) {
         echo json_encode(['success' => false, 'message' => 'Thiếu thông tin task_id hoặc nhom_tc_id']);
         exit;
     }
-    
+
     // Get task info to verify permissions
     $taskInfo = getInfoTask($taskId);
     if (!$taskInfo) {
         echo json_encode(['success' => false, 'message' => 'Task không tồn tại']);
         exit;
     }
-    
+
     // Check if user is teacher of this class
     if (!isTeacherInClass($taskInfo['class_id'], $userId)) {
         echo json_encode(['success' => false, 'message' => 'Bạn không có quyền cấu hình task này']);
         exit;
     }
-    
+
     // Check if any evaluations have been done
     if (hasTaskEvaluations($taskId)) {
         echo json_encode([
-            'success' => false, 
+            'success' => false,
             'message' => 'Không thể thay đổi bộ tiêu chí vì đã có bài chấm được thực hiện'
         ]);
         exit;
     }
-    
+
     // Set/update criteria group
     $result = setTaskCriteriaGroup($taskId, $nhomTcId);
-    
+
     if ($result) {
         echo json_encode([
             'success' => true,
@@ -75,7 +75,7 @@ try {
             'message' => 'Có lỗi xảy ra khi lưu cấu hình'
         ]);
     }
-    
+
 } catch (Exception $e) {
     error_log("Error in set_criteria.php: " . $e->getMessage());
     echo json_encode([
