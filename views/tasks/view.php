@@ -119,44 +119,56 @@
     // Phase 3 (LÀM BÀI TẬP VỀ NHÀ - phase_code: 'homework' or 'BTVN') is independent
     $shouldLookBack = false;
 
-    // Check current phase's main_phase_code
-    $phaseCheckStmt = $pdo->prepare("
-        SELECT mp.phase_code
-        FROM phase p
-        INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
-        WHERE p.phase_id = :phase_id
+    // Check if current task has review_task (points to previous phase's task)
+    $reviewTaskStmt = $pdo->prepare("
+        SELECT review_task 
+        FROM task 
+        WHERE task_id = :task_id
     ");
-    $phaseCheckStmt->execute([':phase_id' => $phaseId]);
-    $currentPhaseCode = $phaseCheckStmt->fetchColumn();
-
-    // Only CHỮA BÀI (review phase) should look back to previous phase
-    if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
-        $shouldLookBack = true;
-    }
+    $reviewTaskStmt->execute([':task_id' => $taskId]);
+    $reviewTask = $reviewTaskStmt->fetchColumn();
 
     $dataTaskId = $taskId; // Default: use current task
 
-    if ($shouldLookBack) {
-        // Find task from previous phase (for Phase 2 to view Phase 1 submissions)
-        $sourceTaskStmt = $pdo->prepare("
-            SELECT t.task_id, p.phase_number
-            FROM task t
-            INNER JOIN phase p ON t.phase_id = p.phase_id
-            WHERE p.topic_id = (SELECT topic_id FROM phase WHERE phase_id = :current_phase_id)
-            AND p.phase_number < (SELECT phase_number FROM phase WHERE phase_id = :current_phase_id)
-            ORDER BY p.phase_number DESC
-            LIMIT 1
+    // If this task reviews another task, use that task's data
+    if ($reviewTask && $reviewTask > 0) {
+        $shouldLookBack = true;
+        $dataTaskId = $reviewTask;
+    } else {
+        // Fallback: Check phase code for backward compatibility
+        $phaseCheckStmt = $pdo->prepare("
+            SELECT mp.phase_code
+            FROM phase p
+            INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+            WHERE p.phase_id = :phase_id
         ");
-        $sourceTaskStmt->execute([':current_phase_id' => $phaseId]);
-        $sourceTask = $sourceTaskStmt->fetch(PDO::FETCH_ASSOC);
+        $phaseCheckStmt->execute([':phase_id' => $phaseId]);
+        $currentPhaseCode = $phaseCheckStmt->fetchColumn();
 
-        // Use source task if found (Phase 1), otherwise use current task
-        if ($sourceTask) {
-            $dataTaskId = $sourceTask['task_id'];
+        // Only CHỮA BÀI (review phase) should look back to previous phase
+        if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
+            $shouldLookBack = true;
+
+            // Find task from previous phase
+            $sourceTaskStmt = $pdo->prepare("
+                SELECT t.task_id, p.phase_number
+                FROM task t
+                INNER JOIN phase p ON t.phase_id = p.phase_id
+                WHERE p.topic_id = (SELECT topic_id FROM phase WHERE phase_id = :current_phase_id)
+                AND p.phase_number < (SELECT phase_number FROM phase WHERE phase_id = :current_phase_id)
+                ORDER BY p.phase_number DESC
+                LIMIT 1
+            ");
+            $sourceTaskStmt->execute([':current_phase_id' => $phaseId]);
+            $sourceTask = $sourceTaskStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($sourceTask) {
+                $dataTaskId = $sourceTask['task_id'];
+            }
         }
     }
 
-    // Get task assignments with detailed info - use dataTaskId to get Phase 1 assignments
+    // Get task assignments with detailed info
     $assignments = getTaskAssignmentsDetailed($dataTaskId);
 
     // Calculate statistics - need to count actual students, not just assignment records
@@ -201,6 +213,12 @@
                                     <p class="text-muted mb-3">
                                         <i class="bi bi-layers"></i> Pha: Bước <?= $phase['phase_number'] ?> -
                                         <?= htmlspecialchars($phase['phase_name']) ?>
+                                        <?php if ($shouldLookBack && $dataTaskId != $taskId): ?>
+                                            <br>
+                                            <small class="badge bg-info">
+                                                <i class="bi bi-eye"></i> Đang xem dữ liệu từ pha trước
+                                            </small>
+                                        <?php endif; ?>
                                     </p>
 
                                     <?php if (!empty($task['description'])): ?>
@@ -245,16 +263,6 @@
                                     $commentCountStmt->execute([':task_id' => $dataTaskId]);
                                     $commentCount = $commentCountStmt->fetchColumn();
                                     ?>
-                                    <a href="/class/task/review?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="btn btn-info d-flex align-items-center gap-2" title="Xem bài phân tích học sinh">
-                                        <i class="bi bi-chat-square-text"></i>
-                                        <span>Xem bài phân tích</span>
-                                        <?php if ($commentCount > 0): ?>
-                                            <span class="badge rounded-pill bg-danger ms-1">
-                                                <?= $commentCount ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </a>
                                     <a href="/class/task/assign?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-warning" title="Giao thêm">
                                         <i class="bi bi-bell"></i> Giao thêm
@@ -551,9 +559,61 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
 
             // Get students for this assignment - use dataTaskId to get correct submission data
             $students = getStudentsForAssignment($dataTaskId, $assignment);
+
+            // For group assignment, check if there's a group submission
+            $groupSubmission = null;
+            $isGroupAssignment = ($assignment['type'] == 'group');
+
+            if ($isGroupAssignment) {
+                $groupSubmission = getGroupSubmission($dataTaskId, $assignment['id_deliver']);
+                
+                // Debug: Check if any student in group has submitted
+                if (!$groupSubmission && !empty($students)) {
+                    // Try to find any response from group members
+                    foreach ($students as $student) {
+                        if ($student['submission_id']) {
+                            // Found a submission from a group member, use it
+                            $groupSubmission = [
+                                'id_response' => $student['submission_id'],
+                                'submitted_at' => $student['submitted_at'],
+                                'user_id' => $student['user_id']
+                            ];
+                            break;
+                        }
+                    }
+                }
+            }
             ?>
 
             <div class="list-group-item">
+                <!-- DEBUG INFO -->
+                <?php if (isset($_GET['debug']) && $_GET['debug'] == '1'): ?>
+                    <div class="alert alert-warning alert-sm mb-2">
+                        <small>
+                            <strong>DEBUG:</strong>
+                            Assignment ID: <?= $assignment['id_deliver'] ?> |
+                            Type: <?= $assignment['type'] ?> |
+                            Value: <?= $assignment['value'] ?> |
+                            Task ID: <?= $assignment['task_id'] ?> |
+                            DataTaskId: <?= $dataTaskId ?> |
+                            Is Group: <?= $isGroupAssignment ? 'Yes' : 'No' ?> |
+                            Has Group Submission: <?= $groupSubmission ? 'Yes (ID: ' . $groupSubmission['id_response'] . ')' : 'No' ?> |
+                            Students Count: <?= count($students) ?>
+                            <?php if (!empty($students)): ?>
+                                <br><strong>Students Debug:</strong>
+                                <?php foreach ($students as $student): ?>
+                                    <br>→ <?= $student['fullname'] ?> 
+                                    | User: <?= $student['user_id'] ?>
+                                    | Deliver: <?= $student['deliver_id'] ?? 'NULL' ?>
+                                    | Response: <?= $student['submission_id'] ?? 'NULL' ?>
+                                    | Time: <?= $student['submitted_at'] ?? 'NULL' ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </small>
+                    </div>
+                <?php endif; ?>
+                <!-- END DEBUG -->
+
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="flex-grow-1">
                         <h6 class="mb-1">
@@ -565,12 +625,24 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                             <small class="text-muted">
                                 <i class="bi bi-calendar"></i> <?= date('d/m/Y H:i', strtotime($assignment['created_at'])) ?>
                             </small>
-                            <?php if (isset($assignment['students_total'])): ?>
-                                <small>
-                                    <i class="bi bi-people"></i>
-                                    <span class="text-success fw-bold"><?= $assignment['students_completed'] ?></span>
-                                    /<?= $assignment['students_total'] ?> học sinh đã nộp
-                                </small>
+                            <?php if (isset($assignment['students_total']) && $assignment['students_total'] > 0): ?>
+                                <?php if ($isGroupAssignment): ?>
+                                    <small>
+                                        <i class="bi bi-people"></i>
+                                        <?= $assignment['students_total'] ?> thành viên
+                                        <?php if ($groupSubmission): ?>
+                                            - <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Đã nộp</span>
+                                        <?php else: ?>
+                                            - <span class="text-muted"><i class="bi bi-dash-circle"></i> Chưa nộp</span>
+                                        <?php endif; ?>
+                                    </small>
+                                <?php else: ?>
+                                    <small>
+                                        <i class="bi bi-people"></i>
+                                        <span class="text-success fw-bold"><?= $assignment['students_completed'] ?></span>
+                                        /<?= $assignment['students_total'] ?> học sinh đã nộp
+                                    </small>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -582,7 +654,81 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                     </button>
                 </div>
 
-                <?php if (!empty($students)): ?>
+                <?php if ($isGroupAssignment): ?>
+                    <!-- GROUP ASSIGNMENT: Show single comment button for the whole group -->
+                    
+                    <!-- Show list of group members as table -->
+                    <?php if (!empty($students)): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Thành viên</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thời gian nộp</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    $rowCount = 0;
+                                    // For group: if group has submitted, all members show "Đã nộp"
+                                    $groupStatus = $groupSubmission ? 'submitted' : 'not_submitted';
+                                    $groupSubmittedTime = $groupSubmission ? $groupSubmission['submitted_at'] : null;
+                                    
+                                    foreach ($students as $student): 
+                                        $rowCount++;
+                                        
+                                        // Use group status for all members
+                                        if ($groupStatus === 'submitted') {
+                                            $statusBadge = 'success';
+                                            $statusIcon = 'check-circle-fill';
+                                            $statusText = 'Đã nộp';
+                                        } else {
+                                            $statusBadge = 'secondary';
+                                            $statusIcon = 'dash-circle';
+                                            $statusText = 'Chưa nộp';
+                                        }
+                                    ?>
+                                        <tr style="border-bottom: 1px solid #dee2e6;">
+                                            <td>
+                                                <i class="bi bi-person"></i>
+                                                <?= htmlspecialchars($student['fullname']) ?>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<?= $statusBadge ?>">
+                                                    <i class="bi bi-<?= $statusIcon ?>"></i> <?= $statusText ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php if ($groupSubmittedTime): ?>
+                                                    <small><?= date('d/m/Y H:i', strtotime($groupSubmittedTime)) ?></small>
+                                                <?php else: ?>
+                                                    <small class="text-muted">-</small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <?php if ($rowCount === 1): ?>
+                                                <!-- Show comment button only on first row, spanning all rows -->
+                                                <td rowspan="<?= count($students) ?>" class="align-middle text-center" style="vertical-align: middle; background-color: #f8f9fa;">
+                                                    <?php if ($groupSubmission): ?>
+                                                        <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $assignment['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                                            class="btn btn-success btn-sm" title="Nhận xét & Đánh giá chung cho cả nhóm">
+                                                            <i class="bi bi-chat-left-text"></i> Nhận xét chung
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <small class="text-muted">Chưa có bài nộp</small>
+                                                    <?php endif; ?>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
+                <?php elseif (!empty($students)): ?>
+                    <!-- For individual or class assignment, show each student -->
                     <div class="table-responsive">
                         <table class="table table-sm table-hover mb-0">
                             <thead>
@@ -625,9 +771,9 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                         </td>
                                         <td>
                                             <?php if ($student['submission_id']): ?>
-                                                <a href="/class/homework/view?submission_id=<?= $student['submission_id'] ?>&task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                    class="btn btn-sm btn-outline-success" title="Xem bài nộp">
-                                                    <i class="bi bi-eye"></i>
+                                                <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                                    class="btn btn-sm btn-outline-success" title="Nhận xét & Đánh giá">
+                                                    <i class="bi bi-chat-left-text"></i> Nhận xét
                                                 </a>
                                             <?php else: ?>
                                                 <small class="text-muted">-</small>
@@ -671,11 +817,35 @@ function getStudentsForAssignment($taskId, $assignment)
                      AND r2.user_id = u.user_id 
                      AND r2.parent_response IS NULL 
                      LIMIT 1) as submission_id,
-                    (SELECT r3.created_at FROM response r3 
-                     WHERE r3.task_id = :task_id 
-                     AND r3.user_id = u.user_id 
-                     AND r3.parent_response IS NULL 
-                     LIMIT 1) as submitted_at
+                    (SELECT COALESCE(
+                         (SELECT MAX(c.created_at) FROM comment c
+                          INNER JOIN content ct ON c.content_id = ct.content_id
+                          INNER JOIN response r_inner ON ct.response_id = r_inner.id_response
+                          WHERE r_inner.task_id = :task_id 
+                          AND c.user_id = u.user_id),
+                         (SELECT r3.created_at FROM response r3 
+                          WHERE r3.task_id = :task_id 
+                          AND r3.user_id = u.user_id 
+                          AND r3.parent_response IS NULL 
+                          LIMIT 1)
+                     )) as submitted_at,
+                    (SELECT d2.id_deliver FROM deliver d2
+                     WHERE d2.task_id = :task_id
+                     AND (
+                         (d2.type = 'user' AND d2.value = u.user_id) OR
+                         (d2.type = 'class' AND d2.value = cm.class_id)
+                     )
+                     AND EXISTS (
+                         SELECT 1 FROM response r4 
+                         WHERE r4.task_id = :task_id 
+                         AND r4.user_id = u.user_id 
+                         AND r4.parent_response IS NULL
+                     )
+                     ORDER BY CASE d2.type 
+                         WHEN 'user' THEN 1 
+                         WHEN 'class' THEN 3 
+                     END
+                     LIMIT 1) as actual_deliver_id
                 FROM users u
                 INNER JOIN class_member cm ON u.user_id = cm.user_id
                 WHERE cm.class_id = :value 
@@ -693,11 +863,35 @@ function getStudentsForAssignment($taskId, $assignment)
                      AND r2.user_id = u.user_id 
                      AND r2.parent_response IS NULL 
                      LIMIT 1) as submission_id,
-                    (SELECT r3.created_at FROM response r3 
-                     WHERE r3.task_id = :task_id 
-                     AND r3.user_id = u.user_id 
-                     AND r3.parent_response IS NULL 
-                     LIMIT 1) as submitted_at
+                    (SELECT COALESCE(
+                         (SELECT MAX(c.created_at) FROM comment c
+                          INNER JOIN content ct ON c.content_id = ct.content_id
+                          INNER JOIN response r_inner ON ct.response_id = r_inner.id_response
+                          WHERE r_inner.task_id = :task_id 
+                          AND c.user_id = u.user_id),
+                         (SELECT r3.created_at FROM response r3 
+                          WHERE r3.task_id = :task_id 
+                          AND r3.user_id = u.user_id 
+                          AND r3.parent_response IS NULL 
+                          LIMIT 1)
+                     )) as submitted_at,
+                    (SELECT d2.id_deliver FROM deliver d2
+                     WHERE d2.task_id = :task_id
+                     AND (
+                         (d2.type = 'user' AND d2.value = u.user_id) OR
+                         (d2.type = 'group' AND d2.value = gm.group_id)
+                     )
+                     AND EXISTS (
+                         SELECT 1 FROM response r4 
+                         WHERE r4.task_id = :task_id 
+                         AND r4.user_id = u.user_id 
+                         AND r4.parent_response IS NULL
+                     )
+                     ORDER BY CASE d2.type 
+                         WHEN 'user' THEN 1 
+                         WHEN 'group' THEN 2 
+                     END
+                     LIMIT 1) as actual_deliver_id
                 FROM users u
                 INNER JOIN group_member gm ON u.user_id = gm.user_id
                 WHERE gm.group_id = :value AND u.role = 'student'
@@ -705,6 +899,7 @@ function getStudentsForAssignment($taskId, $assignment)
             ";
             $params[':value'] = $assignment['value'];
         } else {
+            // Individual user assignment
             $sql = "
                 SELECT 
                     u.user_id, 
@@ -714,11 +909,29 @@ function getStudentsForAssignment($taskId, $assignment)
                      AND r2.user_id = u.user_id 
                      AND r2.parent_response IS NULL 
                      LIMIT 1) as submission_id,
-                    (SELECT r3.created_at FROM response r3 
-                     WHERE r3.task_id = :task_id 
-                     AND r3.user_id = u.user_id 
-                     AND r3.parent_response IS NULL 
-                     LIMIT 1) as submitted_at
+                    (SELECT COALESCE(
+                         (SELECT MAX(c.created_at) FROM comment c
+                          INNER JOIN content ct ON c.content_id = ct.content_id
+                          INNER JOIN response r_inner ON ct.response_id = r_inner.id_response
+                          WHERE r_inner.task_id = :task_id 
+                          AND c.user_id = u.user_id),
+                         (SELECT r3.created_at FROM response r3 
+                          WHERE r3.task_id = :task_id 
+                          AND r3.user_id = u.user_id 
+                          AND r3.parent_response IS NULL 
+                          LIMIT 1)
+                     )) as submitted_at,
+                    (SELECT d2.id_deliver FROM deliver d2
+                     WHERE d2.task_id = :task_id
+                     AND d2.type = 'user' 
+                     AND d2.value = u.user_id
+                     AND EXISTS (
+                         SELECT 1 FROM response r4 
+                         WHERE r4.task_id = :task_id 
+                         AND r4.user_id = u.user_id 
+                         AND r4.parent_response IS NULL
+                     )
+                     LIMIT 1) as actual_deliver_id
                 FROM users u
                 WHERE u.user_id = :value AND u.role = 'student'
             ";
@@ -727,7 +940,17 @@ function getStudentsForAssignment($taskId, $assignment)
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Set deliver_id based on actual usage or fallback to assignment's deliver_id
+        foreach ($students as &$student) {
+            // If student has submitted and we found the actual deliver they used, use it
+            // Otherwise fallback to the assignment's deliver_id
+            $student['deliver_id'] = $student['actual_deliver_id'] ?? $assignment['id_deliver'];
+        }
+        unset($student); // Break reference
+
+        return $students;
     } catch (PDOException $e) {
         error_log("Error in getStudentsForAssignment: " . $e->getMessage());
         return [];
@@ -736,12 +959,18 @@ function getStudentsForAssignment($taskId, $assignment)
 
 /**
  * Get detailed task assignments with status
- * @param int $taskId
+ * @param int $taskId - Task ID for assignments (current viewing task)
+ * @param int $dataTaskId - Task ID for submissions data (Phase 1 if viewing Phase 2)
  * @return array
  */
-function getTaskAssignmentsDetailed($taskId)
+function getTaskAssignmentsDetailed($taskId, $dataTaskId = null)
 {
     global $pdo;
+
+    // If dataTaskId not provided, use taskId
+    if ($dataTaskId === null) {
+        $dataTaskId = $taskId;
+    }
 
     try {
         // Get unique assignments without duplication
@@ -773,9 +1002,9 @@ function getTaskAssignmentsDetailed($taskId)
         $stmt->execute([':task_id' => $taskId]);
         $assignments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Calculate completion status for each assignment
+        // Calculate completion status for each assignment using dataTaskId for submissions
         foreach ($assignments as &$assignment) {
-            $students = getStudentsForAssignment($taskId, $assignment);
+            $students = getStudentsForAssignment($dataTaskId, $assignment);
             $total = count($students);
             $completed = 0;
 
@@ -891,6 +1120,7 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
             if (!isset($allStudents[$student['user_id']])) {
                 $student['assignment_name'] = $assignment['assigned_to_name'];
                 $student['assignment_type'] = $assignment['assign_type'];
+                // deliver_id is already set in getStudentsForAssignment() using getDeliverIdForUser()
                 $allStudents[$student['user_id']] = $student;
             }
         }
@@ -975,9 +1205,9 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
                         </td>
                         <td>
                             <?php if ($student['submission_id']): ?>
-                                <a href="/class/homework/view?submission_id=<?= $student['submission_id'] ?>&task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                    class="btn btn-sm btn-outline-success" title="Xem bài nộp">
-                                    <i class="bi bi-eye"></i> Xem bài
+                                <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                    class="btn btn-sm btn-outline-success" title="Nhận xét & Đánh giá">
+                                    <i class="bi bi-chat-left-text"></i> Nhận xét
                                 </a>
                             <?php else: ?>
                                 <small class="text-muted">-</small>

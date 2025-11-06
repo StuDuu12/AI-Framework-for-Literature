@@ -53,16 +53,20 @@
     }
 
     // Get phase details to check permissions
+    // Use phase_id from URL if provided (for Phase 4 viewing Phase 1 data)
+    $display_phase_id = isset($_GET['phase_id']) && $_GET['phase_id'] > 0 ? intval($_GET['phase_id']) : $taskInfo['phase_id'];
+    
     // If viewing_from_task is provided, use that task's phase for context
     if ($viewing_from_task_id > 0) {
         $viewingTaskInfo = getTaskDetails($viewing_from_task_id);
         if ($viewingTaskInfo) {
             $phaseInfo = getPhaseDetails($viewingTaskInfo['phase_id']);
         } else {
-            $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+            $phaseInfo = getPhaseDetails($display_phase_id);
         }
     } else {
-        $phaseInfo = getPhaseDetails($taskInfo['phase_id']);
+        // Use the display_phase_id (from URL) for getting phase name
+        $phaseInfo = getPhaseDetails($display_phase_id);
     }
 
     if (!$phaseInfo) {
@@ -70,7 +74,7 @@
         exit;
     }
 
-    // Get current phase name for display (from viewing context)
+    // Get current phase name for display (from URL phase_id, not task's phase_id)
     $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
 
     // Only override topic_id and phase_id if they weren't provided in URL
@@ -92,7 +96,7 @@
     //     header("Location: /403");
     //     exit;
     // }
-    
+
     // Get response based on deliver_id or legacy method
     $responseData = null;
     $display_response_id = null;
@@ -153,6 +157,23 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
+            <!-- DEBUG INFO (Remove after testing) -->
+            <?php if (isset($_GET['debug']) && $_GET['debug'] == '1'): ?>
+                <div class="alert alert-info">
+                    <strong>Debug Info:</strong><br>
+                    Current User ID: <?= $current_user_id ?> (<?= $current_user_role ?>)<br>
+                    Target User ID: <?= $target_user_id ?> (<?= $target_user_name ?>)<br>
+                    Deliver ID: <?= $deliver_id ?><br>
+                    Response ID: <?= $response_id ?><br>
+                    Display Response ID: <?= $display_response_id ?><br>
+                    Number of Content Blocks: <?= count($contentBlocks) ?><br>
+                    <?php if (!empty($contentBlocks)): ?>
+                        Content IDs: <?= implode(', ', array_column($contentBlocks, 'content_id')) ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <!-- END DEBUG INFO -->
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <?php if ($target_user_id != $current_user_id): ?>
@@ -164,7 +185,7 @@
                 </div>
                 <?php if ($current_user_role === 'teacher'): ?>
                     <div>
-                        <a href="/class/task/review?task_id=<?= $back_task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
+                        <a href="/class/task/view?task_id=<?= $back_task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
                             class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Quay lại danh sách
                         </a>
@@ -291,7 +312,7 @@
         let selectedBlockId = null;
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Generate images for all content blocks
             generateAllContentImages(); // Setup click handlers for content blocks
             setupContentBlockHandlers();
@@ -583,7 +604,7 @@
 
         // Regenerate images on window resize
         let resizeTimeout;
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 generateAllContentImages();
@@ -595,7 +616,7 @@
             const wrappers = document.querySelectorAll('.content-image-wrapper');
 
             wrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function () {
+                wrapper.addEventListener('click', function() {
                     // Only handle click in individual mode
                     const container = document.getElementById('comment-container');
                     if (container.classList.contains('view-mode-all')) {
@@ -637,7 +658,7 @@
             const container = document.getElementById('comment-container');
 
             toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const viewMode = this.dataset.view;
 
                     // Update active button
@@ -667,7 +688,7 @@
             const buttons = document.querySelectorAll('.fb-comment-btn');
 
             buttons.forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const contentId = this.dataset.contentId;
                     const textarea = document.querySelector(`textarea[data-content-id="${contentId}"]`);
                     const commentText = textarea.value.trim();
@@ -717,7 +738,13 @@
                 const result = await response.json();
 
                 if (result.success) {
+                    console.log('Loaded comments for content_id:', contentId, '- Count:', result.comments.length);
+                    if (result.debug) {
+                        console.log('Debug info:', result.debug);
+                    }
                     renderComments(contentId, result.comments);
+                } else {
+                    console.error('Failed to load comments:', result);
                 }
             } catch (error) {
                 console.error('Error loading comments:', error);
@@ -833,7 +860,7 @@
 
             // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
@@ -842,7 +869,7 @@
 
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
@@ -874,7 +901,7 @@
 
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const parentId = this.dataset.parentId;
                     const textarea = this.previousElementSibling;
                     const replyText = textarea.value.trim();

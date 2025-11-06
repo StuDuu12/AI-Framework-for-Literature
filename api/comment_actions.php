@@ -34,9 +34,18 @@ try {
 
             $comments = getCommentsHierarchical($content_id);
 
+            // Debug logging
+            error_log("Loading comments for content_id: $content_id, user_id: $user_id");
+            error_log("Found " . count($comments) . " comments");
+
             echo json_encode([
                 'success' => true,
-                'comments' => $comments
+                'comments' => $comments,
+                'debug' => [
+                    'content_id' => $content_id,
+                    'user_id' => $user_id,
+                    'comment_count' => count($comments)
+                ]
             ]);
             break;
 
@@ -153,7 +162,6 @@ try {
         default:
             throw new Exception('Invalid action');
     }
-
 } catch (Exception $e) {
     http_response_code(400);
     echo json_encode([
