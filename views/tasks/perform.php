@@ -211,6 +211,9 @@ if ($task['file_content']) {
                                 case 'PHASE_BTVN':
                                     $href = "/class/homework/analysis_chat?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;
+                                case 'PHASE_DANHGIANGUOIHOC': 
+                                    $href = "/class/evaluate/student?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId&deliver_id=$deliverId";
+                                    break;
                                 default:
                                     $href = "/class/homework/analysis_start?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
                                     break;

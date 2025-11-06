@@ -44,6 +44,9 @@ $routes = [
     'class/homework/analysis_chat' => ['file' => 'views/homework/genAI_BTVN.php', 'title' => 'Phân tích Văn học - Trò chuyện', 'require_auth' => true],
     'class/homework/chat' => ['file' => 'views/homework/genAI_BTVN.php', 'title' => 'Phân tích Văn học - Chat', 'require_auth' => true],
     'class/criteria' => ['file' => 'views/criteria/index.php', 'title' => 'Tiêu chí đánh giá', 'require_auth' => true],
+    'class/task/setting_evaluation' => ['file' => 'views/evaluate/setting.php', 'title' => 'Cài đặt đánh giá nhiệm vụ', 'require_auth' => true],
+    'class/evaluate/student' => ['file' => 'views/evaluate/student_evaluate.php', 'title' => 'Đánh giá chéo', 'require_auth' => true],
+    'class/evaluate/list' => ['file' => 'views/evaluate/list.php', 'title' => 'Danh sách đánh giá', 'require_auth' => true],
 
     // Gen AI and Comment routes
     'class/homework/view' => ['file' => 'views/homework/view.php', 'title' => 'Xem chi tiết phân tích', 'require_auth' => true],

@@ -659,3 +659,322 @@ function getStudentsWithResponsesForTask($taskId)
         return [];
     }
 }
+
+// ==================== PEER EVALUATION HELPER FUNCTIONS ====================
+
+/**
+ * Get current criteria group for a task
+ * @param int $taskId
+ * @return array|false
+ */
+function getTaskCriteriaGroup($taskId)
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT te.*, ntc.ten_nhom_tc, ntc.description
+            FROM task_evaluate te
+            LEFT JOIN nhom_tc ntc ON te.id_group_tc = ntc.nhom_tc_id
+            WHERE te.id_task = :task_id
+        ");
+        $stmt->execute([':task_id' => $taskId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getTaskCriteriaGroup: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Set or update criteria group for a task
+ * @param int $taskId
+ * @param int $nhomTcId
+ * @return bool
+ */
+function setTaskCriteriaGroup($taskId, $nhomTcId)
+{
+    global $pdo;
+    try {
+        // Check if already exists
+        $stmt = $pdo->prepare("SELECT id_task FROM task_evaluate WHERE id_task = :task_id");
+        $stmt->execute([':task_id' => $taskId]);
+        $exists = $stmt->fetch();
+
+        if ($exists) {
+            // Update
+            $stmt = $pdo->prepare("
+                UPDATE task_evaluate 
+                SET id_group_tc = :nhom_tc_id
+                WHERE id_task = :task_id
+            ");
+        } else {
+            // Insert
+            $stmt = $pdo->prepare("
+                INSERT INTO task_evaluate (id_task, id_group_tc)
+                VALUES (:task_id, :nhom_tc_id)
+            ");
+        }
+
+        return $stmt->execute([
+            ':task_id' => $taskId,
+            ':nhom_tc_id' => $nhomTcId
+        ]);
+    } catch (PDOException $e) {
+        error_log("Error in setTaskCriteriaGroup: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Check if any evaluations exist for a task
+ * @param int $taskId
+ * @return bool
+ */
+function hasTaskEvaluations($taskId)
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count
+            FROM deliver_evaluate de
+            JOIN deliver d ON de.id_deliver = d.id_deliver
+            WHERE d.task_id = :task_id
+        ");
+        $stmt->execute([':task_id' => $taskId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'] > 0;
+    } catch (PDOException $e) {
+        error_log("Error in hasTaskEvaluations: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get all delivers (assignments) that need to be evaluated for a task
+ * If task has review_task, get delivers from that task instead
+ * @param int $taskId - Evaluation task ID
+ * @return array
+ */
+function getResponsesForEvaluation($taskId)
+{
+    global $pdo;
+    try {
+        // First, check if this task has a review_task (is an evaluation task)
+        $taskStmt = $pdo->prepare("SELECT review_task FROM task WHERE task_id = :task_id");
+        $taskStmt->execute([':task_id' => $taskId]);
+        $taskInfo = $taskStmt->fetch(PDO::FETCH_ASSOC);
+
+        // Use review_task if it exists, otherwise use the current task_id
+        $sourceTaskId = $taskInfo['review_task'] ?? $taskId;
+
+        $stmt = $pdo->prepare("
+            SELECT 
+                d.id_deliver,
+                d.type as deliver_type,
+                d.value as deliver_value,
+                d.response,
+                d.status as deliver_status,
+                d.created_at,
+                d.updated_at,
+                CASE 
+                    WHEN d.type = 'user' THEN u.fullname
+                    WHEN d.type = 'group' THEN g.group_name
+                    ELSE 'Cả lớp'
+                END as submitter_name,
+                CASE 
+                    WHEN d.type = 'user' THEN u.user_id
+                    WHEN d.type = 'group' THEN g.group_id
+                    ELSE NULL
+                END as submitter_id
+            FROM deliver d
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            WHERE d.task_id = :task_id
+            AND (d.status = 1 OR d.status = 2)
+            ORDER BY d.created_at DESC
+        ");
+        $stmt->execute([':task_id' => $sourceTaskId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getResponsesForEvaluation: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get all evaluator assignments for a task
+ * @param int $taskId
+ * @return array Keyed by response_id
+ */
+function getEvaluatorAssignments($taskId)
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                de.response_review,
+                de.id_deliver as evaluator_deliver_id,
+                d.type as evaluator_type,
+                d.value as evaluator_value,
+                CASE 
+                    WHEN d.type = 'user' THEN u.fullname
+                    WHEN d.type = 'group' THEN g.group_name
+                    ELSE 'Cả lớp'
+                END as evaluator_name
+            FROM deliver_evaluate de
+            JOIN deliver d ON de.id_deliver = d.id_deliver
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            WHERE d.task_id = :task_id
+        ");
+        $stmt->execute([':task_id' => $taskId]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Group by response_review
+        $assignments = [];
+        foreach ($results as $row) {
+            $responseId = $row['response_review'];
+            if (!isset($assignments[$responseId])) {
+                $assignments[$responseId] = [];
+            }
+            $assignments[$responseId][] = $row;
+        }
+
+        return $assignments;
+    } catch (PDOException $e) {
+        error_log("Error in getEvaluatorAssignments: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Assign evaluator to a response
+ * @param int $taskId
+ * @param int $responseId Response to be evaluated
+ * @param string $evaluatorType 'user' or 'group'
+ * @param int $evaluatorValue user_id or group_id
+ * @param int $addedBy Teacher user_id
+ * @return bool|string True on success, error message on failure
+ */
+function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, $addedBy)
+{
+    global $pdo;
+
+    try {
+        $pdo->beginTransaction();
+
+        // Check if evaluator is trying to evaluate their own work
+        $stmt = $pdo->prepare("
+            SELECT d.type, d.value, r.user_id
+            FROM deliver d
+            JOIN response r ON d.response = r.id_response
+            WHERE r.id_response = :response_id
+        ");
+        $stmt->execute([':response_id' => $responseId]);
+        $submission = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$submission) {
+            $pdo->rollBack();
+            return "Response không tồn tại";
+        }
+
+        // Prevent self-evaluation
+        if ($evaluatorType === 'user' && $submission['type'] === 'user' && $submission['value'] == $evaluatorValue) {
+            $pdo->rollBack();
+            return "Không thể phân công người nộp bài tự chấm bài của chính họ";
+        }
+
+        if ($evaluatorType === 'group' && $submission['type'] === 'group' && $submission['value'] == $evaluatorValue) {
+            $pdo->rollBack();
+            return "Không thể phân công nhóm nộp bài tự chấm bài của chính họ";
+        }
+
+        // Find or create deliver record for evaluator
+        $stmt = $pdo->prepare("
+            SELECT id_deliver 
+            FROM deliver 
+            WHERE task_id = :task_id 
+            AND type = :type 
+            AND value = :value
+        ");
+        $stmt->execute([
+            ':task_id' => $taskId,
+            ':type' => $evaluatorType,
+            ':value' => $evaluatorValue
+        ]);
+        $deliverRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$deliverRecord) {
+            // Create new deliver record for evaluator
+            $stmt = $pdo->prepare("
+                INSERT INTO deliver (task_id, type, value, status, added_by)
+                VALUES (:task_id, :type, :value, 0, :added_by)
+            ");
+            $stmt->execute([
+                ':task_id' => $taskId,
+                ':type' => $evaluatorType,
+                ':value' => $evaluatorValue,
+                ':added_by' => $addedBy
+            ]);
+            $evaluatorDeliverId = $pdo->lastInsertId();
+        } else {
+            $evaluatorDeliverId = $deliverRecord['id_deliver'];
+        }
+
+        // Check if assignment already exists
+        $stmt = $pdo->prepare("
+            SELECT 1 FROM deliver_evaluate 
+            WHERE id_deliver = :id_deliver 
+            AND response_review = :response_review
+        ");
+        $stmt->execute([
+            ':id_deliver' => $evaluatorDeliverId,
+            ':response_review' => $responseId
+        ]);
+
+        if (!$stmt->fetch()) {
+            // Create deliver_evaluate record
+            $stmt = $pdo->prepare("
+                INSERT INTO deliver_evaluate (id_deliver, response_review)
+                VALUES (:id_deliver, :response_review)
+            ");
+            $stmt->execute([
+                ':id_deliver' => $evaluatorDeliverId,
+                ':response_review' => $responseId
+            ]);
+        }
+
+        $pdo->commit();
+        return true;
+
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log("Error in assignEvaluator: " . $e->getMessage());
+        return "Lỗi database: " . $e->getMessage();
+    }
+}
+
+/**
+ * Remove evaluator assignment from a response
+ * @param int $evaluatorDeliverId
+ * @param int $responseId
+ * @return bool
+ */
+function removeEvaluatorAssignment($evaluatorDeliverId, $responseId)
+{
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("
+            DELETE FROM deliver_evaluate 
+            WHERE id_deliver = :id_deliver 
+            AND response_review = :response_review
+        ");
+        return $stmt->execute([
+            ':id_deliver' => $evaluatorDeliverId,
+            ':response_review' => $responseId
+        ]);
+    } catch (PDOException $e) {
+        error_log("Error in removeEvaluatorAssignment: " . $e->getMessage());
+        return false;
+    }
+}
