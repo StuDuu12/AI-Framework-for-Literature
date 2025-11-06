@@ -61,12 +61,23 @@
         exit;
     }
 
-    // Get phase details
-    $phase = getPhaseDetails($phaseId);
+    // Get phase details with main_phase info
+    $stmtPhase = $pdo->prepare("
+        SELECT p.*, mp.phase_code, mp.m_phase_name
+        FROM phase p
+        LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE p.phase_id = :phase_id
+    ");
+    $stmtPhase->execute([':phase_id' => $phaseId]);
+    $phase = $stmtPhase->fetch(PDO::FETCH_ASSOC);
+    
     if (!$phase) {
         header('Location: /class');
         exit;
     }
+    
+    // Check if this is a peer evaluation phase
+    $isPeerEvaluationPhase = ($phase['phase_code'] === 'PHASE_DANHGIANGUOIHOC');
 
     // Get topic details
     $topic = getTopicDetails($topicId);
@@ -231,10 +242,19 @@
                                                         class="btn btn-sm btn-outline-success" title="Xem">
                                                         <i class="bi bi-eye"></i>
                                                     </a>
+                                                    
+                                                    
+                                                    <?php if ($isPeerEvaluationPhase): ?>
+                                                    <a href="/class/task/setting_evaluation?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                                        class="btn btn-sm btn-outline-info" title="Cấu hình đánh giá chéo">
+                                                        <i class="bi bi-gear-fill"></i>
+                                                    </a>
+                                                    <?php else: ?>
                                                     <a href="/class/task/assign?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                                         class="btn btn-sm btn-outline-warning" title="Giao nhiệm vụ">
                                                         <i class="bi bi-bell"></i>
                                                     </a>
+                                                    <?php endif; ?>
                                                     <a href="/class/task/edit?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                                         class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
                                                         <i class="bi bi-pencil"></i>

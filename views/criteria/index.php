@@ -229,7 +229,7 @@
                                         <label for="maxScore" class="form-label">Điểm tối đa <span
                                                 class="text-danger">*</span></label>
                                         <input type="number" class="form-control" id="maxScore" name="max_score" min="0"
-                                            step="1" value="10" required>
+                                            value="10" required>
                                     </div>
                                 </div>
                             </div>

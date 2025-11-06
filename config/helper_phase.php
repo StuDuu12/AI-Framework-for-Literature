@@ -243,3 +243,22 @@ function isTeacherInTopicClass($topicId, $userId)
 
     return $result && $result['role'] === 'teacher';
 }
+
+/**
+ * Check if user is teacher in the class (directly by class_id)
+ */
+function isTeacherInClass($classId, $userId)
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        SELECT role
+        FROM class_member
+        WHERE class_id = ? AND user_id = ?
+    ");
+
+    $stmt->execute([$classId, $userId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $result && $result['role'] === 'teacher';
+}
