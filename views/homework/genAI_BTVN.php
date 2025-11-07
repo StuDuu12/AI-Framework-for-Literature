@@ -151,10 +151,32 @@
     <?php
     // Get task information from URL parameters
     require_once __DIR__ . '/../../config/helper_homework.php';
+    require_once __DIR__ . '/../../config/helper_task.php';
+    require_once __DIR__ . '/../../config/db.php';
 
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : null;
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : null;
     $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : null;
+    $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
+
+    // Validate required parameters
+    if (!$taskId || !$deliver_id) {
+        header("Location: /404");
+        exit;
+    }
+
+    // Get current user
+    $current_user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
+    if (!$current_user_id) {
+        header("Location: /login");
+        exit;
+    }
+
+    // Validate access to deliver
+    if (!validateUserDeliverAccess($deliver_id, $current_user_id)) {
+        header("Location: /403");
+        exit;
+    }
 
     $taskContent = '';
     $taskTitle = '';
@@ -181,6 +203,95 @@
                 }
             }
         }
+    }
+
+    // Check if deliver has existing response
+    $json_data = null;
+    $id_response = null;
+    $hasExistingResponse = false;
+    $savedContent = null; // To store title and sections from database
+    
+    if ($current_user_id && $deliver_id) {
+        // Get deliver info to check if response exists
+        $stmtDeliver = $pdo->prepare("SELECT response FROM deliver WHERE id_deliver = :deliver_id");
+        $stmtDeliver->execute([':deliver_id' => $deliver_id]);
+        $deliverInfo = $stmtDeliver->fetch(PDO::FETCH_ASSOC);
+
+        if ($deliverInfo && !empty($deliverInfo['response'])) {
+            // Deliver has existing response - load it
+            $hasExistingResponse = true;
+
+            // Get response data and validate access
+            $responseData = getResponseFromDeliver($deliver_id, null); // Don't auto-create
+    
+            if ($responseData && isset($responseData['id_response'])) {
+                // Additional access check for group deliveries
+                $canAccess = true;
+
+                // Get deliver type to check group membership
+                $stmtDeliverType = $pdo->prepare("
+                    SELECT type, value 
+                    FROM deliver 
+                    WHERE id_deliver = :deliver_id
+                ");
+                $stmtDeliverType->execute([':deliver_id' => $deliver_id]);
+                $deliverTypeInfo = $stmtDeliverType->fetch(PDO::FETCH_ASSOC);
+
+                if ($deliverTypeInfo && $deliverTypeInfo['type'] === 'group') {
+                    // Check if user is member of this group
+                    $stmtGroupMember = $pdo->prepare("
+                        SELECT COUNT(*) as is_member
+                        FROM group_member
+                        WHERE group_id = :group_id AND user_id = :user_id
+                    ");
+                    $stmtGroupMember->execute([
+                        ':group_id' => $deliverTypeInfo['value'],
+                        ':user_id' => $current_user_id
+                    ]);
+                    $memberCheck = $stmtGroupMember->fetch(PDO::FETCH_ASSOC);
+                    $canAccess = ($memberCheck['is_member'] > 0);
+                }
+
+                if ($canAccess) {
+                    // User has access - load the response data
+                    $json_data = json_decode($responseData['json_ai'], true);
+                    $id_response = $responseData['id_response'];
+
+                    // Load saved content (title and sections) from database
+                    $contents = getContentByResponse($id_response);
+
+                    // Extract title and sections
+                    $title = '';
+                    $sections = [];
+
+                    foreach ($contents as $content) {
+                        $text = $content['content'];
+
+                        // Check if first content is title (order 0 and starts with #)
+                        if ($content['order'] == 0 && strpos(trim($text), '#') === 0) {
+                            $title = trim(str_replace('#', '', $text));
+                        } else {
+                            $sections[] = [
+                                'content' => $text,
+                                'order' => $content['order'],
+                                'content_id' => $content['content_id']
+                            ];
+                        }
+                    }
+
+                    // Store for JavaScript
+                    $savedContent = [
+                        'title' => $title,
+                        'sections' => $sections
+                    ];
+                } else {
+                    // User doesn't have access to this group response
+                    header("Location: /403");
+                    exit;
+                }
+            }
+        }
+        // If no response exists, allow fresh start (don't set $hasExistingResponse)
     }
 
     require_once './views/templates/header.php';
@@ -431,11 +542,12 @@
         const tabs = [tabAnalysis, tabSlideshow, tabQuiz];
         const contents = [contentAnalysis, contentSlideshow, contentQuiz];
 
-        // State
-        let currentAnalysisData = null;
+        // State - Initialize from PHP
+        let currentAnalysisData = <?php echo isset($json_data) ? json_encode($json_data) : 'null'; ?>;
         let conversationHistory = []; // Store chat history for refinement
-        let isAnalyzed = false; // Track if initial analysis is done
-        let currentResponseId = null; // Track if user already has a response saved
+        let isAnalyzed = <?php echo isset($json_data) && $json_data ? 'true' : 'false'; ?>; // Track if initial analysis is done
+        let currentResponseId = <?php echo isset($id_response) ? $id_response : 'null'; ?>; // Track response ID from deliver
+        let savedContent = <?php echo isset($savedContent) ? json_encode($savedContent) : 'null'; ?>; // Saved title and sections from database
 
         // --- Event Listeners ---
         fileUpload.addEventListener('change', handleFileUpload);
@@ -484,8 +596,8 @@
         }
 
         async function handleAnalysis() {
-            // Check if user already has a saved response - prevent re-analysis
-            if (currentResponseId) {
+            // Check if user already has saved analysis data - prevent re-analysis
+            if (currentResponseId && currentAnalysisData) {
                 alert('Bạn đã có phân tích được lưu cho bài tập này. Không thể phân tích lại.');
                 return;
             }
@@ -532,8 +644,8 @@
             chatButton.classList.remove('hidden');
             chatButton.removeAttribute('disabled'); // Enable chat button
 
-            // Check if user already has a response (saved analysis)
-            if (currentResponseId) {
+            // Check if user already has saved analysis data
+            if (currentResponseId && currentAnalysisData) {
                 // User has saved work - show "Go to Comment" button instead of "Reset"
                 resetButton.classList.remove('hidden');
                 resetButton.removeAttribute('disabled');
@@ -562,11 +674,11 @@
 
         // Wrapper function to handle reset or comment redirect based on state
         function handleResetOrComment() {
-            if (currentResponseId) {
-                // User has saved response - redirect to comment
+            if (currentResponseId && currentAnalysisData) {
+                // User has saved response with data - redirect to comment
                 handleCommentRedirect();
             } else {
-                // No saved response - allow reset
+                // No saved response or no data - allow reset
                 handleReset();
             }
         }
@@ -598,9 +710,10 @@
                 const topicId = urlParams.get('topic_id');
                 const phaseId = urlParams.get('phase_id');
                 const userId = '<?= $_SESSION['user_id'] ?? '' ?>'; // Get from PHP session
+                const deliverId = urlParams.get('deliver_id'); // Get from save result
 
                 // Build comment page URL
-                const commentUrl = `/class/homework/comment?task_id=${taskId}&topic_id=${topicId}&phase_id=${phaseId}&user_id=${userId}`;
+                const commentUrl = `/class/homework/comment?task_id=${taskId}&topic_id=${topicId}&phase_id=${phaseId}&deliver_id=${deliverId}&user_id=${userId}`;
 
                 // Redirect to comment page
                 window.location.href = commentUrl;
@@ -796,12 +909,13 @@
         // Handle save analysis changes
         async function handleSaveAnalysis() {
             try {
-                // Get task_id from URL params
+                // Get task_id and deliver_id from URL params
                 const urlParams = new URLSearchParams(window.location.search);
                 const taskId = urlParams.get('task_id');
+                const deliverId = urlParams.get('deliver_id');
 
-                if (!taskId) {
-                    alert('Không tìm thấy task ID. Vui lòng truy cập từ link bài tập.');
+                if (!taskId || !deliverId) {
+                    alert('Thông tin không đầy đủ. Vui lòng truy cập từ link bài tập.');
                     return;
                 }
 
@@ -849,6 +963,7 @@
                     },
                     body: JSON.stringify({
                         task_id: parseInt(taskId),
+                        deliver_id: parseInt(deliverId),
                         title: title,
                         sections: sections,
                         ai_history: aiHistory
@@ -887,8 +1002,6 @@
                     saveButton.classList.remove('bg-green-700');
                     saveButton.disabled = false;
                 }, 2000);
-
-                console.log('Save result:', result);
 
                 // Return result for other functions to use
                 return result;
@@ -1388,7 +1501,6 @@
 
         // --- Display Functions ---
         function displayAnalysis(result) {
-            console.log(result);
             if (!result) return;
 
             // Helper function to create editable textarea
@@ -1835,12 +1947,13 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const taskId = urlParams.get('task_id');
+                const deliverId = urlParams.get('deliver_id');
 
-                if (!taskId) {
-                    return; // No task_id, nothing to load
+                if (!taskId || !deliverId) {
+                    return; // Required parameters missing
                 }
 
-                const response = await fetch(`/api/load_analysis.php?task_id=${taskId}`);
+                const response = await fetch(`/api/load_analysis.php?task_id=${taskId}&deliver_id=${deliverId}`);
                 const result = await response.json();
 
                 if (!response.ok) {
@@ -1849,7 +1962,6 @@
                 }
 
                 if (!result.has_data) {
-                    console.log('No saved data found for this task');
                     return;
                 }
 
@@ -2013,8 +2125,48 @@
         }
 
         // Call loadSavedAnalysis on page load
+        // Call on page load
         document.addEventListener('DOMContentLoaded', function () {
-            loadSavedAnalysis();
+            // If we have saved content from database, display it
+            if (savedContent && currentResponseId) {
+                // Mark as analyzed
+                isAnalyzed = true;
+
+                // Display the saved content (title and sections from database)
+                displaySavedAnalysis(savedContent);
+
+                // Setup UI
+                setupGeneratorTabs();
+                placeholder.classList.add('hidden');
+                resultsTabs.classList.remove('hidden');
+                switchTab(tabAnalysis);
+                resultsTabs.querySelector('nav').classList.add('hidden');
+                switchToChatMode();
+
+            } else if (currentAnalysisData && currentResponseId) {
+                // Fallback: If we have AI analysis data but no saved content yet
+                isAnalyzed = true;
+
+                // Display the analysis
+                displayAnalysis(currentAnalysisData);
+
+                // Setup UI
+                setupGeneratorTabs();
+                placeholder.classList.add('hidden');
+                resultsTabs.classList.remove('hidden');
+                switchTab(tabAnalysis);
+                resultsTabs.querySelector('nav').classList.add('hidden');
+                switchToChatMode();
+
+            } else {
+                // No saved data yet - show fresh analysis interface
+
+                // If task has content, pre-fill it
+                const taskContent = <?php echo json_encode($taskContent); ?>;
+                if (taskContent && textInput) {
+                    textInput.value = taskContent;
+                }
+            }
         });
     </script>
 

@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/helper_homework.php';
+require_once __DIR__ . '/../config/helper_task.php';
 
 // Check authentication
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
@@ -24,20 +25,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 // Get user info from session
 $user_id = $_SESSION['user']['user_id'];
 
-// Get task_id from query params
-$task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
+// Get deliver_id from query params (required)
+$deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
-if ($task_id <= 0) {
+if ($deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid task_id', 'message' => 'Task ID không hợp lệ']);
+    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Deliver ID không hợp lệ']);
     exit;
 }
 
 try {
-    // Get existing response for this user and task
-    $response = getResponseUserByTask($task_id, $user_id);
+    // Validate user access to deliver
+    if (!validateUserDeliverAccess($deliver_id, $user_id)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập']);
+        exit;
+    }
 
-    if (!$response) {
+    // Get response from deliver
+    $responseData = getResponseFromDeliver($deliver_id, null); // Don't auto-create, just get existing
+
+    if (!$responseData || empty($responseData['json_ai'])) {
         // No saved data yet
         echo json_encode([
             'success' => true,
@@ -46,6 +54,9 @@ try {
         ]);
         exit;
     }
+
+    // Use the response from deliver
+    $response = $responseData;
 
     // Get all content for this response
     $contents = getContentByResponse($response['id_response']);
