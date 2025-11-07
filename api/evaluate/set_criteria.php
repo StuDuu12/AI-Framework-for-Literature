@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../config/helper_account.php';
 require_once __DIR__ . '/../../config/helper_class.php';
 require_once __DIR__ . '/../../config/helper_homework.php';
+require_once __DIR__ . '/../../config/helper_phase.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

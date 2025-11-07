@@ -170,12 +170,19 @@
                 d.type AS assignment_type,
                 d.value AS assignment_value,
                 d.created_at AS assigned_at,
-                creator.fullname AS created_by_name
+                creator.fullname AS created_by_name,
+                CASE 
+                    WHEN d.type = 'group' THEN g.group_name
+                    WHEN d.type = 'user' THEN u.fullname
+                    ELSE NULL
+                END AS assignment_name
             FROM deliver d
             INNER JOIN task t ON d.task_id = t.task_id
             INNER JOIN phase p ON t.phase_id = p.phase_id
             INNER JOIN topic top ON p.topic_id = top.topic_id
             LEFT JOIN users creator ON t.added_by = creator.user_id
+            LEFT JOIN `group` g ON d.type = 'group' AND d.value = g.group_id
+            LEFT JOIN users u ON d.type = 'user' AND d.value = u.user_id
             WHERE top.class_id = :class_id
             AND (
                 (d.type = 'user' AND d.value = :user_id)
@@ -241,13 +248,17 @@
     /**
      * Get assignment type label
      */
-    function getAssignmentTypeLabel($type)
+    function getAssignmentTypeLabel($type, $assignmentName = null)
     {
         switch ($type) {
             case 'user':
                 return '<i class="bi bi-person-fill"></i> Cá nhân';
             case 'group':
-                return '<i class="bi bi-people-fill"></i> Nhóm';
+                $label = '<i class="bi bi-people-fill"></i> Nhóm';
+                if ($assignmentName) {
+                    $label .= ': ' . htmlspecialchars($assignmentName);
+                }
+                return $label;
             case 'class':
                 return '<i class="bi bi-building"></i> Cả lớp';
             default:
@@ -369,7 +380,7 @@
 
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div class="assignment-type">
-                                                            <?= getAssignmentTypeLabel($task['assignment_type']) ?>
+                                                            <?= getAssignmentTypeLabel($task['assignment_type'], $task['assignment_name'] ?? null) ?>
                                                         </div>
                                                         <a href="<?= URL_ROOT ?>/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $task['topic_id'] ?>&phase_id=<?= $task['phase_id'] ?>"
                                                             class="btn btn-sm btn-primary">

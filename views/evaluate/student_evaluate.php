@@ -117,28 +117,41 @@ if (!empty($evaluation['details'])) {
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
         }
 
+        /* Content Block Container - gắn ảnh và comment lại với nhau */
+        .content-block-with-comments {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 40px;
+            /* Khoảng cách lớn giữa các block */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid transparent;
+        }
+
+        .content-block-with-comments:hover {
+            box-shadow: 0 8px 32px rgba(33, 150, 243, 0.15);
+            border-color: rgba(33, 150, 243, 0.2);
+        }
+
+        .content-block-with-comments.selected {
+            border: 3px solid #2196F3;
+            box-shadow: 0 8px 40px rgba(33, 150, 243, 0.25);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+        }
+
         .content-image-wrapper {
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 3px solid transparent;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            background: #ffffff;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 0;
+            /* Không có margin vì đã có trong parent */
+            background: transparent;
             position: relative;
         }
 
         .content-image-wrapper:hover {
-            border-color: #2196F3;
-            box-shadow: 0 8px 24px rgba(33, 150, 243, 0.15);
-            transform: translateY(-4px);
-        }
-
-        .content-image-wrapper.selected {
-            border-color: #2196F3;
-            background: linear-gradient(135deg, #e3f2fd 0%, #f8fbff 100%);
-            box-shadow: 0 8px 32px rgba(33, 150, 243, 0.25);
             transform: translateY(-2px);
         }
 
@@ -147,6 +160,11 @@ if (!empty($evaluation['details'])) {
             height: auto;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .content-image-wrapper:hover img {
+            transform: scale(1.01);
         }
 
         /* Score Panel - Sticky at Top Right */
@@ -512,11 +530,13 @@ if (!empty($evaluation['details'])) {
             border-left: 4px solid #667eea;
         }
 
-        /* Comment Section Styling */
-        .fb-comment-section {
-            margin-top: 20px;
-            padding-top: 20px;
+        /* Comment Section - Using styles from comment.css */
+        .fb-comment-block {
+            margin-top: 16px;
+            /* Khoảng cách nhỏ với ảnh để gắn liền */
+            padding-top: 16px;
             border-top: 2px solid #e9ecef;
+            /* Đường kẻ phân cách ảnh và comment */
             animation: slideDown 0.3s ease;
         }
 
@@ -808,29 +828,31 @@ if (!empty($evaluation['details'])) {
                             <?php if (!empty($responseInfo['contents'])): ?>
                                 <div id="content-blocks-container" class="content-display-container">
                                     <?php foreach ($responseInfo['contents'] as $index => $content): ?>
-                                        <div class="content-image-wrapper" data-content-id="<?= $content['content_id'] ?>">
-                                            <img id="img-<?= $content['content_id'] ?>" src=""
-                                                alt="Content Block <?= $index + 1 ?>">
-                                        </div>
-
-                                        <!-- Comment Section for this content block -->
-                                        <div class="fb-comment-section" id="comment-section-<?= $content['content_id'] ?>"
-                                            style="display: none;">
-                                            <h6 style="color: #667eea; font-weight: 700; margin-bottom: 16px;">
-                                                <i class="bi bi-chat-dots-fill"></i> Bình luận
-                                            </h6>
-                                            <div class="fb-comments-list" id="comments-list-<?= $content['content_id'] ?>">
-                                                <!-- Comments will be loaded here -->
+                                        <!-- Content Block with integrated Comment Section -->
+                                        <div class="content-block-with-comments" data-content-id="<?= $content['content_id'] ?>">
+                                            <div class="content-image-wrapper">
+                                                <img id="img-<?= $content['content_id'] ?>" src=""
+                                                    alt="Content Block <?= $index + 1 ?>">
                                             </div>
 
-                                            <!-- Add Comment Form -->
-                                            <div class="fb-comment-form">
-                                                <textarea class="fb-comment-input"
-                                                    data-content-id="<?= $content['content_id'] ?>"
-                                                    placeholder="Viết bình luận của bạn..."></textarea>
-                                                <button class="fb-comment-btn" data-content-id="<?= $content['content_id'] ?>">
-                                                    <i class="bi bi-send-fill"></i> Gửi bình luận
-                                                </button>
+                                            <!-- Facebook-style Comment Section (gắn liền với ảnh) -->
+                                            <div class="fb-comment-block" id="comment-section-<?= $content['content_id'] ?>"
+                                                style="display: none;">
+                                                <div class="fb-comments-list" id="comments-list-<?= $content['content_id'] ?>">
+                                                    <div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận nào</div>
+                                                </div>
+
+                                                <!-- Add Comment Input Area -->
+                                                <div class="fb-comment-input-area">
+                                                    <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg') ?>"
+                                                        alt="Avatar">
+                                                    <textarea class="fb-comment-input"
+                                                        data-content-id="<?= $content['content_id'] ?>"
+                                                        placeholder="Viết bình luận..." rows="1"></textarea>
+                                                    <button class="fb-comment-btn" data-content-id="<?= $content['content_id'] ?>">
+                                                        Gửi
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
@@ -908,7 +930,7 @@ if (!empty($evaluation['details'])) {
 
     <?php if (isset($_SESSION['error_message'])): ?>
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const errorMsg = <?= json_encode($_SESSION['error_message']) ?>;
                 const toastEl = document.getElementById('errorToast');
                 const toastBody = document.getElementById('errorToastMessage');
@@ -921,7 +943,7 @@ if (!empty($evaluation['details'])) {
                 toast.show();
             });
         </script>
-        <?php
+    <?php
         unset($_SESSION['error_message']);
     endif;
     ?>
@@ -940,7 +962,7 @@ if (!empty($evaluation['details'])) {
         }
 
         document.querySelectorAll('.score-input').forEach(input => {
-            input.addEventListener('input', function () {
+            input.addEventListener('input', function() {
                 updateTotalScore();
 
                 // Sync with modal inputs
@@ -954,7 +976,7 @@ if (!empty($evaluation['details'])) {
 
         // Sync modal inputs with compact inputs
         document.querySelectorAll('.score-input-modal').forEach(input => {
-            input.addEventListener('input', function () {
+            input.addEventListener('input', function() {
                 const tcId = this.getAttribute('data-tc-id');
                 const compactInput = document.querySelector(`.score-input-compact[data-tc-id="${tcId}"]`);
                 if (compactInput) {
@@ -970,19 +992,19 @@ if (!empty($evaluation['details'])) {
         const modal = document.getElementById('modalCriteria');
 
         if (btnShowModal) {
-            btnShowModal.addEventListener('click', function () {
+            btnShowModal.addEventListener('click', function() {
                 modal.classList.add('active');
             });
         }
 
         if (btnCloseModal) {
-            btnCloseModal.addEventListener('click', function () {
+            btnCloseModal.addEventListener('click', function() {
                 modal.classList.remove('active');
             });
         }
 
         // Close modal on outside click
-        modal.addEventListener('click', function (e) {
+        modal.addEventListener('click', function(e) {
             if (e.target === modal) {
                 modal.classList.remove('active');
             }
@@ -991,7 +1013,7 @@ if (!empty($evaluation['details'])) {
         // Form submission
         const form = document.getElementById('evaluationForm');
         if (form) {
-            form.addEventListener('submit', async function (e) {
+            form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 // Get action from the button's data-action attribute
@@ -1074,7 +1096,7 @@ if (!empty($evaluation['details'])) {
         let selectedBlockId = null;
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Generate images for all content blocks
             generateAllContentImages();
 
@@ -1172,7 +1194,10 @@ if (!empty($evaluation['details'])) {
             lines.forEach((line, index) => {
                 if (!line.trim()) {
                     if (segments.length > 0) {
-                        segments.push({ text: '', style: 'break' });
+                        segments.push({
+                            text: '',
+                            style: 'break'
+                        });
                     }
                     return;
                 }
@@ -1192,7 +1217,10 @@ if (!empty($evaluation['details'])) {
                         hasContent = true;
                     } else if (segment.startsWith('## ')) {
                         if (segments.length > 0 && segments[segments.length - 1].style !== 'break') {
-                            segments.push({ text: '', style: 'break' });
+                            segments.push({
+                                text: '',
+                                style: 'break'
+                            });
                         }
                         segments.push({
                             text: segment.slice(3),
@@ -1201,7 +1229,10 @@ if (!empty($evaluation['details'])) {
                         hasContent = true;
                     } else if (segment.startsWith('# ')) {
                         if (segments.length > 0 && segments[segments.length - 1].style !== 'break') {
-                            segments.push({ text: '', style: 'break' });
+                            segments.push({
+                                text: '',
+                                style: 'break'
+                            });
                         }
                         segments.push({
                             text: segment.slice(2),
@@ -1220,7 +1251,10 @@ if (!empty($evaluation['details'])) {
                 if (hasContent && index < lines.length - 1) {
                     const lastSeg = segments[segments.length - 1];
                     if (lastSeg && lastSeg.style !== 'break') {
-                        segments.push({ text: '', style: 'break' });
+                        segments.push({
+                            text: '',
+                            style: 'break'
+                        });
                     }
                 }
             });
@@ -1261,10 +1295,16 @@ if (!empty($evaluation['details'])) {
 
                     if (currentWidth + wordWidth > maxWidth && currentLine.length > 0) {
                         lines.push(currentLine);
-                        currentLine = [{ text: testText, style: seg.style }];
+                        currentLine = [{
+                            text: testText,
+                            style: seg.style
+                        }];
                         currentWidth = wordWidth;
                     } else {
-                        currentLine.push({ text: testText, style: seg.style });
+                        currentLine.push({
+                            text: testText,
+                            style: seg.style
+                        });
                         currentWidth += wordWidth;
                     }
                 });
@@ -1305,25 +1345,27 @@ if (!empty($evaluation['details'])) {
 
         // Setup click handlers for content blocks
         function setupContentBlockHandlers() {
-            const wrappers = document.querySelectorAll('.content-image-wrapper');
+            const contentBlocks = document.querySelectorAll('.content-block-with-comments');
 
-            wrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function () {
-                    const contentId = this.dataset.contentId;
+            contentBlocks.forEach(block => {
+                const wrapper = block.querySelector('.content-image-wrapper');
 
-                    // Remove selected class from all
-                    wrappers.forEach(w => {
-                        w.classList.remove('selected');
-                        const commentBlock = document.getElementById(`comment-section-${w.dataset.contentId}`);
+                wrapper.addEventListener('click', function() {
+                    const contentId = block.dataset.contentId;
+
+                    // Remove selected class from all blocks
+                    contentBlocks.forEach(b => {
+                        b.classList.remove('selected');
+                        const commentBlock = b.querySelector('.fb-comment-block');
                         if (commentBlock) commentBlock.style.display = 'none';
                     });
 
-                    // Add selected class to clicked
-                    this.classList.add('selected');
+                    // Add selected class to clicked block
+                    block.classList.add('selected');
                     selectedBlockId = contentId;
 
                     // Show comment block
-                    const commentBlock = document.getElementById(`comment-section-${contentId}`);
+                    const commentBlock = block.querySelector('.fb-comment-block');
                     if (commentBlock) {
                         commentBlock.style.display = 'block';
                     }
@@ -1339,7 +1381,7 @@ if (!empty($evaluation['details'])) {
             const buttons = document.querySelectorAll('.fb-comment-btn');
 
             buttons.forEach(btn => {
-                btn.addEventListener('click', async function () {
+                btn.addEventListener('click', async function() {
                     const contentId = this.dataset.contentId;
                     const textarea = document.querySelector(`textarea[data-content-id="${contentId}"]`);
                     const commentText = textarea.value.trim();
@@ -1409,41 +1451,50 @@ if (!empty($evaluation['details'])) {
             attachCommentEventListeners(contentId);
         }
 
-        // Create comment HTML
+        // Create comment HTML (Facebook style with bubbles and reply)
         function createCommentHTML(comment) {
-            const avatar = comment.avatar || USER_AVATAR;
+            const avatar = comment.avatar || 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
             const time = new Date(comment.created_at).toLocaleString('vi-VN');
             const depth = comment.depth || 0;
-            const canReply = depth < 2;
+            const canReply = depth < 2; // Max 3 levels (0, 1, 2)
 
+            // Labels
             const roleLabel = comment.role_label || 'Học sinh';
             const roleClass = (comment.role_label === 'Giáo viên') ? 'label-teacher' : 'label-student';
-            const phaseLabel = comment.phase_name || 'Không rõ';
+            const phaseLabel = comment.m_phase_name || 'Không rõ';
 
             let html = `
                 <div class="fb-comment-item" data-comment-id="${comment.comment_id}" data-depth="${depth}">
                     <div class="fb-comment-core">
-                        <img src="${avatar}" class="fb-avatar">
-                        <div class="fb-comment-content">
-                            <div class="fb-comment-author">
-                                ${escapeHtml(comment.fullname)}
-                                <span class="role-label ${roleClass}">${roleLabel}</span>
-                                <span class="phase-label">${phaseLabel}</span>
+                        <img src="${avatar}" alt="${escapeHtml(comment.fullname)}">
+                        <div style="flex-grow: 1;">
+                            <div class="fb-comment-bubble">
+                                <div class="comment-author">
+                                    <span>${escapeHtml(comment.fullname)}</span>
+                                    <span class="comment-label ${roleClass}">${roleLabel}</span>
+                                    <span class="comment-label label-phase">${phaseLabel}</span>
+                                </div>
+                                <div class="comment-content">${escapeHtml(comment.comment_text)}</div>
                             </div>
-                            <div class="fb-comment-text">${escapeHtml(comment.comment_text)}</div>
-                            <div class="fb-comment-meta">
-                                <span>${time}</span>
+                            <div class="fb-comment-actions">
+                                <span class="comment-time">${time}</span>
                                 ${canReply ? `<button class="reply-btn" data-comment-id="${comment.comment_id}">Trả lời</button>` : ''}
                                 ${comment.user_id == CURRENT_USER_ID ? `<button class="delete-btn" data-comment-id="${comment.comment_id}">Xóa</button>` : ''}
                             </div>
-                            <div class="reply-form" id="reply-form-${comment.comment_id}" style="display: none;">
-                                <textarea class="fb-reply-input" placeholder="Viết câu trả lời..."></textarea>
-                                <button class="submit-reply-btn" data-comment-id="${comment.comment_id}">Gửi</button>
+                            ${canReply ? `
+                            <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
+                                <div class="fb-comment-input-area">
+                                    <img src="${USER_AVATAR}" alt="Avatar">
+                                    <textarea class="fb-comment-input" placeholder="Viết trả lời..." rows="1"></textarea>
+                                    <button class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Gửi</button>
+                                </div>
                             </div>
+                            ` : ''}
                         </div>
                     </div>
             `;
 
+            // Render replies recursively
             if (comment.replies && comment.replies.length > 0) {
                 html += '<div class="fb-replies">';
                 comment.replies.forEach(reply => {
@@ -1486,19 +1537,52 @@ if (!empty($evaluation['details'])) {
         function attachCommentEventListeners(contentId) {
             const container = document.getElementById(`comments-list-${contentId}`);
 
+            // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
                 });
             });
 
-            container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function () {
+            // Delete buttons
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+
                     const commentId = this.dataset.commentId;
-                    const replyForm = document.getElementById(`reply-form-${commentId}`);
-                    const textarea = replyForm.querySelector('textarea');
+
+                    try {
+                        const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'delete_comment',
+                                comment_id: commentId
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            await loadComments(contentId);
+                        } else {
+                            alert('Lỗi: ' + result.message);
+                        }
+                    } catch (error) {
+                        alert('Lỗi: ' + error.message);
+                    }
+                });
+            });
+
+            // Submit reply buttons
+            container.querySelectorAll('.submit-reply-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const parentId = this.dataset.parentId;
+                    const textarea = this.previousElementSibling;
                     const replyText = textarea.value.trim();
 
                     if (!replyText) {
@@ -1506,12 +1590,18 @@ if (!empty($evaluation['details'])) {
                         return;
                     }
 
+                    this.disabled = true;
+                    this.textContent = 'Đang gửi...';
+
                     try {
-                        await addComment(contentId, replyText, commentId);
+                        await addComment(contentId, replyText, parentId);
                         textarea.value = '';
-                        replyForm.style.display = 'none';
+                        document.getElementById(`reply-form-${parentId}`).style.display = 'none';
                     } catch (error) {
                         alert('Lỗi: ' + error.message);
+                    } finally {
+                        this.disabled = false;
+                        this.textContent = 'Gửi';
                     }
                 });
             });
@@ -1525,7 +1615,7 @@ if (!empty($evaluation['details'])) {
 
         // Regenerate images on window resize
         let resizeTimeout;
-        window.addEventListener('resize', function () {
+        window.addEventListener('resize', function() {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 generateAllContentImages();

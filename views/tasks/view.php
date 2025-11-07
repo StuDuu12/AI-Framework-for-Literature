@@ -119,6 +119,16 @@
     // Phase 3 (LÀM BÀI TẬP VỀ NHÀ - phase_code: 'homework' or 'BTVN') is independent
     $shouldLookBack = false;
 
+    // Get current phase code first
+    $phaseCheckStmt = $pdo->prepare("
+        SELECT mp.phase_code
+        FROM phase p
+        INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE p.phase_id = :phase_id
+    ");
+    $phaseCheckStmt->execute([':phase_id' => $phaseId]);
+    $currentPhaseCode = $phaseCheckStmt->fetchColumn();
+
     // Check if current task has review_task (points to previous phase's task)
     $reviewTaskStmt = $pdo->prepare("
         SELECT review_task 
@@ -135,16 +145,6 @@
         $shouldLookBack = true;
         $dataTaskId = $reviewTask;
     } else {
-        // Fallback: Check phase code for backward compatibility
-        $phaseCheckStmt = $pdo->prepare("
-            SELECT mp.phase_code
-            FROM phase p
-            INNER JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
-            WHERE p.phase_id = :phase_id
-        ");
-        $phaseCheckStmt->execute([':phase_id' => $phaseId]);
-        $currentPhaseCode = $phaseCheckStmt->fetchColumn();
-
         // Only CHỮA BÀI (review phase) should look back to previous phase
         if ($currentPhaseCode === 'CHUABAI' || $currentPhaseCode === 'review') {
             $shouldLookBack = true;
@@ -166,6 +166,30 @@
                 $dataTaskId = $sourceTask['task_id'];
             }
         }
+    }
+
+    // Check if this is peer evaluation phase
+    $isPeerEvaluationPhase = ($currentPhaseCode === 'PHASE_DANHGIANGUOIHOC');
+
+    // Get peer evaluation statistics if applicable
+    $peerEvalStats = null;
+    if ($isPeerEvaluationPhase) {
+        // Thống kê đánh giá chéo
+        $peerEvalStatsStmt = $pdo->prepare("
+            SELECT 
+                COUNT(DISTINCT d.id_deliver) as total_evaluations_assigned,
+                COUNT(DISTINCT CASE WHEN e.status = 2 THEN d.id_deliver END) as completed_evaluations,
+                COUNT(DISTINCT CASE WHEN e.status = 1 THEN d.id_deliver END) as in_progress_evaluations,
+                COUNT(DISTINCT CASE WHEN e.status = 0 OR e.id_evaluate IS NULL THEN d.id_deliver END) as not_started_evaluations,
+                AVG(CASE WHEN e.status = 2 THEN e.total_score END) as average_score,
+                COUNT(DISTINCT de.response_review) as total_responses_being_reviewed
+            FROM deliver d
+            LEFT JOIN deliver_evaluate de ON d.id_deliver = de.id_deliver
+            LEFT JOIN evaluate e ON d.id_deliver = e.deliver_id
+            WHERE d.task_id = :task_id
+        ");
+        $peerEvalStatsStmt->execute([':task_id' => $taskId]);
+        $peerEvalStats = $peerEvalStatsStmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // Get task assignments with detailed info
@@ -309,6 +333,107 @@
                     </div>
                 </div>
             </div>
+
+            <?php if ($isPeerEvaluationPhase && $peerEvalStats): ?>
+                <!-- Peer Evaluation Statistics -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-star-fill"></i> Thống kê đánh giá chéo
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="stat-card info">
+                                            <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+                                            <div class="stat-number"><?= $peerEvalStats['total_evaluations_assigned'] ?></div>
+                                            <div>Tổng số đánh giá</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="stat-card success">
+                                            <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
+                                            <div class="stat-number"><?= $peerEvalStats['completed_evaluations'] ?></div>
+                                            <div>Đã hoàn thành</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="stat-card warning">
+                                            <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                                            <div class="stat-number"><?= $peerEvalStats['in_progress_evaluations'] ?></div>
+                                            <div>Đang đánh giá</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="stat-card">
+                                            <i class="bi bi-dash-circle-fill" style="font-size: 2rem;"></i>
+                                            <div class="stat-number"><?= $peerEvalStats['not_started_evaluations'] ?></div>
+                                            <div>Chưa bắt đầu</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h6 class="text-muted mb-2">Số bài được đánh giá</h6>
+                                                <div class="display-6 text-primary">
+                                                    <i class="bi bi-file-earmark-text-fill"></i>
+                                                    <?= $peerEvalStats['total_responses_being_reviewed'] ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h6 class="text-muted mb-2">Điểm trung bình</h6>
+                                                <div class="display-6 text-success">
+                                                    <i class="bi bi-graph-up-arrow"></i>
+                                                    <?= $peerEvalStats['average_score'] ? number_format($peerEvalStats['average_score'], 1) : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress bar for peer evaluation -->
+                                <?php
+                                $peerCompletionRate = $peerEvalStats['total_evaluations_assigned'] > 0
+                                    ? round(($peerEvalStats['completed_evaluations'] / $peerEvalStats['total_evaluations_assigned']) * 100, 1)
+                                    : 0;
+                                ?>
+                                <div class="mt-4">
+                                    <h6 class="mb-2">Tiến độ hoàn thành đánh giá chéo</h6>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <div class="progress" style="height: 30px;">
+                                                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: <?= $peerCompletionRate ?>%"
+                                                    aria-valuenow="<?= $peerCompletionRate ?>" aria-valuemin="0" aria-valuemax="100">
+                                                    <?= $peerCompletionRate ?>%
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <h4 class="mb-0 text-primary"><?= $peerCompletionRate ?>%</h4>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-muted small mt-2">
+                                        <span><i class="bi bi-check-circle text-success"></i> <?= $peerEvalStats['completed_evaluations'] ?> hoàn thành</span>
+                                        <span><i class="bi bi-clock text-warning"></i> <?= $peerEvalStats['in_progress_evaluations'] ?> đang làm</span>
+                                        <span><i class="bi bi-dash-circle text-secondary"></i> <?= $peerEvalStats['not_started_evaluations'] ?> chưa làm</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <!-- Completion Progress -->
             <div class="row mb-4">
