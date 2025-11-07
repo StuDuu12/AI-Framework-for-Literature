@@ -123,15 +123,14 @@
                                                             </span>
                                                         <?php elseif ($task['delivery_type'] == 'group'): ?>
                                                             <span class="badge bg-info">
-                                                                <i class="bi bi-people"></i> Nhóm:
-                                                                <?= htmlspecialchars($task['assigned_to_name']) ?>
+                                                                <i class="bi bi-people"></i> Nhóm: <?= htmlspecialchars($task['assigned_to_name'] ?? 'N/A') ?>
                                                             </span>
                                                         <?php endif; ?>
 
                                                         <!-- Status Badge -->
                                                         <?php $status = (int) ($task['delivery_status'] ?? 0); ?>
                                                         <?php if ($status === 2): ?>
-                                                            <span class="badge bg-success"></span>
+                                                            <span class="badge bg-success">
                                                                 <i class="bi bi-check-circle"></i> Đã hoàn thành
                                                             </span>
                                                         <?php elseif ($status === 1): ?>
