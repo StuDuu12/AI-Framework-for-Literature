@@ -224,6 +224,34 @@
         <?php endif; ?>
 
         <?php if ($allow_comment && !$hasNoContent): ?>
+            <!-- General Comment Section (Before Content Blocks) -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-chat-square-text-fill text-primary"></i>
+                        Nhận xét chung
+                    </h5>
+                    
+                    <!-- General Comments List -->
+                    <div class="fb-comment-section" style="display: block;">
+                        <div class="fb-comments-list" id="general-comments-list">
+                            <!-- General comments will be loaded here -->
+                        </div>
+
+                        <!-- Add General Comment Form -->
+                        <div class="fb-comment-input-area">
+                            <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg" 
+                                 alt="Avatar" class="fb-avatar">
+                            <textarea class="fb-comment-input" id="general-comment-input"
+                                placeholder="Viết nhận xét chung về bài làm..."></textarea>
+                            <button class="fb-comment-btn" id="general-comment-btn">
+                                <i class="bi bi-send-fill"></i> Gửi nhận xét
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Comment View Toggle -->
             <div class="comment-view-toggle">
                 <div>
@@ -323,6 +351,8 @@
             // Load comments for all blocks
             if (ALLOW_COMMENT) {
                 loadAllComments();
+                loadGeneralComments(); // Load general comments
+                setupGeneralCommentButton(); // Setup general comment button
             }
         });
 
@@ -713,6 +743,186 @@
                 });
             });
         }
+
+        // Load comments for all content blocks
+        async function loadAllComments() {
+            for (const block of contentBlocksData) {
+                await loadComments(block.content_id);
+            }
+        }
+
+        // ========== GENERAL COMMENTS FUNCTIONS ==========
+
+        // Load general comments (content_id = null)
+        async function loadGeneralComments() {
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'load_comments',
+                        response_id: RESPONSE_ID, // Load general comments for this specific response
+                        content_id: null // NULL for general comments
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    renderGeneralComments(result.comments);
+                }
+            } catch (error) {
+                console.error('Error loading general comments:', error);
+            }
+        }
+
+        // Render general comments
+        function renderGeneralComments(comments) {
+            const container = document.getElementById('general-comments-list');
+
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có nhận xét nào</div>';
+                return;
+            }
+
+            container.innerHTML = comments.map(comment => createCommentHTML(comment)).join('');
+            attachGeneralCommentEventListeners();
+        }
+
+        // Setup general comment button
+        function setupGeneralCommentButton() {
+            const btn = document.getElementById('general-comment-btn');
+            const textarea = document.getElementById('general-comment-input');
+
+            if (!btn || !textarea) return;
+
+            btn.addEventListener('click', async function() {
+                const commentText = textarea.value.trim();
+
+                if (!commentText) {
+                    alert('Vui lòng nhập nội dung nhận xét');
+                    return;
+                }
+
+                this.disabled = true;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+
+                try {
+                    await addGeneralComment(commentText);
+                    textarea.value = '';
+                } catch (error) {
+                    alert('Lỗi: ' + error.message);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-send-fill"></i> Gửi nhận xét';
+                }
+            });
+        }
+
+        // Add general comment
+        async function addGeneralComment(commentText, replyToId = null) {
+            const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'add_comment',
+                    content_id: null, // NULL for general comments
+                    task_id: COMMENT_TASK_ID, // Still needed for the comment table
+                    response_id: RESPONSE_ID, // Associate with specific response
+                    comment_text: commentText,
+                    reply_comment_id: replyToId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                await loadGeneralComments();
+            } else {
+                throw new Error(result.message);
+            }
+        }
+
+        // Attach event listeners to general comment actions
+        function attachGeneralCommentEventListeners() {
+            const container = document.getElementById('general-comments-list');
+
+            // Reply buttons
+            container.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    const replyForm = document.getElementById(`reply-form-${commentId}`);
+                    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                });
+            });
+
+            // Delete buttons
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if (!confirm('Bạn có chắc muốn xóa nhận xét này?')) return;
+
+                    const commentId = this.dataset.commentId;
+
+                    try {
+                        const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'delete_comment',
+                                comment_id: commentId
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            await loadGeneralComments();
+                        } else {
+                            alert('Lỗi: ' + result.message);
+                        }
+                    } catch (error) {
+                        alert('Lỗi: ' + error.message);
+                    }
+                });
+            });
+
+            // Submit reply buttons
+            container.querySelectorAll('.submit-reply-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const commentId = this.dataset.commentId;
+                    const replyForm = document.getElementById(`reply-form-${commentId}`);
+                    const textarea = replyForm.querySelector('.fb-reply-input');
+                    const replyText = textarea.value.trim();
+
+                    if (!replyText) {
+                        alert('Vui lòng nhập nội dung trả lời');
+                        return;
+                    }
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+
+                    try {
+                        await addGeneralComment(replyText, commentId);
+                        textarea.value = '';
+                        replyForm.style.display = 'none';
+                    } catch (error) {
+                        alert('Lỗi: ' + error.message);
+                    } finally {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-send-fill"></i> Gửi';
+                    }
+                });
+            });
+        }
+
+        // ========== END GENERAL COMMENTS FUNCTIONS ==========
 
         // Load comments for all content blocks
         async function loadAllComments() {

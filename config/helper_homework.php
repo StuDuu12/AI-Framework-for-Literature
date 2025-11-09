@@ -249,8 +249,8 @@ function getContentById($contentId)
 }
 
 /**
- * Insert a comment for a content block (Max 3 levels)
- * @param int $contentId - ID of the content being commented
+ * Insert a comment for a content block or general comment (Max 3 levels)
+ * @param int|null $contentId - ID of the content being commented (NULL for general comments)
  * @param int $userId - ID of the user making the comment
  * @param int $taskId - ID of the task
  * @param string $commentText - The comment text
@@ -275,7 +275,7 @@ function insertComment($contentId, $userId, $taskId, $commentText, $replyComment
         VALUES (:content_id, :user_id, :task_id, :comment_text, :reply_comment, NOW())
     ");
     $stmt->execute([
-        'content_id' => $contentId,
+        'content_id' => $contentId, // Can be NULL for general comments
         'user_id' => $userId,
         'task_id' => $taskId,
         'comment_text' => $commentText,
@@ -377,6 +377,151 @@ function getCommentsHierarchical($contentId)
 
     foreach ($allComments as $comment) {
         $comment['replies'] = [];
+        $commentMap[$comment['comment_id']] = $comment;
+    }
+
+    foreach ($commentMap as $commentId => $comment) {
+        if ($comment['reply_comment'] == 0 || $comment['reply_comment'] == null) {
+            // Top level comment
+            $organized[] = &$commentMap[$commentId];
+        } else {
+            // Reply to another comment
+            if (isset($commentMap[$comment['reply_comment']])) {
+                $commentMap[$comment['reply_comment']]['replies'][] = &$commentMap[$commentId];
+            }
+        }
+    }
+
+    return $organized;
+}
+
+/**
+ * Get general comments for a task (where content_id IS NULL)
+ * @param int $taskId - ID of the task
+ * @return array - Array of comments organized hierarchically
+ */
+function getGeneralCommentsHierarchical($taskId)
+{
+    global $pdo;
+
+    // Get all general comments for this task (content_id IS NULL)
+    $stmt = $pdo->prepare("
+        SELECT 
+            c.*,
+            u.fullname,
+            u.email,
+            cm.role,
+            CASE 
+                WHEN cm.role = 'teacher' THEN 'Giáo viên'
+                ELSE 'Học sinh'
+            END AS role_label,
+            mp.m_phase_name AS phase_name
+        FROM comment c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        LEFT JOIN class_member cm ON u.user_id = cm.user_id
+        LEFT JOIN task t ON c.task_id = t.task_id
+        LEFT JOIN phase p ON t.phase_id = p.phase_id
+        LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE c.task_id = :task_id 
+        AND c.content_id IS NULL
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute(['task_id' => $taskId]);
+    $allComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add default avatar and depth to all comments
+    foreach ($allComments as &$comment) {
+        $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
+        $comment['replies'] = [];
+        $comment['depth'] = getCommentDepth($comment['comment_id']);
+    }
+    unset($comment);
+
+    // Organize into parent and child structure
+    $organized = [];
+    $commentMap = [];
+
+    foreach ($allComments as $comment) {
+        $commentMap[$comment['comment_id']] = $comment;
+    }
+
+    foreach ($commentMap as $commentId => $comment) {
+        if ($comment['reply_comment'] == 0 || $comment['reply_comment'] == null) {
+            // Top level comment
+            $organized[] = &$commentMap[$commentId];
+        } else {
+            // Reply to another comment
+            if (isset($commentMap[$comment['reply_comment']])) {
+                $commentMap[$comment['reply_comment']]['replies'][] = &$commentMap[$commentId];
+            }
+        }
+    }
+
+    return $organized;
+}
+
+/**
+ * Get general comments for a response (where content_id IS NULL)
+ * @param int $responseId - ID of the response
+ * @return array - Array of comments organized hierarchically
+ */
+function getGeneralCommentsByResponse($responseId)
+{
+    global $pdo;
+
+    // First, get the task_id from response
+    $taskStmt = $pdo->prepare("SELECT task_id FROM response WHERE id_response = :response_id");
+    $taskStmt->execute(['response_id' => $responseId]);
+    $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$taskData) {
+        return [];
+    }
+
+    $taskId = $taskData['task_id'];
+
+    // Get all general comments for this task (content_id IS NULL)
+    // But we want comments that belong to this specific response context
+    $stmt = $pdo->prepare("
+        SELECT 
+            c.*,
+            u.fullname,
+            u.email,
+            cm.role,
+            CASE 
+                WHEN cm.role = 'teacher' THEN 'Giáo viên'
+                ELSE 'Học sinh'
+            END AS role_label,
+            p.phase_id,
+            p.phase_name,
+            mp.m_phase_name
+        FROM comment c
+        LEFT JOIN users u ON c.user_id = u.user_id
+        LEFT JOIN class_member cm ON u.user_id = cm.user_id
+        LEFT JOIN task t ON c.task_id = t.task_id
+        LEFT JOIN phase p ON t.phase_id = p.phase_id
+        LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
+        WHERE c.task_id = :task_id 
+        AND c.content_id IS NULL
+        ORDER BY c.created_at ASC
+    ");
+    $stmt->execute(['task_id' => $taskId]);
+    $allComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Add default avatar, depth, and phase_label to all comments
+    foreach ($allComments as &$comment) {
+        $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
+        $comment['replies'] = [];
+        $comment['depth'] = getCommentDepth($comment['comment_id']);
+        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Không rõ';
+    }
+    unset($comment);
+
+    // Organize into parent and child structure
+    $organized = [];
+    $commentMap = [];
+
+    foreach ($allComments as $comment) {
         $commentMap[$comment['comment_id']] = $comment;
     }
 
