@@ -473,7 +473,7 @@ function getGeneralCommentsByResponse($responseId)
     $taskStmt = $pdo->prepare("SELECT task_id FROM response WHERE id_response = :response_id");
     $taskStmt->execute(['response_id' => $responseId]);
     $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$taskData) {
         return [];
     }

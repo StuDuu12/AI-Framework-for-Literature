@@ -96,7 +96,7 @@
     //     header("Location: /403");
     //     exit;
     // }
-
+    
     // Get response based on deliver_id or legacy method
     $responseData = null;
     $display_response_id = null;
@@ -231,7 +231,7 @@
                         <i class="bi bi-chat-square-text-fill text-primary"></i>
                         Nhận xét chung
                     </h5>
-                    
+
                     <!-- General Comments List -->
                     <div class="fb-comment-section" style="display: block;">
                         <div class="fb-comments-list" id="general-comments-list">
@@ -240,8 +240,8 @@
 
                         <!-- Add General Comment Form -->
                         <div class="fb-comment-input-area">
-                            <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg" 
-                                 alt="Avatar" class="fb-avatar">
+                            <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg" alt="Avatar"
+                                class="fb-avatar">
                             <textarea class="fb-comment-input" id="general-comment-input"
                                 placeholder="Viết nhận xét chung về bài làm..."></textarea>
                             <button class="fb-comment-btn" id="general-comment-btn">
@@ -340,7 +340,7 @@
         let selectedBlockId = null;
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Generate images for all content blocks
             generateAllContentImages(); // Setup click handlers for content blocks
             setupContentBlockHandlers();
@@ -634,7 +634,7 @@
 
         // Regenerate images on window resize
         let resizeTimeout;
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 generateAllContentImages();
@@ -646,7 +646,7 @@
             const wrappers = document.querySelectorAll('.content-image-wrapper');
 
             wrappers.forEach(wrapper => {
-                wrapper.addEventListener('click', function() {
+                wrapper.addEventListener('click', function () {
                     // Only handle click in individual mode
                     const container = document.getElementById('comment-container');
                     if (container.classList.contains('view-mode-all')) {
@@ -688,7 +688,7 @@
             const container = document.getElementById('comment-container');
 
             toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const viewMode = this.dataset.view;
 
                     // Update active button
@@ -718,7 +718,7 @@
             const buttons = document.querySelectorAll('.fb-comment-btn');
 
             buttons.forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const contentId = this.dataset.contentId;
                     const textarea = document.querySelector(`textarea[data-content-id="${contentId}"]`);
                     const commentText = textarea.value.trim();
@@ -798,7 +798,7 @@
 
             if (!btn || !textarea) return;
 
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', async function () {
                 const commentText = textarea.value.trim();
 
                 if (!commentText) {
@@ -853,7 +853,7 @@
 
             // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
@@ -862,7 +862,7 @@
 
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     if (!confirm('Bạn có chắc muốn xóa nhận xét này?')) return;
 
                     const commentId = this.dataset.commentId;
@@ -894,7 +894,7 @@
 
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     const textarea = replyForm.querySelector('.fb-reply-input');
@@ -1070,7 +1070,7 @@
 
             // Reply buttons
             container.querySelectorAll('.reply-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
                     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
@@ -1079,7 +1079,7 @@
 
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
@@ -1111,7 +1111,7 @@
 
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const parentId = this.dataset.parentId;
                     const textarea = this.previousElementSibling;
                     const replyText = textarea.value.trim();

@@ -44,8 +44,7 @@ try {
             else if ($task_id > 0) {
                 $comments = getGeneralCommentsHierarchical($task_id);
                 error_log("Loading general comments for task_id: $task_id, user_id: $user_id");
-            }
-            else {
+            } else {
                 throw new Exception('Either content_id, response_id, or task_id is required');
             }
 
@@ -55,12 +54,12 @@ try {
                 'success' => true,
                 'comments' => $comments,
                 'debug' => [
-                    'content_id' => $content_id,
-                    'response_id' => $response_id,
-                    'task_id' => $task_id,
-                    'user_id' => $user_id,
-                    'comment_count' => count($comments)
-                ]
+                        'content_id' => $content_id,
+                        'response_id' => $response_id,
+                        'task_id' => $task_id,
+                        'user_id' => $user_id,
+                        'comment_count' => count($comments)
+                    ]
             ]);
             break;
 
