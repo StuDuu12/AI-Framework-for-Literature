@@ -895,9 +895,9 @@
             // Submit reply buttons
             container.querySelectorAll('.submit-reply-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
-                    const commentId = this.dataset.commentId;
-                    const replyForm = document.getElementById(`reply-form-${commentId}`);
-                    const textarea = replyForm.querySelector('.fb-reply-input');
+                    const parentId = this.dataset.parentId; // ✅ Use parentId instead of commentId
+                    const replyForm = document.getElementById(`reply-form-${parentId}`);
+                    const textarea = replyForm.querySelector('.fb-comment-input'); // ✅ Use .fb-comment-input not .fb-reply-input
                     const replyText = textarea.value.trim();
 
                     if (!replyText) {
@@ -909,7 +909,7 @@
                     this.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
 
                     try {
-                        await addGeneralComment(replyText, commentId);
+                        await addGeneralComment(replyText, parentId);
                         textarea.value = '';
                         replyForm.style.display = 'none';
                     } catch (error) {
