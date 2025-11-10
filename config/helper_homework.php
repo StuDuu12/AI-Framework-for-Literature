@@ -255,10 +255,11 @@ function getContentById($contentId)
  * @param int $taskId - ID of the task
  * @param string $commentText - The comment text
  * @param int|null $replyCommentId - ID of parent comment (for replies)
+ * @param int|null $responseId - ID of the response (for general comments)
  * @return int - ID of the inserted comment
  * @throws Exception if exceeds 3 levels
  */
-function insertComment($contentId, $userId, $taskId, $commentText, $replyCommentId = null)
+function insertComment($contentId, $userId, $taskId, $commentText, $replyCommentId = null, $responseId = null)
 {
     global $pdo;
 
@@ -271,15 +272,16 @@ function insertComment($contentId, $userId, $taskId, $commentText, $replyComment
     }
 
     $stmt = $pdo->prepare("
-        INSERT INTO comment (content_id, user_id, task_id, comment_text, reply_comment, created_at)
-        VALUES (:content_id, :user_id, :task_id, :comment_text, :reply_comment, NOW())
+        INSERT INTO comment (content_id, user_id, task_id, comment_text, reply_comment, reponse_general, created_at)
+        VALUES (:content_id, :user_id, :task_id, :comment_text, :reply_comment, :reponse_general, NOW())
     ");
     $stmt->execute([
         'content_id' => $contentId, // Can be NULL for general comments
         'user_id' => $userId,
         'task_id' => $taskId,
         'comment_text' => $commentText,
-        'reply_comment' => $replyCommentId ?? 0
+        'reply_comment' => $replyCommentId ?? 0,
+        'reponse_general' => $responseId // Store response_id for general comments
     ]);
     return $pdo->lastInsertId();
 }
@@ -469,19 +471,7 @@ function getGeneralCommentsByResponse($responseId)
 {
     global $pdo;
 
-    // First, get the task_id from response
-    $taskStmt = $pdo->prepare("SELECT task_id FROM response WHERE id_response = :response_id");
-    $taskStmt->execute(['response_id' => $responseId]);
-    $taskData = $taskStmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$taskData) {
-        return [];
-    }
-
-    $taskId = $taskData['task_id'];
-
-    // Get all general comments for this task (content_id IS NULL)
-    // But we want comments that belong to this specific response context
+    // Get all general comments for this response (reponse_general = response_id)
     $stmt = $pdo->prepare("
         SELECT 
             c.*,
@@ -501,11 +491,11 @@ function getGeneralCommentsByResponse($responseId)
         LEFT JOIN task t ON c.task_id = t.task_id
         LEFT JOIN phase p ON t.phase_id = p.phase_id
         LEFT JOIN main_phase mp ON p.m_phase_id = mp.m_phase_id
-        WHERE c.task_id = :task_id 
+        WHERE c.reponse_general = :response_id
         AND c.content_id IS NULL
         ORDER BY c.created_at ASC
     ");
-    $stmt->execute(['task_id' => $taskId]);
+    $stmt->execute(['response_id' => $responseId]);
     $allComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Add default avatar, depth, and phase_label to all comments
@@ -538,9 +528,7 @@ function getGeneralCommentsByResponse($responseId)
     }
 
     return $organized;
-}
-
-/**
+}/**
  * Delete a comment
  * @param int $commentId - ID of the comment to delete
  * @param int $userId - ID of the user attempting deletion (for permission check)

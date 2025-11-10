@@ -66,6 +66,7 @@ try {
         case 'add_comment':
             $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
             $task_id = intval($input['task_id'] ?? 0);
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : null;
             $comment_text = trim($input['comment_text'] ?? '');
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
@@ -80,19 +81,21 @@ try {
             // Only check allow_comment if this is a content-specific comment
             if ($content_id > 0) {
                 // Check if commenting is allowed for this task
-                $responseInfo = getResponseWithTaskInfo($input['response_id'] ?? 0);
+                $responseInfo = getResponseWithTaskInfo($response_id ?? 0);
                 if (!$responseInfo || !$responseInfo['allow_comment']) {
                     throw new Exception('Commenting is not allowed for this phase');
                 }
             }
 
             // Insert comment (content_id can be NULL for general comments)
+            // Pass response_id for general comments (when content_id is NULL)
             $comment_id = insertComment(
                 $content_id, // NULL for general comments
                 $user_id,
                 $task_id,
                 $comment_text,
-                $reply_comment_id > 0 ? $reply_comment_id : null
+                $reply_comment_id > 0 ? $reply_comment_id : null,
+                $content_id === null ? $response_id : null // Only set reponse_general if content_id is NULL
             );
 
             // Get the newly created comment with user info
@@ -118,6 +121,7 @@ try {
             // Special case for evaluation page - no need to check response_id or allow_comment
             $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
             $task_id = intval($input['task_id'] ?? 0);
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : null;
             $comment_text = trim($input['comment_text'] ?? '');
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
@@ -131,12 +135,14 @@ try {
 
             // Insert comment directly without checking allow_comment
             // content_id can be NULL for general comments
+            // Pass response_id for general comments
             $comment_id = insertComment(
                 $content_id, // NULL for general comments
                 $user_id,
                 $task_id,
                 $comment_text,
-                $reply_comment_id > 0 ? $reply_comment_id : null
+                $reply_comment_id > 0 ? $reply_comment_id : null,
+                $content_id === null ? $response_id : null // Only set reponse_general if content_id is NULL
             );
 
             // Get the newly created comment with user info
