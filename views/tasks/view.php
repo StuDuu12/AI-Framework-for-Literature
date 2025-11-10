@@ -836,7 +836,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                                 <!-- Show comment button only on first row, spanning all rows -->
                                                 <td rowspan="<?= count($students) ?>" class="align-middle text-center" style="vertical-align: middle; background-color: #f8f9fa;">
                                                     <?php if ($groupSubmission): ?>
-                                                        <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $assignment['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                                        <a href="/class/homework/comment?task_id=<?= $taskId ?>&deliver_id=<?= $assignment['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                                             class="btn btn-success btn-sm" title="Nhận xét & Đánh giá chung cho cả nhóm">
                                                             <i class="bi bi-chat-left-text"></i> Nhận xét chung
                                                         </a>
@@ -896,7 +896,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                         </td>
                                         <td>
                                             <?php if ($student['submission_id']): ?>
-                                                <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
+                                                <a href="/class/homework/comment?task_id=<?= $taskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                                     class="btn btn-sm btn-outline-success" title="Nhận xét & Đánh giá">
                                                     <i class="bi bi-chat-left-text"></i> Nhận xét
                                                 </a>

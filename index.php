@@ -48,6 +48,10 @@ $routes = [
     'class/evaluate/student' => ['file' => 'views/evaluate/student_evaluate.php', 'title' => 'Đánh giá chéo', 'require_auth' => true],
     'class/evaluate/list' => ['file' => 'views/evaluate/list.php', 'title' => 'Danh sách đánh giá', 'require_auth' => true],
 
+    // Reflect (Support Ticket) routes
+    'reflect' => ['file' => 'views/reflect/index.php', 'title' => 'Quản lý Reflect', 'require_auth' => true],
+    'reflect/detail' => ['file' => 'views/reflect/detail.php', 'title' => 'Chi tiết Reflect', 'require_auth' => true],
+
     // Gen AI and Comment routes
     'class/homework/view' => ['file' => 'views/homework/view.php', 'title' => 'Xem chi tiết phân tích', 'require_auth' => true],
     'class/homework/view_analysis' => ['file' => 'views/homework/view.php', 'title' => 'Xem phân tích học sinh', 'require_auth' => true],

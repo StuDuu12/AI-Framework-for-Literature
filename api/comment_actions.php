@@ -26,16 +26,28 @@ $action = $input['action'] ?? '';
 try {
     switch ($action) {
         case 'load_comments':
-            $content_id = intval($input['content_id'] ?? 0);
+            $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
+            $task_id = isset($input['task_id']) ? intval($input['task_id']) : 0;
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : 0;
 
-            if ($content_id <= 0) {
-                throw new Exception('Invalid content_id');
+            // If content_id is provided, load content-specific comments
+            if ($content_id > 0) {
+                $comments = getCommentsHierarchical($content_id);
+                error_log("Loading comments for content_id: $content_id, user_id: $user_id");
+            }
+            // If response_id is provided and content_id is null/0, load general comments for that response
+            else if ($response_id > 0) {
+                $comments = getGeneralCommentsByResponse($response_id);
+                error_log("Loading general comments for response_id: $response_id, user_id: $user_id");
+            }
+            // If task_id is provided and content_id is null/0, load general comments (legacy support)
+            else if ($task_id > 0) {
+                $comments = getGeneralCommentsHierarchical($task_id);
+                error_log("Loading general comments for task_id: $task_id, user_id: $user_id");
+            } else {
+                throw new Exception('Either content_id, response_id, or task_id is required');
             }
 
-            $comments = getCommentsHierarchical($content_id);
-
-            // Debug logging
-            error_log("Loading comments for content_id: $content_id, user_id: $user_id");
             error_log("Found " . count($comments) . " comments");
 
             echo json_encode([
@@ -43,6 +55,8 @@ try {
                 'comments' => $comments,
                 'debug' => [
                     'content_id' => $content_id,
+                    'response_id' => $response_id,
+                    'task_id' => $task_id,
                     'user_id' => $user_id,
                     'comment_count' => count($comments)
                 ]
@@ -50,32 +64,38 @@ try {
             break;
 
         case 'add_comment':
-            $content_id = intval($input['content_id'] ?? 0);
+            $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
             $task_id = intval($input['task_id'] ?? 0);
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : null;
             $comment_text = trim($input['comment_text'] ?? '');
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
-            if ($content_id <= 0 || $task_id <= 0) {
-                throw new Exception('Invalid content_id or task_id');
+            if ($task_id <= 0) {
+                throw new Exception('Invalid task_id');
             }
 
             if (empty($comment_text)) {
                 throw new Exception('Comment text is required');
             }
 
-            // Check if commenting is allowed for this task
-            $responseInfo = getResponseWithTaskInfo($input['response_id'] ?? 0);
-            if (!$responseInfo || !$responseInfo['allow_comment']) {
-                throw new Exception('Commenting is not allowed for this phase');
+            // Only check allow_comment if this is a content-specific comment
+            if ($content_id > 0) {
+                // Check if commenting is allowed for this task
+                $responseInfo = getResponseWithTaskInfo($response_id ?? 0);
+                if (!$responseInfo || !$responseInfo['allow_comment']) {
+                    throw new Exception('Commenting is not allowed for this phase');
+                }
             }
 
-            // Insert comment
+            // Insert comment (content_id can be NULL for general comments)
+            // Pass response_id for general comments (when content_id is NULL)
             $comment_id = insertComment(
-                $content_id,
+                $content_id, // NULL for general comments
                 $user_id,
                 $task_id,
                 $comment_text,
-                $reply_comment_id > 0 ? $reply_comment_id : null
+                $reply_comment_id > 0 ? $reply_comment_id : null,
+                $content_id === null ? $response_id : null // Only set reponse_general if content_id is NULL
             );
 
             // Get the newly created comment with user info
@@ -99,13 +119,14 @@ try {
 
         case 'add_comment_danhgia':
             // Special case for evaluation page - no need to check response_id or allow_comment
-            $content_id = intval($input['content_id'] ?? 0);
+            $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
             $task_id = intval($input['task_id'] ?? 0);
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : null;
             $comment_text = trim($input['comment_text'] ?? '');
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
-            if ($content_id <= 0 || $task_id <= 0) {
-                throw new Exception('Invalid content_id or task_id');
+            if ($task_id <= 0) {
+                throw new Exception('Invalid task_id');
             }
 
             if (empty($comment_text)) {
@@ -113,12 +134,15 @@ try {
             }
 
             // Insert comment directly without checking allow_comment
+            // content_id can be NULL for general comments
+            // Pass response_id for general comments
             $comment_id = insertComment(
-                $content_id,
+                $content_id, // NULL for general comments
                 $user_id,
                 $task_id,
                 $comment_text,
-                $reply_comment_id > 0 ? $reply_comment_id : null
+                $reply_comment_id > 0 ? $reply_comment_id : null,
+                $content_id === null ? $response_id : null // Only set reponse_general if content_id is NULL
             );
 
             // Get the newly created comment with user info
