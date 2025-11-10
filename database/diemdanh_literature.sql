@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 10, 2025 at 12:18 PM
+-- Generation Time: Nov 10, 2025 at 04:15 PM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -146,41 +146,46 @@ CREATE TABLE `comment` (
   `comment_text` text NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `task_id` int NOT NULL,
-  `reply_comment` int NOT NULL,
-  `is_gop_y` tinyint DEFAULT '0'
+  `reply_comment` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `comment`
 --
 
-INSERT INTO `comment` (`comment_id`, `reponse_general`, `content_id`, `user_id`, `comment_text`, `created_at`, `task_id`, `reply_comment`, `is_gop_y`) VALUES
-(1, NULL, 1, 390, 'Bình luận bài ở nhóm 1', '2025-11-06 03:03:17', 20, 0, 0),
-(2, NULL, 18, 390, 'Bình luận bài nhóm 2', '2025-11-06 03:03:45', 20, 0, 0),
-(3, NULL, 47, 390, 'Bình luận bài cá nhân', '2025-11-06 03:12:58', 20, 0, 0),
-(4, NULL, 1, 390, 'Bình luận chữa bài', '2025-11-06 03:57:47', 22, 1, 0),
-(5, NULL, 18, 390, 'chữa bài nhóm 2 pha chữa bài', '2025-11-06 03:58:50', 22, 2, 0),
-(6, NULL, 47, 390, 'bình luận chữa bài cá nhân pha chữa bài', '2025-11-06 03:59:51', 22, 3, 0),
-(7, NULL, 1, 390, 'Ghi chép nữa nè', '2025-11-06 04:21:54', 23, 4, 0),
-(8, NULL, 224, 390, 'Cá nhân tự phân ích bình luận bài cá nhân', '2025-11-06 06:01:45', 21, 0, 0),
-(9, NULL, 284, 390, 'Bình luận bài cá nhân', '2025-11-06 13:21:10', 21, 0, 0),
-(10, NULL, 310, 390, 'bình luận btvn nhóm 2', '2025-11-06 13:27:23', 21, 0, 0),
-(11, NULL, 335, 390, 'bình luận bài nhóm 1', '2025-11-06 13:28:42', 21, 0, 0),
-(12, NULL, 357, 366, 'quá chuẩn', '2025-11-06 16:21:17', 20, 0, 0),
-(13, NULL, 7, 366, '+000', '2025-11-06 17:08:35', 22, 0, 0),
-(14, NULL, 399, 366, 'tuyệt', '2025-11-06 17:26:15', 20, 0, 0),
-(15, NULL, 412, 366, 'let\'s see', '2025-11-06 19:48:55', 23, 0, 0),
-(16, NULL, 2, 366, 'oh yeah', '2025-11-06 20:22:25', 20, 0, 0),
-(17, NULL, 1, 366, 'oke bạn cminh chốt', '2025-11-06 21:44:54', 20, 0, 0),
-(19, NULL, 335, 390, 'Bình luận đánh giá, chấm điểm nè', '2025-11-07 00:21:05', 24, 0, 0),
-(20, NULL, 335, 390, 'ok ngay', '2025-11-07 02:13:57', 24, 19, 0),
-(21, NULL, 357, 389, 'tốt', '2025-11-07 08:18:44', 20, 0, 0),
-(22, NULL, 339, 390, 'cái này @@@', '2025-11-08 20:32:03', 21, 0, 0),
-(23, NULL, 471, 390, 'ôi chao', '2025-11-08 20:49:00', 35, 0, 0),
-(24, NULL, 471, 2, 'em phải viết rõ hơn', '2025-11-08 20:49:53', 35, 23, 0),
-(25, NULL, 485, 362, 'Phần này bị thiếu dấu \"\" ạ', '2025-11-08 21:58:14', 35, 0, 0),
-(28, NULL, 372, 389, 'Nhận xét', '2025-11-09 21:11:10', 21, 0, 0),
-(31, NULL, 372, 389, 'reply', '2025-11-09 21:17:31', 21, 28, 0);
+INSERT INTO `comment` (`comment_id`, `reponse_general`, `content_id`, `user_id`, `comment_text`, `created_at`, `task_id`, `reply_comment`) VALUES
+(1, NULL, 1, 390, 'Bình luận bài ở nhóm 1', '2025-11-06 03:03:17', 20, 0),
+(2, NULL, 18, 390, 'Bình luận bài nhóm 2', '2025-11-06 03:03:45', 20, 0),
+(3, NULL, 47, 390, 'Bình luận bài cá nhân', '2025-11-06 03:12:58', 20, 0),
+(4, NULL, 1, 390, 'Bình luận chữa bài', '2025-11-06 03:57:47', 22, 1),
+(5, NULL, 18, 390, 'chữa bài nhóm 2 pha chữa bài', '2025-11-06 03:58:50', 22, 2),
+(6, NULL, 47, 390, 'bình luận chữa bài cá nhân pha chữa bài', '2025-11-06 03:59:51', 22, 3),
+(7, NULL, 1, 390, 'Ghi chép nữa nè', '2025-11-06 04:21:54', 23, 4),
+(8, NULL, 224, 390, 'Cá nhân tự phân ích bình luận bài cá nhân', '2025-11-06 06:01:45', 21, 0),
+(9, NULL, 284, 390, 'Bình luận bài cá nhân', '2025-11-06 13:21:10', 21, 0),
+(10, NULL, 310, 390, 'bình luận btvn nhóm 2', '2025-11-06 13:27:23', 21, 0),
+(11, NULL, 335, 390, 'bình luận bài nhóm 1', '2025-11-06 13:28:42', 21, 0),
+(12, NULL, 357, 366, 'quá chuẩn', '2025-11-06 16:21:17', 20, 0),
+(13, NULL, 7, 366, '+000', '2025-11-06 17:08:35', 22, 0),
+(14, NULL, 399, 366, 'tuyệt', '2025-11-06 17:26:15', 20, 0),
+(15, NULL, 412, 366, 'let\'s see', '2025-11-06 19:48:55', 23, 0),
+(16, NULL, 2, 366, 'oh yeah', '2025-11-06 20:22:25', 20, 0),
+(17, NULL, 1, 366, 'oke bạn cminh chốt', '2025-11-06 21:44:54', 20, 0),
+(19, NULL, 335, 390, 'Bình luận đánh giá, chấm điểm nè', '2025-11-07 00:21:05', 24, 0),
+(20, NULL, 335, 390, 'ok ngay', '2025-11-07 02:13:57', 24, 19),
+(21, NULL, 357, 389, 'tốt', '2025-11-07 08:18:44', 20, 0),
+(22, NULL, 339, 390, 'cái này @@@', '2025-11-08 20:32:03', 21, 0),
+(23, NULL, 471, 390, 'ôi chao', '2025-11-08 20:49:00', 35, 0),
+(24, NULL, 471, 2, 'em phải viết rõ hơn', '2025-11-08 20:49:53', 35, 23),
+(25, NULL, 485, 362, 'Phần này bị thiếu dấu \"\" ạ', '2025-11-08 21:58:14', 35, 0),
+(28, NULL, 372, 389, 'Nhận xét', '2025-11-09 21:11:10', 21, 0),
+(31, NULL, 372, 389, 'reply', '2025-11-09 21:17:31', 21, 28),
+(32, 6, NULL, 389, 'Nhận xét chung', '2025-11-10 14:43:25', 20, 0),
+(33, 6, NULL, 389, 'reply comment nhận xét chung', '2025-11-10 14:45:21', 20, 32),
+(34, NULL, 47, 389, 'repy', '2025-11-10 14:46:08', 20, 6),
+(35, 6, NULL, 389, 'Nhận xét lại nè', '2025-11-10 14:56:20', 20, 33),
+(36, 6, NULL, 389, 'huhu', '2025-11-10 14:57:13', 22, 33),
+(37, 36, NULL, 389, 'Hello', '2025-11-10 14:57:25', 22, 0);
 
 -- --------------------------------------------------------
 
@@ -906,6 +911,44 @@ INSERT INTO `phase` (`phase_id`, `phase_number`, `phase_name`, `m_phase_id`, `to
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `reflect_detail`
+--
+
+CREATE TABLE `reflect_detail` (
+  `id_reflect_detail` int NOT NULL,
+  `content` longtext NOT NULL,
+  `id_user` int NOT NULL,
+  `id_reflect` int NOT NULL,
+  `parent_reflect_detail` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reflect_ticket`
+--
+
+CREATE TABLE `reflect_ticket` (
+  `id_reflect` int NOT NULL,
+  `id_user` int NOT NULL,
+  `id_reflect_type` int NOT NULL,
+  `status` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reflect_type`
+--
+
+CREATE TABLE `reflect_type` (
+  `id_reflect_type` int NOT NULL,
+  `name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `response`
 --
 
@@ -1370,6 +1413,29 @@ ALTER TABLE `phase`
   ADD KEY `fk_phase_topic` (`topic_id`);
 
 --
+-- Indexes for table `reflect_detail`
+--
+ALTER TABLE `reflect_detail`
+  ADD PRIMARY KEY (`id_reflect_detail`),
+  ADD KEY `fk_reflect_detail_user` (`id_user`),
+  ADD KEY `fk_reflect_detail_ticket` (`id_reflect`),
+  ADD KEY `fk_reflect_detail_parent` (`parent_reflect_detail`);
+
+--
+-- Indexes for table `reflect_ticket`
+--
+ALTER TABLE `reflect_ticket`
+  ADD PRIMARY KEY (`id_reflect`),
+  ADD KEY `fk_reflect_ticket_user` (`id_user`),
+  ADD KEY `fk_reflect_ticket_type` (`id_reflect_type`);
+
+--
+-- Indexes for table `reflect_type`
+--
+ALTER TABLE `reflect_type`
+  ADD PRIMARY KEY (`id_reflect_type`);
+
+--
 -- Indexes for table `response`
 --
 ALTER TABLE `response`
@@ -1481,7 +1547,7 @@ ALTER TABLE `class`
 -- AUTO_INCREMENT for table `comment`
 --
 ALTER TABLE `comment`
-  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `content`
@@ -1548,6 +1614,24 @@ ALTER TABLE `object_review`
 --
 ALTER TABLE `phase`
   MODIFY `phase_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `reflect_detail`
+--
+ALTER TABLE `reflect_detail`
+  MODIFY `id_reflect_detail` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reflect_ticket`
+--
+ALTER TABLE `reflect_ticket`
+  MODIFY `id_reflect` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reflect_type`
+--
+ALTER TABLE `reflect_type`
+  MODIFY `id_reflect_type` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `response`
@@ -1703,6 +1787,21 @@ ALTER TABLE `object_review`
 ALTER TABLE `phase`
   ADD CONSTRAINT `fk_phase_mainphase` FOREIGN KEY (`m_phase_id`) REFERENCES `main_phase` (`m_phase_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_phase_topic` FOREIGN KEY (`topic_id`) REFERENCES `topic` (`topic_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `reflect_detail`
+--
+ALTER TABLE `reflect_detail`
+  ADD CONSTRAINT `fk_reflect_detail_parent` FOREIGN KEY (`parent_reflect_detail`) REFERENCES `reflect_detail` (`id_reflect_detail`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reflect_detail_ticket` FOREIGN KEY (`id_reflect`) REFERENCES `reflect_ticket` (`id_reflect`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reflect_detail_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `reflect_ticket`
+--
+ALTER TABLE `reflect_ticket`
+  ADD CONSTRAINT `fk_reflect_ticket_type` FOREIGN KEY (`id_reflect_type`) REFERENCES `reflect_type` (`id_reflect_type`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reflect_ticket_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `response`

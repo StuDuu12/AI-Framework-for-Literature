@@ -61,6 +61,13 @@
             </a>
         </li>
         <?php endif; ?>
-
+        
+        <li class="nav-heading">Góp ý</li>
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= URL_ROOT ?>/reflect">
+                <i class="bi bi-chat-dots"></i>
+                <span>Phản hồi</span>
+            </a>
+        </li>
     </ul>
 </aside>
