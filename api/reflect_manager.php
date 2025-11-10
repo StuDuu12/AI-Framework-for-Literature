@@ -25,7 +25,7 @@ try {
         case 'get_types':
             // Get all reflect types
             $types = getReflectTypes();
-            
+
             echo json_encode([
                 'success' => true,
                 'data' => $types

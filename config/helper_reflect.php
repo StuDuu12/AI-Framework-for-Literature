@@ -46,7 +46,7 @@ function createReflectTicket($userId, $typeId, $title, $content)
             'type_id' => $typeId,
             'title' => $title
         ]);
-        
+
         $ticketId = $pdo->lastInsertId();
 
         // Insert initial detail (first message)
