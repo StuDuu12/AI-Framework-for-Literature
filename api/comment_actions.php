@@ -54,12 +54,12 @@ try {
                 'success' => true,
                 'comments' => $comments,
                 'debug' => [
-                        'content_id' => $content_id,
-                        'response_id' => $response_id,
-                        'task_id' => $task_id,
-                        'user_id' => $user_id,
-                        'comment_count' => count($comments)
-                    ]
+                    'content_id' => $content_id,
+                    'response_id' => $response_id,
+                    'task_id' => $task_id,
+                    'user_id' => $user_id,
+                    'comment_count' => count($comments)
+                ]
             ]);
             break;
 
