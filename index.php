@@ -14,12 +14,12 @@ $routes = [
 
     'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
-    'landing' => ['file' => 'views/Landing/landing_page.html', 'require_auth' => false],
     // Đăng nhập đăng xuất
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
-    'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng ký', 'require_auth' => false],
+    'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng xuất', 'require_auth' => false],
 
     'dashboard' => ['file' => 'views/index.php', 'title' => 'Dashboard', 'require_auth' => true],
+    'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
     'joinclass' => ['file' => 'api/joinclass.php', 'require_auth' => true],
 
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
@@ -96,6 +96,14 @@ if (isset($routes[$route])) {
 if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
     if (!checkAuth()) {
         header('Location: ' . URL_ROOT . '/login');
+        exit;
+    }
+}
+
+// Redirect admin when accessing default route or dashboard
+if (checkAuth() && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    if ($route === '' || $route === 'dashboard') {
+        header('Location: ' . URL_ROOT . '/views/admin/dashboard.php');
         exit;
     }
 }

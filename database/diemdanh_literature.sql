@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 10, 2025 at 04:15 PM
+-- Generation Time: Nov 10, 2025 at 11:08 PM
 -- Server version: 8.0.36
 -- PHP Version: 8.1.27
 
@@ -919,8 +919,17 @@ CREATE TABLE `reflect_detail` (
   `content` longtext NOT NULL,
   `id_user` int NOT NULL,
   `id_reflect` int NOT NULL,
-  `parent_reflect_detail` int DEFAULT NULL
+  `parent_reflect_detail` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `reflect_detail`
+--
+
+INSERT INTO `reflect_detail` (`id_reflect_detail`, `content`, `id_user`, `id_reflect`, `parent_reflect_detail`, `created_at`, `updated_at`) VALUES
+(7, 'Phần phân tích do nội dung đề ra', 388, 2, NULL, '2025-11-10 22:21:44', '2025-11-10 22:21:44');
 
 -- --------------------------------------------------------
 
@@ -930,10 +939,20 @@ CREATE TABLE `reflect_detail` (
 
 CREATE TABLE `reflect_ticket` (
   `id_reflect` int NOT NULL,
+  `title` varchar(500) NOT NULL,
   `id_user` int NOT NULL,
   `id_reflect_type` int NOT NULL,
-  `status` int NOT NULL
+  `status` int NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `reflect_ticket`
+--
+
+INSERT INTO `reflect_ticket` (`id_reflect`, `title`, `id_user`, `id_reflect_type`, `status`, `created_at`, `updated_at`) VALUES
+(2, 'Mô tả nội dung', 388, 1, 0, '2025-11-10 22:21:44', '2025-11-10 22:21:44');
 
 -- --------------------------------------------------------
 
@@ -945,6 +964,13 @@ CREATE TABLE `reflect_type` (
   `id_reflect_type` int NOT NULL,
   `name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `reflect_type`
+--
+
+INSERT INTO `reflect_type` (`id_reflect_type`, `name`) VALUES
+(1, 'Nhận xét chung');
 
 -- --------------------------------------------------------
 
@@ -1619,19 +1645,19 @@ ALTER TABLE `phase`
 -- AUTO_INCREMENT for table `reflect_detail`
 --
 ALTER TABLE `reflect_detail`
-  MODIFY `id_reflect_detail` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_reflect_detail` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `reflect_ticket`
 --
 ALTER TABLE `reflect_ticket`
-  MODIFY `id_reflect` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_reflect` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `reflect_type`
 --
 ALTER TABLE `reflect_type`
-  MODIFY `id_reflect_type` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_reflect_type` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `response`

@@ -5,16 +5,17 @@
     // Get current page path for active menu highlighting
     $current_path = $_SERVER['REQUEST_URI'];
     $current_page = parse_url($current_path, PHP_URL_PATH);
-    
+
     // Helper function to check if menu is active
-    function isActive($path, $current) {
+    function isActive($path, $current)
+    {
         // Remove URL_ROOT from comparison
         $path = str_replace(URL_ROOT, '', $path);
         // Exact match or starts with path
         return $current === $path || strpos($current, $path) === 0;
     }
     ?>
-    
+
     <ul class="sidebar-nav" id="sidebar-nav" class="<?php echo (strpos($_SERVER['REQUEST_URI'], '/dashboard') !== false) ? 'sidebar-disabled' : ''; ?>">
         <!-- ====== NAVBAR CHUNG ====== -->
         <li class="nav-item">
@@ -80,6 +81,12 @@
         <?php endif; ?>
 
         <li class="nav-heading">Góp ý</li>
+        <li class="nav-item">
+            <a class="nav-link <?= strpos($current_page, '/views/feedback') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/views/feedback/index.php">
+                <i class="bi bi-chat-left-text"></i>
+                <span>Gửi góp ý</span>
+            </a>
+        </li>
         <li class="nav-item">
             <a class="nav-link collapsed" href="<?= URL_ROOT ?>/reflect">
                 <i class="bi bi-chat-dots"></i>

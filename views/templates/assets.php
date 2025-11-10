@@ -29,4 +29,4 @@
 <!-- Background Theme CSS -->
 <link href="<?= URL_ROOT ?>/assets/css/background-theme.css" rel="stylesheet">
 
-<?php require_once './views/templates/theme-toggle.php'; ?>
+<?php require_once __DIR__ . '/theme-toggle.php'; ?>
