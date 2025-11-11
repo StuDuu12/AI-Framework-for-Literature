@@ -167,12 +167,7 @@
     require_once './views/templates/header.php';
     require_once __DIR__ . '/../../config/db.php';
     require_once __DIR__ . '/../../config/helper_class.php';
-
-    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
-        require_once './views/templates/sidebar_teacher.php';
-    } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-        require_once './views/templates/sidebar_student.php';
-    }
+    require_once './views/templates/sidebar.php';
 
     // Get current user and class
     $userId = $_SESSION['user']['user_id'] ?? ($_SESSION['user']['id'] ?? 0);

@@ -162,8 +162,10 @@ $pageTitle = "Tạo tài khoản";
         </section>
     </main><!-- End #main -->
 
-    <?php include __DIR__ . '/../templates/footer.php'; ?>
-
+    <?php
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
+    ?>
 </body>
 
 </html>

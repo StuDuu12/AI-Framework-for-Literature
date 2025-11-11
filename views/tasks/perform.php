@@ -137,12 +137,9 @@ if ($task['file_content']) {
 <body>
     <?php
     require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
+    
 
-    if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'teacher') {
-        require_once './views/templates/sidebar_student.php';
-    } else {
-        require_once './views/templates/sidebar_teacher.php';
-    }
     ?>
 
     <main id="main" class="main">

@@ -87,6 +87,7 @@
                 <span>Gửi góp ý</span>
             </a>
         </li>
+        <li class="nav-heading">Phản hồi</li>
         <li class="nav-item">
             <a class="nav-link collapsed" href="<?= URL_ROOT ?>/reflect">
                 <i class="bi bi-chat-dots"></i>
