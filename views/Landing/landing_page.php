@@ -89,7 +89,7 @@
                     </button>
                     <?php elseif (isset($_SESSION['user'])): ?>
                         <button class="hidden" id="login-button"></button>
-                        <a href="/dashboard" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 button-press-effect">
+                        <a href="login" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-300 transform hover:scale-105 button-press-effect">
                             Vào hệ thống
                         </a>
                     <?php endif; ?>

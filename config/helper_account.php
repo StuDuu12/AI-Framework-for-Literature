@@ -14,6 +14,8 @@ function login($username, $password)
             session_start();
         }
         $_SESSION['user'] = $user;
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['role'] = $user['role'];
         return true;
     } else {
         // Đăng nhập thất bại

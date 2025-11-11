@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết Reflect</title>
+    <title>Chi tiết Phản hồi</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
@@ -24,16 +24,16 @@
 
         .header-top {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px 30px;
+            padding: 24px 30px;
             border-radius: 12px 12px 0 0;
         }
 
         .ticket-detail-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: #2c3e50;
             margin: 0;
-            line-height: 1.3;
+            line-height: 1.4;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -41,41 +41,40 @@
 
         .ticket-detail-title i {
             color: #4154f1;
-            font-size: 32px;
+            font-size: 28px;
+            flex-shrink: 0;
         }
 
         .header-content {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
             padding: 24px 30px;
         }
 
-        .header-left {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
+        .header-left,
         .header-right {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+        }
+
+        .header-right {
             border-left: 2px solid #e9ecef;
-            padding-left: 24px;
+            padding-left: 30px;
         }
 
         .info-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 14px;
             color: #495057;
         }
 
         .info-row i {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -83,17 +82,19 @@
             color: #4154f1;
             border-radius: 6px;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
         .info-label {
             font-weight: 600;
             color: #6c757d;
-            min-width: 80px;
+            min-width: 90px;
         }
 
         .info-value {
             color: #2c3e50;
             font-weight: 500;
+            flex: 1;
         }
 
         .type-badge {
@@ -104,18 +105,28 @@
             border-radius: 20px;
             font-size: 13px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
             .header-content {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .header-right {
                 border-left: none;
                 border-top: 2px solid #e9ecef;
                 padding-left: 0;
-                padding-top: 16px;
+                padding-top: 20px;
+            }
+
+            .ticket-detail-title {
+                font-size: 20px;
+            }
+
+            .ticket-detail-title i {
+                font-size: 24px;
             }
         }
 
@@ -124,10 +135,10 @@
         }
 
         .initial-content {
-            background: #fff;
+            background: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 8px;
-            padding: 20px;
+            padding: 24px;
             margin-bottom: 20px;
         }
 
@@ -138,36 +149,43 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 16px;
+        }
+
+        .initial-content h6 i {
+            color: #4154f1;
         }
 
         /* Response Item */
         .response-item {
             background: #fff;
             border: 1px solid #e9ecef;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 16px;
-            border-left: 3px solid #4154f1;
+            border-left: 4px solid #4154f1;
             overflow: hidden;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .response-item:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
         .response-item.is-reply {
-            margin-left: 40px;
+            margin-left: 50px;
             border-left-color: #6c757d;
             background: #f8f9fa;
             margin-bottom: 12px;
         }
 
         .parent-response-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .replies-container {
-            margin-top: 8px;
+            margin-top: 12px;
             transition: all 0.3s ease;
         }
 
@@ -176,7 +194,7 @@
         }
 
         .response-header {
-            padding: 16px;
+            padding: 18px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -192,7 +210,7 @@
         }
 
         .response-body {
-            padding: 0 16px 16px 16px;
+            padding: 0 20px 20px 20px;
         }
 
         .response-body.collapsed {
@@ -200,8 +218,8 @@
         }
 
         .collapse-icon {
-            transition: transform 0.2s;
-            font-size: 18px;
+            transition: transform 0.3s ease;
+            font-size: 20px;
             color: #6c757d;
         }
 
@@ -211,15 +229,16 @@
 
         .response-content {
             color: #495057;
-            line-height: 1.6;
+            line-height: 1.7;
             white-space: pre-wrap;
             word-wrap: break-word;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
         }
 
         /* Response Actions */
         .response-actions {
-            margin-top: 12px;
+            margin-top: 16px;
             display: flex;
             gap: 8px;
             align-items: center;
@@ -227,16 +246,23 @@
 
         .btn-reply {
             font-size: 13px;
-            padding: 6px 14px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reply:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
         /* Reply Form */
         .reply-form {
-            margin-top: 12px;
-            padding: 16px;
+            margin-top: 16px;
+            padding: 18px;
             background: #f8f9fa;
             border: 2px dashed #dee2e6;
-            border-radius: 6px;
+            border-radius: 8px;
             display: none;
         }
 
@@ -261,42 +287,178 @@
         .response-author {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .response-author-avatar {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 700;
+            font-size: 15px;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(65, 84, 241, 0.3);
         }
 
         .response-author-info {
             display: flex;
             flex-direction: column;
+            gap: 4px;
         }
 
         .response-author-name {
             font-weight: 600;
             color: #2c3e50;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .response-author-role {
-            font-size: 12px;
+            font-size: 13px;
             color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .response-time {
             font-size: 12px;
             color: #6c757d;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #dee2e6;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Status Select */
+        .status-select {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-select:hover {
+            border-color: #4154f1;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4154f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Card Enhancements */
+        .card {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #4154f1;
+            box-shadow: 0 0 0 3px rgba(65, 84, 241, 0.1);
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(65, 84, 241, 0.3);
+        }
+
+        /* Badge */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -327,7 +489,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-ticket-detailed"></i> Chi tiết Reflect</h1>
+            <h1><i class="bi bi-ticket-detailed"></i> Chi tiết Phản hồi</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
@@ -398,11 +560,11 @@
         let ticketData = null;
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             loadTicketDetail();
 
             // Response form submit
-            document.getElementById('responseForm').addEventListener('submit', async function (e) {
+            document.getElementById('responseForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await addResponse();
             });
@@ -413,7 +575,9 @@
             try {
                 const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'get_ticket_detail',
                         ticket_id: ticketId
@@ -632,7 +796,9 @@
             try {
                 const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'add_response',
                         ticket_id: ticketId,
@@ -725,7 +891,9 @@
             try {
                 const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'add_response',
                         ticket_id: ticketId,
@@ -757,7 +925,9 @@
             try {
                 const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'update_status',
                         ticket_id: ticketId,
@@ -790,7 +960,9 @@
             try {
                 const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         action: 'delete_ticket',
                         ticket_id: ticketId
@@ -813,17 +985,31 @@
 
         // Helper functions
         function getStatusLabel(status) {
-            const labels = { 0: 'Mới tạo', 1: 'Đang xử lý', 2: 'Đã giải quyết', 3: 'Đã đóng' };
+            const labels = {
+                0: 'Mới tạo',
+                1: 'Đang xử lý',
+                2: 'Đã giải quyết',
+                3: 'Đã đóng'
+            };
             return labels[status] || 'Không xác định';
         }
 
         function getStatusBadgeClass(status) {
-            const classes = { 0: 'bg-info', 1: 'bg-warning', 2: 'bg-success', 3: 'bg-secondary' };
+            const classes = {
+                0: 'bg-info',
+                1: 'bg-warning',
+                2: 'bg-success',
+                3: 'bg-secondary'
+            };
             return classes[status] || 'bg-secondary';
         }
 
         function getRoleLabel(role) {
-            const labels = { admin: 'Quản trị viên', teacher: 'Giáo viên', student: 'Học sinh' };
+            const labels = {
+                admin: 'Quản trị viên',
+                teacher: 'Giáo viên',
+                student: 'Học sinh'
+            };
             return labels[role] || role;
         }
 
