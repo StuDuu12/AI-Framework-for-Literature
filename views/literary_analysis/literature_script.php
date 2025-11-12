@@ -163,7 +163,7 @@
     // --- API & Analysis Functions ---
     async function makeApiCall(systemPrompt, userText, schema) {
         const apiKey = ""; // This is handled by the execution environment.
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
         const payload = {
             contents: [{
                 parts: [{

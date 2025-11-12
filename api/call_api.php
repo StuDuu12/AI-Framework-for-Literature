@@ -21,7 +21,7 @@ if (!defined('AUTH_PASSED')) {
 function callGeminiApi($systemPrompt, $contents, $schema)
 {
     $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs"; // This is handled by the execution environment.
-    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
+    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
 
     $payload = [
         'contents' => $contents, // Use the full contents array for chat
@@ -324,7 +324,7 @@ switch ($action) {
 
         // Call API without schema for free-form text response
         $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
 
         $payload = [
             'contents' => $history,
@@ -387,7 +387,7 @@ switch ($action) {
 
         // Call API without schema for free-form text response
         $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key={$apiKey}";
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
 
         $payload = [
             'contents' => $history,
