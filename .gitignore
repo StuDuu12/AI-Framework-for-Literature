@@ -1,1 +1,3 @@
 config/env.php
+config/db.php
+uploads/*
