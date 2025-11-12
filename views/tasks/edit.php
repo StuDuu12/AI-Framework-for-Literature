@@ -15,12 +15,9 @@
     require_once './config/helper_phase.php';
     require_once './config/helper_class.php';
     require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
+    
 
-    if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'teacher') {
-        require_once './views/templates/sidebar_student.php';
-    } else {
-        require_once './views/templates/sidebar_teacher.php';
-    }
 
     // Get IDs from URL
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;

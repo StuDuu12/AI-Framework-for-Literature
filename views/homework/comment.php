@@ -148,11 +148,7 @@
 <body>
     <?php
     require_once './views/templates/header.php';
-    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
-        require_once './views/templates/sidebar_teacher.php';
-    } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-        require_once './views/templates/sidebar_student.php';
-    }
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">

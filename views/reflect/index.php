@@ -11,22 +11,9 @@
 </head>
 
 <body>
-
     <?php
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    if (!isset($_SESSION['user'])) {
-        header('Location: ' . URL_ROOT . '/login');
-        exit;
-    }
-
-    $user = $_SESSION['user'];
-    $isAdmin = ($user['role'] === 'admin');
-
-    include_once __DIR__ . '/../templates/header.php';
-    include_once __DIR__ . '/../templates/sidebar_' . $user['role'] . '.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -141,7 +128,10 @@
         </div>
     </div>
 
-    <?php include_once __DIR__ . '/../templates/footer.php'; ?>
+    <?php
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
+    ?>
 
     <script>
         let allTickets = [];

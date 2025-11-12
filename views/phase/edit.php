@@ -14,12 +14,7 @@
     require_once './config/helper_phase.php';
     require_once './config/helper_class.php';
     require_once './views/templates/header.php';
-
-    if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'teacher') {
-        require_once './views/templates/sidebar_student.php';
-    } else {
-        require_once './views/templates/sidebar_teacher.php';
-    }
+    require_once './views/templates/sidebar.php';
 
     // Get phase_id and topic_id from URL
     $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;

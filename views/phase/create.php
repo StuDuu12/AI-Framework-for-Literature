@@ -14,12 +14,7 @@
     require_once './config/helper_phase.php';
     require_once './config/helper_class.php';
     require_once './views/templates/header.php';
-
-    if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'teacher') {
-        require_once './views/templates/sidebar_student.php';
-    } else {
-        require_once './views/templates/sidebar_teacher.php';
-    }
+    require_once './views/templates/sidebar.php';
 
     // Get topic_id from URL
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;

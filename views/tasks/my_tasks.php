@@ -126,12 +126,9 @@
     require_once './config/helper_homework.php';
     require_once './config/helper_class.php';
     require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
+    
 
-    if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'student') {
-        require_once './views/templates/sidebar_teacher.php';
-    } else {
-        require_once './views/templates/sidebar_student.php';
-    }
 
     // Get current user and class
     $userId = $_SESSION['user']['user_id'] ?? 0;

@@ -80,11 +80,7 @@
 <body>
     <?php
     require_once './views/templates/header.php';
-    if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
-        require_once './views/templates/sidebar_teacher.php';
-    } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-        require_once './views/templates/sidebar_student.php';
-    }
+    require_once './views/templates/sidebar.php';
 
     // Get class_id from session or URL
     $class_id = isset($_SESSION['current_class_id']) ? $_SESSION['current_class_id'] : (isset($_GET['class_id']) ? intval($_GET['class_id']) : null);

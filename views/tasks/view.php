@@ -73,8 +73,8 @@
         header('Location: /class');
         exit;
     }
+    require_once './views/templates/sidebar.php';
 
-    require_once './views/templates/sidebar_teacher.php';
 
     // Get IDs from URL
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
