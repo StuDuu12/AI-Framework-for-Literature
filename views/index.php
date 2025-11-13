@@ -1,10 +1,3 @@
-<?php
-// Redirect admin to admin dashboard
-if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-    header("Location: " . URL_ROOT . "/views/admin/dashboard.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 

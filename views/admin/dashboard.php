@@ -1,8 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/env.php';
-require_once __DIR__ . '/../../config/db.php';
-
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     header("Location: " . URL_ROOT . "/login");
@@ -61,13 +57,13 @@ $pageTitle = "Trang quản trị";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php include __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once 'views/templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once 'views/templates/header.php';
+    require_once 'views/templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
@@ -220,8 +216,8 @@ $pageTitle = "Trang quản trị";
     </main><!-- End #main -->
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
 </body>

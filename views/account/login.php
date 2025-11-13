@@ -18,11 +18,7 @@ if (isset($_POST['login'])) {
         // Kiểm tra đăng nhập
         if (login($username, $password)) {
             // Đăng nhập thành công, kiểm tra role để chuyển hướng
-            if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-                header('Location: ' . URL_ROOT . '/views/admin/dashboard.php');
-            } else {
-                header('Location: ' . URL_ROOT . '/dashboard');
-            }
+            header('Location: ' . URL_ROOT . '/dashboard');
             exit;
         } else {
             $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
@@ -32,11 +28,7 @@ if (isset($_POST['login'])) {
 
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     // Nếu đã đăng nhập, kiểm tra role để chuyển hướng
-    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-        header('Location: ' . URL_ROOT . '/views/admin/dashboard.php');
-    } else {
-        header('Location: ' . URL_ROOT . '/dashboard');
-    }
+    header('Location: ' . URL_ROOT . '/dashboard');
     exit;
 }
 ?>

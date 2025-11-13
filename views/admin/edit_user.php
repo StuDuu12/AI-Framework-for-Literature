@@ -1,8 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/env.php';
-require_once __DIR__ . '/../../config/db.php';
-
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     header("Location: " . URL_ROOT . "/login");

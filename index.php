@@ -18,8 +18,8 @@ $routes = [
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
     'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng xuất', 'require_auth' => false],
 
-    'dashboard' => ['file' => 'views/index.php', 'title' => 'Dashboard', 'require_auth' => true],
-    'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
+    'dashboard' => ['file' => 'views/dashboard.php', 'title' => 'Dashboard', 'require_auth' => true],
+    // 'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
     'joinclass' => ['file' => 'api/joinclass.php', 'require_auth' => true],
 
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
@@ -70,6 +70,9 @@ $routes = [
     '500' => ['file' => 'views/errors/500.php', 'title' => '500 Internal Server Error', 'require_auth' => false],
     '503' => ['file' => 'views/errors/503.php', 'title' => '503 Service Unavailable', 'require_auth' => false],
 
+    // Admin
+    // 'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
+
 ];
 
 function checkAuth()
@@ -96,14 +99,6 @@ if (isset($routes[$route])) {
 if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
     if (!checkAuth()) {
         header('Location: ' . URL_ROOT . '/login');
-        exit;
-    }
-}
-
-// Redirect admin when accessing default route or dashboard
-if (checkAuth() && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-    if ($route === '' || $route === 'dashboard') {
-        header('Location: ' . URL_ROOT . '/views/admin/dashboard.php');
         exit;
     }
 }
