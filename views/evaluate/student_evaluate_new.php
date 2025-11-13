@@ -81,7 +81,7 @@ if (!empty($evaluation['details'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title>Đánh giá chéo - <?= htmlspecialchars($taskInfo['title']) ?></title>
     <style>
         .response-content {
@@ -199,8 +199,8 @@ if (!empty($evaluation['details'])) {
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -374,8 +374,8 @@ if (!empty($evaluation['details'])) {
     </main>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>

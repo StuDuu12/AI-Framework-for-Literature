@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
-    require_once './views/templates/assets.php';
-    require_once './config/db.php';
-    require_once './config/helper_homework.php';
-    require_once './config/helper_task.php';
-    require_once './config/helper_phase.php';
-
+    require_once __DIR__ . '/../templates/assets.php';
+    require_once __DIR__ . '/../../config/db.php';
+    require_once __DIR__ . '/../../config/helper_homework.php';
+    require_once __DIR__ . '/../../config/helper_task.php';
+    require_once __DIR__ . '/../../config/helper_phase.php';
     // Get parameters from URL
     $submission_id = isset($_GET['submission_id']) ? intval($_GET['submission_id']) : 0;
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
@@ -167,11 +166,11 @@
 
 <body>
     <?php
-    require_once './views/templates/header.php';
+    require_once __DIR__ . '/../templates/header.php';
     if ($current_user_role === 'teacher') {
-        require_once './views/templates/sidebar_teacher.php';
+        require_once __DIR__ . '/../templates/sidebar_teacher.php';
     } else {
-        require_once './views/templates/sidebar_student.php';
+        require_once __DIR__ . '/../templates/sidebar_student.php';
     }
     ?>
 
@@ -385,8 +384,8 @@
     </main>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 </body>

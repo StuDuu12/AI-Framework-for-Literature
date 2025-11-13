@@ -617,12 +617,10 @@
             <p class="text-lg text-blue-100 mb-10 max-w-xl mx-auto">
                 Tạo tài khoản miễn phí và bắt đầu hành trình văn học của bạn ngay hôm nay. Hàng ngàn câu chuyện đang chờ bạn khám phá!
             </p>
-            <a href="<?= URL_ROOT ?>/?route=login">
-                <button
-                    class="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-4 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 button-press-effect">
-                    Đăng nhập để cùng phiêu lưu thôi nào!!
-                </button>
-            </a>
+            <button
+                class="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-4 px-10 rounded-full shadow-lg transition duration-300 transform hover:scale-105 button-press-effect">
+                Đăng Ký Miễn Phí
+            </button>
         </div>
     </section>
 

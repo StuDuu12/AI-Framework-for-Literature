@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title>Quản lý nhóm</title>
     <style>
         .group-item-wrapper {
@@ -60,10 +60,10 @@
 
 <body>
     <?php
-    require_once './views/templates/header.php';
+    require_once __DIR__ . '/../templates/header.php';
     require_once __DIR__ . '/../../config/db.php';
     require_once __DIR__ . '/../../config/helper_class.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     $classId = function_exists('getCurrentClassId') ? getCurrentClassId() : (isset($_SESSION['current_class_id']) ? $_SESSION['current_class_id'] : 1);
     $groups = getClassGroups($classId);
@@ -285,8 +285,8 @@
 
     </main>
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>

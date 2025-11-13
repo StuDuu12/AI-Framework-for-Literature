@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
-    require_once './views/templates/assets.php';
-    require_once './config/db.php';
-    require_once './config/helper_homework.php';
-    require_once './config/helper_task.php';
-    require_once './config/helper_phase.php';
-
+    require_once __DIR__ . '/../templates/assets.php';
+    require_once __DIR__ . '/../config/db.php';
+    require_once __DIR__ . '/../config/helper_homework.php';
+    require_once __DIR__ . '/../config/helper_task.php';
+    require_once __DIR__ . '/../config/helper_phase.php';
     // Get parameters from URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
@@ -147,8 +146,8 @@
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -307,8 +306,8 @@
     </main>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>

@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title>Document</title>
 </head>
 
 <body>
     <?php
-    require_once './views/templates/header.php';
+    require_once __DIR__ . '/../templates/header.php';
     // bring in DB and helper to get current class id
     require_once __DIR__ . '/../../config/db.php';
     require_once __DIR__ . '/../../config/helper_class.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -86,10 +86,16 @@
                                         </td>
                                         <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                                             <td>
-                                                <button class="btn btn-sm btn-danger delete-member"
-                                                    data-user-id="<?= intval($m['user_id']) ?>" title="Xóa">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                <?php if ($m['user_id'] == $_SESSION['user']['user_id']): ?>
+                                                    <button class="btn btn-sm btn-secondary" disabled title="Không thể tự xóa mình">
+                                                        <i class="bi bi-lock"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="btn btn-sm btn-danger delete-member"
+                                                        data-user-id="<?= intval($m['user_id']) ?>" title="Xóa">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                             </td>
                                         <?php endif; ?>
                                     </tr>
@@ -139,14 +145,15 @@
 
     </main><!-- End #main -->
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>
         // AJAX operations for class members
-        (function () {
+        (function() {
             const classId = <?= intval($classId) ?>;
+            const currentUserId = <?= intval($_SESSION['user']['user_id']) ?>; // Current logged-in user
             let searchTimeout = null;
             let selectedUsers = new Map(); // userId -> {fullname, username, email, role}
 
@@ -158,7 +165,7 @@
             const addSelectedBtn = document.getElementById('addSelectedBtn');
 
             if (searchInput) {
-                searchInput.addEventListener('input', function () {
+                searchInput.addEventListener('input', function() {
                     const keyword = this.value.trim();
 
                     clearTimeout(searchTimeout);
@@ -172,12 +179,12 @@
 
                     searchTimeout = setTimeout(() => {
                         fetch('/api/add_members.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: `action=search&keyword=${encodeURIComponent(keyword)}&class_id=${classId}`
-                        })
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: `action=search&keyword=${encodeURIComponent(keyword)}&class_id=${classId}`
+                            })
                             .then(response => {
                                 // Log raw response for debugging
                                 return response.text().then(text => {
@@ -283,7 +290,7 @@
             }
 
             // Remove user from selected list (global function for onclick)
-            window.removeSelectedUser = function (userId) {
+            window.removeSelectedUser = function(userId) {
                 selectedUsers.delete(userId);
                 updateSelectedList();
 
@@ -300,7 +307,7 @@
 
             // Add selected users to class
             if (addSelectedBtn) {
-                addSelectedBtn.addEventListener('click', function () {
+                addSelectedBtn.addEventListener('click', function() {
                     if (selectedUsers.size === 0) return;
 
                     const userIds = [];
@@ -321,9 +328,9 @@
                     roles.forEach(role => formData.append('roles[]', role));
 
                     fetch('/api/add_members.php', {
-                        method: 'POST',
-                        body: formData
-                    })
+                            method: 'POST',
+                            body: formData
+                        })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
@@ -344,94 +351,101 @@
                 });
             }
 
-            // Update member role
-            document.querySelectorAll('.role-selector').forEach(select => {
-                select.addEventListener('change', function () {
-                    const userId = parseInt(this.dataset.userId);
-                    const newRole = this.value;
-                    const originalValue = this.querySelector('option[selected]')?.value || 'student';
+            // Update member role - Use event delegation to handle dynamically paginated rows
+            document.getElementById('membersTable').addEventListener('change', function(e) {
+                const select = e.target.closest('.role-selector');
+                if (!select) return;
 
-                    if (!confirm(`Xác nhận thay đổi vai trò thành viên này thành "${newRole === 'teacher' ? 'Giáo viên' : 'Học sinh'}"?`)) {
-                        this.value = originalValue;
-                        return;
-                    }
+                const userId = parseInt(select.dataset.userId);
+                const newRole = select.value;
+                const originalValue = select.querySelector('option[selected]')?.value || 'student';
 
-                    this.disabled = true;
+                if (!confirm(`Xác nhận thay đổi vai trò thành viên này thành "${newRole === 'teacher' ? 'Giáo viên' : 'Học sinh'}"?`)) {
+                    select.value = originalValue;
+                    return;
+                }
 
-                    fetch('/api/add_members.php', {
+                select.disabled = true;
+
+                fetch('/api/add_members.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
                         body: `action=update_role&class_id=${classId}&user_id=${userId}&role=${newRole}`
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert('Lỗi: ' + (data.message || 'Không thể cập nhật vai trò'));
-                                this.value = originalValue;
-                                this.disabled = false;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Lỗi khi cập nhật vai trò');
-                            this.value = originalValue;
-                            this.disabled = false;
-                        });
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Lỗi: ' + (data.message || 'Không thể cập nhật vai trò'));
+                            select.value = originalValue;
+                            select.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Lỗi khi cập nhật vai trò');
+                        select.value = originalValue;
+                        select.disabled = false;
+                    });
             });
 
-            // Delete member
-            document.querySelectorAll('.delete-member').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const userId = parseInt(this.dataset.userId);
-                    const row = this.closest('tr');
-                    const userName = row.querySelector('td:nth-child(2)').textContent;
+            // Delete member - Use event delegation to handle dynamically paginated rows
+            document.getElementById('membersTable').addEventListener('click', function(e) {
+                const deleteBtn = e.target.closest('.delete-member');
+                if (!deleteBtn) return;
 
-                    if (!confirm(`Xác nhận xóa "${userName}" khỏi lớp học?`)) {
-                        return;
-                    }
+                const userId = parseInt(deleteBtn.dataset.userId);
 
-                    this.disabled = true;
-                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                // Prevent teacher from deleting themselves
+                if (userId === currentUserId) {
+                    alert('Bạn không thể tự xóa mình khỏi lớp học!');
+                    return;
+                }
 
-                    fetch('/api/add_members.php', {
+                const row = deleteBtn.closest('tr');
+                const userName = row.querySelector('td:nth-child(2)').textContent;
+
+                if (!confirm(`Xác nhận xóa "${userName}" khỏi lớp học?`)) {
+                    return;
+                }
+
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                fetch('/api/add_members.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
                         body: `action=delete&class_id=${classId}&user_id=${userId}`
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                row.remove();
-                                // Renumber rows
-                                document.querySelectorAll('#membersTable tbody tr').forEach((tr, idx) => {
-                                    tr.querySelector('td:first-child').textContent = idx + 1;
-                                });
-                            } else {
-                                alert('Lỗi: ' + (data.message || 'Không thể xóa thành viên'));
-                                this.disabled = false;
-                                this.innerHTML = '<i class="bi bi-trash"></i>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Lỗi khi xóa thành viên');
-                            this.disabled = false;
-                            this.innerHTML = '<i class="bi bi-trash"></i>';
-                        });
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Use DataTable API to remove row if available
+                            const table = $('#membersTable').DataTable();
+                            table.row(row).remove().draw();
+                        } else {
+                            alert('Lỗi: ' + (data.message || 'Không thể xóa thành viên'));
+                            deleteBtn.disabled = false;
+                            deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Lỗi khi xóa thành viên');
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+                    });
             });
 
             // Reset modal on close
             const modal = document.getElementById('addMemberModal');
             if (modal) {
-                modal.addEventListener('hidden.bs.modal', function () {
+                modal.addEventListener('hidden.bs.modal', function() {
                     searchInput.value = '';
                     searchResults.innerHTML = '<p class="text-muted text-center">Nhập từ khóa để tìm kiếm người dùng</p>';
                     selectedUsers.clear();

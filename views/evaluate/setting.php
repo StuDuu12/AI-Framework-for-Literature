@@ -68,8 +68,8 @@
     require_once __DIR__ . '/../../config/helper_class.php';
     require_once __DIR__ . '/../../config/helper_homework.php';
 
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     // Get parameters
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
@@ -105,11 +105,11 @@
     // Check if this phase is for peer evaluation
     if (!$phaseInfo || $phaseInfo['phase_code'] !== 'PHASE_DANHGIANGUOIHOC') {
         // Show error message
-        require_once './views/templates/header.php';
+        require_once __DIR__ . '/../templates/header.php';
         if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
-            require_once './views/templates/sidebar_teacher.php';
+            require_once __DIR__ . '/../templates/sidebar_teacher.php';
         } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-            require_once './views/templates/sidebar_student.php';
+            require_once __DIR__ . '/../templates/sidebar_student.php';
         }
         ?>
         <main id="main" class="main">
@@ -141,8 +141,8 @@
             </section>
         </main>
         <?php
-        require_once 'views/templates/footer.php';
-        require_once 'views/templates/vendors.php';
+        require_once __DIR__ . '/../templates/footer.php';
+        require_once __DIR__ . '/../templates/vendors.php';
         echo '</body></html>';
         exit;
     }
@@ -472,8 +472,8 @@
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>
