@@ -3,47 +3,47 @@
     <?php
     // Get current page path for active menu highlighting
     $current_path = $_SERVER['REQUEST_URI'];
-    $current_page = basename($_SERVER['PHP_SELF']);
+    // $current_path = basename($_SERVER['PHP_SELF']);
     ?>
 
     <ul class="sidebar-nav" id="sidebar-nav">
         <li class="nav-item">
-            <a class="nav-link <?= strpos($current_page, 'dashboard') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/views/admin/dashboard.php">
+            <a class="nav-link <?= strpos($current_path, 'dashboard') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/dashboard">
                 <i class="bi bi-speedometer2"></i>
                 <span>Trang chủ</span>
             </a>
         </li><!-- End Dashboard Nav -->
 
         <li class="nav-item">
-            <a class="nav-link <?= strpos($current_page, 'manage_users') !== false || strpos($current_page, 'create_user') !== false || strpos($current_page, 'edit_user') !== false ? '' : 'collapsed' ?>"
+            <a class="nav-link <?= strpos($current_path, 'admin/users') !== false ? '' : 'collapsed' ?>"
                 data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-people"></i>
                 <span>Quản lý người dùng</span>
                 <i class="bi bi-chevron-down ms-auto"></i>
             </a>
-            <ul id="users-nav" class="nav-content collapse <?= strpos($current_page, 'manage_users') !== false || strpos($current_page, 'create_user') !== false || strpos($current_page, 'edit_user') !== false ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
+            <ul id="users-nav" class="nav-content collapse <?= strpos($current_path, 'admin/users') !== false ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
                 <li>
-                    <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="<?= strpos($current_page, 'manage_users') !== false ? 'active' : '' ?>">
+                    <a href="<?= URL_ROOT ?>/admin/users" class="<?= strpos($current_path, 'admin/users') !== false ? 'active' : '' ?>">
                         <i class="bi bi-circle"></i><span>Tất cả người dùng</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= URL_ROOT ?>/views/admin/manage_users.php?role=teacher">
+                    <a href="<?= URL_ROOT ?>/admin/users?role=teacher">
                         <i class="bi bi-circle"></i><span>Giáo viên</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= URL_ROOT ?>/views/admin/manage_users.php?role=student">
+                    <a href="<?= URL_ROOT ?>/admin/users?role=student">
                         <i class="bi bi-circle"></i><span>Học sinh</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=teacher">
+                    <a href="<?= URL_ROOT ?>/admin/users/create?role=teacher">
                         <i class="bi bi-circle"></i><span>Thêm giáo viên</span>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=student">
+                    <a href="<?= URL_ROOT ?>/admin/users/create?role=student">
                         <i class="bi bi-circle"></i><span>Thêm học sinh</span>
                     </a>
                 </li>
@@ -51,7 +51,7 @@
         </li><!-- End Users Nav -->
 
         <li class="nav-item">
-            <a class="nav-link <?= strpos($current_page, 'manage_reflect') !== false || strpos($current_page, 'reflect_detail') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/views/admin/manage_reflect.php">
+            <a class="nav-link <?= strpos($current_path, 'reflect') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/reflect">
                 <i class="bi bi-journal-text"></i>
                 <span>Quản lý Phản hồi</span>
                 <?php

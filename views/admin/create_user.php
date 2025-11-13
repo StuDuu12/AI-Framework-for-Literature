@@ -1,8 +1,4 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/env.php';
-require_once __DIR__ . '/../../config/db.php';
-
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     header("Location: " . URL_ROOT . "/login");
@@ -71,13 +67,13 @@ $pageTitle = "Tạo tài khoản";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php include __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once 'views/templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once 'views/templates/header.php';
+    require_once 'views/templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
@@ -85,8 +81,8 @@ $pageTitle = "Tạo tài khoản";
             <h1>Tạo tài khoản mới</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_users.php">Quản lý người dùng</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users">Quản lý người dùng</a></li>
                     <li class="breadcrumb-item active">Tạo tài khoản</li>
                 </ol>
             </nav>

@@ -71,7 +71,10 @@ $routes = [
     '503' => ['file' => 'views/errors/503.php', 'title' => '503 Service Unavailable', 'require_auth' => false],
 
     // Admin
-    // 'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
+    'admin/users' => ['file' => 'views/admin/manage_users.php', 'title' => 'Quản lý người dùng', 'require_auth' => true],
+    'admin/users/edit' => ['file' => 'views/admin/edit_user.php', 'title' => 'Sửa tài khoản', 'require_auth' => true],
+    'admin/users/create' => ['file' => 'views/admin/create_user.php', 'title' => 'Tạo tài khoản', 'require_auth' => true],
+    
 
 ];
 
