@@ -111,7 +111,7 @@ $pageTitle = "Sửa tài khoản";
 <body>
     <?php
     include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">

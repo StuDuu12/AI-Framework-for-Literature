@@ -74,7 +74,7 @@ try {
     $totalPages = 0;
 }
 
-$pageTitle = "Quản lý Reflect";
+$pageTitle = "Quản lý Phản hồi";
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -86,22 +86,22 @@ $pageTitle = "Quản lý Reflect";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php include __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Quản lý Reflect</h1>
+            <h1>Quản lý Phản hồi</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Quản lý Reflect</li>
+                    <li class="breadcrumb-item active">Quản lý Phản hồi</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -143,7 +143,7 @@ $pageTitle = "Quản lý Reflect";
             <!-- Reflects Table -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Danh sách Reflect (<?= $total ?? 0 ?>)</h5>
+                    <h5 class="card-title">Danh sách Phản hồi (<?= $total ?? 0 ?>)</h5>
 
                     <table class="table table-hover">
                         <thead>
@@ -238,8 +238,8 @@ $pageTitle = "Quản lý Reflect";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

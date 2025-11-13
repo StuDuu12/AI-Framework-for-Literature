@@ -221,7 +221,7 @@
 
         <?php if ($allow_comment && !$hasNoContent): ?>
             <!-- General Comment Section (Before Content Blocks) -->
-            <div class="card mb-4">
+            <div class="card mb-4" hidden>
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-chat-square-text-fill text-primary"></i>
