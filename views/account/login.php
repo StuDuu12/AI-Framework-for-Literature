@@ -56,7 +56,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- NiceAdmin Assets -->
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once 'views/templates/assets.php'; ?>
 
     <style>
         /* Áp dụng toàn bộ trang dùng font Inter */
@@ -346,7 +346,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
                                     <div class="text-center mb-4">
                                         <div class="d-flex justify-content-center mb-3">
                                             <a href="index.php" class="logo d-flex align-items-center">
-                                                <img src="/views/Landing/photo/logo.png" alt="">
+                                                <img src="NiceAdmin/NiceAdmin/assets/img/logo.png" alt="">
                                                 <span>Literature System</span>
                                             </a>
                                         </div>

@@ -4,17 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once './views/templates/assets.php'; ?>
     <title>Pha học tập</title>
 </head>
 
 <body>
     <?php
-    require_once __DIR__ . '/../../config/db.php';
-    require_once __DIR__ . '/../../config/helper_phase.php';
-    require_once __DIR__ . '/../../config/helper_class.php';
-    require_once __DIR__ . '/../templates/header.php';
-    require_once __DIR__ . '/../templates/sidebar.php';
+    require_once './config/db.php';
+    require_once './config/helper_phase.php';
+    require_once './config/helper_class.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
     // Get topic_id from URL
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
 
@@ -190,8 +190,8 @@
     </div>
 
     <?php
-    require_once __DIR__ . '/../templates/footer.php';
-    require_once __DIR__ . '/../templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
     <script>

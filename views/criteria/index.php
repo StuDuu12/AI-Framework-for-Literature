@@ -79,8 +79,8 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../templates/header.php';
-    require_once __DIR__ . '/../templates/sidebar.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
 
     // Get class_id from session or URL
     $class_id = isset($_SESSION['current_class_id']) ? $_SESSION['current_class_id'] : (isset($_GET['class_id']) ? intval($_GET['class_id']) : null);

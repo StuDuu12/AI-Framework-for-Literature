@@ -10,6 +10,7 @@
     require_once './config/helper_homework.php';
     require_once './config/helper_task.php';
     require_once './config/helper_phase.php';
+
     // Get parameters from URL
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
@@ -220,7 +221,7 @@
 
         <?php if ($allow_comment && !$hasNoContent): ?>
             <!-- General Comment Section (Before Content Blocks) -->
-            <div class="card mb-4" hidden>
+            <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-chat-square-text-fill text-primary"></i>
@@ -306,8 +307,8 @@
     </main>
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
     <script>

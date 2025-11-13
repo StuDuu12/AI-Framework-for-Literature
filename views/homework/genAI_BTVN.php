@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
     <style>
         /* Enhanced textarea styling */
         .editable-content {
@@ -149,9 +150,9 @@
 <body>
     <?php
     // Get task information from URL parameters
-    require_once './config/helper_homework.php';
-    require_once './config/helper_task.php';
-    require_once './config/db.php';
+    require_once __DIR__ . '/../../config/helper_homework.php';
+    require_once __DIR__ . '/../../config/helper_task.php';
+    require_once __DIR__ . '/../../config/db.php';
 
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : null;
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : null;
@@ -503,8 +504,8 @@
     </main><!-- End #main -->
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
     <script>

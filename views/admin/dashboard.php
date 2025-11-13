@@ -23,6 +23,16 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM users WHERE role = 'student'");
     $totalStudents = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
+    // Kiểm tra bảng feedback có tồn tại không
+    $pendingFeedback = 0;
+    try {
+        $stmt = $pdo->query("SELECT COUNT(*) as total FROM feedback WHERE status = 'pending'");
+        $pendingFeedback = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    } catch (PDOException $e) {
+        // Bảng feedback chưa tồn tại
+        $pendingFeedback = 0;
+    }
+
     // Sửa tên bảng từ 'classes' thành 'class'
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM class");
     $totalClasses = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -34,6 +44,7 @@ try {
     error_log("Error fetching admin stats: " . $e->getMessage());
     $totalTeachers = 0;
     $totalStudents = 0;
+    $pendingFeedback = 0;
     $totalClasses = 0;
     $pendingReflect = 0;
 }
@@ -50,13 +61,13 @@ $pageTitle = "Trang quản trị";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
+    <?php include __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    require_once __DIR__ . '/../templates/header.php';
-    require_once __DIR__ . '/../templates/sidebar.php';
+    include __DIR__ . '/../templates/header.php';
+    include __DIR__ . '/../templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
@@ -132,7 +143,7 @@ $pageTitle = "Trang quản trị";
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $pendingReflect ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">Phản hồi</span>
+                                            <span class="text-muted small pt-2 ps-1">reflect</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
@@ -188,6 +199,13 @@ $pageTitle = "Trang quản trị";
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
+                                        <a href="<?= URL_ROOT ?>/views/admin/manage_feedback.php" class="btn btn-warning">
+                                            <i class="bi bi-chat-left-text me-2"></i>Quản lý góp ý
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-info">
                                             <i class="bi bi-journal-text me-2"></i>Quản lý Phản hồi
                                         </a>
@@ -202,8 +220,8 @@ $pageTitle = "Trang quản trị";
     </main><!-- End #main -->
 
     <?php
-    require_once __DIR__ . '/../templates/footer.php';
-    require_once __DIR__ . '/../templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
 </body>

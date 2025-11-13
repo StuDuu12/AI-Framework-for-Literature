@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once './views/templates/assets.php'; ?>
     <title>Phân tích Văn học</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,8 +15,8 @@
 
 <body>
     <?php
-    require_once __DIR__ . '/../templates/header.php';
-    require_once __DIR__ . '/../templates/sidebar.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -186,8 +186,8 @@
     </main><!-- End #main -->
 
     <?php
-    require_once __DIR__ . '/../templates/footer.php';
-    require_once __DIR__ . '/../templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
     <script>

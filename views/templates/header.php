@@ -56,7 +56,7 @@
 <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-        <a href="dashboard" class="logo d-flex align-items-center">
+        <a href="student.php" class="logo d-flex align-items-center">
             <i class="bi bi-book text-primary fs-2 me-2"></i>
             <span class="d-none d-lg-block text-primary fw-bold">Literature System</span>
         </a>

@@ -89,12 +89,6 @@ try {
                 exit;
             }
 
-            // Prevent teacher from deleting themselves
-            if ($user_id === $user_id_request) {
-                echo json_encode(['success' => false, 'message' => 'Bạn không thể tự xóa mình khỏi lớp học']);
-                exit;
-            }
-
             $result = removeClassMember($class_id, $user_id);
             echo json_encode(['success' => $result, 'message' => $result ? 'Xóa thành công' : 'Xóa thất bại']);
             break;

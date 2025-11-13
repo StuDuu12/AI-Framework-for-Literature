@@ -80,6 +80,13 @@
             </li>
         <?php endif; ?>
 
+        <li class="nav-heading">Góp ý</li>
+        <li class="nav-item">
+            <a class="nav-link <?= strpos($current_page, '/views/feedback') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/views/feedback/index.php">
+                <i class="bi bi-chat-left-text"></i>
+                <span>Gửi góp ý</span>
+            </a>
+        </li>
         <li class="nav-heading">Phản hồi</li>
         <li class="nav-item">
             <a class="nav-link collapsed" href="<?= URL_ROOT ?>/reflect">
