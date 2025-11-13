@@ -51,7 +51,7 @@
 
                 // Đọc nội dung file nếu có
                 if ($taskData && !empty($taskData['file_content'])) {
-                    $filePath = __DIR__ . '/../../uploads/' . $taskData['file_content'];
+                   $filePath = __DIR__ . '/../../uploads/' . $taskData['file_content'];
                     if (file_exists($filePath)) {
                         $fileContent = file_get_contents($filePath);
                     }
@@ -133,8 +133,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
     <style>
+        /* Base styles for analysis page */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         /* Background image cho body trong dark theme - genAI page */
         body.dark-theme {
             background-image: url('/assets/img/vanhoc.jpg') !important;
@@ -208,13 +212,357 @@
             display: block;
             width: 100%;
         }
+
+        /* Layout & Grid Styles */
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-12 {
+                grid-template-columns: repeat(12, minmax(0, 1fr));
+            }
+        }
+
+        .gap-8 {
+            gap: 2rem;
+        }
+
+        /* Card Styles */
+        .bg-white {
+            background-color: #ffffff;
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .p-6 {
+            padding: 1.5rem;
+        }
+
+        .p-8 {
+            padding: 2rem;
+        }
+
+        /* Tab Styles */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .tab-button:hover {
+            background: #e2e8f0;
+        }
+
+        .tab-button.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            background: white;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Input Styles */
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* Chat Styles */
+        .chat-message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chat-message.user {
+            background: #eff6ff;
+            margin-left: 2rem;
+        }
+
+        .chat-message.assistant {
+            background: #f9fafb;
+            margin-right: 2rem;
+        }
+
+        .chat-message.system {
+            background: #fef3c7;
+            text-align: center;
+        }
+
+        /* Loading Spinner */
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 0.15rem solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+        }
+
+        /* Analysis Content Styles */
+        #analysis-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        #analysis-content h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        #analysis-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #475569;
+        }
+
+        #analysis-content p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+            color: #475569;
+        }
+
+        #analysis-content ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #analysis-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stats Card */
+        .stat-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Keyword Badge */
+        .keyword-badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            margin: 0.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .lg\:col-span-5 {
+                grid-column: span 12 / span 12;
+            }
+
+            .lg\:col-span-7 {
+                grid-column: span 12 / span 12;
+            }
+        }
+
+        /* Dark theme adjustments */
+        body.dark-theme .bg-white {
+            background: rgba(30, 41, 59, 0.9) !important;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme #analysis-content h1,
+        body.dark-theme #analysis-content h2,
+        body.dark-theme #analysis-content h3 {
+            color: #f1f5f9;
+        }
+
+        body.dark-theme #analysis-content p,
+        body.dark-theme #analysis-content li {
+            color: #cbd5e1;
+        }
+
+        body.dark-theme .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: rgba(51, 65, 85, 0.5);
+        }
+
+        body.dark-theme .stat-label {
+            color: #94a3b8;
+        }
+
+        body.dark-theme .stat-value {
+            color: #f1f5f9;
+        }
+
+        body.dark-theme textarea {
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            border-color: rgba(71, 85, 105, 0.5);
+        }
+
+        body.dark-theme .tab-button {
+            background: rgba(51, 65, 85, 0.6);
+            color: #cbd5e1;
+        }
+
+        body.dark-theme .tab-button:hover {
+            background: rgba(71, 85, 105, 0.8);
+        }
+
+        body.dark-theme .tab-content {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        body.dark-theme .chat-message.user {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        body.dark-theme .chat-message.assistant {
+            background: rgba(51, 65, 85, 0.4);
+        }
     </style>
 </head>
 
 <body>
     <?php
-    require_once __DIR__ . '/../templates/header.php';
-    require_once __DIR__ . '/../templates/sidebar.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -404,8 +752,8 @@
     </main><!-- End #main -->
 
     <?php
-    require_once __DIR__ . '/../templates/footer.php';
-    require_once __DIR__ . '/../templates/vendors.php';
+    require_once './views/templates/footer.php';
+    require_once './views/templates/vendors.php';
     ?>
 
     <script>
