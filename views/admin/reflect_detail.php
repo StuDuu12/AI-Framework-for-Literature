@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
     }
 }
 
-$pageTitle = "Chi tiết Reflect";
+$pageTitle = "Chi tiết phản hồi";
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -101,22 +101,22 @@ $pageTitle = "Chi tiết Reflect";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php include __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once './views/templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Chi tiết Reflect</h1>
+            <h1>Chi tiết Phản hồi</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php">Quản lý Reflect</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php">Quản lý Phản hồi</a></li>
                     <li class="breadcrumb-item active">Chi tiết</li>
                 </ol>
             </nav>
@@ -287,8 +287,8 @@ $pageTitle = "Chi tiết Reflect";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

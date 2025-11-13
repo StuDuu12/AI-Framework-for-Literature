@@ -68,13 +68,13 @@ $pageTitle = "Quản lý người dùng";
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php include __DIR__ . '/../templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    include __DIR__ . '/../templates/header.php';
-    include __DIR__ . '/../templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -265,8 +265,8 @@ $pageTitle = "Quản lý người dùng";
     </script>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Reflect - Hệ thống hỗ trợ</title>
+    <title>Quản lý phản hồi - Hệ thống hỗ trợ</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
@@ -97,13 +97,13 @@
     <div id="createModal" class="reflect-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Tạo Reflect mới</h5>
+                <h5>Tạo phản hồi mới</h5>
                 <button class="modal-close" onclick="closeCreateModal()">×</button>
             </div>
             <div class="modal-body">
                 <form id="createTicketForm">
                     <div class="form-group">
-                        <label>Loại Reflect <span class="required">*</span></label>
+                        <label>Loại phản hồi <span class="required">*</span></label>
                         <select id="createType" class="form-control" required>
                             <option value="">-- Chọn loại --</option>
                         </select>
@@ -122,7 +122,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Hủy</button>
                 <button type="button" class="btn btn-primary" onclick="createTicket()">
-                    <i class="bi bi-send"></i> Tạo Reflect
+                    <i class="bi bi-send"></i> Tạo phản hồi
                 </button>
             </div>
         </div>
