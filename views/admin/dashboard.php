@@ -96,7 +96,7 @@ $pageTitle = "Trang quản trị";
                                         </div>
                                     </div>
                                     <div class="mt-3">
-                                        <a href="<?= URL_ROOT ?>/views/admin/manage_users.php?role=teacher" class="btn btn-sm btn-outline-primary">
+                                        <a href="<?= URL_ROOT ?>/admin/users?role=teacher" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye"></i> Xem chi tiết
                                         </a>
                                     </div>
@@ -119,7 +119,7 @@ $pageTitle = "Trang quản trị";
                                         </div>
                                     </div>
                                     <div class="mt-3">
-                                        <a href="<?= URL_ROOT ?>/views/admin/manage_users.php?role=student" class="btn btn-sm btn-outline-success">
+                                        <a href="<?= URL_ROOT ?>/admin/users?role=student" class="btn btn-sm btn-outline-success">
                                             <i class="bi bi-eye"></i> Xem chi tiết
                                         </a>
                                     </div>
@@ -143,7 +143,7 @@ $pageTitle = "Trang quản trị";
                                         </div>
                                     </div>
                                     <div class="mt-3">
-                                        <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php?status=0" class="btn btn-sm btn-outline-danger">
+                                        <a href="<?= URL_ROOT ?>/reflect" class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-eye"></i> Xem chi tiết
                                         </a>
                                     </div>
@@ -181,28 +181,28 @@ $pageTitle = "Trang quản trị";
                             <div class="row">
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
-                                        <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=teacher" class="btn btn-primary">
+                                        <a href="<?= URL_ROOT ?>/admin/users/create?role=teacher" class="btn btn-primary">
                                             <i class="bi bi-person-plus me-2"></i>Tạo tài khoản giáo viên
                                         </a>
                                     </div>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
-                                        <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=student" class="btn btn-success">
+                                        <a href="<?= URL_ROOT ?>/admin/users/create?role=student" class="btn btn-success">
                                             <i class="bi bi-person-plus me-2"></i>Tạo tài khoản học sinh
                                         </a>
                                     </div>
                                 </div>
-                                <div class="col-md-3 mb-3">
+                                <!-- <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/views/admin/manage_feedback.php" class="btn btn-warning">
                                             <i class="bi bi-chat-left-text me-2"></i>Quản lý góp ý
                                         </a>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
-                                        <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-info">
+                                        <a href="<?= URL_ROOT ?>/reflect" class="btn btn-info">
                                             <i class="bi bi-journal-text me-2"></i>Quản lý Phản hồi
                                         </a>
                                     </div>
