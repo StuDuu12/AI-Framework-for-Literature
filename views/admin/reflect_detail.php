@@ -1,3 +1,4 @@
+<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
 <?php
 session_start();
 require_once __DIR__ . '/../../config/env.php';
