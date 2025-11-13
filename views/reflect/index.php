@@ -136,7 +136,7 @@
     <script>
         let allTickets = [];
         let reflectTypes = [];
-        const isAdmin = <?php echo $isAdmin ? 'true' : 'false'; ?>;
+        const isAdmin = <?= isset($_SESSION['role']) && $_SESSION['role'] === 'admin' ? 'true' : 'false'; ?>;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function () {
