@@ -1,3 +1,7 @@
+<?php 
+$ticketId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$user = $_SESSION['user'];
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -467,8 +471,6 @@
     <?php
     require_once './views/templates/header.php';
     require_once './views/templates/sidebar.php';
-    
-
     ?>
 
     <main id="main" class="main">
