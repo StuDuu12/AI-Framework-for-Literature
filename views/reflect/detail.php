@@ -1,4 +1,4 @@
-<?php 
+<?php
 $ticketId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $user = $_SESSION['user'];
 ?>
@@ -549,11 +549,11 @@ $user = $_SESSION['user'];
         let ticketData = null;
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             loadTicketDetail();
 
             // Response form submit
-            document.getElementById('responseForm').addEventListener('submit', async function(e) {
+            document.getElementById('responseForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
                 await addResponse();
             });
@@ -982,10 +982,10 @@ $user = $_SESSION['user'];
 
         // Delete response
         async function deleteResponse(detailId, replyCount) {
-            const confirmMessage = replyCount > 0 
+            const confirmMessage = replyCount > 0
                 ? `Phản hồi này có ${replyCount} câu trả lời. Xóa phản hồi sẽ xóa tất cả câu trả lời. Bạn có chắc muốn xóa?`
                 : 'Bạn có chắc muốn xóa phản hồi này? Hành động không thể hoàn tác!';
-            
+
             if (!confirm(confirmMessage)) {
                 return;
             }

@@ -354,11 +354,11 @@ function deleteReflectResponse($detailId, $userId, $userRole)
         $stmt = $pdo->prepare("SELECT id_reflect FROM reflect_detail WHERE id_reflect_detail = :detail_id");
         $stmt->execute(['detail_id' => $detailId]);
         $response = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$response) {
             return false;
         }
-        
+
         $ticketId = $response['id_reflect'];
 
         $pdo->beginTransaction();
