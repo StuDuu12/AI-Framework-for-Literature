@@ -730,6 +730,7 @@ $user = $_SESSION['user'];
             const replyClass = isReply ? 'is-reply' : '';
             const canReply = ticketData.ticket.status != 3 && !isReply; // Not closed and not already a reply
             const hasReplies = replies && replies.length > 0;
+            const canDelete = currentUserRole === 'admin'; // Only admin can delete
 
             return `
         <div class="response-item ${replyClass}" id="response-${response.id_reflect_detail}">
@@ -750,12 +751,19 @@ $user = $_SESSION['user'];
             </div>
             <div class="response-body" id="response-body-${response.id_reflect_detail}">
                 <div class="response-content">${escapeHtml(response.content)}</div>
-                ${canReply ? `
-                    <div class="response-actions">
+                <div class="response-actions">
+                    ${canReply ? `
                         <button class="btn btn-sm btn-outline-primary btn-reply" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">
                             <i class="bi bi-reply"></i> Trả lời
                         </button>
-                    </div>
+                    ` : ''}
+                    ${canDelete ? `
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteResponse(${response.id_reflect_detail}, ${hasReplies ? replies.length : 0})">
+                            <i class="bi bi-trash"></i> Xóa
+                        </button>
+                    ` : ''}
+                </div>
+                ${canReply ? `
                     <div id="reply-form-${response.id_reflect_detail}" class="reply-form">
                         <div class="form-group mb-2">
                             <textarea id="reply-content-${response.id_reflect_detail}" class="form-control" rows="3" placeholder="Nhập nội dung trả lời..."></textarea>
@@ -969,6 +977,42 @@ $user = $_SESSION['user'];
             } catch (error) {
                 console.error('Error deleting ticket:', error);
                 alert('Có lỗi khi xóa ticket');
+            }
+        }
+
+        // Delete response
+        async function deleteResponse(detailId, replyCount) {
+            const confirmMessage = replyCount > 0 
+                ? `Phản hồi này có ${replyCount} câu trả lời. Xóa phản hồi sẽ xóa tất cả câu trả lời. Bạn có chắc muốn xóa?`
+                : 'Bạn có chắc muốn xóa phản hồi này? Hành động không thể hoàn tác!';
+            
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('<?php echo URL_ROOT; ?>/api/reflect_manager.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete_response',
+                        detail_id: detailId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Đã xóa phản hồi thành công!');
+                    loadTicketDetail(); // Reload to refresh list
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error deleting response:', error);
+                alert('Có lỗi khi xóa phản hồi');
             }
         }
 

@@ -220,8 +220,8 @@ $pageTitle = "Trang quản trị";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once './views/templates/footer.php';
+    require_once './views/templates/vendors.php';
     ?>
 
 </body>

@@ -189,6 +189,26 @@ try {
             ]);
             break;
 
+        case 'delete_response':
+            // Delete response (Admin only)
+            $detailId = intval($input['detail_id'] ?? 0);
+
+            if ($detailId <= 0) {
+                throw new Exception('Response ID không hợp lệ');
+            }
+
+            $success = deleteReflectResponse($detailId, $userId, $userRole);
+
+            if (!$success) {
+                throw new Exception('Không thể xóa phản hồi. Chỉ admin mới có quyền xóa.');
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Xóa phản hồi thành công'
+            ]);
+            break;
+
         default:
             throw new Exception('Action không hợp lệ');
     }

@@ -335,6 +335,65 @@ function deleteReflectTicket($ticketId, $userId, $userRole)
 }
 
 /**
+ * Delete a reflect response
+ * @param int $detailId - ID of response to delete
+ * @param int $userId - Current user ID
+ * @param string $userRole - Current user role
+ * @return bool
+ */
+function deleteReflectResponse($detailId, $userId, $userRole)
+{
+    global $pdo;
+    try {
+        // Only admin can delete responses
+        if ($userRole !== 'admin') {
+            return false;
+        }
+
+        // Get ticket ID before deleting
+        $stmt = $pdo->prepare("SELECT id_reflect FROM reflect_detail WHERE id_reflect_detail = :detail_id");
+        $stmt->execute(['detail_id' => $detailId]);
+        $response = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$response) {
+            return false;
+        }
+        
+        $ticketId = $response['id_reflect'];
+
+        $pdo->beginTransaction();
+
+        // Check if this response has child replies
+        $stmt = $pdo->prepare("SELECT COUNT(*) as reply_count FROM reflect_detail WHERE parent_reflect_detail = :detail_id");
+        $stmt->execute(['detail_id' => $detailId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['reply_count'] > 0) {
+            // Delete all child replies first
+            $stmt = $pdo->prepare("DELETE FROM reflect_detail WHERE parent_reflect_detail = :detail_id");
+            $stmt->execute(['detail_id' => $detailId]);
+        }
+
+        // Delete the response
+        $stmt = $pdo->prepare("DELETE FROM reflect_detail WHERE id_reflect_detail = :detail_id");
+        $stmt->execute(['detail_id' => $detailId]);
+
+        // Update ticket updated_at
+        $stmt = $pdo->prepare("UPDATE reflect_ticket SET updated_at = NOW() WHERE id_reflect = :ticket_id");
+        $stmt->execute(['ticket_id' => $ticketId]);
+
+        $pdo->commit();
+        return true;
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Error in deleteReflectResponse: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
  * Get status label
  * @param int $status
  * @return string
