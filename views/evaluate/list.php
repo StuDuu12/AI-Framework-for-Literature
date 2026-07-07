@@ -66,14 +66,14 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title data-lang-key="evaluate_list">Evaluation List</title>
 </head>
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -246,8 +246,8 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
     </main>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 </body>
 

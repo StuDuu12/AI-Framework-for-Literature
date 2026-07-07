@@ -17,8 +17,8 @@ $user = $_SESSION['user'];
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
     ?>
 
     <main id="main" class="main">
@@ -86,8 +86,8 @@ $user = $_SESSION['user'];
     </main>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>

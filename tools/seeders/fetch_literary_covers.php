@@ -1,12 +1,12 @@
-<?php
+﻿<?php
 /**
- * Download literary work cover images — Open Library, Gutenberg, Internet Archive (not Wikipedia-first).
+ * Download literary work cover images â€” Open Library, Gutenberg, Internet Archive (not Wikipedia-first).
  * Run: php fetch_literary_covers.php
  *       php fetch_literary_covers.php --missing-only
  *       php fetch_literary_covers.php --force
  */
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/config/helper_workspace.php';
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/helper_workspace.php';
 
 $outDir = __DIR__ . '/assets/img/literary';
 if (!is_dir($outDir)) {
@@ -139,51 +139,51 @@ function commonsFileUrl($filename, $width = 640)
 
 /** Direct Commons files (not Wikipedia page API) */
 $commonsFiles = [
-    'Lão Hạc' => 'Portrait of Nam Cao.jpg',
-    'Vợ nhặt' => 'Kim Lân Sơn Xuất Thế.jpg',
-    'Vợ chồng A Phủ' => 'Portrait of Nam Cao.jpg',
-    'Lỡ bước sang ngang' => 'Nguyen Binh.jpg',
-    'Chân quê' => 'Nguyen Binh.jpg',
-    'Mưa phùn' => 'Vu Trong Phung.jpg',
-    'Đây thôn Vĩ Dạnh' => 'Portrait of Hàn Mặc Tử (cropped).jpg',
-    'Đau thương' => 'Hanmactu.jpg',
-    'Dế Mèn Phiêu Lưu Ký' => 'Bìa_Dế_Mèn_Phiêu_Lưu_Ký_của_NXB_Tân_Dân.jpg',
-    'Chí Phèo' => 'Chi_Pheo_cover_1957.jpg',
-    'Truyện Kiều' => 'Kim_Vân_Kiều_tân_truyện.jpg',
-    'Số đỏ' => 'Sodobanindau.jpg',
-    'Gió lên' => 'Ivory comb.jpg',
-    'Cám ơn sự đời đánh thức hồn mộng mị' => 'Ivory comb.jpg',
-    'Sang thu' => 'Hữu Thỉnh.jpg',
-    'Mùa lá rơi lễ hội' => 'Hữu Thỉnh.jpg',
-    'Nói với con' => 'Temple of Literature Hanoi.jpg',
-    'Đàn bà trắng' => 'Temple of Literature Hanoi.jpg',
-    'Nói khép mắt lại' => 'Temple of Literature Hanoi.jpg',
-    'Nam quốc sơn hà' => 'Chữ Nôm.jpg',
-    'Qua đèo Ngang' => 'Lang Co beach.jpg',
-    'Một chiếc lược ngà' => 'Ivory comb.jpg',
-    'Nhớ mùa thu Hà Nội' => 'Hoan Kiem Lake.jpg',
+    'LÃ£o Háº¡c' => 'Portrait of Nam Cao.jpg',
+    'Vá»£ nháº·t' => 'Kim LÃ¢n SÆ¡n Xuáº¥t Tháº¿.jpg',
+    'Vá»£ chá»“ng A Phá»§' => 'Portrait of Nam Cao.jpg',
+    'Lá»¡ bÆ°á»›c sang ngang' => 'Nguyen Binh.jpg',
+    'ChÃ¢n quÃª' => 'Nguyen Binh.jpg',
+    'MÆ°a phÃ¹n' => 'Vu Trong Phung.jpg',
+    'ÄÃ¢y thÃ´n VÄ© Dáº¡nh' => 'Portrait of HÃ n Máº·c Tá»­ (cropped).jpg',
+    'Äau thÆ°Æ¡ng' => 'Hanmactu.jpg',
+    'Dáº¿ MÃ¨n PhiÃªu LÆ°u KÃ½' => 'BÃ¬a_Dáº¿_MÃ¨n_PhiÃªu_LÆ°u_KÃ½_cá»§a_NXB_TÃ¢n_DÃ¢n.jpg',
+    'ChÃ­ PhÃ¨o' => 'Chi_Pheo_cover_1957.jpg',
+    'Truyá»‡n Kiá»u' => 'Kim_VÃ¢n_Kiá»u_tÃ¢n_truyá»‡n.jpg',
+    'Sá»‘ Ä‘á»' => 'Sodobanindau.jpg',
+    'GiÃ³ lÃªn' => 'Ivory comb.jpg',
+    'CÃ¡m Æ¡n sá»± Ä‘á»i Ä‘Ã¡nh thá»©c há»“n má»™ng má»‹' => 'Ivory comb.jpg',
+    'Sang thu' => 'Há»¯u Thá»‰nh.jpg',
+    'MÃ¹a lÃ¡ rÆ¡i lá»… há»™i' => 'Há»¯u Thá»‰nh.jpg',
+    'NÃ³i vá»›i con' => 'Temple of Literature Hanoi.jpg',
+    'ÄÃ n bÃ  tráº¯ng' => 'Temple of Literature Hanoi.jpg',
+    'NÃ³i khÃ©p máº¯t láº¡i' => 'Temple of Literature Hanoi.jpg',
+    'Nam quá»‘c sÆ¡n hÃ ' => 'Chá»¯ NÃ´m.jpg',
+    'Qua Ä‘Ã¨o Ngang' => 'Lang Co beach.jpg',
+    'Má»™t chiáº¿c lÆ°á»£c ngÃ ' => 'Ivory comb.jpg',
+    'Nhá»› mÃ¹a thu HÃ  Ná»™i' => 'Hoan Kiem Lake.jpg',
 ];
 
 /** Author portrait / thematic Commons fallback */
 $authorCommonsFiles = [
-    'Xuân Quỳnh' => 'Ivory comb.jpg',
-    'Y Phương' => 'Temple of Literature Hanoi.jpg',
-    'Hữu Thỉnh' => 'Hữu Thỉnh.jpg',
-    'Lý Thường Kiệt' => 'Chữ Nôm.jpg',
-    'Bà Huyện Thanh Quan' => 'Phố Bà Huyện Thanh Quan, Hà Nội 003.JPG',
-    'Nguyễn Bá Khoản' => 'Ivory comb.jpg',
-    'Vũ Khắc Tung' => 'Hoan Kiem Lake.jpg',
+    'XuÃ¢n Quá»³nh' => 'Ivory comb.jpg',
+    'Y PhÆ°Æ¡ng' => 'Temple of Literature Hanoi.jpg',
+    'Há»¯u Thá»‰nh' => 'Há»¯u Thá»‰nh.jpg',
+    'LÃ½ ThÆ°á»ng Kiá»‡t' => 'Chá»¯ NÃ´m.jpg',
+    'BÃ  Huyá»‡n Thanh Quan' => 'Phá»‘ BÃ  Huyá»‡n Thanh Quan, HÃ  Ná»™i 003.JPG',
+    'Nguyá»…n BÃ¡ Khoáº£n' => 'Ivory comb.jpg',
+    'VÅ© Kháº¯c Tung' => 'Hoan Kiem Lake.jpg',
 ];
 
 /** Curated Open Library cover IDs (not Wikipedia) */
 $openLibraryCoverIds = [
-    'Gió lên' => 9987118,
-    'Cám ơn sự đời đánh thức hồn mộng mị' => 9987118,
-    'Nói với con' => 161662,
-    'Đàn bà trắng' => 161662,
-    'Nói khép mắt lại' => 161662,
-    'Xuân Quỳnh' => 9987118,
-    'Y Phương' => 161662,
+    'GiÃ³ lÃªn' => 9987118,
+    'CÃ¡m Æ¡n sá»± Ä‘á»i Ä‘Ã¡nh thá»©c há»“n má»™ng má»‹' => 9987118,
+    'NÃ³i vá»›i con' => 161662,
+    'ÄÃ n bÃ  tráº¯ng' => 161662,
+    'NÃ³i khÃ©p máº¯t láº¡i' => 161662,
+    'XuÃ¢n Quá»³nh' => 9987118,
+    'Y PhÆ°Æ¡ng' => 161662,
 ];
 
 function openLibraryCoverById($coverId)
@@ -265,7 +265,7 @@ $works = $pdo->query('SELECT id, title, author, cover_image, wikipedia_url FROM 
 $upd = $pdo->prepare('UPDATE literary_work SET cover_image = :img WHERE id = :id');
 
 // Fix known title typo in DB
-$pdo->exec("UPDATE literary_work SET title = 'Vợ chồng A Phủ', wikipedia_url = 'https://vi.wikipedia.org/wiki/Vợ_chồng_A_Phủ' WHERE title = 'Vợ chóng A Phủ'");
+$pdo->exec("UPDATE literary_work SET title = 'Vá»£ chá»“ng A Phá»§', wikipedia_url = 'https://vi.wikipedia.org/wiki/Vá»£_chá»“ng_A_Phá»§' WHERE title = 'Vá»£ chÃ³ng A Phá»§'");
 
 $ok = 0;
 $skip = 0;
@@ -303,3 +303,4 @@ foreach ($works as $work) {
 }
 
 echo "\nDone: {$ok} saved, {$skip} skipped, {$fail} failed.\n";
+

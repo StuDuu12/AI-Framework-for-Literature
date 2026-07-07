@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 /**
  * Insert 100 expansion works into literary_work.
  * Run: php apply_literary_expansion.php
  */
-require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 
-$works = require __DIR__ . '/database/literary_expansion_works.php';
+$works = require __DIR__ . '/../../database/literary_expansion_works.php';
 if (!is_array($works) || count($works) === 0) {
     fwrite(STDERR, "No expansion works found.\n");
     exit(1);
@@ -73,7 +73,7 @@ foreach ($missing as $row) {
         ':slug' => $slug,
         ':region' => $row['region'] === 'international' ? 'international' : 'vietnam',
         ':country' => $row['country'] ?? '',
-        ':bio' => 'Tác giả / Author trong kho tri thức văn học LiteratureVer2.',
+        ':bio' => 'TÃ¡c giáº£ / Author trong kho tri thá»©c vÄƒn há»c LiteratureVer2.',
     ]);
 }
 $pdo->exec("
@@ -84,3 +84,4 @@ $pdo->exec("
 $total = (int) $pdo->query('SELECT COUNT(*) FROM literary_work')->fetchColumn();
 echo "Expansion: {$added} added, {$skipped} skipped (already exist).\n";
 echo "Total literary_work: {$total}\n";
+

@@ -1,5 +1,6 @@
 # Secrets / local config
 config/env.local.php
+.env
 
 # Local artifacts & debug output
 out.json

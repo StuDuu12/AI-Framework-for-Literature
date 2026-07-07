@@ -1,8 +1,8 @@
 <?php
-require_once '../config/db.php';
-require_once '../config/helper_phase.php';
-require_once '../config/helper_task.php';
-require_once '../config/helper_class.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/helper_phase.php';
+require_once __DIR__ . '/../config/helper_task.php';
+require_once __DIR__ . '/../config/helper_class.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

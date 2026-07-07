@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title>Admin Analytics Dashboard</title>
     <style>
         .stat-card { transition: transform 0.2s; }
@@ -16,8 +16,8 @@
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
@@ -201,8 +201,8 @@
     </main>
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

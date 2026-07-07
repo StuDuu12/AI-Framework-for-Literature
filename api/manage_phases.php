@@ -1,8 +1,8 @@
 <?php
 ob_start();
 session_start();
-require_once '../config/db.php';
-require_once '../config/helper_phase.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/helper_phase.php';
 
 header('Content-Type: application/json');
 

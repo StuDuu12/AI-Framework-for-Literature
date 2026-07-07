@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 if (PHP_SAPI !== 'cli') { http_response_code(403); die('CLI only'); }
-require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 if (session_status() === PHP_SESSION_NONE && php_sapi_name() !== 'cli') {
     session_start();
 }
@@ -83,7 +83,7 @@ try {
         }
         echo "Found Phase 1 Task ID: $phase1_task_id<br>";
 
-        $dummyNames = ['Nguyễn Văn A', 'Trần Thị B', 'Lê Văn C'];
+        $dummyNames = ['Nguyá»…n VÄƒn A', 'Tráº§n Thá»‹ B', 'LÃª VÄƒn C'];
         foreach ($dummyNames as $i => $name) {
             $dummyLabel = 'dummy' . time() . '_' . $i; // Ensure unique username
             
@@ -99,7 +99,7 @@ try {
             $responseId = $pdo->lastInsertId();
             echo "Created response ID: $responseId<br>";
 
-            $sampleContent = "Đây là bài phân tích mẫu của $name. Tác phẩm mang giá trị nhân đạo sâu sắc, thiết thực.";
+            $sampleContent = "ÄÃ¢y lÃ  bÃ i phÃ¢n tÃ­ch máº«u cá»§a $name. TÃ¡c pháº©m mang giÃ¡ trá»‹ nhÃ¢n Ä‘áº¡o sÃ¢u sáº¯c, thiáº¿t thá»±c.";
             $stmt = $pdo->prepare("INSERT INTO content (response_id, content, `order`, type_create, added_by) VALUES (:rid, :content, 1, 'text', :uid)");
             $stmt->execute([':rid' => $responseId, ':content' => $sampleContent, ':uid' => $dummyId]);
 
@@ -157,16 +157,17 @@ try {
     } // End foreach task3List
 
     $pdo->commit(); // Commit transaction here
-    echo "<h3>Hoàn tất!</h3>";
-    echo "Đã phân công mới: <strong>$totalAssigned</strong> bài.<br>";
-    echo "Đã được phân công từ trước: <strong>$totalAlready</strong> bài.<br>";
-    echo "<br><a href='/class/evaluate/list?task_id=$taskId&topic_id=$topicId' style='padding:10px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px;'>Đến trang danh sách đánh giá</a>";
+    echo "<h3>HoÃ n táº¥t!</h3>";
+    echo "ÄÃ£ phÃ¢n cÃ´ng má»›i: <strong>$totalAssigned</strong> bÃ i.<br>";
+    echo "ÄÃ£ Ä‘Æ°á»£c phÃ¢n cÃ´ng tá»« trÆ°á»›c: <strong>$totalAlready</strong> bÃ i.<br>";
+    echo "<br><a href='/class/evaluate/list?task_id=$taskId&topic_id=$topicId' style='padding:10px; background:#0d6efd; color:white; text-decoration:none; border-radius:5px;'>Äáº¿n trang danh sÃ¡ch Ä‘Ã¡nh giÃ¡</a>";
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack(); // Rollback on error
     }
-    echo "<br><h3 style='color:red;'>Lỗi hệ thống:</h3>";
+    echo "<br><h3 style='color:red;'>Lá»—i há»‡ thá»‘ng:</h3>";
     echo $e->getMessage();
 }
 ?>
+

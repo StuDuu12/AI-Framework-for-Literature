@@ -1,8 +1,8 @@
 <?php
-require_once './config/db.php';
-require_once './config/helper_task.php';
-require_once './config/helper_phase.php';
-require_once './config/helper_class.php';
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/helper_task.php';
+require_once __DIR__ . '/../../config/helper_phase.php';
+require_once __DIR__ . '/../../config/helper_class.php';
 
 $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
 $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
@@ -15,8 +15,8 @@ if ($phaseId > 0) {
 $isTeacher = isTeacherInTopicClass($topicId, $_SESSION['user']['user_id']);
 
 if ($isTeacher) {
-    require_once './views/tasks/view_task_in_phase_teacher.php';
+    require_once __DIR__ . '/view_task_in_phase_teacher.php';
 } else {
     // echo $isTeacher;
-    require_once './views/tasks/view_task_in_phase_student.php';
+    require_once __DIR__ . '/view_task_in_phase_student.php';
 }

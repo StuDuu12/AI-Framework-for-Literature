@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Seed data for PHASE_CHAMDIEM (Final Grading).
  * Run: php seed_grading_phase.php
@@ -8,9 +8,9 @@ if (PHP_SAPI !== 'cli') {
     die('CLI only');
 }
 
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/config/helper_evaluate.php';
-require_once __DIR__ . '/config/helper_homework.php';
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/helper_evaluate.php';
+require_once __DIR__ . '/../../config/helper_homework.php';
 
 function resolveCriteriaGroupId(PDO $pdo, int $sourceTaskId): int
 {
@@ -21,10 +21,10 @@ function resolveCriteriaGroupId(PDO $pdo, int $sourceTaskId): int
         return 1;
     }
     $hay = strtolower(($task['title'] ?? '') . ' ' . ($task['file_content'] ?? ''));
-    if (preg_match('/\b(story|truyện|lão hạc|nam cao|narrative|tale)\b/u', $hay)) {
+    if (preg_match('/\b(story|truyá»‡n|lÃ£o háº¡c|nam cao|narrative|tale)\b/u', $hay)) {
         return 3;
     }
-    if (preg_match('/\b(drama|play|kịch|tuồng|hồn trương)\b/u', $hay)) {
+    if (preg_match('/\b(drama|play|ká»‹ch|tuá»“ng|há»“n trÆ°Æ¡ng)\b/u', $hay)) {
         return 3;
     }
     return 1;
@@ -236,7 +236,7 @@ try {
 
         $submissions = getResponsesForEvaluation($gradingTaskId);
         if (empty($submissions)) {
-            echo "  ! No submissions on source task — skip.\n";
+            echo "  ! No submissions on source task â€” skip.\n";
             continue;
         }
 
@@ -309,3 +309,4 @@ try {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
     exit(1);
 }
+

@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link href="<?= URL_ROOT ?>/assets/css/literary-canon.css" rel="stylesheet">
     <title><?= htmlspecialchars($pageTitle ?? 'Work') ?> — Literary Canon</title>
 </head>
 
 <body class="canon-page canon-detail-page">
     <?php
-    require_once './config/helper_workspace.php';
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../../config/helper_workspace.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'student') {
         header('Location: ' . URL_ROOT . '/dashboard');
@@ -25,8 +25,8 @@
 
     if (!$work) {
         echo '<main id="main" class="main"><div class="alert alert-warning mt-3">Work not found.</div></main>';
-        require_once './views/templates/footer.php';
-        require_once './views/templates/vendors.php';
+        require_once __DIR__ . '/../templates/footer.php';
+        require_once __DIR__ . '/../templates/vendors.php';
         exit;
     }
 
@@ -329,8 +329,8 @@
     </main>
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
     <?php if (!empty($related)): ?>
     <script>

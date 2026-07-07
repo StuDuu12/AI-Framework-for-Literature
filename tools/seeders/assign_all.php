@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 if (PHP_SAPI !== 'cli') { http_response_code(403); die('CLI only'); }
-require 'config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 // find all Phase 3 tasks
 $stmt = $pdo->query("SELECT t.task_id, tp.class_id, p.topic_id 
         FROM task t 
@@ -39,3 +39,4 @@ foreach ($tasks as $task) {
     }
 }
 echo "Assigned to everyone!";
+

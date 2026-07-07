@@ -1,7 +1,7 @@
-<?php
+﻿<?php
 if (PHP_SAPI !== 'cli') { http_response_code(403); die('CLI only'); }
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/config/helper_task.php';
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/helper_task.php';
 
 try {
     $pdo->beginTransaction();
@@ -20,7 +20,7 @@ try {
     $task3List = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($task3List)) {
-        throw new Exception("Không tìm thấy bài tập Phase 3 nào. Hãy vào lớp tạo bài tập đánh giá chéo trước.");
+        throw new Exception("KhÃ´ng tÃ¬m tháº¥y bÃ i táº­p Phase 3 nÃ o. HÃ£y vÃ o lá»›p táº¡o bÃ i táº­p Ä‘Ã¡nh giÃ¡ chÃ©o trÆ°á»›c.");
     }
     
     $totalSeeded = 0;
@@ -95,7 +95,7 @@ try {
             // Failsafe, create 8 dummy users if not enough students
             for ($i = 1; $i <= 8; $i++) {
                 $dummyUsername = 'student_dummy_' . time() . '_' . $i;
-                $pdo->exec("INSERT INTO users (username, password, fullname, role, created_at) VALUES ('$dummyUsername', '123', 'Học sinh mẫu $i', 'student', NOW())");
+                $pdo->exec("INSERT INTO users (username, password, fullname, role, created_at) VALUES ('$dummyUsername', '123', 'Há»c sinh máº«u $i', 'student', NOW())");
                 $dummyId = $pdo->lastInsertId();
                 $pdo->exec("INSERT INTO class_member (class_id, user_id, role, joined_at) VALUES ($classId, $dummyId, 'student', NOW())");
                 $students[] = $dummyId;
@@ -183,8 +183,8 @@ try {
     }
 
     $pdo->commit();
-    echo "<h3>Hoàn tất!</h3>";
-    echo "Đã tạo <strong>$totalSeeded</strong> dữ liệu học sinh chấm bài có điểm số.<br>";
+    echo "<h3>HoÃ n táº¥t!</h3>";
+    echo "ÄÃ£ táº¡o <strong>$totalSeeded</strong> dá»¯ liá»‡u há»c sinh cháº¥m bÃ i cÃ³ Ä‘iá»ƒm sá»‘.<br>";
 
 } catch (Exception $e) {
     if ($pdo->inTransaction()) {
@@ -193,3 +193,4 @@ try {
     file_put_contents('teacher_seed_error.txt', "Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
     echo "Error check teacher_seed_error.txt";
 }
+

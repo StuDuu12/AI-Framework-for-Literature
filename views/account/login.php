@@ -1,5 +1,5 @@
 <?php
-require_once 'config/helper_account.php';
+require_once __DIR__ . '/../../config/helper_account.php';
 
 $error = '';
 $success = '';
@@ -43,7 +43,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title data-lang-key="login_title">Login - Literature System</title>
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body class="login-page">
@@ -108,7 +108,7 @@ if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
         </div>
     </main>
 
-    <?php require_once './views/templates/vendors.php'; ?>
+    <?php require_once __DIR__ . '/../templates/vendors.php'; ?>
 </body>
 
 </html>

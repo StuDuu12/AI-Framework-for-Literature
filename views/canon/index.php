@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link href="<?= URL_ROOT ?>/assets/css/literary-canon.css" rel="stylesheet">
     <title data-lang-key="canon_title">Literary Canon — Knowledge Base</title>
 </head>
 
 <body class="canon-page">
     <?php
-    require_once './config/helper_workspace.php';
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../../config/helper_workspace.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'student') {
         header('Location: ' . URL_ROOT . '/dashboard');
@@ -124,8 +124,8 @@
     </main>
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 </body>
 

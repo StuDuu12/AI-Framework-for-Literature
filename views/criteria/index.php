@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title data-lang-key="menu_manage_criteria">Manage Evaluation Criteria</title>
 </head>
 
 <body>
     <?php
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     if (($_SESSION['user']['role'] ?? '') !== 'teacher') {
         header('Location: ' . URL_ROOT . '/class');
@@ -238,8 +238,8 @@
     </div>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
     <script>

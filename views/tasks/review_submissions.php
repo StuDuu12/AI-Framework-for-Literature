@@ -4,23 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once './views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <title data-lang-key="view_student_analysis">View Student Analysis - Literature System</title>
 </head>
 
 <body>
     <?php
-    require_once './config/db.php';
-    require_once './config/helper_task.php';
-    require_once './config/helper_phase.php';
-    require_once './views/templates/header.php';
+    require_once __DIR__ . '/../../config/db.php';
+    require_once __DIR__ . '/../../config/helper_task.php';
+    require_once __DIR__ . '/../../config/helper_phase.php';
+    require_once __DIR__ . '/../templates/header.php';
 
     if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'teacher') {
         header('Location: /class');
         exit;
     }
 
-    require_once './views/templates/sidebar.php';
+    require_once __DIR__ . '/../templates/sidebar.php';
 
     // Get IDs from URL
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
@@ -32,7 +32,7 @@
         exit;
     }
 
-    require_once './config/helper_phase.php';
+    require_once __DIR__ . '/../../config/helper_phase.php';
 
     if (!isTeacherInTopicClass($topicId, $_SESSION['user']['user_id'])) {
         header('Location: ' . URL_ROOT . '/403');
@@ -320,8 +320,8 @@
     </main>
 
     <?php
-    require_once './views/templates/footer.php';
-    require_once './views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 </body>
 

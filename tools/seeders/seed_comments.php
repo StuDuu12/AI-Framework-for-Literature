@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * Seed rich teacher ↔ student comment threads for demo / real-time testing.
+ * Seed rich teacher â†” student comment threads for demo / real-time testing.
  * CLI only: php seed_comments.php
  */
 if (PHP_SAPI !== 'cli') {
@@ -8,8 +8,8 @@ if (PHP_SAPI !== 'cli') {
     die('CLI only');
 }
 
-require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/config/helper_homework.php';
+require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/helper_homework.php';
 
 $teacherIds = [];
 $studentIds = [];
@@ -28,30 +28,30 @@ $secondaryTeacher = (int)($teacherRows[1] ?? $teacherRows[0]);
 /** Literary comment templates (English) keyed by topic hint in content preview */
 $threadTemplates = [
     'lao_hac' => [
-        ['role' => 'teacher', 'text' => 'You analyze Old Hac\'s tragedy well. Please add the scene where he weeps while selling Golden — that is the story\'s key psychological moment.'],
+        ['role' => 'teacher', 'text' => 'You analyze Old Hac\'s tragedy well. Please add the scene where he weeps while selling Golden â€” that is the story\'s key psychological moment.'],
         ['role' => 'student', 'text' => 'Got it. I will add the passage where Old Hac "sobs like a child" to show his guilt over sacrificing his son\'s keepsake.'],
-        ['role' => 'teacher', 'text' => 'Good. When quoting, clarify that this is inner monologue filtered through the teacher-narrator — not Old Hac\'s direct speech.'],
+        ['role' => 'teacher', 'text' => 'Good. When quoting, clarify that this is inner monologue filtered through the teacher-narrator â€” not Old Hac\'s direct speech.'],
         ['role' => 'student', 'text' => 'I revised the narrative voice section and noted the mournful, sympathetic tone of the narrator.'],
         ['role' => 'teacher', 'text' => 'Nice work. Next, connect the character study to colonial-feudal society for stronger social realism.'],
-        ['role' => 'student', 'text' => 'I added a paragraph on peasants pushed to the edge — Old Hac chooses death to preserve his dignity, not only because of hunger.'],
+        ['role' => 'student', 'text' => 'I added a paragraph on peasants pushed to the edge â€” Old Hac chooses death to preserve his dignity, not only because of hunger.'],
     ],
     'chan_que' => [
-        ['role' => 'teacher', 'text' => 'Your homeland imagery is emotionally rich. Can you analyze the rhythm and the word "chân" (authentic/raw) in the title?'],
-        ['role' => 'student', 'text' => 'I think "chân" suggests truth and plainness — the opposite of an idealized memory.'],
+        ['role' => 'teacher', 'text' => 'Your homeland imagery is emotionally rich. Can you analyze the rhythm and the word "chÃ¢n" (authentic/raw) in the title?'],
+        ['role' => 'student', 'text' => 'I think "chÃ¢n" suggests truth and plainness â€” the opposite of an idealized memory.'],
         ['role' => 'teacher', 'text' => 'Strong point. Illustrate with one concrete line and explain why that detail feels more "authentic" than nostalgia.'],
-        ['role' => 'student', 'text' => 'I used images of the ferry and rice fields — daily labor, not postcard scenery.'],
+        ['role' => 'student', 'text' => 'I used images of the ferry and rice fields â€” daily labor, not postcard scenery.'],
         ['role' => 'teacher', 'text' => 'Good. Add a short comparison with Te Hanh\'s "Homeland" to highlight the difference in tone.'],
     ],
     'general' => [
         ['role' => 'teacher', 'text' => 'The analysis is well structured. Turn a few general observations into claims backed by specific textual evidence.'],
         ['role' => 'student', 'text' => 'I will review each section and add short quotes with explanation.'],
-        ['role' => 'teacher', 'text' => 'Keep an academic tone but stay readable — avoid bullet-like lists without transitions.'],
+        ['role' => 'teacher', 'text' => 'Keep an academic tone but stay readable â€” avoid bullet-like lists without transitions.'],
         ['role' => 'student', 'text' => 'I added linking sentences and a mini-summary at the end of each paragraph.'],
         ['role' => 'teacher', 'text' => 'Well done. Submit the revised draft before the next class for more feedback.'],
     ],
     'character' => [
-        ['role' => 'teacher', 'text' => 'You cover appearance and action. Go deeper into motivation — why does the character make that choice?'],
-        ['role' => 'student', 'text' => 'I think the motive is love for his child and self-respect — two forces pulling in opposite directions.'],
+        ['role' => 'teacher', 'text' => 'You cover appearance and action. Go deeper into motivation â€” why does the character make that choice?'],
+        ['role' => 'student', 'text' => 'I think the motive is love for his child and self-respect â€” two forces pulling in opposite directions.'],
         ['role' => 'teacher', 'text' => 'Exactly. Use the term "inner conflict" and illustrate it with one pivotal decision in the story.'],
         ['role' => 'student', 'text' => 'I use selling the dog and asking for poison as two turning points that show that conflict.'],
     ],
@@ -65,7 +65,7 @@ $threadTemplates = [
 $generalComments = [
     ['role' => 'teacher', 'text' => 'Overall, you show a solid AI-assisted workflow with selective editing. Keep adding your own interpretive voice.'],
     ['role' => 'student', 'text' => 'Thank you. I will add more Take Note entries after class.'],
-    ['role' => 'teacher', 'text' => 'Please respond to each section you revised — do not submit raw AI output only.'],
+    ['role' => 'teacher', 'text' => 'Please respond to each section you revised â€” do not submit raw AI output only.'],
     ['role' => 'student', 'text' => 'I highlighted self-written paragraphs in a different color in my submission.'],
     ['role' => 'teacher', 'text' => 'Good. Next time, label which parts are AI suggestions and which are your own analysis.'],
     ['role' => 'student', 'text' => 'I will add a short "Sources of ideas" section at the end.'],
@@ -74,16 +74,16 @@ $generalComments = [
 function pickTemplate(string $preview): string
 {
     $p = mb_strtolower($preview, 'UTF-8');
-    if (str_contains($p, 'lão') || str_contains($p, 'lao hac') || str_contains($p, 'old hac') || str_contains($p, 'nam cao')) {
+    if (str_contains($p, 'lÃ£o') || str_contains($p, 'lao hac') || str_contains($p, 'old hac') || str_contains($p, 'nam cao')) {
         return 'lao_hac';
     }
-    if (str_contains($p, 'chân quê') || str_contains($p, 'chan que') || str_contains($p, 'nguyễn bính') || str_contains($p, 'homeland')) {
+    if (str_contains($p, 'chÃ¢n quÃª') || str_contains($p, 'chan que') || str_contains($p, 'nguyá»…n bÃ­nh') || str_contains($p, 'homeland')) {
         return 'chan_que';
     }
-    if (str_contains($p, 'nhân vật') || str_contains($p, 'character')) {
+    if (str_contains($p, 'nhÃ¢n váº­t') || str_contains($p, 'character')) {
         return 'character';
     }
-    if (str_contains($p, 'hình ảnh') || str_contains($p, 'imagery') || str_contains($p, 'symbol') || str_contains($p, 'motif')) {
+    if (str_contains($p, 'hÃ¬nh áº£nh') || str_contains($p, 'imagery') || str_contains($p, 'symbol') || str_contains($p, 'motif')) {
         return 'imagery';
     }
     return 'general';
@@ -100,7 +100,7 @@ function resolveUserId(string $role, int $studentId, int $teacherId, int $altTea
 try {
     $pdo->beginTransaction();
 
-    // Ensure hs1 deliver for Lão Hạc is viewable by teacher
+    // Ensure hs1 deliver for LÃ£o Háº¡c is viewable by teacher
     $pdo->exec("UPDATE deliver SET status = 2 WHERE id_deliver = 8 AND response = 28");
 
     $blocksStmt = $pdo->query("
@@ -142,7 +142,7 @@ try {
     $timeOffset = 0;
     $generalDone = [];
 
-    // Seed per content block — every block gets a thread; priority responses get fuller threads
+    // Seed per content block â€” every block gets a thread; priority responses get fuller threads
     foreach ($blocks as $idx => $block) {
         $contentId = (int)$block['content_id'];
         $taskId = (int)$block['task_id'];
@@ -153,7 +153,7 @@ try {
         $templateKey = pickTemplate($preview);
         $messages = $threadTemplates[$templateKey];
 
-        // Richer threads for primary demo responses (28 = hs1 Lão Hạc, 14 = Chân quê)
+        // Richer threads for primary demo responses (28 = hs1 LÃ£o Háº¡c, 14 = ChÃ¢n quÃª)
         if (!in_array($responseId, [28, 14, 16, 15], true) && $idx % 2 === 1) {
             $messages = array_slice($messages, 0, 3);
         }
@@ -195,7 +195,7 @@ try {
         if ($idx % 3 === 0 && $rootId) {
             $nestedText = ($idx % 2 === 0)
                 ? 'I re-read your feedback and tightened the opening paragraph.'
-                : 'This revision reads better — keep this voice in the remaining sections.';
+                : 'This revision reads better â€” keep this voice in the remaining sections.';
             $nestedUser = ($idx % 2 === 0) ? $studentId : $primaryTeacher;
             $nestedId = insertComment($contentId, $nestedUser, $taskId, $nestedText, $rootId, null);
             $pdo->prepare('UPDATE comment SET created_at = :t WHERE comment_id = :id')
@@ -269,7 +269,7 @@ try {
     ");
     foreach ($demoStmt->fetchAll(PDO::FETCH_ASSOC) as $d) {
         echo sprintf(
-            "  %s — %s: /class/homework/comment?task_id=%d&deliver_id=%d&topic_id=%d&phase_id=%d\n",
+            "  %s â€” %s: /class/homework/comment?task_id=%d&deliver_id=%d&topic_id=%d&phase_id=%d\n",
             $d['username'],
             $d['title'],
             $d['task_id'],
@@ -286,3 +286,4 @@ try {
     fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
     exit(1);
 }
+

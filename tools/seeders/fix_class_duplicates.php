@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 if (PHP_SAPI !== 'cli') { http_response_code(403); die('CLI only'); }
-require_once 'config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 
 echo "Creating backup table 'class_backup'...\n";
 try {
@@ -38,3 +38,4 @@ foreach ($dups as $d) {
 
 echo "\nTo proceed with automatic deduplication, run this script with 'apply' argument:\n";
 echo "php fix_class_duplicates.php apply\n";
+
