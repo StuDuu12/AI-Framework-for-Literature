@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -17,10 +17,18 @@ $routes = [
     // Đăng nhập đăng xuất
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
     'logout' => ['file' => 'views/account/logout.php', 'title' => 'Đăng xuất', 'require_auth' => false],
+    'register' => ['file' => 'views/account/register.php', 'title' => 'Đăng ký', 'require_auth' => false],
+    'profile' => ['file' => 'views/account/profile.php', 'title' => 'Hồ sơ cá nhân', 'require_auth' => true],
+    'forgot_password' => ['file' => 'views/account/forgot_password.php', 'title' => 'Quên mật khẩu', 'require_auth' => false],
+    'reset_password' => ['file' => 'views/account/reset_password.php', 'title' => 'Đặt lại mật khẩu', 'require_auth' => false],
 
     'dashboard' => ['file' => 'views/dashboard.php', 'title' => 'Dashboard', 'require_auth' => true],
+    'workspace' => ['file' => 'views/workspace/student_workspace.php', 'title' => 'Learning Workspace', 'require_auth' => true],
+    'canon' => ['file' => 'views/canon/index.php', 'title' => 'Literary Canon', 'require_auth' => true],
+    'canon/view' => ['file' => 'views/canon/view.php', 'title' => 'Literary Work', 'require_auth' => true],
     // 'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
     'joinclass' => ['file' => 'api/joinclass.php', 'require_auth' => true],
+    'join' => ['file' => 'views/account/join_class.php', 'title' => 'Tham gia lớp học', 'require_auth' => true],
 
     'class' => ['file' => 'views/homeclass.php', 'title' => 'Trang lớp học', 'require_auth' => true],
 
@@ -45,8 +53,17 @@ $routes = [
     'class/homework/chat' => ['file' => 'views/homework/genAI_BTVN.php', 'title' => 'Phân tích Văn học - Chat', 'require_auth' => true],
     'class/criteria' => ['file' => 'views/criteria/index.php', 'title' => 'Tiêu chí đánh giá', 'require_auth' => true],
     'class/task/setting_evaluation' => ['file' => 'views/evaluate/setting.php', 'title' => 'Cài đặt đánh giá nhiệm vụ', 'require_auth' => true],
-    'class/evaluate/student' => ['file' => 'views/evaluate/student_evaluate.php', 'title' => 'Đánh giá chéo', 'require_auth' => true],
+    'class/evaluate/student' => ['file' => 'views/evaluate/student_evaluate_new.php', 'title' => 'Đánh giá chéo', 'require_auth' => true],
+    'class/evaluate/consensus' => ['file' => 'views/evaluate/consensus_evaluate.php', 'title' => 'Đánh giá đồng thuận nhóm', 'require_auth' => true],
     'class/evaluate/list' => ['file' => 'views/evaluate/list.php', 'title' => 'Danh sách đánh giá', 'require_auth' => true],
+    'class/evaluate/teacher_grades' => ['file' => 'views/evaluate/teacher_grade_list.php', 'title' => 'Final grading', 'require_auth' => true],
+    'class/evaluate/teacher_grade' => ['file' => 'views/evaluate/teacher_grade.php', 'title' => 'Teacher grade', 'require_auth' => true],
+
+    // Gamification
+    'leaderboard' => ['file' => 'views/gamification/leaderboard.php', 'title' => 'Bảng xếp hạng', 'require_auth' => true],
+
+    // Reading List
+    'reading-list' => ['file' => 'views/reading/index.php', 'title' => 'Danh sách đọc', 'require_auth' => true],
 
     // Reflect (Support Ticket) routes
     'reflect' => ['file' => 'views/reflect/index.php', 'title' => 'Quản lý Reflect', 'require_auth' => true],
@@ -70,10 +87,14 @@ $routes = [
     '500' => ['file' => 'views/errors/500.php', 'title' => '500 Internal Server Error', 'require_auth' => false],
     '503' => ['file' => 'views/errors/503.php', 'title' => '503 Service Unavailable', 'require_auth' => false],
 
-    // Admin
-    'admin/users' => ['file' => 'views/admin/manage_users.php', 'title' => 'Quản lý người dùng', 'require_auth' => true],
-    'admin/users/edit' => ['file' => 'views/admin/edit_user.php', 'title' => 'Sửa tài khoản', 'require_auth' => true],
-    'admin/users/create' => ['file' => 'views/admin/create_user.php', 'title' => 'Tạo tài khoản', 'require_auth' => true],
+    // Admin (chỉ role admin truy cập được — enforced tại router)
+    'admin/users' => ['file' => 'views/admin/manage_users.php', 'title' => 'Quản lý người dùng', 'require_auth' => true, 'roles' => ['admin']],
+    'admin/users/edit' => ['file' => 'views/admin/edit_user.php', 'title' => 'Sửa tài khoản', 'require_auth' => true, 'roles' => ['admin']],
+    'admin/users/create' => ['file' => 'views/admin/create_user.php', 'title' => 'Tạo tài khoản', 'require_auth' => true, 'roles' => ['admin']],
+    'admin/users/import' => ['file' => 'views/admin/import_users.php', 'title' => 'Import Users', 'require_auth' => true, 'roles' => ['admin']],
+    'admin/analytics' => ['file' => 'views/admin/analytics.php', 'title' => 'Analytics Dashboard', 'require_auth' => true, 'roles' => ['admin']],
+    'admin/registrations' => ['file' => 'views/admin/pending_registrations.php', 'title' => 'Duyệt đăng ký', 'require_auth' => true, 'roles' => ['admin', 'teacher']],
+    'admin/ai-settings' => ['file' => 'views/admin/ai_settings.php', 'title' => 'Cấu hình AI', 'require_auth' => true, 'roles' => ['admin']],
     
 
 ];
@@ -103,6 +124,16 @@ if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
     if (!checkAuth()) {
         header('Location: ' . URL_ROOT . '/login');
         exit;
+    }
+
+    // Kiểm tra role ngay tại router (nếu route khai báo 'roles')
+    if (!empty($routeConfig['roles'])) {
+        $currentRole = $_SESSION['user']['role'] ?? ($_SESSION['role'] ?? '');
+        if (!in_array($currentRole, $routeConfig['roles'], true)) {
+            http_response_code(403);
+            header('Location: ' . URL_ROOT . '/403');
+            exit;
+        }
     }
 }
 

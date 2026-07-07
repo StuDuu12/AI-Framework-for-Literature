@@ -5,78 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Document</title>
-    <style>
-        .class-card {
-            transition: all 0.2s ease;
-        }
-
-        .class-card:has(.class-checkbox:checked) {
-            box-shadow: 0 0 0 2px #dc3545;
-            background-color: #fff5f5;
-        }
-
-        .class-checkbox {
-            cursor: pointer;
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Disable sidebar links on dashboard page */
-        .sidebar-disabled .nav-link {
-            pointer-events: none;
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .sidebar-disabled .nav-heading {
-            opacity: 0.5;
-        }
-
-        /* Hide toggle sidebar button on dashboard page */
-        body.dashboard-page .toggle-sidebar-btn {
-            display: none !important;
-        }
-
-        /* Ensure sidebar is always visible on dashboard */
-        body.dashboard-page.toggle-sidebar #sidebar {
-            transform: translateX(0);
-        }
-    </style>
-    <script>
-        // Disable sidebar navigation on dashboard page
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add dashboard-page class to body
-            document.body.classList.add('dashboard-page');
-
-            const sidebarNav = document.getElementById('sidebar-nav');
-            if (sidebarNav && sidebarNav.classList.contains('sidebar-disabled')) {
-                const navLinks = sidebarNav.querySelectorAll('.nav-link');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    });
-                });
-            }
-
-            // Disable toggle sidebar button
-            const toggleBtn = document.querySelector('.toggle-sidebar-btn');
-            if (toggleBtn) {
-                toggleBtn.style.pointerEvents = 'none';
-                toggleBtn.style.cursor = 'not-allowed';
-                toggleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                });
-            }
-        });
-    </script>
+    <title data-lang-key="class_list_title">Class List - Literature System</title>
 </head>
 
-<body class="toggle-sidebar">
+<body>
     <?php
     require_once './views/templates/header.php';
     require_once './views/templates/sidebar.php';
@@ -87,17 +19,17 @@
     <main id="main" class="main">
         <div class="pagetitle">
             <div class="d-flex justify-content-between align-items-center">
-                <h1>Danh sách các lớp</h1>
+                <h1 data-lang-key="class_list_title">Class List</h1>
                 <div class="d-flex gap-2">
                     <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                         <button type="button"
                             id="deleteSelectedClassesBtn"
                             class="btn btn-sm btn-danger"
                             style="display: none;">
-                            <i class="bi bi-trash"></i> Xóa đã chọn (<span id="selectedClassCount">0</span>)
+                            <i class="bi bi-trash"></i> <span data-lang-key="delete_selected">Delete Selected</span> (<span id="selectedClassCount">0</span>)
                         </button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
-                            <i class="bi bi-plus-circle"></i> Tạo lớp mới
+                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_class">Create New Class</span>
                         </button>
                     <?php endif; ?>
                 </div>
@@ -107,48 +39,259 @@
         <section class="section dashboard">
             <?php
             $userid = $_SESSION['user']['user_id'];
-
+            $userRole = $_SESSION['user']['role'] ?? 'student';
             global $pdo;
-            $stmt = $pdo->prepare("SELECT cm.class_id, c.class_name, cm.role FROM `class_member` cm LEFT JOIN `class` c ON c.class_id = cm.class_id WHERE `user_id` = :userid");
+
+            $statClasses = 0;
+            $statTasks = 0;
+            $statDone = 0;
+            $statPendingEval = 0;
+
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM class_member WHERE user_id = :uid");
+            $stmt->execute([':uid' => $userid]);
+            $statClasses = (int)$stmt->fetchColumn();
+
+            if ($userRole === 'student') {
+                require_once __DIR__ . '/../config/helper_task.php';
+                $statTasks = countStudentAssignedDelivers($pdo, (int)$userid, false);
+                $statDone = countStudentAssignedDelivers($pdo, (int)$userid, true);
+
+                $stmt = $pdo->prepare("
+                    SELECT COUNT(*) FROM evaluate
+                    WHERE user_id = :uid AND status < 2
+                ");
+                $stmt->execute([':uid' => $userid]);
+                $statPendingEval = (int)$stmt->fetchColumn();
+            } else {
+                $stmt = $pdo->prepare("
+                    SELECT COUNT(DISTINCT tk.task_id) FROM task tk
+                    JOIN phase ph ON ph.phase_id = tk.phase_id
+                    JOIN topic t ON t.topic_id = ph.topic_id
+                    JOIN class_member cm ON cm.class_id = t.class_id AND cm.user_id = :uid
+                ");
+                $stmt->execute([':uid' => $userid]);
+                $statTasks = (int)$stmt->fetchColumn();
+            }
+            ?>
+            <div class="row dashboard-stats g-3 mb-4" data-stagger>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card stat-card--dashboard stat-card--primary">
+                        <div class="stat-card__icon"><i class="bi bi-collection"></i></div>
+                        <div class="stat-card__content">
+                            <div class="stat-value"><?= $statClasses ?></div>
+                            <div class="stat-label" data-lang-key="stat_classes">Lớp học</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card stat-card--dashboard stat-card--info">
+                        <div class="stat-card__icon"><i class="bi bi-list-task"></i></div>
+                        <div class="stat-card__content">
+                            <div class="stat-value"><?= $statTasks ?></div>
+                            <div class="stat-label" data-lang-key="<?= $userRole === 'student' ? 'stat_tasks_assigned' : 'stat_tasks_in_class' ?>"><?= $userRole === 'student' ? 'Nhiệm vụ được giao' : 'Nhiệm vụ trong lớp' ?></div>
+                        </div>
+                    </div>
+                </div>
+                <?php if ($userRole === 'student'): ?>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card stat-card--dashboard stat-card--success">
+                        <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
+                        <div class="stat-card__content">
+                            <div class="stat-value"><?= $statDone ?></div>
+                            <div class="stat-label" data-lang-key="stat_completed">Đã nộp bài</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="stat-card stat-card--dashboard stat-card--warning">
+                        <div class="stat-card__icon"><i class="bi bi-star"></i></div>
+                        <div class="stat-card__content">
+                            <div class="stat-value"><?= $statPendingEval ?></div>
+                            <div class="stat-label" data-lang-key="stat_evaluations">Chờ đánh giá</div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php
+            // ===== STUDENT PROGRESS OVERVIEW =====
+            if ($userRole === 'student'):
+                $progressStmt = $pdo->prepare("
+                    SELECT
+                        c.class_id,
+                        c.class_name,
+                        COUNT(DISTINCT d.id_deliver) AS total_tasks,
+                        SUM(CASE WHEN d.status = 2 THEN 1 ELSE 0 END) AS done_tasks,
+                        (SELECT COUNT(*) FROM evaluate e2 WHERE e2.user_id = :uid2 AND e2.status < 2
+                            AND EXISTS (SELECT 1 FROM deliver d2 INNER JOIN task tk2 ON d2.task_id = tk2.task_id
+                                        INNER JOIN phase ph2 ON tk2.phase_id = ph2.phase_id
+                                        INNER JOIN topic tp2 ON ph2.topic_id = tp2.topic_id
+                                        WHERE d2.id_deliver = e2.deliver_id AND tp2.class_id = c.class_id)
+                        ) AS pending_eval
+                    FROM class_member cm
+                    INNER JOIN class c ON cm.class_id = c.class_id
+                    LEFT JOIN topic tp ON tp.class_id = c.class_id
+                    LEFT JOIN phase ph ON ph.topic_id = tp.topic_id
+                    LEFT JOIN task tk ON tk.phase_id = ph.phase_id
+                    LEFT JOIN deliver d ON d.task_id = tk.task_id
+                        AND (d.type = 'user' AND d.value = :uid
+                            OR d.type = 'group' AND EXISTS (
+                                SELECT 1 FROM group_member gm WHERE gm.group_id = d.value AND gm.user_id = :uid3
+                            ))
+                    WHERE cm.user_id = :uid4
+                    GROUP BY c.class_id, c.class_name
+                    ORDER BY c.class_name
+                ");
+                $progressStmt->execute([':uid' => $userid, ':uid2' => $userid, ':uid3' => $userid, ':uid4' => $userid]);
+                $progressRows = $progressStmt->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($progressRows)):
+            ?>
+            <div class="progress-overview mb-4">
+                <div class="progress-overview__header d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 fw-600" style="color:var(--app-heading,#012970)">
+                        <i class="bi bi-bar-chart-line me-1"></i>
+                        <span data-lang-key="progress_overview">Tiến độ học tập</span>
+                    </h6>
+                </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 progress-table">
+                                <thead>
+                                    <tr>
+                                        <th data-lang-key="class_name_label">Lớp</th>
+                                        <th class="text-center" data-lang-key="stat_tasks_assigned">Nhiệm vụ</th>
+                                        <th style="min-width:160px" data-lang-key="stat_completed">Tiến độ</th>
+                                        <th class="text-center" data-lang-key="stat_evaluations">Chờ chấm</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($progressRows as $pr):
+                                    $total = (int)$pr['total_tasks'];
+                                    $done  = (int)$pr['done_tasks'];
+                                    $pct   = $total > 0 ? round($done / $total * 100) : 0;
+                                    $pendEval = (int)$pr['pending_eval'];
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <a href="/joinclass?id=<?= urlencode($pr['class_id']) ?>"
+                                               class="fw-600 text-decoration-none" style="color:var(--app-primary,#4154f1)">
+                                                <?= htmlspecialchars($pr['class_name']) ?>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="fw-600"><?= $done ?></span>
+                                            <span class="text-muted">/<?= $total ?></span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="height:6px;border-radius:3px">
+                                                    <div class="progress-bar" role="progressbar"
+                                                         style="width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#198754' : ($pct >= 50 ? '#4154f1' : '#ffc107') ?>"
+                                                         aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                                <small class="text-muted" style="width:36px;text-align:right"><?= $pct ?>%</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($pendEval > 0): ?>
+                                                <span class="badge bg-warning text-dark"><?= $pendEval ?></span>
+                                            <?php else: ?>
+                                                <span class="text-muted">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; endif; ?>
+
+            <?php
+            $stmt = $pdo->prepare("
+                SELECT cm.class_id, c.class_name, cm.role,
+                    (SELECT COUNT(*) FROM class_member cm2 WHERE cm2.class_id = cm.class_id) AS member_count,
+                    (SELECT COUNT(*) FROM topic t WHERE t.class_id = cm.class_id) AS topic_count
+                FROM class_member cm
+                LEFT JOIN class c ON c.class_id = cm.class_id
+                WHERE cm.user_id = :userid
+                ORDER BY c.class_name ASC
+            ");
             $stmt->bindParam(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
             $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if ($classes):
+            $classIdx = 0;
             ?>
-                <div class="row">
-                    <?php foreach ($classes as $class): ?>
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card h-100 class-card" data-class-id="<?php echo intval($class['class_id']); ?>">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div class="d-flex align-items-start gap-2 flex-grow-1">
-                                            <?php if ($class['role'] === 'teacher'): ?>
-                                                <input class="form-check-input class-checkbox mt-1"
-                                                    type="checkbox"
-                                                    data-class-id="<?php echo intval($class['class_id']); ?>"
-                                                    data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>">
-                                            <?php endif; ?>
-                                            <h5 class="card-title mb-0"><?php echo htmlspecialchars($class['class_name']); ?></h5>
-                                        </div>
+                <div class="row class-grid g-4" data-stagger>
+                    <?php foreach ($classes as $class):
+                        $roleKey = $class['role'] ?? 'student';
+                        $roleBadgeClass = in_array($roleKey, ['teacher', 'admin', 'student'], true) ? $roleKey : 'student';
+                        $initial = mb_strtoupper(mb_substr($class['class_name'] ?? 'C', 0, 1, 'UTF-8'), 'UTF-8');
+                        $accentIdx = $classIdx % 6;
+                    ?>
+                        <div class="col-xl-4 col-lg-6">
+                            <article class="card h-100 class-card class-card--accent-<?= $accentIdx ?>"
+                                data-class-id="<?php echo intval($class['class_id']); ?>"
+                                data-index="<?php echo $classIdx; ?>">
+                                <div class="class-card__body">
+                                    <div class="class-card__top">
+                                        <div class="class-card__avatar" aria-hidden="true"><?= htmlspecialchars($initial) ?></div>
                                         <?php if ($class['role'] === 'teacher'): ?>
-                                            <button class="btn btn-sm btn-outline-secondary edit-class-btn"
+                                        <div class="class-card__tools">
+                                            <input class="form-check-input class-checkbox"
+                                                type="checkbox"
                                                 data-class-id="<?php echo intval($class['class_id']); ?>"
                                                 data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
-                                                title="Chỉnh sửa tên lớp">
+                                                aria-label="Select class">
+                                            <button type="button" class="btn btn-sm class-card__edit edit-class-btn"
+                                                data-class-id="<?php echo intval($class['class_id']); ?>"
+                                                data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
+                                                title="Edit class name">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                        </div>
                                         <?php endif; ?>
                                     </div>
-                                    <p class="card-text">Vai trò: <?php echo htmlspecialchars(ucfirst($class['role'])); ?></p>
-                                    <a href="/joinclass?id=<?php echo urlencode($class['class_id']); ?>" class="btn btn-primary">Vào lớp</a>
+
+                                    <div class="class-card__main">
+                                        <h3 class="class-card-title mb-2"><?php echo htmlspecialchars($class['class_name']); ?></h3>
+                                        <span class="class-card__role class-card__role--<?= $roleBadgeClass ?>">
+                                            <?php echo htmlspecialchars(ucfirst($class['role'])); ?>
+                                        </span>
+                                    </div>
+
+                                    <ul class="class-card__meta list-unstyled mb-0">
+                                        <li>
+                                            <i class="bi bi-people"></i>
+                                            <span class="class-stat-value" data-type="students"><?= (int)($class['member_count'] ?? 0) ?></span>
+                                            <span data-lang-key="members_label">Thành viên</span>
+                                        </li>
+                                        <li>
+                                            <i class="bi bi-journal-text"></i>
+                                            <span><?= (int)($class['topic_count'] ?? 0) ?></span>
+                                            <span data-lang-key="topics">Chủ đề</span>
+                                        </li>
+                                    </ul>
+
+                                    <div class="class-card__footer">
+                                        <a href="<?= URL_ROOT ?>/joinclass?id=<?php echo urlencode($class['class_id']); ?>"
+                                           class="btn btn-primary class-card__enter w-100">
+                                            <span data-lang-key="enter_class">Vào lớp</span>
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            </article>
                         </div>
-                    <?php endforeach; ?>
+                    <?php $classIdx++; endforeach; ?>
                 </div>
             <?php else: ?>
                 <div class="alert alert-info" role="alert">
-                    Bạn chưa tham gia lớp học nào.
+                    <span data-lang-key="no_class_joined">You have not joined any classes yet.</span>
                 </div>
             <?php endif; ?>
         </section>
@@ -160,18 +303,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tạo lớp mới</h5>
+                    <h5 class="modal-title" data-lang-key="create_new_class">Create New Class</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Tên lớp <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="newClassName" placeholder="Nhập tên lớp...">
+                        <label class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="newClassName" placeholder="Enter class name..." data-lang-key="enter_class_name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="createClassBtn">Tạo lớp</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createClassBtn" data-lang-key="create_class">Create Class</button>
                 </div>
             </div>
         </div>
@@ -182,19 +325,19 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Chỉnh sửa tên lớp</h5>
+                    <h5 class="modal-title" data-lang-key="edit_class_name">Edit Class Name</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="editClassId">
                     <div class="mb-3">
-                        <label class="form-label">Tên lớp <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="editClassName" placeholder="Nhập tên lớp...">
+                        <label class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editClassName" placeholder="Enter class name..." data-lang-key="enter_class_name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="updateClassBtn">Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateClassBtn" data-lang-key="update">Update</button>
                 </div>
             </div>
         </div>
@@ -205,11 +348,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Nội dung thông báo
+                Notification content
             </div>
         </div>
     </div>
@@ -238,22 +381,22 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Thành công';
+                        toastTitle.textContent = 'Success';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
                         toastIcon.classList.add('bi-x-circle-fill');
-                        toastTitle.textContent = 'Lỗi';
+                        toastTitle.textContent = 'Error';
                         break;
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Cảnh báo';
+                        toastTitle.textContent = 'Warning';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Thông tin';
+                        toastTitle.textContent = 'Info';
                         break;
                 }
 
@@ -273,12 +416,12 @@
                     const className = document.getElementById('newClassName').value.trim();
 
                     if (!className) {
-                        showToast('Vui lòng nhập tên lớp', 'warning');
+                        showToast('Please enter a class name', 'warning');
                         return;
                     }
 
                     this.disabled = true;
-                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tạo...';
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
 
                     fetch('/api/manage_class.php', {
                             method: 'POST',
@@ -290,21 +433,21 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                showToast('Tạo lớp thành công!', 'success');
+                                showToast('Class created successfully!', 'success');
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1500);
                             } else {
-                                showToast(data.message || 'Không thể tạo lớp', 'error');
+                                showToast(data.message || 'Could not create class', 'error');
                                 this.disabled = false;
-                                this.textContent = 'Tạo lớp';
+                                this.textContent = 'Create Class';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            showToast('Có lỗi xảy ra khi tạo lớp', 'error');
+                            showToast('An error occurred while creating the class', 'error');
                             this.disabled = false;
-                            this.textContent = 'Tạo lớp';
+                            this.textContent = 'Create Class';
                         });
                 });
             }
@@ -334,12 +477,12 @@
                     const className = document.getElementById('editClassName').value.trim();
 
                     if (!className) {
-                        showToast('Vui lòng nhập tên lớp', 'warning');
+                        showToast('Please enter a class name', 'warning');
                         return;
                     }
 
                     this.disabled = true;
-                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang cập nhật...';
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
 
                     fetch('/api/manage_class.php', {
                             method: 'POST',
@@ -352,21 +495,21 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                showToast('Cập nhật tên lớp thành công!', 'success');
+                                showToast('Class name updated successfully!', 'success');
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1500);
                             } else {
-                                showToast(data.message || 'Không thể cập nhật tên lớp', 'error');
+                                showToast(data.message || 'Could not update class name', 'error');
                                 this.disabled = false;
-                                this.textContent = 'Cập nhật';
+                                this.textContent = 'Update';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            showToast('Có lỗi xảy ra khi cập nhật tên lớp', 'error');
+                            showToast('An error occurred while updating the class name', 'error');
                             this.disabled = false;
-                            this.textContent = 'Cập nhật';
+                            this.textContent = 'Update';
                         });
                 });
             }
@@ -404,21 +547,21 @@
                     const classNames = Array.from(checkedBoxes).map(cb => cb.dataset.className);
 
                     if (classIds.length === 0) {
-                        showToast('Vui lòng chọn ít nhất một lớp để xóa!', 'warning');
+                        showToast('Please select at least one class to delete!', 'warning');
                         return;
                     }
 
                     const count = classIds.length;
                     const confirmMessage = count === 1 ?
-                        `Bạn có chắc chắn muốn xóa lớp "${classNames[0]}"?\n\nTất cả dữ liệu liên quan đến lớp này sẽ bị xóa.` :
-                        `Bạn có chắc chắn muốn xóa ${count} lớp đã chọn?\n\nTất cả dữ liệu liên quan đến các lớp này sẽ bị xóa.`;
+                        `Are you sure you want to delete the class "${classNames[0]}"?\n\nAll data related to this class will be deleted.` :
+                        `Are you sure you want to delete ${count} selected classes?\n\nAll data related to these classes will be deleted.`;
 
                     if (!confirm(confirmMessage)) {
                         return;
                     }
 
                     this.disabled = true;
-                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xóa...';
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deleting...';
 
                     let successCount = 0;
                     let failCount = 0;
@@ -448,10 +591,10 @@
                         }
 
                         if (successCount > 0) {
-                            showToast(`Đã xóa thành công ${successCount} lớp!`, 'success');
+                            showToast(`Successfully deleted ${successCount} class(es)!`, 'success');
                         }
                         if (failCount > 0) {
-                            showToast(`Không thể xóa ${failCount} lớp!`, 'error');
+                            showToast(`Could not delete ${failCount} class(es)!`, 'error');
                         }
 
                         setTimeout(() => {
@@ -460,9 +603,9 @@
 
                     } catch (error) {
                         console.error('Error:', error);
-                        showToast('Có lỗi xảy ra khi xóa lớp', 'error');
+                        showToast('An error occurred while deleting classes', 'error');
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-trash"></i> Xóa đã chọn (<span id="selectedClassCount">' + count + '</span>)';
+                        this.innerHTML = '<i class="bi bi-trash"></i> Delete Selected (<span id="selectedClassCount">' + count + '</span>)';
                     }
                 });
             }

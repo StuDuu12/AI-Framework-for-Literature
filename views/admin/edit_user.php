@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../../config/env.php';
+require_once __DIR__ . '/../../config/db.php';
+
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     header("Location: " . URL_ROOT . "/login");
@@ -39,15 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $role = $_POST['role'] ?? 'student';
 
     // Validation
-    if (empty($fullname) || empty($username)) {
-        $error = "Vui lòng điền đầy đủ thông tin bắt buộc!";
+    if (!csrf_verify()) {
+        $error = "Invalid session token. Please reload the page and try again.";
+    } elseif (empty($fullname) || empty($username)) {
+        $error = "Please fill in all required fields!";
     } else {
         try {
             // Kiểm tra username đã tồn tại (trừ chính user này)
             $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username AND user_id != :id");
             $stmt->execute([':username' => $username, ':id' => $userId]);
             if ($stmt->fetch()) {
-                $error = "Username đã tồn tại!";
+                $error = "Username already exists!";
             } else {
                 // Cập nhật user
                 if (!empty($password)) {
@@ -71,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
 
-                $success = "Cập nhật tài khoản thành công!";
+                $success = "Account updated successfully!";
 
                 // Cập nhật lại thông tin user để hiển thị
                 $user['fullname'] = $fullname;
@@ -84,40 +89,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             error_log("Error updating user: " . $e->getMessage());
-            $error = "Có lỗi xảy ra khi cập nhật tài khoản!";
+            $error = "An error occurred while updating the account!";
         }
     }
 }
 
-$pageTitle = "Sửa tài khoản";
+$pageTitle = "Edit Account";
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?= $pageTitle ?> - Literature System</title>
+    <title data-lang-key="edit_account"><?= $pageTitle ?> - Literature System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php require_once 'views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    require_once 'views/templates/header.php';
-    require_once 'views/templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Sửa tài khoản</h1>
+            <h1 data-lang-key="edit_account">Edit Account</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users">Quản lý người dùng</a></li>
-                    <li class="breadcrumb-item active">Sửa tài khoản</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users" data-lang-key="admin_user_management">User Management</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="edit_account">Edit Account</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -128,7 +133,7 @@ $pageTitle = "Sửa tài khoản";
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-pencil me-2"></i>Chỉnh sửa thông tin tài khoản
+                                <i class="bi bi-pencil me-2"></i><span>Edit Account Information</span>
                             </h5>
                             <?php if ($error): ?>
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -145,15 +150,16 @@ $pageTitle = "Sửa tài khoản";
                             <?php endif; ?>
 
                             <form method="POST" action="">
+                                <?= csrf_field() ?>
                                 <div class="mb-3">
-                                    <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
                                     <input type="text" name="fullname" class="form-control" required value="<?= htmlspecialchars($user['fullname']) ?>">
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Username <span class="text-danger">*</span></label>
                                     <input type="text" name="username" class="form-control" required value="<?= htmlspecialchars($user['username']) ?>">
-                                    <small class="form-text text-muted">Username dùng để đăng nhập</small>
+                                    <small class="form-text text-muted">Username used for login</small>
                                 </div>
 
                                 <div class="mb-3">
@@ -162,26 +168,26 @@ $pageTitle = "Sửa tài khoản";
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Mật khẩu mới</label>
+                                    <label class="form-label">New Password</label>
                                     <input type="password" name="password" class="form-control">
-                                    <small class="form-text text-muted">Để trống nếu không muốn đổi mật khẩu</small>
+                                    <small class="form-text text-muted">Leave blank to keep unchanged</small>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                    <label class="form-label">Role <span class="text-danger">*</span></label>
                                     <select name="role" class="form-select" required>
-                                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Học sinh</option>
-                                        <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Giáo viên</option>
+                                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
+                                        <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Teacher</option>
                                         <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                                     </select>
                                 </div>
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save me-1"></i> Lưu thay đổi
+                                        <i class="bi bi-save me-1"></i> <span>Save Changes</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
-                                        <i class="bi bi-x-circle me-1"></i> Hủy
+                                        <i class="bi bi-x-circle me-1"></i> <span>Cancel</span>
                                     </a>
                                 </div>
                             </form>
@@ -193,8 +199,8 @@ $pageTitle = "Sửa tài khoản";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

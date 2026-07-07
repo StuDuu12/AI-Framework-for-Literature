@@ -401,12 +401,12 @@ function deleteReflectResponse($detailId, $userId, $userRole)
 function getReflectStatusLabel($status)
 {
     $labels = [
-        0 => 'Mới tạo',
-        1 => 'Đang xử lý',
-        2 => 'Đã giải quyết',
-        3 => 'Đã đóng'
+        0 => 'New',
+        1 => 'In Progress',
+        2 => 'Resolved',
+        3 => 'Closed'
     ];
-    return $labels[$status] ?? 'Không xác định';
+    return $labels[$status] ?? 'Unknown';
 }
 
 /**

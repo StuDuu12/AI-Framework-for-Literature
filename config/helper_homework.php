@@ -196,11 +196,11 @@ function getContentByResponse($responseId)
 {
     global $pdo;
 
-    // First, try to get content for this response
+    // First, try to get content for this response (exclude notes - those are handled separately)
     $stmt = $pdo->prepare("
         SELECT content_id, response_id, content, `order`, type_create, added_by, created_at
         FROM content
-        WHERE response_id = :response_id
+        WHERE response_id = :response_id AND (type_create IS NULL OR type_create != 'note')
         ORDER BY `order` ASC
     ");
     $stmt->execute(['response_id' => $responseId]);
@@ -228,6 +228,58 @@ function getContentByResponse($responseId)
 
     // No content and no parent - return empty array
     return [];
+}
+
+/**
+ * Get notes (type_create = 'note') for a response — used by Phase 4 PHASE_TAKENOTE
+ * @param int $responseId
+ * @return array
+ */
+function getNotesByResponse($responseId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT content_id, content, created_at, updated_at
+        FROM content
+        WHERE response_id = :response_id AND type_create = 'note'
+        ORDER BY created_at ASC
+    ");
+    $stmt->execute(['response_id' => $responseId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Student owner or teacher in the response's class may view notes.
+ */
+function canViewResponseNotes(int $responseId, int $userId): bool
+{
+    global $pdo;
+
+    $stmt = $pdo->prepare("
+        SELECT r.user_id AS owner_id, cm.role AS member_role
+        FROM response r
+        INNER JOIN task t ON r.task_id = t.task_id
+        INNER JOIN phase p ON t.phase_id = p.phase_id
+        INNER JOIN topic tp ON p.topic_id = tp.topic_id
+        LEFT JOIN class_member cm ON cm.class_id = tp.class_id AND cm.user_id = :viewer_id
+        WHERE r.id_response = :response_id
+        LIMIT 1
+    ");
+    $stmt->execute([
+        ':response_id' => $responseId,
+        ':viewer_id' => $userId,
+    ]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        return false;
+    }
+
+    if ((int)$row['owner_id'] === $userId) {
+        return true;
+    }
+
+    return ($row['member_role'] ?? '') === 'teacher';
 }
 
 /**
@@ -267,7 +319,7 @@ function insertComment($contentId, $userId, $taskId, $commentText, $replyComment
     if ($replyCommentId) {
         $depth = getCommentDepth($replyCommentId);
         if ($depth >= 2) {
-            throw new Exception('Chỉ cho phép tối đa 3 cấp bình luận');
+            throw new Exception('Maximum 3 comment levels allowed');
         }
     }
 
@@ -368,8 +420,8 @@ function getCommentsHierarchical($contentId)
     foreach ($allComments as &$comment) {
         $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         $comment['depth'] = getCommentDepth($comment['comment_id']);
-        $comment['role_label'] = $comment['role'] === 'teacher' ? 'Giáo viên' : 'Học sinh';
-        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Không rõ';
+        $comment['role_label'] = $comment['role'] === 'teacher' ? 'Teacher' : 'Student';
+        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Unknown';
     }
     unset($comment);
 
@@ -414,8 +466,8 @@ function getGeneralCommentsHierarchical($taskId)
             u.email,
             cm.role,
             CASE 
-                WHEN cm.role = 'teacher' THEN 'Giáo viên'
-                ELSE 'Học sinh'
+                WHEN cm.role = 'teacher' THEN 'Teacher'
+                ELSE 'Student'
             END AS role_label,
             mp.m_phase_name AS phase_name
         FROM comment c
@@ -479,8 +531,8 @@ function getGeneralCommentsByResponse($responseId)
             u.email,
             cm.role,
             CASE 
-                WHEN cm.role = 'teacher' THEN 'Giáo viên'
-                ELSE 'Học sinh'
+                WHEN cm.role = 'teacher' THEN 'Teacher'
+                ELSE 'Student'
             END AS role_label,
             p.phase_id,
             p.phase_name,
@@ -503,7 +555,7 @@ function getGeneralCommentsByResponse($responseId)
         $comment['avatar'] = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         $comment['replies'] = [];
         $comment['depth'] = getCommentDepth($comment['comment_id']);
-        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Không rõ';
+        $comment['phase_label'] = $comment['m_phase_name'] ?? 'Unknown';
     }
     unset($comment);
 
@@ -551,7 +603,8 @@ function deleteComment($commentId, $userId)
 
     // Check permission
     $isOwner = ($comment['user_id'] == $userId);
-    $isTeacher = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher';
+    $userRole = $_SESSION['user']['role'] ?? $_SESSION['role'] ?? '';
+    $isTeacher = ($userRole === 'teacher');
 
     if (!$isOwner && !$isTeacher) {
         return false;
@@ -912,7 +965,7 @@ function getResponsesForEvaluation($taskId)
                 CASE 
                     WHEN d.type = 'user' THEN u.fullname
                     WHEN d.type = 'group' THEN g.group_name
-                    ELSE 'Cả lớp'
+                    ELSE 'Whole Class'
                 END as submitter_name,
                 CASE 
                     WHEN d.type = 'user' THEN u.user_id
@@ -952,7 +1005,7 @@ function getEvaluatorAssignments($taskId)
                 CASE 
                     WHEN d.type = 'user' THEN u.fullname
                     WHEN d.type = 'group' THEN g.group_name
-                    ELSE 'Cả lớp'
+                    ELSE 'Whole Class'
                 END as evaluator_name
             FROM deliver_evaluate de
             JOIN deliver d ON de.id_deliver = d.id_deliver
@@ -1008,18 +1061,18 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
 
         if (!$submission) {
             $pdo->rollBack();
-            return "Response không tồn tại";
+            return "Response does not exist";
         }
 
         // Prevent self-evaluation
         if ($evaluatorType === 'user' && $submission['type'] === 'user' && $submission['value'] == $evaluatorValue) {
             $pdo->rollBack();
-            return "Không thể phân công người nộp bài tự chấm bài của chính họ";
+            return "Cannot assign individual submitter to evaluate their own work";
         }
 
         if ($evaluatorType === 'group' && $submission['type'] === 'group' && $submission['value'] == $evaluatorValue) {
             $pdo->rollBack();
-            return "Không thể phân công nhóm nộp bài tự chấm bài của chính họ";
+            return "Cannot assign group submitter to evaluate their own work";
         }
 
         // Find or create deliver record for evaluator
@@ -1078,12 +1131,16 @@ function assignEvaluator($taskId, $responseId, $evaluatorType, $evaluatorValue, 
         }
 
         $pdo->commit();
+
+        require_once __DIR__ . '/helper_notifications.php';
+        notifyPeerEvaluationAssignment($pdo, $taskId, $evaluatorType, $evaluatorValue, $addedBy);
+
         return true;
 
     } catch (PDOException $e) {
         $pdo->rollBack();
         error_log("Error in assignEvaluator: " . $e->getMessage());
-        return "Lỗi database: " . $e->getMessage();
+        return "Database error: " . $e->getMessage();
     }
 }
 

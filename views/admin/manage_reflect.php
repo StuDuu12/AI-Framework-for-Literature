@@ -1,4 +1,4 @@
-<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
+﻿<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
 <?php
 session_start();
 require_once __DIR__ . '/../../config/env.php';
@@ -75,15 +75,15 @@ try {
     $totalPages = 0;
 }
 
-$pageTitle = "Quản lý Reflect";
+$pageTitle = "Manage Reflect";
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?= $pageTitle ?> - Literature System</title>
+    <title data-lang-key="manage_reflect_title"><?= $pageTitle ?> - Literature System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -98,11 +98,11 @@ $pageTitle = "Quản lý Reflect";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Quản lý Reflect</h1>
+            <h1 data-lang-key="manage_reflect_title">Manage Reflect</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Quản lý Reflect</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="manage_reflect_title">Manage Reflect</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -111,26 +111,26 @@ $pageTitle = "Quản lý Reflect";
             <!-- Filters and Search -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Bộ lọc</h5>
+                    <h5 class="card-title" data-lang-key="filters">Filters</h5>
                     <form method="GET" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Trạng thái</label>
+                            <label class="form-label">Status</label>
                             <select name="status" class="form-select" onchange="this.form.submit()">
-                                <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>Tất cả</option>
-                                <option value="0" <?= $status === '0' ? 'selected' : '' ?>>Chờ xử lý</option>
-                                <option value="1" <?= $status === '1' ? 'selected' : '' ?>>Đang xử lý</option>
-                                <option value="2" <?= $status === '2' ? 'selected' : '' ?>>Đã hoàn thành</option>
+                                <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All</option>
+                                <option value="0" <?= $status === '0' ? 'selected' : '' ?>>Pending</option>
+                                <option value="1" <?= $status === '1' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="2" <?= $status === '2' ? 'selected' : '' ?>>Completed</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Tìm kiếm</label>
-                            <input type="text" name="search" class="form-control" placeholder="Tiêu đề, người gửi..." value="<?= htmlspecialchars($search) ?>">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Title, sender..." value="<?= htmlspecialchars($search) ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">&nbsp;</label>
                             <div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Tìm kiếm
+                                    <i class="bi bi-search"></i> <span>Search</span>
                                 </button>
                                 <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -144,25 +144,25 @@ $pageTitle = "Quản lý Reflect";
             <!-- Reflects Table -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Danh sách Reflect (<?= $total ?? 0 ?>)</h5>
+                    <h5 class="card-title">Reflect List (<?= $total ?? 0 ?>)</h5>
 
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tiêu đề</th>
-                                <th scope="col">Loại</th>
-                                <th scope="col">Người gửi</th>
-                                <th scope="col">Trả lời</th>
-                                <th scope="col">Trạng thái</th>
-                                <th scope="col">Ngày tạo</th>
-                                <th scope="col">Thao tác</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Sender</th>
+                                <th scope="col">Replies</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Created Date</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($reflects)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center">Không có dữ liệu</td>
+                                    <td colspan="8" class="text-center">No data</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($reflects as $reflect): ?>
@@ -188,10 +188,10 @@ $pageTitle = "Quản lý Reflect";
                                                 default => 'secondary'
                                             };
                                             $statusText = match ((int)$reflect['status']) {
-                                                0 => 'Chờ xử lý',
-                                                1 => 'Đang xử lý',
-                                                2 => 'Đã hoàn thành',
-                                                default => 'Không xác định'
+                                                0 => 'Pending',
+                                                1 => 'In Progress',
+                                                2 => 'Completed',
+                                                default => 'Unknown'
                                             };
                                             ?>
                                             <span class="badge bg-<?= $statusClass ?>"><?= $statusText ?></span>
@@ -199,7 +199,7 @@ $pageTitle = "Quản lý Reflect";
                                         <td><?= date('d/m/Y H:i', strtotime($reflect['created_at'])) ?></td>
                                         <td>
                                             <a href="<?= URL_ROOT ?>/views/admin/reflect_detail.php?id=<?= $reflect['id_reflect'] ?>"
-                                                class="btn btn-sm btn-primary" title="Xem chi tiết">
+                                                class="btn btn-sm btn-primary" title="View Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </td>
@@ -215,7 +215,7 @@ $pageTitle = "Quản lý Reflect";
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?status=<?= $status ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
-                                        Trước
+                                        Previous
                                     </a>
                                 </li>
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -227,7 +227,7 @@ $pageTitle = "Quản lý Reflect";
                                 <?php endfor; ?>
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?status=<?= $status ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
-                                        Sau
+                                        Next
                                     </a>
                                 </li>
                             </ul>
@@ -239,8 +239,8 @@ $pageTitle = "Quản lý Reflect";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

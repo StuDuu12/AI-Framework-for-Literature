@@ -1,158 +1,23 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Phân tích Văn học</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Bài tập về nhà - Phân tích văn học</title>
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
-    <style>
-        /* Enhanced textarea styling */
-        .editable-content {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            transition: all 0.2s ease;
-            overflow: hidden;
-            resize: none;
-            min-height: 40px;
-            height: auto;
-            box-sizing: border-box;
-        }
-
-        .editable-title {
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            resize: none;
-            height: auto;
-            box-sizing: border-box;
-        }
-
-        .editable-content:hover {
-            border-color: #6366f1;
-            box-shadow: 0 1px 3px 0 rgba(99, 102, 241, 0.1);
-        }
-
-        .editable-content:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-            resize: vertical;
-        }
-
-        .analysis-point {
-            transition: all 0.2s ease;
-        }
-
-        .analysis-point:hover {
-            background-color: #f8fafc;
-            padding: 12px;
-            margin: -12px;
-            border-radius: 8px;
-        }
-
-        /* Sortable section styles */
-        .sortable-section {
-            position: relative;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            background: white;
-            transition: all 0.2s ease;
-        }
-
-        .sortable-section:hover {
-            border-color: #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .sortable-section.dragging {
-            opacity: 0.5;
-            cursor: move;
-        }
-
-        .sortable-section.drag-over {
-            border-color: #6366f1;
-            background-color: #eef2ff;
-        }
-
-        .section-controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .sortable-section:hover .section-controls {
-            opacity: 1;
-        }
-
-        .drag-handle {
-            cursor: move;
-            padding: 4px 8px;
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #64748b;
-            user-select: none;
-        }
-
-        .drag-handle:hover {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .delete-section-btn {
-            padding: 4px 8px;
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #dc2626;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .delete-section-btn:hover {
-            background: #fecaca;
-            border-color: #f87171;
-        }
-
-        .add-section-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            background: #dbeafe;
-            border: 1px dashed #60a5fa;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #2563eb;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin: 16px 0;
-        }
-
-        .add-section-btn:hover {
-            background: #bfdbfe;
-            border-color: #3b82f6;
-        }
-    </style>
+    <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/genai-layout.css">
+    <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/genai-content.css">
 </head>
 
-<body>
+<body class="literary-bg">
     <?php
     // Get task information from URL parameters
     require_once __DIR__ . '/../../config/helper_homework.php';
     require_once __DIR__ . '/../../config/helper_task.php';
     require_once __DIR__ . '/../../config/db.php';
+    require_once __DIR__ . '/../../config/helper_breadcrumb.php';
 
     $taskId = isset($_GET['task_id']) ? intval($_GET['task_id']) : null;
     $topicId = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : null;
@@ -300,18 +165,17 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Bộ Công cụ Phân tích Văn học<?php if ($taskTitle): ?> -
+            <h1><span>Bài tập về nhà — Phân tích AI</span><?php if ($taskTitle): ?> —
                     <?= htmlspecialchars($taskTitle) ?><?php endif; ?>
             </h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="?route=class">Lớp học</a></li>
-                    <?php if ($taskInfo): ?>
-                        <li class="breadcrumb-item"><a
-                                href="?route=class&id=<?= $taskInfo['class_id'] ?>"><?= htmlspecialchars($taskInfo['topic_name']) ?></a>
-                        </li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
+                    <?php if ($taskInfo && $topicId): ?>
+                        <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>"><?= htmlspecialchars($taskInfo['topic_name'] ?? 'Topic') ?></a></li>
+                        <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Tasks - Step <?= (int)($taskInfo['phase_number'] ?? 1) ?></a></li>
                     <?php endif; ?>
-                    <li class="breadcrumb-item active">Phân tích Văn học</li>
+                    <li class="breadcrumb-item active">Literary Analysis</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -323,7 +187,7 @@
                 <div class="lg:col-span-4 h-full">
                     <div class="bg-white p-6 rounded-xl shadow-md sticky top-24">
                         <?php if ($taskInfo): ?>
-                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                 <div class="flex items-start gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -333,31 +197,30 @@
                                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                     </svg>
                                     <div class="text-sm">
-                                        <p class="font-semibold text-blue-900">Bài tập: <?= htmlspecialchars($taskTitle) ?>
+                                        <p class="font-semibold text-blue-900">Assignment: <?= htmlspecialchars($taskTitle) ?>
                                         </p>
                                         <?php if (!empty($taskInfo['task_description'])): ?>
                                             <p class="text-blue-700 mt-1"><?= htmlspecialchars($taskInfo['task_description']) ?>
                                             </p>
                                         <?php endif; ?>
                                         <p class="text-blue-600 text-xs mt-1">
-                                            Giai đoạn: <?= htmlspecialchars($taskInfo['phase_name']) ?>
+                                            Phase: <?= htmlspecialchars($taskInfo['phase_name']) ?>
                                             (<?= htmlspecialchars($taskInfo['m_phase_name']) ?>)
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         <?php endif; ?>
-                        <h2 class="text-lg font-semibold mb-4 text-slate-800">💬 Trò chuyện với AI</h2>
+                        <h2 class="text-lg font-semibold mb-4 text-slate-800">💬 <span>Chat with AI</span></h2>
 
                         <!-- Text Area for Analysis Content -->
                         <div id="analysis-input-section" class="mb-4">
                             <div class="flex items-center justify-between mb-2">
-                                <label for="text-input" class="block text-sm font-medium text-slate-700">Nội dung phân
-                                    tích:</label>
+                                <label for="text-input" class="block text-sm font-medium text-slate-700">Analysis content:</label>
                                 <!-- File Upload Icon -->
                                 <label for="file-upload"
                                     class="cursor-pointer text-indigo-600 hover:text-indigo-700 transition-colors"
-                                    title="Tải file lên">
+                                    title="Upload file">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
@@ -384,7 +247,7 @@
                             </div>
                             <textarea id="text-input" rows="8"
                                 class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full text-sm border-slate-300 rounded-lg p-3 resize-none"
-                                placeholder="Dán văn bản để phân tích..."><?= htmlspecialchars($taskContent) ?></textarea>
+                                placeholder="Paste text to analyze..."><?= htmlspecialchars($taskContent) ?></textarea>
                         </div>
 
                         <!-- Chat Messages Area (Hidden initially) -->
@@ -392,17 +255,16 @@
                             <div id="chat-messages"
                                 class="mb-4 space-y-3 max-h-[300px] overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50">
                                 <div class="text-center text-slate-400 text-sm py-4">
-                                    Đặt câu hỏi để AI giải đáp thêm...
+                                    Ask questions for AI to answer...
                                 </div>
                             </div>
 
                             <!-- Question Input -->
                             <div class="mb-4">
-                                <label for="question-input" class="block text-sm font-medium text-slate-700 mb-2">Câu
-                                    hỏi của bạn:</label>
+                                <label for="question-input" class="block text-sm font-medium text-slate-700 mb-2">Your question:</label>
                                 <textarea id="question-input" rows="4"
                                     class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full text-sm border-slate-300 rounded-lg p-3 resize-y"
-                                    placeholder="Ví dụ: Hãy phân tích sâu hơn về biểu tượng..."></textarea>
+                                    placeholder="Example: Analyze the symbolism in more depth..."></textarea>
                             </div>
                         </div>
 
@@ -425,7 +287,7 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
-                                <span id="button-text">Phân tích</span>
+                                <span id="button-text">Analysis</span>
                             </button>
 
                             <!-- Reset Button (hidden initially, shown after analysis) -->
@@ -437,7 +299,7 @@
                                     <polyline points="1 4 1 10 7 10"></polyline>
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                                 </svg>
-                                <span>Làm lại</span>
+                                <span>Retry</span>
                             </button>
 
                             <!-- Chat Button (hidden initially, shown after analysis) -->
@@ -448,8 +310,39 @@
                                     stroke-linejoin="round" class="mr-2">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                 </svg>
-                                <span id="chat-button-text">Hỏi AI</span>
+                                <span id="chat-button-text">Ask AI</span>
                             </button>
+                        </div>
+
+                        <!-- Preview Button (shown after analysis) -->
+                        <button id="preview-changes-button"
+                            class="hidden mt-4 w-full flex justify-center items-center py-3 px-4 border border-purple-600 rounded-lg shadow-sm text-sm font-semibold text-purple-600 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="mr-2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <span>View Preview</span>
+                        </button>
+
+                        <div class="flex flex-wrap items-center gap-3 mt-3">
+                            <div id="autosave-status" class="autosave-status"></div>
+                            <button type="button" id="export-analysis-btn" class="hidden text-sm font-semibold text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 bg-white" data-lang-key="genai_export">Xuất bài phân tích</button>
+                        </div>
+
+                        <!-- Change Statistics (shown after first save) -->
+                        <div id="change-statistics" class="hidden mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                            <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                                    <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                                </svg>
+                                <span>Change Statistics</span>
+                            </h4>
+                            <div id="stats-content" class="space-y-2 text-sm">
+                                <!-- Stats will be dynamically inserted here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -471,26 +364,29 @@
                                 <path d="m13.5 10-2-2"></path>
                                 <path d="m11.5 8 2 2"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-slate-700">Kết quả phân tích sẽ xuất hiện ở đây</h3>
-                            <p class="mt-1 text-sm">Tải lên hoặc dán văn bản để bắt đầu.</p>
+                            <h3 class="text-lg font-semibold text-slate-700">Analysis Result will appear here</h3>
+                            <p class="mt-1 text-sm">Upload or paste text to get started.</p>
                         </div>
 
                         <!-- Results with Tabs -->
-                        <div id="results-tabs" class="hidden h-full flex flex-col">
-                            <div class="border-b border-slate-200">
-                                <nav class="-mb-px flex space-x-6 px-8" aria-label="Tabs">
-                                    <button id="tab-analysis"
-                                        class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Phân
-                                        tích Chi tiết</button>
-                                    <button id="tab-slideshow" disabled
-                                        class="hidden tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed">Trình
-                                        chiếu</button>
-                                    <button id="tab-quiz" disabled
-                                        class="hidden tab-button text-slate-500 hover:text-slate-700 whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed">Kiểm
-                                        tra</button>
+                        <div id="results-tabs" class="genai-tabs hidden h-full flex flex-col">
+                            <div class="genai-tabs__header">
+                                <nav class="genai-tabs__nav" aria-label="Tabs">
+                                    <button id="tab-analysis" type="button"
+                                        class="genai-tabs__btn tab-button active" data-lang-key="detailed_analysis">
+                                        <i class="bi bi-journal-text"></i><span>Detailed Analysis</span>
+                                    </button>
+                                    <button id="tab-slideshow" type="button" disabled
+                                        class="hidden genai-tabs__btn tab-button" data-lang-key="slideshow">
+                                        <i class="bi bi-easel"></i><span>Slideshow</span>
+                                    </button>
+                                    <button id="tab-quiz" type="button" disabled
+                                        class="hidden genai-tabs__btn tab-button" data-lang-key="quiz">
+                                        <i class="bi bi-patch-question"></i><span>Quiz</span>
+                                    </button>
                                 </nav>
                             </div>
-                            <div class="flex-grow overflow-auto p-8">
+                            <div class="genai-tabs__body flex-grow overflow-auto">
                                 <div id="content-analysis" class="tab-content prose-custom max-w-none"></div>
                                 <div id="content-slideshow" class="tab-content hidden h-full"></div>
                                 <div id="content-quiz" class="tab-content hidden"></div>
@@ -507,7 +403,7 @@
     require_once 'views/templates/footer.php';
     require_once 'views/templates/vendors.php';
     ?>
-
+    <script src="<?= URL_ROOT ?>/assets/js/markdown-format.js"></script>
     <script>
         // DOM Elements
         const fileUpload = document.getElementById('file-upload'),
@@ -539,11 +435,23 @@
         const contents = [contentAnalysis, contentSlideshow, contentQuiz];
 
         // State - Initialize from PHP
+        const TASK_ID = <?= (int)$taskId ?>;
+        const DELIVER_ID = <?= (int)$deliver_id ?>;
         let currentAnalysisData = <?php echo isset($json_data) ? json_encode($json_data) : 'null'; ?>;
         let conversationHistory = []; // Store chat history for refinement
         let isAnalyzed = <?php echo isset($json_data) && $json_data ? 'true' : 'false'; ?>; // Track if initial analysis is done
         let currentResponseId = <?php echo isset($id_response) ? $id_response : 'null'; ?>; // Track response ID from deliver
         let savedContent = <?php echo isset($savedContent) ? json_encode($savedContent) : 'null'; ?>; // Saved title and sections from database
+        let originalAnalysisData = null; // Store original analysis data for comparison
+        let originalContent = { title: '', sections: [] }; // Store original content from DOM
+
+        // Copy/paste tracking state
+        let copyTracker = {
+            events: [],          // Individual copy events: {sectionId, copiedChars, totalChars, copyPercent, timestamp}
+            totalCopyEvents: 0,
+            sessionStartTime: Date.now(),
+            saveEvents: 0
+        };
 
         // --- Event Listeners ---
         fileUpload.addEventListener('change', handleFileUpload);
@@ -559,7 +467,7 @@
             if (file) {
                 // Validate file type - only accept .txt files
                 if (!file.name.toLowerCase().endsWith('.txt')) {
-                    alert('Chỉ chấp nhận file văn bản (.txt). Vui lòng chọn file khác.');
+                    alert('Only text files (.txt) are accepted. Please select another file.');
                     fileUpload.value = ''; // Reset file input
                     return;
                 }
@@ -574,7 +482,7 @@
                     textInput.value = event.target.result;
                 };
                 reader.onerror = () => {
-                    alert('Không thể đọc file. Vui lòng thử lại.');
+                    alert('Cannot read file. Please try again.');
                     fileUpload.value = '';
                     fileInfo.classList.add('hidden');
                 };
@@ -594,13 +502,13 @@
         async function handleAnalysis() {
             // Check if user already has saved analysis data - prevent re-analysis
             if (currentResponseId && currentAnalysisData) {
-                alert('Bạn đã có phân tích được lưu cho bài tập này. Không thể phân tích lại.');
+                alert('You already have a saved analysis for this task. Cannot re-analyze.');
                 return;
             }
 
             const textToAnalyze = textInput.value.trim();
             if (!textToAnalyze) {
-                alert('Vui lòng nhập văn bản hoặc tải lên một tệp tin.');
+                alert('Please enter text or upload a file.');
                 return;
             }
             setLoadingState(true, 'analyze');
@@ -610,6 +518,7 @@
             if (analysisResult) {
                 currentAnalysisData = analysisResult;
                 isAnalyzed = true;
+                originalAnalysisData = JSON.parse(JSON.stringify(analysisResult)); // Deep copy
                 displayAnalysis(analysisResult);
                 setupGeneratorTabs(); // Setup buttons for slideshow and quiz
 
@@ -621,8 +530,14 @@
                 // Switch UI to chat mode
                 switchToChatMode();
 
+                document.getElementById('export-analysis-btn')?.classList.remove('hidden');
+                if (window.GenAITools) {
+                    GenAITools.scheduleAutosave(TASK_ID, DELIVER_ID, () => currentAnalysisData);
+                    GenAITools.saveHistory(TASK_ID, DELIVER_ID, analysisResult);
+                }
+
                 // Add initial analysis to chat
-                addChatMessage('assistant', 'Đã hoàn thành phân tích văn bản. Bạn có thể xem kết quả bên phải hoặc đặt câu hỏi để tìm hiểu thêm.');
+                addChatMessage('assistant', 'Analysis completed. You can view the results on the right or ask questions to learn more.');
             }
 
             setLoadingState(false, 'analyze');
@@ -651,7 +566,7 @@
                         stroke-linejoin="round" class="mr-2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <span>Chuyển sang bình luận</span>
+                    <span>Go to Comments</span>
                 `;
                 resetButton.classList.remove('border-red-600', 'text-red-600', 'hover:bg-red-50', 'focus:ring-red-500');
                 resetButton.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'focus:ring-blue-500');
@@ -690,14 +605,14 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Đang lưu...</span>
+                    <span>Saving...</span>
                 `;
 
                 // Save current analysis first
                 const saveResult = await handleSaveAnalysis();
 
                 if (!saveResult || !saveResult.success) {
-                    throw new Error('Không thể lưu dữ liệu');
+                    throw new Error('Cannot save data');
                 }
 
                 // Get URL parameters
@@ -716,7 +631,7 @@
 
             } catch (error) {
                 console.error('Error during save and redirect:', error);
-                alert('Có lỗi xảy ra khi lưu và chuyển trang. Vui lòng thử lại.');
+                alert('Error occurred while saving and redirecting. Please try again.');
 
                 // Restore button
                 resetButton.disabled = false;
@@ -726,7 +641,7 @@
                         stroke-linejoin="round" class="mr-2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <span>Chuyển sang bình luận</span>
+                    <span>Go to Comments</span>
                 `;
             }
         }
@@ -734,11 +649,11 @@
         function handleReset() {
             // Security check: prevent unauthorized reset
             if (!isAnalyzed) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
+                alert('Cannot perform this action. Please analyze the text first.');
                 return;
             }
 
-            if (!confirm('Bạn có chắc chắn muốn làm lại? Tất cả dữ liệu phân tích sẽ bị mất.')) {
+            if (!confirm('Are you sure you want to retry? All analysis data will be lost.')) {
                 return;
             }
 
@@ -776,24 +691,32 @@
             chatSection.classList.add('hidden');
 
             // Reset chat messages
-            chatMessages.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Đặt câu hỏi để AI giải đáp thêm...</div>`;
+            chatMessages.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Ask questions for AI to answer...</div>`;
 
             // Reset file upload
             fileUpload.value = '';
             fileInfo.classList.add('hidden');
+
+            if (window.GenAITools && TASK_ID && DELIVER_ID) {
+                GenAITools.clearAllHistory(TASK_ID, DELIVER_ID).catch((e) => console.warn('Clear history failed', e));
+            }
+            try {
+                localStorage.removeItem('task_cache_' + TASK_ID + '_' + DELIVER_ID);
+                localStorage.removeItem('genai_history_' + TASK_ID + '_' + DELIVER_ID);
+            } catch (e) { /* ignore */ }
         }
 
         // Handle chat submission for refinement
         async function handleChatSubmit() {
             // Security check: prevent unauthorized chat submission
             if (!isAnalyzed) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
+                alert('Cannot perform this action. Please analyze the text first.');
                 return;
             }
 
             const userMessage = questionInput.value.trim();
             if (!userMessage) {
-                alert('Vui lòng nhập câu hỏi.');
+                alert('Please enter a question.');
                 return;
             }
 
@@ -811,27 +734,28 @@
             });
 
             try {
-                // Call refine API with full conversation history
-                const response = await fetch('/api/call_api.php', {
+                const response = await fetch('<?= URL_ROOT ?>/api/analyze_task.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'refine',
-                        data: JSON.stringify({
-                            history: conversationHistory,
-                            currentAnalysis: currentAnalysisData
-                        })
+                        action: 'chat',
+                        task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
+                        data: userMessage,
+                        history: conversationHistory
                     })
                 });
 
-                if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || `API call failed: ${response.status}`);
+                }
                 const result = await response.json();
                 if (result.error) throw new Error(result.error);
 
-                // Add assistant response to chat
-                const responseText = result.response || result.message || 'Đã xử lý yêu cầu của bạn.';
+                const responseText = result.answer || result.response || result.message || 'Your request has been processed.';
                 addChatMessage('assistant', responseText);
 
                 // Add model response to conversation history
@@ -845,7 +769,7 @@
 
             } catch (error) {
                 console.error("Error during chat:", error);
-                addChatMessage('system', 'Đã xảy ra lỗi. Vui lòng thử lại.');
+                addChatMessage('system', 'An error occurred. Please try again.');
             }
 
             setLoadingState(false, 'chat');
@@ -867,7 +791,7 @@
                             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                             <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
-                        Câu hỏi: ${escapeHtml(question)}
+                        Question: ${escapeHtml(question)}
                     </h3>
                     <textarea class="editable-content w-full p-3 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-white">${escapeHtml(answer)}</textarea>
                     <div class="mt-3 text-xs text-slate-500 flex items-center">
@@ -875,7 +799,7 @@
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        ${new Date().toLocaleTimeString('vi-VN')}
+                        ${new Date().toLocaleTimeString('en-US')}
                     </div>
                 </div>
             `;
@@ -897,9 +821,6 @@
                     autoResizeTextarea(this);
                 });
             }
-
-            // Scroll to the new section
-            qaSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Handle save analysis changes
@@ -911,7 +832,7 @@
                 const deliverId = urlParams.get('deliver_id');
 
                 if (!taskId || !deliverId) {
-                    alert('Thông tin không đầy đủ. Vui lòng truy cập từ link bài tập.');
+                    alert('Incomplete information. Please access from the task link.');
                     return;
                 }
 
@@ -928,7 +849,7 @@
                 });
 
                 if (sections.length === 0 && !title) {
-                    alert('Không có nội dung để lưu.');
+                    alert('No content to save.');
                     return;
                 }
 
@@ -941,7 +862,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Đang lưu...
+                    Saving...
                 `;
 
                 // Prepare AI history data
@@ -952,7 +873,7 @@
                 };
 
                 // Send to backend API
-                const response = await fetch('/api/save_analysis.php', {
+                const response = await fetch('<?= URL_ROOT ?>/api/save_analysis.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -969,12 +890,34 @@
                 const result = await response.json();
 
                 if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Lưu thất bại');
+                    throw new Error(result.message || 'Save failed');
                 }
 
                 // Store response_id for future reference
                 if (result.response_id) {
                     currentResponseId = result.response_id;
+
+                    // Show preview button and update statistics
+                    const previewBtn = document.getElementById('preview-changes-button');
+                    if (previewBtn) {
+                        previewBtn.classList.remove('hidden');
+                        console.log('✅ Preview button shown after save');
+                    }
+
+                    // Update change statistics
+                    console.log('🔄 Calling updateChangeStatistics()...');
+                    const changeStats = updateChangeStatistics();
+
+                    // Send tracking data (copy events + change stats) to backend
+                    copyTracker.saveEvents++;
+                    sendTrackingData(
+                        changeStats ? changeStats.overallChange : 0,
+                        changeStats ? changeStats.changedSections : 0
+                    );
+
+                    // Update originalContent to current state after successful save
+                    storeOriginalContent();
+                    console.log('💾 Original content updated');
 
                     // Update UI to show "Go to Comment" button if not already done
                     if (isAnalyzed) {
@@ -1004,7 +947,7 @@
 
             } catch (error) {
                 console.error('Error saving analysis:', error);
-                alert('Có lỗi xảy ra khi lưu: ' + error.message);
+                alert('Error occurred while saving: ' + error.message);
 
                 // Restore button
                 const saveButton = document.getElementById('save-analysis-button');
@@ -1015,7 +958,7 @@
                         <polyline points="17 21 17 13 7 13 7 21"></polyline>
                         <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
-                    Lưu thay đổi
+                    Save Changes
                 `;
 
                 // Return null to indicate failure
@@ -1031,24 +974,24 @@
             const newSectionId = `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const newSectionHTML = `<div class="sortable-section" draggable="true" data-section-id="${newSectionId}">
                 <div class="section-controls">
-                    <span class="drag-handle" title="Kéo để sắp xếp">
+                    <span class="drag-handle" title="Drag to reorder">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
-                        Kéo
+                        Drag
                     </span>
-                    <button class="delete-section-btn" onclick="deleteSection('${newSectionId}')" title="Xóa section này">
+                    <button class="delete-section-btn" onclick="deleteSection('${newSectionId}')" title="Delete this section">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        Xóa
+                        Delete
                     </button>
                 </div>
                 <div class="mb-6">
-                    <textarea class="editable-content w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Nhập nội dung mới...">Tiêu đề mới:\n\nNội dung của section mới...</textarea>
+                    <textarea class="editable-content w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Enter new content...">New Title:\n\nContent of new section...</textarea>
                 </div>
             </div>`;
 
@@ -1088,7 +1031,7 @@
 
         // Delete a section
         function deleteSection(sectionId) {
-            if (!confirm('Bạn có chắc muốn xóa section này?')) {
+            if (!confirm('Are you sure you want to delete this section?')) {
                 return;
             }
 
@@ -1241,10 +1184,10 @@
         }
 
         function handleTabClick(e) {
-            // Security check: Prevent tab switching if not analyzed
-            const targetTab = e.target;
+            const targetTab = e.target.closest('.genai-tabs__btn, .tab-button') || e.target;
+            if (!targetTab || !tabs.includes(targetTab)) return;
             if ((targetTab === tabSlideshow || targetTab === tabQuiz) && !isAnalyzed) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
+                alert('Cannot perform this action. Please analyze the text first.');
                 return;
             }
 
@@ -1254,7 +1197,7 @@
         async function handleGenerateSlideshow() {
             // Security check: Prevent unauthorized slideshow generation
             if (!isAnalyzed || !currentAnalysisData) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
+                alert('Cannot perform this action. Please analyze the text first.');
                 return;
             }
 
@@ -1269,14 +1212,14 @@
             if (slideshowData) {
                 displaySlideshow(slideshowData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Không thể tạo trình chiếu. Vui lòng thử lại.</p>`;
+                container.innerHTML = `<p class="text-red-500">Cannot create slideshow. Please try again.</p>`;
             }
         }
 
         async function handleGenerateQuiz() {
             // Security check: Prevent unauthorized quiz generation
             if (!isAnalyzed || !currentAnalysisData) {
-                alert('Không thể thực hiện thao tác này. Vui lòng phân tích văn bản trước.');
+                alert('Cannot perform this action. Please analyze the text first.');
                 return;
             }
 
@@ -1290,7 +1233,7 @@
                 currentAnalysisData.quiz = quizData.quiz; // Merge quiz data
                 displayQuiz(currentAnalysisData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Không thể tạo câu hỏi. Vui lòng thử lại.</p>`;
+                container.innerHTML = `<p class="text-red-500">Cannot create quiz. Please try again.</p>`;
             }
         }
 
@@ -1300,23 +1243,23 @@
                 if (isLoading) {
                     loadingSpinner.classList.remove('hidden');
                     analyzeButton.querySelector('#analyze-icon').classList.add('hidden');
-                    buttonText.textContent = 'Đang phân tích...';
+                    buttonText.textContent = 'Analyzing...';
                     analyzeButton.disabled = true;
                     chatButton.disabled = true;
                 } else {
                     loadingSpinner.classList.add('hidden');
                     analyzeButton.querySelector('#analyze-icon').classList.remove('hidden');
-                    buttonText.textContent = 'Phân tích';
+                    buttonText.textContent = 'Analysis';
                     analyzeButton.disabled = false;
                     chatButton.disabled = false;
                 }
             } else if (mode === 'chat') {
                 if (isLoading) {
-                    chatButtonText.textContent = 'Đang xử lý...';
+                    chatButtonText.textContent = 'Processing...';
                     chatButton.disabled = true;
                     analyzeButton.disabled = true;
                 } else {
-                    chatButtonText.textContent = 'Hỏi AI';
+                    chatButtonText.textContent = 'Ask AI';
                     chatButton.disabled = false;
                     analyzeButton.disabled = false;
                 }
@@ -1343,8 +1286,8 @@
             } else if (role === 'assistant') {
                 messageDiv.innerHTML = `
                     <div class="flex justify-start">
-                        <div class="bg-white text-slate-800 px-3 py-2 rounded-lg max-w-[85%] text-sm border border-slate-200 prose prose-sm">
-                            ${formatMarkdown(message)}
+                        <div class="bg-white text-slate-800 px-3 py-2 rounded-lg max-w-[85%] text-sm border border-slate-200 ai-markdown-bubble">
+                            ${formatAiMarkdown(message)}
                         </div>
                     </div>
                 `;
@@ -1369,13 +1312,7 @@
         }
 
         function formatMarkdown(text) {
-            // Basic markdown formatting
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\n/g, '<br>')
-                .replace(/^- (.*?)$/gm, '<li>$1</li>')
-                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            return typeof formatAiMarkdown === 'function' ? formatAiMarkdown(text) : escapeHtml(text || '');
         }
 
         function switchTab(clickedTab) {
@@ -1392,15 +1329,17 @@
         }
 
         function setupGeneratorTabs() {
-            contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Trình chiếu</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bản trình bày dựa trên kết quả phân tích.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Trình chiếu</button>
+            contentSlideshow.innerHTML = `<div class="genai-panel-empty">
+                <div class="genai-panel-empty__icon"><i class="bi bi-easel"></i></div>
+                <h3>Create Slideshow</h3>
+                <p>Turn the analysis into a short slide presentation.</p>
+                <button id="generate-slideshow-button" type="button" class="genai-btn-primary"><i class="bi bi-play-circle"></i> Create Slideshow</button>
             </div>`;
-            contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Bài kiểm tra</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bài kiểm tra ngắn dựa trên nội dung văn bản.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Câu hỏi</button>
+            contentQuiz.innerHTML = `<div class="genai-panel-empty">
+                <div class="genai-panel-empty__icon"><i class="bi bi-patch-question"></i></div>
+                <h3>Create Quiz</h3>
+                <p>Generate practice questions from the analysis.</p>
+                <button id="generate-quiz-button" type="button" class="genai-btn-primary"><i class="bi bi-lightning"></i> Create Quiz</button>
             </div>`;
 
             document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
@@ -1417,23 +1356,28 @@
          */
         async function makeApiCall(action, data) {
             try {
-                const response = await fetch('/api/call_api.php', {
+                const response = await fetch('<?= URL_ROOT ?>/api/analyze_task.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         action: action,
+                        task_id: TASK_ID,
+                        deliver_id: DELIVER_ID,
                         data: data
                     })
                 });
-                if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || `API call failed: ${response.status}`);
+                }
                 const result = await response.json();
                 if (result.error) throw new Error(result.error);
                 return result;
             } catch (error) {
                 console.error("Error during API call:", error);
-                alert('Đã xảy ra lỗi khi giao tiếp với máy chủ. Vui lòng thử lại.');
+                alert('An error occurred communicating with the server. Please try again.');
                 return null;
             }
         }
@@ -1478,7 +1422,7 @@
             const words = text.match(/\b\w+\b/g) || [];
             const wordCount = words.length;
             const charCount = text.length;
-            const stopWords = new Set(['và', 'của', 'là', 'có', 'trong', 'được', 'cho', 'khi', 'thì', 'mà', 'với', 'như', 'đã', 'một', 'để', 'không', 'về', 'tại', 'ra', 'này', 'ấy', 'anh', 'em', 'ông', 'bà']);
+            const stopWords = new Set(['the', 'of', 'is', 'have', 'in', 'for', 'when', 'then', 'which', 'with', 'as', 'been', 'one', 'to', 'not', 'about', 'at', 'out', 'this', 'that', 'he', 'she', 'mr', 'mrs']);
             const wordFrequencies = words.reduce((map, word) => {
                 const lowerWord = word.toLowerCase();
                 if (!stopWords.has(lowerWord) && isNaN(lowerWord)) {
@@ -1505,7 +1449,7 @@
                 // Strip HTML tags and decode entities for plain text editing
                 const plainText = content
                     .replace(/<br\s*\/?>/gi, '\n')
-                    .replace(/<\/?(strong|em|b|i|p|div|span|ul|li)>/gi, '')
+                    .replace(/<\/?(sin|em|b|i|p|div|span|ul|li)>/gi, '')
                     .replace(/&nbsp;/g, ' ')
                     .replace(/&lt;/g, '<')
                     .replace(/&gt;/g, '>')
@@ -1522,20 +1466,20 @@
                 const id = sectionId || `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 return `<div class="sortable-section" draggable="true" data-section-id="${id}">
                     <div class="section-controls">
-                        <span class="drag-handle" title="Kéo để sắp xếp">
+                        <span class="drag-handle" title="Drag to reorder">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
-                            Kéo
+                            Drag
                         </span>
-                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xóa section này">
+                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Delete this section">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            Xóa
+                            Delete
                         </button>
                     </div>
                     ${content}
@@ -1568,8 +1512,8 @@
             // Save button at the top
             html += `<div class="mb-6 flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Kết quả phân tích</h2>
-                    <p class="text-sm text-slate-600 mt-1">Bạn có thể chỉnh sửa, thêm mới hoặc sắp xếp lại nội dung</p>
+                    <h2 class="text-2xl font-bold text-slate-800">Analysis Result</h2>
+                    <p class="text-sm text-slate-600 mt-1">You can edit, add new, or reorder content</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="add-section-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
@@ -1577,7 +1521,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Thêm Section
+                        Add Section
                     </button>
                     <button id="save-analysis-button" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1585,7 +1529,7 @@
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                         </svg>
-                        Lưu thay đổi
+                        Save Changes
                     </button>
                 </div>
             </div>`;
@@ -1593,11 +1537,11 @@
             html += `<div id="sortable-container">`;
 
             html += createSortableSection(`<div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Tiêu đề</label>
-                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(result.title || 'Không có tiêu đề')}">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(result.title || 'No Title')}">
             </div>`, 'title-section');
 
-            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Đặc điểm văn bản</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Text Characteristics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.characteristics) {
                 for (const [key, value] of Object.entries(result.characteristics)) {
                     const charSection = `<div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -1609,16 +1553,16 @@
             }
             html += `</div>`;
 
-            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Thống kê Ngôn ngữ</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Language Statistics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.stats) {
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số ký tự</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ nổi bật (tần suất)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Characters</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('en-US')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Words</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('en-US')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
             if (result.keywords && result.keywords.length > 0) {
-                html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Từ khóa chính</h2><div class="flex flex-wrap gap-2 mb-6">`;
+                html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Keywords</h2><div class="flex flex-wrap gap-2 mb-6">`;
                 result.keywords.forEach(keyword => {
                     html += `<span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full">${keyword}</span>`;
                 });
@@ -1633,9 +1577,9 @@
                 if (ga.thematicAnalysis) {
                     ga.thematicAnalysis.forEach((section, index) => {
                         // Add section title to first item
-                        const prefix = index === 0 ? `Phân tích Chung:\n\n` : '';
+                        const prefix = index === 0 ? `Analysis Chung:\n\n` : '';
                         const combinedText = `${prefix}${section.heading}\n\n${section.content}`;
-                        html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 4)}</div>`, `ga-theme-${index}`);
+                        html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 4)}</div>`, `ga-adde-${index}`);
                     });
                 }
 
@@ -1644,19 +1588,19 @@
                     const insights = ga.linguisticInsights;
 
                     if (insights.motifs?.length > 0) {
-                        const combinedText = `Mô-típ lặp lại:\n\n${insights.motifs.join('\n')}`;
+                        const combinedText = `Recurring Motifs:\n\n${insights.motifs.join('\n')}`;
                         html += createSortableSection(`<div class="mb-4">${createEditableTextarea(combinedText, 3)}</div>`, 'ga-motifs');
                     }
                     if (insights.symbolsAndMetaphors?.length > 0) {
-                        const combinedText = `Biểu tượng & Ẩn dụ:\n\n${insights.symbolsAndMetaphors.join('\n')}`;
+                        const combinedText = `Symbols & Metaphors:\n\n${insights.symbolsAndMetaphors.join('\n')}`;
                         html += createSortableSection(`<div class="mb-4">${createEditableTextarea(combinedText, 3)}</div>`, 'ga-symbols');
                     }
                     if (insights.temporalElements) {
-                        const combinedText = `Yếu tố Thời gian:\n\n${insights.temporalElements}`;
+                        const combinedText = `Temporal Elements:\n\n${insights.temporalElements}`;
                         html += createSortableSection(`<div class="mb-4">${createEditableTextarea(combinedText, 2)}</div>`, 'ga-temporal');
                     }
                     if (insights.natureAndScenery) {
-                        const combinedText = `Thiên nhiên & Phong cảnh:\n\n${insights.natureAndScenery}`;
+                        const combinedText = `Nature & Scenery:\n\n${insights.natureAndScenery}`;
                         html += createSortableSection(`<div class="mb-4">${createEditableTextarea(combinedText, 2)}</div>`, 'ga-nature');
                     }
                 }
@@ -1669,7 +1613,7 @@
                 let isFirstStorySection = true;
 
                 if (sa.character) {
-                    const prefix = isFirstStorySection ? `Phân tích Truyện:\n\n` : '';
+                    const prefix = isFirstStorySection ? `Story Analysis:\n\n` : '';
                     isFirstStorySection = false;
                     html += `<div class="mb-6">${formatDetailedAnalysis(prefix + sa.character)}</div>`;
                 }
@@ -1682,18 +1626,18 @@
             }
 
             if (result.dramaAnalysis) {
-                const da = result.dramaAnalysis;
+                const has = result.dramaAnalysis;
                 let isFirstDramaSection = true;
 
-                if (da.characters) {
-                    const prefix = isFirstDramaSection ? `Phân tích Kịch:\n\n` : '';
+                if (has.characters) {
+                    const prefix = isFirstDramaSection ? `Drama Analysis:\n\n` : '';
                     isFirstDramaSection = false;
-                    html += `<div class="mb-6">${formatDetailedAnalysis(prefix + da.characters)}</div>`;
+                    html += `<div class="mb-6">${formatDetailedAnalysis(prefix + has.characters)}</div>`;
                 }
-                if (da.conflict) html += `<div class="mb-6">${formatDetailedAnalysis(da.conflict)}</div>`;
-                if (da.action) html += `<div class="mb-6">${formatDetailedAnalysis(da.action)}</div>`;
-                if (da.structure) html += `<div class="mb-6">${formatDetailedAnalysis(da.structure)}</div>`;
-                if (da.dialogue) html += `<div class="mb-6">${formatDetailedAnalysis(da.dialogue)}</div>`;
+                if (has.conflict) html += `<div class="mb-6">${formatDetailedAnalysis(has.conflict)}</div>`;
+                if (has.action) html += `<div class="mb-6">${formatDetailedAnalysis(has.action)}</div>`;
+                if (has.structure) html += `<div class="mb-6">${formatDetailedAnalysis(has.structure)}</div>`;
+                if (has.dialogue) html += `<div class="mb-6">${formatDetailedAnalysis(has.dialogue)}</div>`;
             }
 
             if (result.poetryAnalysis) {
@@ -1701,33 +1645,33 @@
                 let isFirstPoetrySection = true;
 
                 if (pa.rhyming) {
-                    const prefix = isFirstPoetrySection ? `Phân tích Thơ ca:\n\n` : '';
+                    const prefix = isFirstPoetrySection ? `Poetry Analysis:\n\n` : '';
                     isFirstPoetrySection = false;
-                    const combinedText = `${prefix}Gieo vần trong thơ:\n\n${pa.rhyming}`;
+                    const combinedText = `${prefix}Rhyming in Poetry:\n\n${pa.rhyming}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-rhyming');
                 }
                 if (pa.emotionalFlow) {
-                    const combinedText = `Mạch cảm xúc:\n\n${pa.emotionalFlow}`;
+                    const combinedText = `Emotional Flow:\n\n${pa.emotionalFlow}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-emotion');
                 }
                 if (pa.structure) {
-                    const combinedText = `Cấu trúc bài thơ:\n\n${pa.structure}`;
+                    const combinedText = `Poem Structure:\n\n${pa.structure}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-structure');
                 }
                 if (pa.imagery) {
-                    const combinedText = `Hình ảnh trong thơ:\n\n${pa.imagery}`;
+                    const combinedText = `Imagery in Poetry:\n\n${pa.imagery}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-imagery');
                 }
                 if (pa.rhythm) {
-                    const combinedText = `Phân tích Nhịp điệu:\n\n${pa.rhythm}`;
+                    const combinedText = `Rhythm Analysis:\n\n${pa.rhythm}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 4)}</div>`, 'pa-rhythm');
                 }
                 if (pa.spaceTimeOrganization) {
-                    const combinedText = `Tổ chức không gian & thời gian:\n\n${pa.spaceTimeOrganization}`;
+                    const combinedText = `Space & Time Organization:\n\n${pa.spaceTimeOrganization}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-spacetime');
                 }
                 if (pa.rhetoricalDevices) {
-                    const combinedText = `Biện pháp tu từ:\n\n${pa.rhetoricalDevices}`;
+                    const combinedText = `Rhetorical Devices:\n\n${pa.rhetoricalDevices}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'pa-rhetorical');
                 }
             }
@@ -1736,11 +1680,11 @@
             if (result.concludingThoughts) {
                 const ct = result.concludingThoughts;
                 if (ct.lesson) {
-                    const combinedText = `Bài học & Thông điệp:\n\nBài học:\n\n${ct.lesson}`;
+                    const combinedText = `Lesson & Message:\n\nLesson:\n\n${ct.lesson}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'ct-lesson');
                 }
                 if (ct.message) {
-                    const combinedText = `Thông điệp:\n\n${ct.message}`;
+                    const combinedText = `Message:\n\n${ct.message}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'ct-message');
                 }
             }
@@ -1748,23 +1692,23 @@
             if (result.intertextuality) {
                 const it = result.intertextuality;
                 if (it.initialAnalysis) {
-                    const combinedText = `Phân tích Liên văn bản:\n\n${it.initialAnalysis}`;
+                    const combinedText = `Analysis Intertextuality:\n\n${it.initialAnalysis}`;
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'it-initial');
                 }
                 if (it.comparativeText) {
-                    html += `<h3 class="text-lg font-semibold mb-3 text-slate-700">So sánh với tác phẩm tương đồng: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
+                    html += `<h3 class="text-lg font-semibold mb-3 text-slate-700">Comparison with similar work: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
                 }
                 if (it.comparison) {
                     if (it.comparison.similarities) {
-                        const combinedText = `Điểm tương đồng:\n\n${it.comparison.similarities}`;
+                        const combinedText = `Similarities:\n\n${it.comparison.similarities}`;
                         html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'it-similarities');
                     }
                     if (it.comparison.differences) {
-                        const combinedText = `Điểm khác biệt/thay đổi:\n\n${it.comparison.differences}`;
+                        const combinedText = `Differences/Changes:\n\n${it.comparison.differences}`;
                         html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'it-differences');
                     }
                     if (it.comparison.effects) {
-                        const combinedText = `Hiệu quả:\n\n${it.comparison.effects}`;
+                        const combinedText = `Effects:\n\n${it.comparison.effects}`;
                         html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'it-effects');
                     }
                 }
@@ -1787,6 +1731,21 @@
                 addSectionButton.addEventListener('click', handleAddSection);
             }
 
+            // Add event listener for preview button
+            const previewButton = document.getElementById('preview-changes-button');
+            console.log('🔍 Preview button found:', previewButton);
+            if (previewButton) {
+                previewButton.addEventListener('click', showPreviewModal);
+                // Show preview button after analysis is complete
+                previewButton.classList.remove('hidden');
+                console.log('✅ Preview button displayed!');
+            } else {
+                console.error('❌ Preview button NOT found in DOM!');
+            }
+
+            // Store original content after rendering
+            storeOriginalContent();
+
             // Initialize drag and drop
             initializeDragAndDrop();
 
@@ -1805,13 +1764,16 @@
             conversationHistory = [
                 {
                     role: 'user',
-                    parts: [{ text: `Phân tích văn bản sau:\n\n${textInput.value.trim()}` }]
+                    parts: [{ text: `Analyze the following text:\n\n${textInput.value.trim()}` }]
                 },
                 {
                     role: 'model',
                     parts: [{ text: JSON.stringify(result) }]
                 }
             ];
+
+            // Start tracking copy events inside the analysis editor
+            initializeCopyTracking();
         }
 
         function displaySlideshow(slideshowResult) {
@@ -1827,7 +1789,7 @@
                     return ref.replace(/<i>(.*?)<\/i>/g, '<em>$1</em>'); // Use em for italics in prose context
                 }).join('<br>');
                 slides.push({
-                    heading: 'Tài liệu tham khảo',
+                    heading: 'References',
                     content: formattedReferences
                 });
             }
@@ -1844,14 +1806,14 @@
             const totalSlides = slides.length;
             contentSlideshow.innerHTML = `
                 <div class="mb-4">
-                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Bản trình bày'}</h2>
-                    <p class="text-slate-600">Bản trình bày tóm tắt nội dung phân tích.</p>
+                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Presentation'}</h2>
+                    <p class="text-slate-600">Summary presentation of the analysis content.</p>
                 </div>
                 <div id="slideshow-container" class="bg-white rounded-xl shadow-inner">${slideHTML}</div>
                 <div class="flex items-center justify-between mt-4">
-                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Trước</button>
+                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Previous</button>
                     <span id="slide-counter" class="text-sm font-medium text-slate-600">1 / ${totalSlides}</span>
-                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Sau &rarr;</button>
+                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Next &rarr;</button>
                 </div>`;
 
             const slideWrapper = contentSlideshow.querySelector('#slide-wrapper');
@@ -1887,8 +1849,8 @@
             if (!result || !result.quiz) return;
             let quizHTML = `
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold">Bài kiểm tra: ${result.title || 'Văn bản'}</h2>
-                    <p class="text-slate-600">Kiểm tra kiến thức của bạn về tác phẩm.</p>
+                    <h2 class="text-2xl font-bold">Quiz: ${result.title || 'Text'}</h2>
+                    <p class="text-slate-600">Test your knowledge of the work.</p>
                 </div>
                 <div id="quiz-form" class="space-y-6">`;
 
@@ -1903,7 +1865,7 @@
             });
 
             quizHTML += `</div><div class="mt-8">
-                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Nộp bài</button>
+                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Submit</button>
                 <div id="quiz-results" class="mt-4 text-lg font-bold"></div>
             </div>`;
             contentQuiz.innerHTML = quizHTML;
@@ -1915,7 +1877,7 @@
                 let score = 0;
                 result.quiz.forEach((item, index) => {
                     const selected = contentQuiz.querySelector(`input[name="question-${index}"]:checked`);
-                    const questionBlock = selected?.closest('.question-block');
+                    const questionBlock = selected.closest('.question-block');
                     questionBlock?.querySelectorAll('label').forEach(l => {
                         l.classList.remove('bg-red-100', 'border-red-400', 'bg-green-100', 'border-green-400');
                     });
@@ -1933,7 +1895,7 @@
                         }
                     }
                 });
-                resultsDiv.textContent = `Kết quả của bạn: ${score} / ${result.quiz.length}`;
+                resultsDiv.textContent = `Your score: ${score} / ${result.quiz.length}`;
                 resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
             });
         }
@@ -1949,7 +1911,7 @@
                     return; // Required parameters missing
                 }
 
-                const response = await fetch(`/api/load_analysis.php?task_id=${taskId}&deliver_id=${deliverId}`);
+                const response = await fetch(`<?= URL_ROOT ?>/api/load_analysis.php?task_id=${taskId}&deliver_id=${deliverId}`);
                 const result = await response.json();
 
                 if (!response.ok) {
@@ -2002,7 +1964,7 @@
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        Đã tải kết quả phân tích đã lưu
+                        Loaded saved analysis results
                     `;
                     document.body.appendChild(notification);
                     setTimeout(() => notification.remove(), 3000);
@@ -2028,20 +1990,20 @@
                 const id = sectionId || `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 return `<div class="sortable-section" draggable="true" data-section-id="${id}">
                     <div class="section-controls">
-                        <span class="drag-handle" title="Kéo để sắp xếp">
+                        <span class="drag-handle" title="Drag to reorder">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
-                            Kéo
+                            Drag
                         </span>
-                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xóa section này">
+                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Delete this section">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            Xóa
+                            Delete
                         </button>
                     </div>
                     ${content}
@@ -2054,8 +2016,8 @@
             // Save button at the top
             html += `<div class="mb-6 flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Kết quả phân tích</h2>
-                    <p class="text-sm text-slate-600 mt-1">Bạn có thể chỉnh sửa, thêm mới hoặc sắp xếp lại nội dung</p>
+                    <h2 class="text-2xl font-bold text-slate-800">Analysis Result</h2>
+                    <p class="text-sm text-slate-600 mt-1">You can edit, add new, or reorder content</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="add-section-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
@@ -2063,7 +2025,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Thêm Section
+                        Add Section
                     </button>
                     <button id="save-analysis-button" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2071,7 +2033,7 @@
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                         </svg>
-                        Lưu thay đổi
+                        Save Changes
                     </button>
                 </div>
             </div>`;
@@ -2080,8 +2042,8 @@
 
             // Title section
             html += createSortableSection(`<div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Tiêu đề</label>
-                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(title || 'Không có tiêu đề')}">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Title</label>
+                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(title || 'No Title')}">
             </div>`, 'title-section');
 
             // Add all saved sections
@@ -2118,6 +2080,9 @@
             tabSlideshow.removeAttribute('disabled');
             tabQuiz.classList.remove('hidden');
             tabQuiz.removeAttribute('disabled');
+
+            // Start tracking copy events inside the analysis editor
+            initializeCopyTracking();
         }
 
         // Call loadSavedAnalysis on page load
@@ -2164,8 +2129,457 @@
                 }
             }
         });
+
+        // Store original content from DOM
+        function storeOriginalContent() {
+            const titleElement = document.querySelector('.editable-title');
+            const sectionElements = document.querySelectorAll('.sortable-section .editable-content');
+            
+            originalContent.title = titleElement ? titleElement.value : '';
+            originalContent.sections = [];
+            
+            sectionElements.forEach((section) => {
+                if (section.value && section.value.trim()) {
+                    originalContent.sections.push(section.value.trim());
+                }
+            });
+        }
+
+        // Check if content has changed
+        function hasContentChanged() {
+            const currentTitle = document.querySelector('.editable-title')?.value || '';
+            const currentSections = [];
+            
+            document.querySelectorAll('.sortable-section .editable-content').forEach((section) => {
+                if (section.value && section.value.trim()) {
+                    currentSections.push(section.value.trim());
+                }
+            });
+
+            // Compare title
+            if (currentTitle !== originalContent.title) {
+                return true;
+            }
+
+            // Compare sections count
+            if (currentSections.length !== originalContent.sections.length) {
+                return true;
+            }
+
+            // Compare each section
+            for (let i = 0; i < currentSections.length; i++) {
+                if (currentSections[i] !== originalContent.sections[i]) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Calculate change statistics
+        function calculateChangePercentage(original, current) {
+            if (!original && !current) return 0;
+            if (!original) return 100;
+            if (original === current) return 0;
+
+            // Calculate Levenshtein distance for more accurate change detection
+            const maxLen = Math.max(original.length, current.length);
+            if (maxLen === 0) return 0;
+
+            // Simple character difference percentage
+            let changes = 0;
+            const minLen = Math.min(original.length, current.length);
+            
+            for (let i = 0; i < minLen; i++) {
+                if (original[i] !== current[i]) changes++;
+            }
+            
+            // Add difference in length
+            changes += Math.abs(original.length - current.length);
+            
+            return Math.min(100, Math.round((changes / maxLen) * 100));
+        }
+
+        // Initialize copy event tracking via event delegation on the analysis container
+        function initializeCopyTracking() {
+            const container = document.getElementById('content-analysis');
+            if (!container || container._copyTrackingInit) return;
+            container._copyTrackingInit = true;
+
+            // Helper: record a copy event from a textarea target
+            const recordCopy = (target) => {
+                const totalText = target.value || '';
+                const start = target.selectionStart || 0;
+                const end = target.selectionEnd || 0;
+                const copiedText = totalText.substring(start, end);
+
+                if (!copiedText || copiedText.length === 0) return null;
+
+                const copiedChars = copiedText.length;
+                const totalChars = totalText.length || 1;
+                const copyPercent = Math.min(100, Math.round((copiedChars / totalChars) * 100));
+
+                const ev = {
+                    sectionId: target.closest('[data-section-id]')?.dataset.sectionId || 'title',
+                    copiedChars,
+                    totalChars,
+                    copyPercent,
+                    timestamp: new Date().toISOString()
+                };
+
+                copyTracker.events.push(ev);
+                copyTracker.totalCopyEvents++;
+                console.log(`📋 Copy detected: ${copiedChars}/${totalChars} chars (${copyPercent}%)`, ev.sectionId);
+                return ev;
+            };
+
+            // 'copy' event — fired for both right-click Copy and Ctrl+C
+            container.addEventListener('copy', function (e) {
+                const target = e.target;
+                if (!target.matches('.editable-content, .editable-title')) return;
+                recordCopy(target);
+            });
+
+            // Explicit Ctrl+C / Cmd+C keydown on the document (catches cases where
+            // the 'copy' event is suppressed or fired before the selection is finalized)
+            container.addEventListener('keydown', function (e) {
+                if (!((e.ctrlKey || e.metaKey) && e.key === 'c')) return;
+                const target = e.target;
+                if (!target.matches('.editable-content, .editable-title')) return;
+
+                setTimeout(() => {
+                    // Only record if no 'copy' event already fired within 100 ms for this target
+                    const lastEv = copyTracker.events[copyTracker.events.length - 1];
+                    const sectionId = target.closest('[data-section-id]')?.dataset.sectionId || 'title';
+                    const now = new Date().toISOString();
+                    const alreadyRecorded = lastEv && lastEv.sectionId === sectionId &&
+                        (new Date(now) - new Date(lastEv.timestamp)) < 100;
+                    if (!alreadyRecorded) {
+                        recordCopy(target);
+                    }
+                }, 0);
+            });
+        }
+
+        // Build the globalSummary object for sending to backend
+        function buildTrackingData(overallChangePercent, changedSectionsCount, totalSections) {
+            const sessionDuration = Math.round((Date.now() - copyTracker.sessionStartTime) / 1000);
+            const avgCopyPercent = copyTracker.events.length > 0
+                ? Math.round(copyTracker.events.reduce((sum, e) => sum + e.copyPercent, 0) / copyTracker.events.length)
+                : 0;
+
+            return {
+                copyEvents: copyTracker.events.map(e => ({
+                    sectionId: e.sectionId,
+                    copyPercent: e.copyPercent,
+                    timestamp: e.timestamp
+                })),
+                globalSummary: {
+                    averageEditChangePercent: overallChangePercent,
+                    sectionsEdited: changedSectionsCount,
+                    totalCopyEvents: copyTracker.totalCopyEvents,
+                    totalCopyPercent: avgCopyPercent,
+                    sessionDuration: sessionDuration,
+                    totalSaveEvents: copyTracker.saveEvents
+                }
+            };
+        }
+
+        // Send tracking data to backend
+        async function sendTrackingData(overallChangePercent, changedSectionsCount) {
+            if (!currentResponseId) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const taskId = urlParams.get('task_id');
+            const deliverId = urlParams.get('deliver_id');
+            if (!taskId || !deliverId) return;
+
+            const trackingPayload = buildTrackingData(overallChangePercent, changedSectionsCount);
+
+            try {
+                await fetch('<?= URL_ROOT ?>/api/save_response.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        task_id: parseInt(taskId),
+                        deliver_id: parseInt(deliverId),
+                        action_type: 'tracking',
+                        tracking_data: trackingPayload
+                    })
+                });
+                console.log('✅ Tracking data sent to backend');
+            } catch (err) {
+                console.warn('⚠️ Failed to send tracking data:', err);
+            }
+        }
+
+        // Update change statistics display
+        function updateChangeStatistics() {
+            console.log('🔍 updateChangeStatistics() called');
+            const statsContainer = document.getElementById('change-statistics');
+            const statsContent = document.getElementById('stats-content');
+            
+            console.log('📊 Stats container:', statsContainer);
+            console.log('📊 Stats content:', statsContent);
+            
+            if (!statsContainer || !statsContent) {
+                console.error('❌ Stats container or content not found!');
+                return;
+            }
+
+            // Get current content
+            const currentTitle = document.querySelector('.editable-title')?.value || '';
+            const currentSections = [];
+            
+            document.querySelectorAll('.sortable-section .editable-content').forEach((section) => {
+                if (section.value && section.value.trim()) {
+                    currentSections.push(section.value.trim());
+                }
+            });
+
+            // Calculate changes
+            const titleChange = calculateChangePercentage(originalContent.title, currentTitle);
+            let totalOriginalChars = originalContent.title.length;
+            let totalCurrentChars = currentTitle.length;
+            let totalChangePercent = 0;
+            let changedSections = 0;
+
+            const sectionChanges = [];
+            for (let i = 0; i < Math.max(originalContent.sections.length, currentSections.length); i++) {
+                const origSection = originalContent.sections[i] || '';
+                const currSection = currentSections[i] || '';
+                const changePercent = calculateChangePercentage(origSection, currSection);
+                
+                totalOriginalChars += origSection.length;
+                totalCurrentChars += currSection.length;
+                
+                if (changePercent > 0) {
+                    changedSections++;
+                    sectionChanges.push({ index: i + 1, percent: changePercent });
+                }
+            }
+
+            // Calculate overall change
+            const overallChange = calculateChangePercentage(
+                originalContent.title + originalContent.sections.join(''),
+                currentTitle + currentSections.join('')
+            );
+
+            // Build statistics HTML
+            let statsHTML = `
+                <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
+                    <span class="font-medium text-slate-700">Overall change rate:</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width: ${overallChange}%"></div>
+                        </div>
+                        <span class="font-bold text-${overallChange > 50 ? 'purple' : overallChange > 20 ? 'blue' : 'slate'}-600">${overallChange}%</span>
+                    </div>
+                </div>
+            `;
+
+            if (titleChange > 0) {
+                statsHTML += `
+                    <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
+                        <span class="text-sm text-slate-600">Title:</span>
+                        <span class="text-sm font-semibold text-blue-600">${titleChange}%</span>
+                    </div>
+                `;
+            }
+
+            if (changedSections > 0) {
+                statsHTML += `
+                    <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
+                        <span class="text-sm text-slate-600">Sections edited:</span>
+                        <span class="text-sm font-semibold text-purple-600">${changedSections}/${currentSections.length} sections</span>
+                    </div>
+                `;
+            }
+
+            const charDiff = totalCurrentChars - totalOriginalChars;
+            if (charDiff !== 0) {
+                statsHTML += `
+                    <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
+                        <span class="text-sm text-slate-600">Character change:</span>
+                        <span class="text-sm font-semibold ${charDiff > 0 ? 'text-green-600' : 'text-red-600'}">${charDiff > 0 ? '+' : ''}${charDiff} characters</span>
+                    </div>
+                `;
+            }
+
+            // Copy/paste statistics
+            if (copyTracker.totalCopyEvents > 0) {
+                const avgCopyPercent = Math.round(
+                    copyTracker.events.reduce((sum, e) => sum + e.copyPercent, 0) / copyTracker.events.length
+                );
+                statsHTML += `
+                    <div class="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200 mt-1">
+                        <span class="text-sm text-slate-600 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            Total copy times:
+                        </span>
+                        <span class="text-sm font-semibold text-orange-600">${copyTracker.totalCopyEvents} times</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2 bg-orange-50 rounded border border-orange-200">
+                        <span class="text-sm text-slate-600">% avg text copied:</span>
+                        <span class="text-sm font-semibold text-orange-600">${avgCopyPercent}%</span>
+                    </div>
+                `;
+            }
+
+            statsContent.innerHTML = statsHTML;
+            statsContainer.classList.remove('hidden');
+            console.log('✅ Stats updated! HTML:', statsHTML.substring(0, 100) + '...');
+            console.log('✅ Stats container now visible');
+
+            return { overallChange, changedSections };
+        }
+
+        // Show preview modal with before/after comparison
+        function showPreviewModal() {
+            const currentTitle = document.querySelector('.editable-title')?.value || '';
+            const currentSections = [];
+            
+            document.querySelectorAll('.sortable-section .editable-content').forEach((section) => {
+                if (section.value && section.value.trim()) {
+                    currentSections.push(section.value.trim());
+                }
+            });
+
+            let comparisonHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Before Column -->
+                    <div>
+                        <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            Before Editing
+                        </h3>
+                        <div class="space-y-4">
+                            ${originalContent.title !== currentTitle ? 
+                                `<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div class="text-xs font-semibold text-red-600 mb-2">TITLE</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(originalContent.title)}</div>
+                                </div>` : 
+                                `<div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                                    <div class="text-xs font-semibold text-slate-600 mb-2">TITLE (unchanged)</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(originalContent.title)}</div>
+                                </div>`
+                            }
+                            ${originalContent.sections.map((section, index) => {
+                                const hasChanged = currentSections[index] !== section;
+                                return `<div class="${hasChanged ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'} border rounded-lg p-4">
+                                    <div class="text-xs font-semibold ${hasChanged ? 'text-red-600' : 'text-slate-600'} mb-2">SECTION ${index + 1}${hasChanged ? ' (changed)' : ''}</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(section)}</div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- After Column -->
+                    <div>
+                        <h3 class="text-lg font-bold text-green-700 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            After Editing
+                        </h3>
+                        <div class="space-y-4">
+                            ${originalContent.title !== currentTitle ? 
+                                `<div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <div class="text-xs font-semibold text-green-600 mb-2">TITLE</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(currentTitle)}</div>
+                                </div>` : 
+                                `<div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                                    <div class="text-xs font-semibold text-slate-600 mb-2">TITLE (unchanged)</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(currentTitle)}</div>
+                                </div>`
+                            }
+                            ${currentSections.map((section, index) => {
+                                const hasChanged = originalContent.sections[index] !== section;
+                                const isNew = index >= originalContent.sections.length;
+                                return `<div class="${hasChanged || isNew ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'} border rounded-lg p-4">
+                                    <div class="text-xs font-semibold ${hasChanged || isNew ? 'text-green-600' : 'text-slate-600'} mb-2">SECTION ${index + 1}${isNew ? ' (new)' : hasChanged ? ' (changed)' : ''}</div>
+                                    <div class="text-sm whitespace-pre-wrap">${escapeHtml(section)}</div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const modal = document.getElementById('preview-modal');
+            const modalBody = document.getElementById('preview-modal-body');
+            
+            if (modal && modalBody) {
+                modalBody.innerHTML = comparisonHTML;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+        }
+
+        // Close preview modal
+        function closePreviewModal() {
+            const modal = document.getElementById('preview-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+        }
     </script>
 
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closePreviewModal()"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-7xl sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                        <h3 class="text-2xl font-bold text-slate-800 flex items-center" id="modal-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-purple-600">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            View Before Changes
+                        </h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" onclick="closePreviewModal()">
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div id="preview-modal-body" class="max-h-[70vh] overflow-y-auto">
+                        <!-- Content will be inserted by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm" onclick="closePreviewModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="<?= URL_ROOT ?>/assets/js/genai-tools.js"></script>
+    <script>
+    document.getElementById('export-analysis-btn')?.addEventListener('click', function () {
+        if (currentAnalysisData && window.GenAITools) {
+            GenAITools.exportAnalysisHtml(currentAnalysisData.title, currentAnalysisData);
+        }
+    });
+    </script>
 </body>
 
 </html>

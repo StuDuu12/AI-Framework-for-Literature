@@ -1,0 +1,105 @@
+/**
+ * Unified error pages — Literature System
+ */
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, var(--error-bg-start, #4154f1) 0%, var(--error-bg-end, #012970) 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+.error-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.error-page__inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 520px;
+}
+
+.error-page__icon {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.error-page__code {
+    font-size: clamp(5rem, 15vw, 8rem);
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.error-page__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.error-page__message {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.95;
+    margin-bottom: 1.75rem;
+}
+
+.error-page__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.error-page__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.error-page__btn--primary {
+    background: #fff;
+    color: var(--error-bg-start, #4154f1);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.error-page__btn--secondary {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+}
+
+.error-page__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    color: inherit;
+}
+
+.error-page__meta {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    opacity: 0.75;
+}
+
+.error-page--403 { --error-bg-start: #e74c3c; --error-bg-end: #922b21; }
+.error-page--404 { --error-bg-start: #4154f1; --error-bg-end: #012970; }
+.error-page--400 { --error-bg-start: #f39c12; --error-bg-end: #d68910; }
+.error-page--500 { --error-bg-start: #8e44ad; --error-bg-end: #5b2c6f; }
+.error-page--503 { --error-bg-start: #16a085; --error-bg-end: #0e6655; }

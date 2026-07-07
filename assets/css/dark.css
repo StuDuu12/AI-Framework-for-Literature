@@ -1,0 +1,628 @@
+/**
+ * ============================================================
+ * dark.css — Consolidated Dark Theme
+ * LiteratureVer2 — Modern Glassmorphism Design System
+ * ============================================================
+ * Merged from: dark-theme-enhanced.css + dark overrides in modules.css
+ * Load order: Bootstrap → Icons → app.css → glass.css → dark.css
+ * ============================================================
+ */
+
+/* ============================================
+ * SECTION 1: Dark Theme Variables
+ * ============================================ */
+body.dark-theme {
+    /* Doraemon-inspired palette */
+    --dark-bg-deep: #0a1929;
+    --dark-bg-surface: #132f4c;
+    --dark-bg-elevated: #1e4976;
+    --dark-bg-header: #0d2238;
+
+    --dark-border: #3d5a80;
+    --dark-border-light: #264966;
+
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #b0c4de;
+    --dark-text-tertiary: #8ba4c7;
+    --dark-text-disabled: #5a7a9e;
+
+    --dark-accent: #ffd43b;
+    --dark-accent-hover: #ffec99;
+    --dark-accent-text: #0a1929;
+
+    --dark-primary: #4dabf7;
+    --dark-primary-hover: #74c0fc;
+    --dark-primary-light: rgba(77, 171, 247, 0.15);
+
+    --dark-success: #51cf66;
+    --dark-danger: #ff6b6b;
+    --dark-warning: #ffd43b;
+    --dark-info: #4dabf7;
+
+    --dark-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --dark-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --dark-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+    /* Override lit-* variables for dark */
+    --lit-text: #ffffff;
+    --lit-text-secondary: #b0c4de;
+    --lit-text-muted: #8ba4c7;
+    --lit-bg: #0a1929;
+    --lit-surface: #132f4c;
+    --lit-border: #3d5a80;
+    --lit-primary: #4dabf7;
+    --lit-primary-rgb: 77, 171, 247;
+    --lit-primary-hover: #74c0fc;
+
+    /* Background image */
+    background-image: url('/assets/img/vanhoc.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--dark-text-primary);
+    position: relative;
+}
+
+/* Dark overlay */
+body.dark-theme::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85));
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ============================================
+ * SECTION 2: Global Text
+ * ============================================ */
+body.dark-theme,
+body.dark-theme p,
+body.dark-theme span,
+body.dark-theme label,
+body.dark-theme div,
+body.dark-theme li,
+body.dark-theme a,
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6 {
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme .text-muted,
+body.dark-theme small {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* ============================================
+ * SECTION 3: Header
+ * ============================================ */
+body.dark-theme #header,
+body.dark-theme .header {
+    background: linear-gradient(135deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
+    border-bottom: 1px solid var(--dark-border);
+    box-shadow: var(--dark-shadow-md);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+body.dark-theme .logo,
+body.dark-theme .logo i,
+body.dark-theme .logo span,
+body.dark-theme .logo a {
+    color: var(--dark-accent) !important;
+}
+body.dark-theme .logo:hover { filter: brightness(1.2); }
+
+body.dark-theme .header .toggle-sidebar-btn { color: var(--dark-text-primary); }
+body.dark-theme .header .toggle-sidebar-btn:hover {
+    background: var(--dark-primary-light);
+    color: var(--dark-primary);
+}
+
+/* ============================================
+ * SECTION 4: Sidebar
+ * ============================================ */
+body.dark-theme .sidebar,
+body.dark-theme #sidebar {
+    background: linear-gradient(180deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid var(--dark-border-light);
+}
+
+body.dark-theme .sidebar::-webkit-scrollbar-track { background: var(--dark-bg-header); }
+body.dark-theme .sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--dark-primary), var(--dark-accent));
+    border-radius: 10px;
+}
+body.dark-theme .sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--dark-primary-hover), var(--dark-accent-hover));
+}
+
+/* Sidebar nav items */
+body.dark-theme .sidebar-nav { background-color: transparent !important; }
+
+body.dark-theme .sidebar-nav .nav-link {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border: 2px solid transparent;
+}
+
+body.dark-theme .sidebar-nav .nav-link span { color: #ffffff !important; }
+
+body.dark-theme .sidebar-nav .nav-link.collapsed {
+    background-color: transparent !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme .sidebar-nav .nav-link.collapsed span { color: #e0e0e0 !important; }
+
+body.dark-theme .sidebar-nav .nav-link:hover {
+    background: linear-gradient(135deg, var(--dark-bg-elevated) 0%, rgba(77, 171, 247, 0.2) 100%) !important;
+    color: #ffffff !important;
+    border-color: var(--dark-primary);
+    box-shadow: var(--dark-shadow-sm);
+}
+
+body.dark-theme .sidebar-nav .nav-link:hover span { color: #ffffff !important; }
+
+/* Active sidebar */
+body.dark-theme .sidebar-nav .nav-link.active,
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed) {
+    background: linear-gradient(135deg, var(--dark-accent) 0%, var(--dark-accent-hover) 100%) !important;
+    color: var(--dark-accent-text) !important;
+    border-color: var(--dark-accent) !important;
+    box-shadow: 0 4px 12px rgba(255, 212, 59, 0.5), 0 2px 4px rgba(255, 212, 59, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    font-weight: 600;
+    transform: translateX(8px) scale(1.02);
+    position: relative;
+}
+
+/* Active highlight bar */
+body.dark-theme .sidebar-nav .nav-link.active::after,
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed)::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 12px rgba(77, 171, 247, 0.8);
+}
+
+body.dark-theme .sidebar-nav .nav-link.active span,
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed) span {
+    color: var(--dark-accent-text) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+}
+
+/* Active hover */
+body.dark-theme .sidebar-nav .nav-link.active:hover,
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed):hover {
+    background: linear-gradient(135deg, var(--dark-accent-hover) 0%, #fff9db 100%) !important;
+    box-shadow: 0 6px 16px rgba(255, 212, 59, 0.6), 0 3px 6px rgba(255, 212, 59, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    transform: translateX(10px) scale(1.03);
+}
+
+/* Sidebar icons */
+body.dark-theme .sidebar-nav .nav-link i { color: #74c0fc !important; }
+body.dark-theme .sidebar-nav .nav-link.collapsed i { color: #b0c4de !important; }
+body.dark-theme .sidebar-nav .nav-link:hover i { color: #a5d8ff !important; }
+body.dark-theme .sidebar-nav .nav-link.active i,
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed) i { color: var(--dark-accent-text) !important; }
+
+/* Nav heading */
+body.dark-theme .sidebar-nav .nav-heading {
+    color: #ffffff !important;
+    background-color: transparent !important;
+    font-weight: 600;
+    opacity: 0.95;
+}
+body.dark-theme .sidebar-nav .nav-heading::after {
+    background: linear-gradient(90deg, var(--dark-primary), transparent);
+}
+
+/* Submenu */
+body.dark-theme .sidebar-nav .nav-content { background-color: transparent !important; }
+body.dark-theme .sidebar-nav .nav-content a { color: var(--dark-text-secondary); }
+body.dark-theme .sidebar-nav .nav-content a::before { background: var(--dark-primary); }
+body.dark-theme .sidebar-nav .nav-content a:hover {
+    background: rgba(77, 171, 247, 0.15) !important;
+    color: var(--dark-primary-hover);
+}
+body.dark-theme .sidebar-nav .nav-content a.active {
+    background: linear-gradient(90deg, rgba(255, 212, 59, 0.2) 0%, transparent 100%) !important;
+    color: var(--dark-accent);
+}
+body.dark-theme .sidebar-nav .nav-content a.active::before { background: var(--dark-accent); }
+
+/* Current class name */
+body.dark-theme .sidebar-current-class-name { color: #ff6b6b !important; }
+body.dark-theme .sidebar-nav .nav-link:not(.collapsed) .sidebar-current-class-name { color: #ff8787 !important; }
+
+/* ============================================
+ * SECTION 5: Cards
+ * ============================================ */
+body.dark-theme .card {
+    background: linear-gradient(135deg, var(--dark-bg-surface) 0%, var(--dark-bg-elevated) 100%);
+    border: 1px solid var(--dark-border);
+    box-shadow: var(--dark-shadow-sm);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .card:hover { box-shadow: var(--dark-shadow-lg); border-color: var(--dark-primary); }
+body.dark-theme .card-title { color: var(--dark-text-primary) !important; }
+body.dark-theme .card-header {
+    background: linear-gradient(135deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
+    border-bottom: 1px solid var(--dark-border);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .card::before {
+    background: linear-gradient(90deg, var(--dark-primary), var(--dark-accent));
+}
+
+/* ============================================
+ * SECTION 6: Buttons
+ * ============================================ */
+body.dark-theme .btn-primary {
+    background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%);
+    border: none;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(77, 171, 247, 0.4);
+}
+body.dark-theme .btn-primary:hover {
+    background: linear-gradient(135deg, var(--dark-primary-hover) 0%, #a5d8ff 100%);
+    box-shadow: 0 6px 20px rgba(77, 171, 247, 0.6);
+}
+body.dark-theme .btn-primary *, body.dark-theme .btn-primary i { color: #ffffff !important; }
+
+body.dark-theme .btn-success {
+    background: linear-gradient(135deg, var(--dark-success) 0%, #40c057 100%);
+    box-shadow: 0 4px 12px rgba(81, 207, 102, 0.4);
+    color: #ffffff !important;
+}
+body.dark-theme .btn-success:hover { color: #ffffff !important; }
+body.dark-theme .btn-success *, body.dark-theme .btn-success i { color: #ffffff !important; }
+
+body.dark-theme .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: #ffffff !important;
+}
+body.dark-theme .btn-secondary:hover { color: #ffffff !important; }
+body.dark-theme .btn-secondary *, body.dark-theme .btn-secondary i { color: #ffffff !important; }
+
+body.dark-theme .btn-info {
+    background: linear-gradient(135deg, var(--dark-info) 0%, #339af0 100%);
+    color: #ffffff !important;
+}
+body.dark-theme .btn-info:hover { color: #ffffff !important; }
+body.dark-theme .btn-info *, body.dark-theme .btn-info i { color: #ffffff !important; }
+
+body.dark-theme .btn-danger {
+    background: linear-gradient(135deg, var(--dark-danger) 0%, #fa5252 100%);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    color: #ffffff !important;
+}
+body.dark-theme .btn-danger:hover { color: #ffffff !important; }
+body.dark-theme .btn-danger *, body.dark-theme .btn-danger i { color: #ffffff !important; }
+
+body.dark-theme .btn-warning {
+    background: linear-gradient(135deg, var(--dark-warning) 0%, #ffc107 100%);
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(255, 212, 59, 0.4);
+}
+body.dark-theme .btn-warning:hover { color: #ffffff !important; }
+body.dark-theme .btn-warning *, body.dark-theme .btn-warning i { color: #ffffff !important; }
+
+/* Outline buttons */
+body.dark-theme .btn-outline-primary { border-color: var(--dark-primary); color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-primary:hover { background: var(--dark-primary); color: #ffffff !important; }
+body.dark-theme .btn-outline-primary *, body.dark-theme .btn-outline-primary i { color: #ffffff !important; }
+
+body.dark-theme .btn-outline-secondary { border-color: #6c757d; color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-secondary:hover { background: #6c757d; color: #ffffff !important; }
+body.dark-theme .btn-outline-secondary *, body.dark-theme .btn-outline-secondary i { color: #ffffff !important; }
+
+body.dark-theme .btn-outline-success { border-color: var(--dark-success); color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-success:hover { background: var(--dark-success); color: #ffffff !important; }
+body.dark-theme .btn-outline-success *, body.dark-theme .btn-outline-success i { color: #ffffff !important; }
+
+body.dark-theme .btn-outline-warning { border-color: var(--dark-warning); color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-warning:hover { background: var(--dark-warning); color: #ffffff !important; }
+body.dark-theme .btn-outline-warning:hover *, body.dark-theme .btn-outline-warning:hover i { color: #ffffff !important; }
+
+body.dark-theme .btn-outline-info { border-color: var(--dark-info); color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-info:hover { background: var(--dark-info); color: #ffffff !important; }
+body.dark-theme .btn-outline-info *, body.dark-theme .btn-outline-info i { color: #ffffff !important; }
+
+body.dark-theme .btn-outline-danger { border-color: var(--dark-danger); color: #ffffff !important; background: transparent; }
+body.dark-theme .btn-outline-danger:hover { background: var(--dark-danger); color: #ffffff !important; }
+body.dark-theme .btn-outline-danger *, body.dark-theme .btn-outline-danger i { color: #ffffff !important; }
+
+/* ============================================
+ * SECTION 7: Tables
+ * ============================================ */
+body.dark-theme .table { color: var(--dark-text-primary); border-color: var(--dark-border); }
+body.dark-theme .table thead th {
+    background: linear-gradient(135deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary) !important;
+}
+body.dark-theme .table tbody td {
+    background-color: var(--dark-bg-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary) !important;
+}
+body.dark-theme .table-striped tbody tr:nth-of-type(odd) { background-color: var(--dark-bg-deep); }
+body.dark-theme .table-hover tbody tr:hover {
+    background: linear-gradient(135deg, var(--dark-bg-elevated) 0%, rgba(77, 171, 247, 0.1) 100%) !important;
+    box-shadow: var(--dark-shadow-sm);
+}
+
+/* ============================================
+ * SECTION 8: Forms
+ * ============================================ */
+body.dark-theme .form-control,
+body.dark-theme .form-select,
+body.dark-theme textarea {
+    background-color: var(--dark-bg-surface);
+    border: 2px solid var(--dark-border);
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus,
+body.dark-theme textarea:focus {
+    background-color: var(--dark-bg-elevated);
+    border-color: var(--dark-primary);
+    color: var(--dark-text-primary) !important;
+    box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.2);
+}
+
+body.dark-theme .form-control::placeholder,
+body.dark-theme textarea::placeholder { color: var(--dark-text-tertiary); }
+body.dark-theme .form-label { color: var(--dark-text-primary); }
+body.dark-theme option { background-color: var(--dark-bg-surface); color: var(--dark-text-primary); }
+
+/* ============================================
+ * SECTION 9: Search Bar
+ * ============================================ */
+body.dark-theme .search-bar input {
+    background-color: var(--dark-bg-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .search-bar input:focus {
+    background-color: var(--dark-bg-elevated);
+    border-color: var(--dark-primary);
+    box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.2);
+}
+body.dark-theme .search-bar button {
+    background-color: var(--dark-bg-elevated);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .search-bar button:hover {
+    background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%);
+    color: #ffffff;
+}
+
+/* ============================================
+ * SECTION 10: Modals
+ * ============================================ */
+body.dark-theme .modal-content {
+    background: linear-gradient(135deg, var(--dark-bg-surface) 0%, var(--dark-bg-elevated) 100%);
+    border: 1px solid var(--dark-border);
+    box-shadow: var(--dark-shadow-lg);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .modal-header {
+    background: linear-gradient(135deg, var(--dark-bg-header) 0%, var(--dark-bg-surface) 100%);
+    border-bottom: 1px solid var(--dark-border);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .modal-title { color: var(--dark-text-primary); }
+body.dark-theme .modal-footer { border-top: 1px solid var(--dark-border); background-color: var(--dark-bg-header); }
+body.dark-theme .btn-close { filter: invert(1) brightness(2); }
+
+/* ============================================
+ * SECTION 11: Dropdowns
+ * ============================================ */
+body.dark-theme .dropdown-menu {
+    background: linear-gradient(135deg, var(--dark-bg-surface) 0%, var(--dark-bg-elevated) 100%);
+    border: 1px solid var(--dark-border);
+    box-shadow: var(--dark-shadow-lg);
+}
+body.dark-theme .dropdown-item { color: var(--dark-text-primary); }
+body.dark-theme .dropdown-item:hover {
+    background: linear-gradient(135deg, var(--dark-bg-elevated) 0%, rgba(77, 171, 247, 0.2) 100%);
+    color: var(--dark-primary-hover);
+}
+body.dark-theme .dropdown-divider { border-color: var(--dark-border); }
+
+/* ============================================
+ * SECTION 12: Badges
+ * ============================================ */
+body.dark-theme .badge { box-shadow: var(--dark-shadow-sm); }
+body.dark-theme .badge-primary { background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%); color: #ffffff; }
+body.dark-theme .badge-success { background: linear-gradient(135deg, var(--dark-success) 0%, #40c057 100%); }
+body.dark-theme .badge-danger { background: linear-gradient(135deg, var(--dark-danger) 0%, #fa5252 100%); }
+body.dark-theme .badge-warning { background: linear-gradient(135deg, var(--dark-warning) 0%, #ffc107 100%); color: #ffffff; }
+
+/* ============================================
+ * SECTION 13: Alerts
+ * ============================================ */
+body.dark-theme .alert { border: none; box-shadow: var(--dark-shadow-sm); }
+body.dark-theme .alert-primary { background: linear-gradient(135deg, rgba(77, 171, 247, 0.2) 0%, rgba(116, 192, 252, 0.2) 100%); color: var(--dark-primary-hover); border-left: 4px solid var(--dark-primary); }
+body.dark-theme .alert-success { background: linear-gradient(135deg, rgba(81, 207, 102, 0.2) 0%, rgba(64, 192, 87, 0.2) 100%); color: var(--dark-success); border-left: 4px solid var(--dark-success); }
+body.dark-theme .alert-danger { background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(250, 82, 82, 0.2) 100%); color: var(--dark-danger); border-left: 4px solid var(--dark-danger); }
+body.dark-theme .alert-warning { background: linear-gradient(135deg, rgba(255, 212, 59, 0.2) 0%, rgba(255, 193, 7, 0.2) 100%); color: var(--dark-accent-hover); border-left: 4px solid var(--dark-warning); }
+body.dark-theme .alert-info { background: linear-gradient(135deg, rgba(77, 171, 247, 0.2) 0%, rgba(51, 154, 240, 0.2) 100%); color: var(--dark-info); border-left: 4px solid var(--dark-info); }
+
+/* ============================================
+ * SECTION 14: Pagination
+ * ============================================ */
+body.dark-theme .pagination .page-link { background-color: var(--dark-bg-surface); border-color: var(--dark-border); color: var(--dark-text-primary); }
+body.dark-theme .pagination .page-link:hover { background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%); color: #ffffff; border-color: var(--dark-primary); }
+body.dark-theme .pagination .page-item.active .page-link { background: linear-gradient(135deg, var(--dark-accent) 0%, var(--dark-accent-hover) 100%); color: var(--dark-accent-text); border-color: var(--dark-accent); }
+body.dark-theme .pagination .page-item.disabled .page-link { background-color: var(--dark-bg-header); color: var(--dark-text-disabled); border-color: var(--dark-border-light); }
+
+/* ============================================
+ * SECTION 15: Breadcrumbs
+ * ============================================ */
+body.dark-theme .breadcrumb-item a { color: var(--dark-primary-hover); }
+body.dark-theme .breadcrumb-item.active { color: var(--dark-text-primary); }
+body.dark-theme .breadcrumb-item + .breadcrumb-item::before { color: var(--dark-text-tertiary); }
+
+/* ============================================
+ * SECTION 16: Page Title
+ * ============================================ */
+body.dark-theme .pagetitle h1 {
+    color: var(--dark-text-primary) !important;
+    text-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
+}
+
+/* ============================================
+ * SECTION 17: Tailwind Overrides (Literary Analysis)
+ * ============================================ */
+body.dark-theme .bg-white { background-color: var(--dark-bg-surface) !important; }
+body.dark-theme .text-slate-400 { color: var(--dark-text-tertiary) !important; }
+body.dark-theme .text-slate-500 { color: var(--dark-text-secondary) !important; }
+body.dark-theme .text-slate-600, body.dark-theme .text-slate-700,
+body.dark-theme .text-slate-800, body.dark-theme .text-slate-900 { color: var(--dark-text-primary) !important; }
+body.dark-theme .border-slate-200, body.dark-theme .border-slate-300 { border-color: var(--dark-border) !important; }
+body.dark-theme .bg-slate-50, body.dark-theme .bg-slate-100 { background-color: var(--dark-bg-surface) !important; }
+body.dark-theme .bg-slate-200 { background-color: var(--dark-bg-elevated) !important; }
+body.dark-theme .hover\:bg-slate-50:hover, body.dark-theme .hover\:bg-slate-100:hover { background-color: var(--dark-bg-elevated) !important; }
+body.dark-theme .hover\:bg-slate-300:hover { background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%) !important; }
+body.dark-theme .text-indigo-600, body.dark-theme .text-indigo-700 { color: var(--dark-primary-hover) !important; }
+body.dark-theme .bg-indigo-600 { background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-primary-hover) 100%) !important; }
+body.dark-theme .hover\:bg-indigo-700:hover { background: linear-gradient(135deg, var(--dark-primary-hover) 0%, #a5d8ff 100%) !important; }
+
+/* ============================================
+ * SECTION 18: List Groups
+ * ============================================ */
+body.dark-theme .list-group-item {
+    background-color: var(--dark-bg-surface);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+body.dark-theme .list-group-item:hover {
+    background: linear-gradient(135deg, var(--dark-bg-elevated) 0%, rgba(77, 171, 247, 0.1) 100%);
+}
+
+/* ============================================
+ * SECTION 19: Nav Tabs
+ * ============================================ */
+body.dark-theme .nav-tabs { border-bottom-color: var(--dark-border); }
+body.dark-theme .nav-tabs .nav-link { color: var(--dark-text-secondary); border-color: transparent; }
+body.dark-theme .nav-tabs .nav-link:hover { color: var(--dark-primary-hover); border-color: var(--dark-border); }
+body.dark-theme .nav-tabs .nav-link.active {
+    background-color: var(--dark-bg-surface);
+    border-color: var(--dark-border) var(--dark-border) var(--dark-bg-surface);
+    color: var(--dark-text-primary);
+}
+
+/* ============================================
+ * SECTION 20: Prose Content (Literary Analysis)
+ * ============================================ */
+body.dark-theme .prose, body.dark-theme .prose h1, body.dark-theme .prose h2,
+body.dark-theme .prose h3, body.dark-theme .prose h4, body.dark-theme .prose p,
+body.dark-theme .prose li { color: var(--dark-text-primary) !important; }
+body.dark-theme .prose strong { color: var(--dark-accent-hover) !important; }
+body.dark-theme .prose em { color: var(--dark-primary-hover) !important; }
+body.dark-theme .prose a { color: var(--dark-primary-hover); }
+body.dark-theme .prose a:hover { color: var(--dark-accent-hover); }
+
+/* ============================================
+ * SECTION 21: Scrollbars
+ * ============================================ */
+body.dark-theme ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.dark-theme ::-webkit-scrollbar-track { background: var(--dark-bg-header); }
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--dark-primary), var(--dark-accent));
+    border-radius: 10px;
+}
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--dark-primary-hover), var(--dark-accent-hover));
+}
+
+/* ============================================
+ * SECTION 22: Dashboard
+ * ============================================ */
+body.dark-theme .dashboard .card::before {
+    background: linear-gradient(90deg, var(--dark-primary), var(--dark-accent));
+}
+body.dark-theme .dashboard .filter .icon { color: var(--dark-text-secondary); }
+body.dark-theme .dashboard .filter .icon:hover { color: var(--dark-primary-hover); }
+
+/* ============================================
+ * SECTION 23: Profile & Avatars
+ * ============================================ */
+body.dark-theme .profile-card {
+    background: linear-gradient(135deg, var(--dark-bg-surface) 0%, var(--dark-bg-elevated) 100%);
+}
+
+/* ============================================
+ * SECTION 24: Text Utilities
+ * ============================================ */
+body.dark-theme .text-gradient {
+    background: linear-gradient(135deg, var(--dark-primary) 0%, var(--dark-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+ * SECTION 25: Loading & Spinners
+ * ============================================ */
+body.dark-theme .spinner-border { color: var(--dark-primary); }
+
+/* ============================================
+ * SECTION 26: Tooltips
+ * ============================================ */
+body.dark-theme .tooltip-inner {
+    background-color: var(--dark-bg-elevated);
+    color: var(--dark-text-primary);
+}
+
+/* ============================================
+ * SECTION 27: Theme Toggle Button
+ * ============================================ */
+body.dark-theme .theme-toggle { background-color: rgba(77, 171, 247, 0.1); }
+body.dark-theme .theme-toggle:hover { background-color: rgba(255, 212, 59, 0.2); }
+body.dark-theme .theme-toggle i { color: var(--dark-accent); }
+
+/* ============================================
+ * SECTION 28: Main & Footer (Transparent for bg image)
+ * ============================================ */
+body.dark-theme #main { background: transparent !important; }
+
+body.dark-theme .footer {
+    background: transparent !important;
+    border-top: 1px solid rgba(128, 174, 236, 0.4) !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+}
+body.dark-theme .footer .copyright,
+body.dark-theme .footer .credits { color: #ffffff !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); }
+
+/* ============================================
+ * SECTION 29: Module Dark Overrides (from modules.css)
+ * ============================================ */
+body.dark-theme .assignment-card { background: #1e2230; box-shadow: 0 1px 8px rgba(0,0,0,0.2); }
+body.dark-theme .notif-item:hover { background: #252a3a; }
+body.dark-theme .empty-state i { color: #3a4155; }
+body.dark-theme .notification-item.unread { background: rgba(65, 84, 241, 0.15); }
+body.dark-theme .notification-item .notif-message,
+body.dark-theme .notification-item .notif-time { color: #a8b0c4; }
+body.dark-theme .score-chip { background: #252a3a; border-color: #3a4155; color: #e8ecf4; }
+body.dark-theme .response-content { background: #252a3a; }
+body.dark-theme .criteria-card { background: #1e2230; }
+body.dark-theme .total-score-display { background: #252a3a; color: #e2e8f0; }
+body.dark-theme .chat-box { background: #1e2230; }
+body.dark-theme .consensus-step { background: #1e2230; }
+body.dark-theme .final-score-box { background: #252a3a; }

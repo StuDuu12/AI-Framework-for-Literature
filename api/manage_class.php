@@ -39,9 +39,9 @@ try {
 
             $class_id = createClass($class_name, $user_id_request);
             if ($class_id) {
-                echo json_encode(['success' => true, 'class_id' => $class_id, 'message' => 'Tạo lớp thành công']);
+                echo json_encode(['success' => true, 'class_id' => $class_id, 'message' => 'Class created successfully']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Không thể tạo lớp']);
+                echo json_encode(['success' => false, 'message' => 'Cannot create class']);
             }
             break;
 
@@ -63,7 +63,7 @@ try {
             }
 
             $result = updateClassName($class_id, $class_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Cập nhật tên lớp thành công' : 'Cập nhật thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Class name updated successfully' : 'Update failed']);
             break;
 
         case 'delete_class':
@@ -83,7 +83,7 @@ try {
             }
 
             $result = deleteClass($class_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Xóa lớp thành công' : 'Xóa lớp thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Class deleted successfully' : 'Delete class failed']);
             break;
 
         default:

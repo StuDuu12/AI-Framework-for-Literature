@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../../config/env.php';
+require_once __DIR__ . '/../../config/db.php';
+
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     header("Location: " . URL_ROOT . "/login");
@@ -45,33 +48,33 @@ try {
     $pendingReflect = 0;
 }
 
-$pageTitle = "Trang quản trị";
+$pageTitle = "Admin Dashboard";
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?= $pageTitle ?> - Literature System</title>
+    <title data-lang-key="admin_dashboard"><?= $pageTitle ?> - Literature System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php require_once 'views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    require_once 'views/templates/header.php';
-    require_once 'views/templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Trang quản trị</h1>
+            <h1 data-lang-key="admin_dashboard">Admin Dashboard</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active">Dashboard</li>
+                    <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Dashboard</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -80,59 +83,59 @@ $pageTitle = "Trang quản trị";
             <div class="row">
                 <!-- Statistics Cards -->
                 <div class="col-lg-12">
-                    <div class="row">
-                        <!-- Giáo viên Card -->
+                    <div class="row" data-stagger>
+                        <!-- Teachers Card -->
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card sales-card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Giáo viên</h5>
+                                    <h5 class="card-title" data-lang-key="teachers">Teachers</h5>
                                     <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e3f2fd; color: #2196f3;">
+                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e8ebfd; color: #4154f1;">
                                             <i class="bi bi-person-badge"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalTeachers ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">người dùng</span>
+                                            <span class="text-muted small pt-2 ps-1">users</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/admin/users?role=teacher" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i> Xem chi tiết
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                        </div><!-- End Giáo viên Card -->
+                        </div><!-- End Teachers Card -->
 
-                        <!-- Học sinh Card -->
+                        <!-- Students Card -->
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card revenue-card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Học sinh</h5>
+                                    <h5 class="card-title" data-lang-key="students">Students</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e8f5e9; color: #4caf50;">
                                             <i class="bi bi-people"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalStudents ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">người dùng</span>
+                                            <span class="text-muted small pt-2 ps-1">users</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/admin/users?role=student" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-eye"></i> Xem chi tiết
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
                                         </a>
                                     </div>
                                 </div>
                             </div>
-                        </div><!-- End Học sinh Card -->
+                        </div><!-- End Students Card -->
 
 
-                        <!-- Reflect chờ xử lý Card -->
+                        <!-- Pending Reflect Card -->
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Phản hồi đang chờ xử lý</h5>
+                                    <h5 class="card-title" data-lang-key="pending_feedback">Pending Feedback</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #fce4ec; color: #e91e63;">
                                             <i class="bi bi-journal-text"></i>
@@ -144,30 +147,30 @@ $pageTitle = "Trang quản trị";
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/reflect" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-eye"></i> Xem chi tiết
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </div><!-- End Reflect Card -->
 
-                        <!-- Lớp học Card -->
+                        <!-- Classes Card -->
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Lớp học</h5>
+                                    <h5 class="card-title" data-lang-key="classes">Classes</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e1f5fe; color: #00bcd4;">
                                             <i class="bi bi-book"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalClasses ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">lớp học</span>
+                                            <span class="text-muted small pt-2 ps-1">classes</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div><!-- End Lớp học Card -->
+                        </div><!-- End Classes Card -->
                     </div>
                 </div><!-- End Left side columns -->
             </div>
@@ -177,33 +180,33 @@ $pageTitle = "Trang quản trị";
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Thao tác nhanh</h5>
+                            <h5 class="card-title" data-lang-key="quick_actions">Quick Actions</h5>
                             <div class="row">
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/admin/users/create?role=teacher" class="btn btn-primary">
-                                            <i class="bi bi-person-plus me-2"></i>Tạo tài khoản giáo viên
+                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_teacher_account">Create Teacher Account</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/admin/users/create?role=student" class="btn btn-success">
-                                            <i class="bi bi-person-plus me-2"></i>Tạo tài khoản học sinh
+                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_student_account">Create Student Account</span>
                                         </a>
                                     </div>
                                 </div>
                                 <!-- <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/views/admin/manage_feedback.php" class="btn btn-warning">
-                                            <i class="bi bi-chat-left-text me-2"></i>Quản lý góp ý
+                                            <i class="bi bi-chat-left-text me-2"></i>Manage Feedback
                                         </a>
                                     </div>
                                 </div> -->
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/reflect" class="btn btn-info">
-                                            <i class="bi bi-journal-text me-2"></i>Quản lý Phản hồi
+                                            <i class="bi bi-journal-text me-2"></i><span data-lang-key="manage_feedback">Manage Feedback</span>
                                         </a>
                                     </div>
                                 </div>
@@ -216,8 +219,8 @@ $pageTitle = "Trang quản trị";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 </body>

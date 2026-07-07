@@ -39,27 +39,27 @@ try {
             $content = trim($input['content'] ?? '');
 
             if ($typeId <= 0) {
-                throw new Exception('Loại ticket không hợp lệ');
+                throw new Exception('Invalid ticket type');
             }
 
             if (empty($title)) {
-                throw new Exception('Vui lòng nhập tiêu đề');
+                throw new Exception('Please enter a title');
             }
 
             if (empty($content)) {
-                throw new Exception('Vui lòng nhập nội dung');
+                throw new Exception('Please enter content');
             }
 
             $ticketId = createReflectTicket($userId, $typeId, $title, $content);
 
             if (!$ticketId) {
-                throw new Exception('Không thể tạo ticket. Vui lòng thử lại');
+                throw new Exception('Cannot create ticket. Please try again');
             }
 
             echo json_encode([
                 'success' => true,
                 'ticket_id' => $ticketId,
-                'message' => 'Tạo ticket thành công'
+                'message' => 'Ticket created successfully'
             ]);
             break;
 
@@ -77,7 +77,7 @@ try {
         case 'get_all_tickets':
             // Get all tickets (Admin only)
             if ($userRole !== 'admin') {
-                throw new Exception('Bạn không có quyền truy cập chức năng này');
+                throw new Exception('You do not have permission to access this feature');
             }
 
             $tickets = getAllReflectTickets();
@@ -94,13 +94,13 @@ try {
             $ticketId = intval($input['ticket_id'] ?? 0);
 
             if ($ticketId <= 0) {
-                throw new Exception('Ticket ID không hợp lệ');
+                throw new Exception('Invalid Ticket ID');
             }
 
             $ticket = getReflectTicketDetail($ticketId, $userId, $userRole);
 
             if (!$ticket) {
-                throw new Exception('Không tìm thấy ticket hoặc bạn không có quyền truy cập');
+                throw new Exception('Ticket not found or you do not have access');
             }
 
             echo json_encode([
@@ -118,29 +118,29 @@ try {
             $parentDetailId = isset($input['parent_detail_id']) ? intval($input['parent_detail_id']) : null;
 
             if ($ticketId <= 0) {
-                throw new Exception('Ticket ID không hợp lệ');
+                throw new Exception('Invalid Ticket ID');
             }
 
             if (empty($content)) {
-                throw new Exception('Vui lòng nhập nội dung phản hồi');
+                throw new Exception('Please enter response content');
             }
 
             // Check if user has permission to respond
             $ticket = getReflectTicketDetail($ticketId, $userId, $userRole);
             if (!$ticket) {
-                throw new Exception('Bạn không có quyền phản hồi ticket này');
+                throw new Exception('You do not have permission to respond to this ticket');
             }
 
             $detailId = addReflectResponse($ticketId, $userId, $content, $parentDetailId);
 
             if (!$detailId) {
-                throw new Exception('Không thể thêm phản hồi. Vui lòng thử lại');
+                throw new Exception('Cannot add response. Please try again');
             }
 
             echo json_encode([
                 'success' => true,
                 'detail_id' => $detailId,
-                'message' => 'Thêm phản hồi thành công'
+                'message' => 'Response added successfully'
             ]);
             break;
 
@@ -150,22 +150,22 @@ try {
             $status = intval($input['status'] ?? -1);
 
             if ($ticketId <= 0) {
-                throw new Exception('Ticket ID không hợp lệ');
+                throw new Exception('Invalid Ticket ID');
             }
 
             if ($status < 0 || $status > 3) {
-                throw new Exception('Trạng thái không hợp lệ');
+                throw new Exception('Invalid status');
             }
 
             $success = updateReflectTicketStatus($ticketId, $status, $userId, $userRole);
 
             if (!$success) {
-                throw new Exception('Không thể cập nhật trạng thái. Vui lòng thử lại');
+                throw new Exception('Cannot update status. Please try again');
             }
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Cập nhật trạng thái thành công'
+                'message' => 'Status updated successfully'
             ]);
             break;
 
@@ -174,18 +174,18 @@ try {
             $ticketId = intval($input['ticket_id'] ?? 0);
 
             if ($ticketId <= 0) {
-                throw new Exception('Ticket ID không hợp lệ');
+                throw new Exception('Invalid Ticket ID');
             }
 
             $success = deleteReflectTicket($ticketId, $userId, $userRole);
 
             if (!$success) {
-                throw new Exception('Không thể xóa ticket. Vui lòng thử lại');
+                throw new Exception('Cannot delete ticket. Please try again');
             }
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Xóa ticket thành công'
+                'message' => 'Ticket deleted successfully'
             ]);
             break;
 
@@ -194,23 +194,23 @@ try {
             $detailId = intval($input['detail_id'] ?? 0);
 
             if ($detailId <= 0) {
-                throw new Exception('Response ID không hợp lệ');
+                throw new Exception('Invalid Response ID');
             }
 
             $success = deleteReflectResponse($detailId, $userId, $userRole);
 
             if (!$success) {
-                throw new Exception('Không thể xóa phản hồi. Chỉ admin mới có quyền xóa.');
+                throw new Exception('Cannot delete response. Only admin can delete.');
             }
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Xóa phản hồi thành công'
+                'message' => 'Response deleted successfully'
             ]);
             break;
 
         default:
-            throw new Exception('Action không hợp lệ');
+            throw new Exception('Invalid action');
     }
 } catch (Exception $e) {
     http_response_code(400);

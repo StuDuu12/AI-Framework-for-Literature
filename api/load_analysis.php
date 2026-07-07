@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/helper_task.php';
 // Check authentication
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'Vui lòng đăng nhập']);
+    echo json_encode(['error' => 'Unauthorized', 'message' => 'Please log in']);
     exit;
 }
 
@@ -30,7 +30,7 @@ $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
 if ($deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Deliver ID không hợp lệ']);
+    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Invalid Deliver ID']);
     exit;
 }
 
@@ -38,7 +38,7 @@ try {
     // Validate user access to deliver
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập']);
+        echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have access']);
         exit;
     }
 
@@ -50,7 +50,7 @@ try {
         echo json_encode([
             'success' => true,
             'has_data' => false,
-            'message' => 'Chưa có dữ liệu đã lưu'
+            'message' => 'No saved data yet'
         ]);
         exit;
     }
@@ -104,6 +104,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Server error',
-        'message' => 'Đã xảy ra lỗi khi tải dữ liệu: ' . $e->getMessage()
+        'message' => 'An error occurred while loading data: ' . $e->getMessage()
     ]);
 }

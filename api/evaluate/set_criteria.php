@@ -18,7 +18,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Bạn cần đăng nhập']);
+    echo json_encode(['success' => false, 'message' => 'Please log in']);
     exit;
 }
 
@@ -27,7 +27,7 @@ $userRole = $_SESSION['user']['role'];
 
 // Only teachers can configure criteria
 if ($userRole !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Chỉ giáo viên mới có quyền cấu hình tiêu chí']);
+    echo json_encode(['success' => false, 'message' => 'Only teachers have permission to configure criteria']);
     exit;
 }
 
@@ -36,20 +36,20 @@ try {
     $nhomTcId = isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0;
 
     if (!$taskId || !$nhomTcId) {
-        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin task_id hoặc nhom_tc_id']);
+        echo json_encode(['success' => false, 'message' => 'Missing task_id or nhom_tc_id information']);
         exit;
     }
 
     // Get task info to verify permissions
     $taskInfo = getInfoTask($taskId);
     if (!$taskInfo) {
-        echo json_encode(['success' => false, 'message' => 'Task không tồn tại']);
+        echo json_encode(['success' => false, 'message' => 'Task does not exist']);
         exit;
     }
 
     // Check if user is teacher of this class
     if (!isTeacherInClass($taskInfo['class_id'], $userId)) {
-        echo json_encode(['success' => false, 'message' => 'Bạn không có quyền cấu hình task này']);
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to configure this task']);
         exit;
     }
 
@@ -57,7 +57,7 @@ try {
     if (hasTaskEvaluations($taskId)) {
         echo json_encode([
             'success' => false,
-            'message' => 'Không thể thay đổi bộ tiêu chí vì đã có bài chấm được thực hiện'
+            'message' => 'Cannot change the criteria group because evaluations have already been performed'
         ]);
         exit;
     }
@@ -68,12 +68,12 @@ try {
     if ($result) {
         echo json_encode([
             'success' => true,
-            'message' => 'Đã lưu cấu hình bộ tiêu chí thành công'
+            'message' => 'Criteria group configuration saved successfully'
         ]);
     } else {
         echo json_encode([
             'success' => false,
-            'message' => 'Có lỗi xảy ra khi lưu cấu hình'
+            'message' => 'An error occurred while saving configuration'
         ]);
     }
 
@@ -81,6 +81,6 @@ try {
     error_log("Error in set_criteria.php: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Lỗi hệ thống: ' . $e->getMessage()
+        'message' => 'System error: ' . $e->getMessage()
     ]);
 }

@@ -40,13 +40,37 @@
   }
 
   /**
-   * Sidebar toggle
+   * Sidebar toggle + responsive auto-close
    */
+  const syncSidebarForViewport = () => {
+    const body = select('body')
+    if (!body) return
+    if (window.innerWidth < 1200) {
+      body.classList.remove('toggle-sidebar')
+    }
+  }
+
   if (select('.toggle-sidebar-btn')) {
     on('click', '.toggle-sidebar-btn', function(e) {
-      select('body').classList.toggle('toggle-sidebar')
+      const body = select('body')
+      body.classList.toggle('toggle-sidebar')
+      body.classList.toggle('sidebar-open-mobile', window.innerWidth < 1200 && body.classList.contains('toggle-sidebar'))
     })
   }
+
+  window.addEventListener('resize', syncSidebarForViewport)
+  document.addEventListener('DOMContentLoaded', syncSidebarForViewport)
+
+  document.addEventListener('click', function(e) {
+    const body = document.body
+    if (window.innerWidth >= 1200 || !body.classList.contains('toggle-sidebar')) return
+    const sidebar = document.getElementById('sidebar')
+    const toggleBtn = document.querySelector('.toggle-sidebar-btn')
+    if (!sidebar) return
+    if (sidebar.contains(e.target) || (toggleBtn && toggleBtn.contains(e.target))) return
+    body.classList.remove('toggle-sidebar')
+    body.classList.remove('sidebar-open-mobile')
+  })
 
   /**
    * Search bar toggle

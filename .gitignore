@@ -1,3 +1,20 @@
-config\env.php
-config\db.php
-uploads\*
+# Secrets / local config
+config/env.local.php
+
+# Local artifacts & debug output
+out.json
+seed_out.html
+seed_out.json
+teacher_seed_error.txt
+teacher_seed_out.html
+teacher_seed_out.txt
+temp_docx.zip
+temp_docx/
+
+# Uploads (student/task data, not source code)
+uploads/tasks/*
+!uploads/tasks/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db

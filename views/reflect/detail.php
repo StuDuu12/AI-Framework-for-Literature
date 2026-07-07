@@ -3,468 +3,16 @@ $ticketId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $user = $_SESSION['user'];
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết Phản hồi</title>
+    <title data-lang-key="reflect_detail">Details Responses</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
 
-    <style>
-        /* Ticket Detail Container */
-        #ticketDetailContainer {
-            padding: 0 !important;
-        }
-
-        .ticket-detail-header {
-            background: #fff;
-            border-bottom: 3px solid #4154f1;
-            padding: 0;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .header-top {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 24px 30px;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .ticket-detail-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin: 0;
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .ticket-detail-title i {
-            color: #4154f1;
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-
-        .header-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 24px 30px;
-        }
-
-        .header-left,
-        .header-right {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .header-right {
-            border-left: 2px solid #e9ecef;
-            padding-left: 30px;
-        }
-
-        .info-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #495057;
-        }
-
-        .info-row i {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f0f2ff;
-            color: #4154f1;
-            border-radius: 6px;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #6c757d;
-            min-width: 90px;
-        }
-
-        .info-value {
-            color: #2c3e50;
-            font-weight: 500;
-            flex: 1;
-        }
-
-        .type-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
-            color: #fff;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 768px) {
-            .header-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .header-right {
-                border-left: none;
-                border-top: 2px solid #e9ecef;
-                padding-left: 0;
-                padding-top: 20px;
-            }
-
-            .ticket-detail-title {
-                font-size: 20px;
-            }
-
-            .ticket-detail-title i {
-                font-size: 24px;
-            }
-        }
-
-        .ticket-detail-body {
-            padding: 24px 30px;
-        }
-
-        .initial-content {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .initial-content h6 {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 16px;
-        }
-
-        .initial-content h6 i {
-            color: #4154f1;
-        }
-
-        /* Response Item */
-        .response-item {
-            background: #fff;
-            border: 1px solid #e9ecef;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            border-left: 4px solid #4154f1;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .response-item:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .response-item.is-reply {
-            margin-left: 50px;
-            border-left-color: #6c757d;
-            background: #f8f9fa;
-            margin-bottom: 12px;
-        }
-
-        .parent-response-group {
-            margin-bottom: 24px;
-        }
-
-        .replies-container {
-            margin-top: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .replies-container.collapsed {
-            display: none;
-        }
-
-        .response-header {
-            padding: 18px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .response-item:not(.is-reply) .response-header {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .response-item:not(.is-reply) .response-header:hover {
-            background: #f8f9fa;
-        }
-
-        .response-body {
-            padding: 0 20px 20px 20px;
-        }
-
-        .response-body.collapsed {
-            display: none;
-        }
-
-        .collapse-icon {
-            transition: transform 0.3s ease;
-            font-size: 20px;
-            color: #6c757d;
-        }
-
-        .response-item.collapsed .collapse-icon {
-            transform: rotate(-90deg);
-        }
-
-        .response-content {
-            color: #495057;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-
-        /* Response Actions */
-        .response-actions {
-            margin-top: 16px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .btn-reply {
-            font-size: 13px;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-reply:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Reply Form */
-        .reply-form {
-            margin-top: 16px;
-            padding: 18px;
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
-            border-radius: 8px;
-            display: none;
-        }
-
-        .reply-form.active {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Response Author */
-        .response-author {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .response-author-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(65, 84, 241, 0.3);
-        }
-
-        .response-author-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .response-author-name {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 15px;
-        }
-
-        .response-author-role {
-            font-size: 13px;
-            color: #6c757d;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .response-time {
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 64px;
-            color: #dee2e6;
-            margin-bottom: 16px;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            margin: 0;
-        }
-
-        /* Status Select */
-        .status-select {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .status-select:hover {
-            border-color: #4154f1;
-        }
-
-        /* Loading Spinner */
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 20px;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4154f1;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Card Enhancements */
-        .card {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            border: none;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        /* Form Group */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            display: block;
-            font-size: 14px;
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            padding: 10px 14px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            border-color: #4154f1;
-            box-shadow: 0 0 0 3px rgba(65, 84, 241, 0.1);
-        }
-
-        .required {
-            color: #dc3545;
-        }
-
-        /* Buttons */
-        .btn {
-            border-radius: 6px;
-            padding: 10px 20px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4154f1 0%, #2c3cdd 100%);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(65, 84, 241, 0.3);
-        }
-
-        /* Badge */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-    </style>
 </head>
 
 <body>
@@ -475,12 +23,12 @@ $user = $_SESSION['user'];
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-ticket-detailed"></i> Chi tiết Phản hồi</h1>
+            <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="reflect_detail">Details Responses</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>/reflect">Phản hồi</a></li>
-                    <li class="breadcrumb-item active">Chi tiết</li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>/reflect">Responses</a></li>
+                    <li class="breadcrumb-item active">Details</li>
                 </ol>
             </nav>
         </div>
@@ -503,11 +51,11 @@ $user = $_SESSION['user'];
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="card-title mb-0">
-                                    <i class="bi bi-chat-dots"></i> Các phản hồi
+                                    <i class="bi bi-chat-dots"></i> <span>Responses</span>
                                     <span id="responseCount" class="badge bg-primary ms-2">0</span>
                                 </h5>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="collapseAllResponses()">
-                                    <i class="bi bi-arrows-collapse"></i> Thu gọn tất cả
+                                    <i class="bi bi-arrows-collapse"></i> Collapse All
                                 </button>
                             </div>
                             <div id="responsesContainer"></div>
@@ -517,16 +65,16 @@ $user = $_SESSION['user'];
                     <!-- Add Response Card -->
                     <div class="card" id="responseFormCard" style="display: none;">
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-reply"></i> Thêm phản hồi</h5>
+                            <h5 class="card-title"><i class="bi bi-reply"></i> <span>Add Response</span></h5>
                             <form id="responseForm" class="response-form">
                                 <div class="form-group">
-                                    <label>Nội dung phản hồi <span class="required">*</span></label>
+                                    <label>Response Content <span class="required">*</span></label>
                                     <textarea id="responseContent" class="form-control"
-                                        placeholder="Nhập nội dung phản hồi..." required></textarea>
+                                        placeholder="Enter response content..." required></textarea>
                                 </div>
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-send"></i> Gửi phản hồi
+                                        <i class="bi bi-send"></i> <span>Send Response</span>
                                     </button>
                                 </div>
                             </form>
@@ -587,12 +135,12 @@ $user = $_SESSION['user'];
                     }
                 } else {
                     console.error('Ticket detail error:', data.message || 'Unknown error');
-                    alert('Lỗi: ' + (data.message || 'Không thể tải chi tiết ticket'));
+                    alert('Error: ' + (data.message || 'Cannot load ticket details'));
                     window.location.href = '<?php echo URL_ROOT; ?>/reflect';
                 }
             } catch (error) {
                 console.error('Error loading ticket:', error);
-                alert('Có lỗi khi tải chi tiết ticket: ' + error.message);
+                alert('Error loading ticket details: ' + error.message);
                 window.location.href = '<?php echo URL_ROOT; ?>/reflect';
             }
         }
@@ -604,16 +152,16 @@ $user = $_SESSION['user'];
 
             const statusOptions = canUpdate ? `
         <select class="status-select" onchange="updateStatus(this.value)">
-            <option value="0" ${ticket.status == 0 ? 'selected' : ''}>Mới tạo</option>
-            <option value="1" ${ticket.status == 1 ? 'selected' : ''}>Đang xử lý</option>
-            <option value="2" ${ticket.status == 2 ? 'selected' : ''}>Đã giải quyết</option>
-            <option value="3" ${ticket.status == 3 ? 'selected' : ''}>Đã đóng</option>
+            <option value="0" ${ticket.status == 0 ? 'selected' : ''}>New</option>
+            <option value="1" ${ticket.status == 1 ? 'selected' : ''}>In Progress</option>
+            <option value="2" ${ticket.status == 2 ? 'selected' : ''}>Resolved</option>
+            <option value="3" ${ticket.status == 3 ? 'selected' : ''}>Closed</option>
         </select>
     ` : `<span class="ticket-status-badge ${getStatusBadgeClass(ticket.status)}">${getStatusLabel(ticket.status)}</span>`;
 
             const deleteButton = canUpdate ? `
         <button class="btn btn-danger btn-sm" onclick="deleteTicket()">
-            <i class="bi bi-trash"></i> Xóa ticket
+            <i class="bi bi-trash"></i> Delete ticket
         </button>
     ` : '';
 
@@ -629,12 +177,12 @@ $user = $_SESSION['user'];
                 <div class="header-left">
                     <div class="info-row">
                         <i class="bi bi-tag-fill"></i>
-                        <span class="info-label">Loại:</span>
+                        <span class="info-label">Type:</span>
                         <span class="type-badge">${escapeHtml(ticket.type_name)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-person-fill"></i>
-                        <span class="info-label">Người tạo:</span>
+                        <span class="info-label">Creator:</span>
                         <span class="info-value">${escapeHtml(ticket.creator_name)}</span>
                     </div>
                     <div class="info-row">
@@ -646,17 +194,17 @@ $user = $_SESSION['user'];
                 <div class="header-right">
                     <div class="info-row">
                         <i class="bi bi-clock-fill"></i>
-                        <span class="info-label">Tạo lúc:</span>
+                        <span class="info-label">Created:</span>
                         <span class="info-value">${formatDateTime(ticket.created_at)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-arrow-clockwise"></i>
-                        <span class="info-label">Cập nhật:</span>
+                        <span class="info-label">Updated:</span>
                         <span class="info-value">${formatDateTime(ticket.updated_at)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-info-circle-fill"></i>
-                        <span class="info-label">Trạng thái:</span>
+                        <span class="info-label">Status:</span>
                         ${statusOptions}
                     </div>
                 </div>
@@ -664,7 +212,7 @@ $user = $_SESSION['user'];
         </div>
         <div class="ticket-detail-body">
             <div class="initial-content">
-                <h6><i class="bi bi-file-text"></i> Nội dung ban đầu</h6>
+                        <h6><i class="bi bi-file-text"></i> Initial Content</h6>
                 <div class="response-content">${escapeHtml(data.responses[0].content)}</div>
             </div>
             
@@ -686,7 +234,7 @@ $user = $_SESSION['user'];
                 document.getElementById('responsesContainer').innerHTML = `
             <div class="empty-state">
                 <i class="bi bi-chat"></i>
-                <p>Chưa có phản hồi nào</p>
+                <p>No responses yet</p>
             </div>
         `;
                 return;
@@ -739,12 +287,12 @@ $user = $_SESSION['user'];
                     <div class="response-author-avatar">${getInitials(response.user_name)}</div>
                     <div class="response-author-info">
                         <div class="response-author-name">${escapeHtml(response.user_name)}</div>
-                        <div class="response-author-role">${getRoleLabel(response.user_role)} • ${formatDateTime(response.created_at)}</div>
+                        <div class="response-author-role">${getRoleLabel(response.user_role)} � ${formatDateTime(response.created_at)}</div>
                     </div>
                 </div>
                 ${!isReply ? `
                     <div class="d-flex align-items-center gap-2">
-                        ${hasReplies ? `<span class="badge bg-secondary">${replies.length} phản hồi</span>` : ''}
+                        ${hasReplies ? `<span class="badge bg-secondary">${replies.length} responses</span>` : ''}
                         <i class="bi bi-chevron-down collapse-icon"></i>
                     </div>
                 ` : ''}
@@ -754,24 +302,24 @@ $user = $_SESSION['user'];
                 <div class="response-actions">
                     ${canReply ? `
                         <button class="btn btn-sm btn-outline-primary btn-reply" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">
-                            <i class="bi bi-reply"></i> Trả lời
+                            <i class="bi bi-reply"></i> Replies
                         </button>
                     ` : ''}
                     ${canDelete ? `
                         <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteResponse(${response.id_reflect_detail}, ${hasReplies ? replies.length : 0})">
-                            <i class="bi bi-trash"></i> Xóa
+                            <i class="bi bi-trash"></i> Delete
                         </button>
                     ` : ''}
                 </div>
                 ${canReply ? `
                     <div id="reply-form-${response.id_reflect_detail}" class="reply-form">
                         <div class="form-group mb-2">
-                            <textarea id="reply-content-${response.id_reflect_detail}" class="form-control" rows="3" placeholder="Nhập nội dung trả lời..."></textarea>
+                            <textarea id="reply-content-${response.id_reflect_detail}" class="form-control" rows="3" placeholder="Enter reply content..."></textarea>
                         </div>
                         <div class="text-end">
-                            <button class="btn btn-sm btn-secondary me-2" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">Hủy</button>
+                            <button class="btn btn-sm btn-secondary me-2" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">Cancel</button>
                             <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); submitReply(${response.id_reflect_detail})">
-                                <i class="bi bi-send"></i> Gửi
+                                <i class="bi bi-send"></i> Send
                             </button>
                         </div>
                     </div>
@@ -786,7 +334,7 @@ $user = $_SESSION['user'];
             const content = document.getElementById('responseContent').value.trim();
 
             if (!content) {
-                alert('Vui lòng nhập nội dung phản hồi');
+                alert('Please enter response content');
                 return;
             }
 
@@ -809,11 +357,11 @@ $user = $_SESSION['user'];
                     document.getElementById('responseContent').value = '';
                     loadTicketDetail(); // Reload to show new response
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error adding response:', error);
-                alert('Có lỗi khi thêm phản hồi');
+                alert('Error adding response');
             }
         }
 
@@ -881,7 +429,7 @@ $user = $_SESSION['user'];
             const content = document.getElementById(`reply-content-${parentDetailId}`).value.trim();
 
             if (!content) {
-                alert('Vui lòng nhập nội dung trả lời');
+                alert('Please enter reply content');
                 return;
             }
 
@@ -904,17 +452,17 @@ $user = $_SESSION['user'];
                 if (data.success) {
                     loadTicketDetail(); // Reload to show new reply
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error submitting reply:', error);
-                alert('Có lỗi khi gửi trả lời');
+                alert('Error submitting reply');
             }
         }
 
         // Update status
         async function updateStatus(newStatus) {
-            if (!confirm('Bạn có chắc muốn thay đổi trạng thái?')) {
+            if (!confirm('Are you sure you want to change the status?')) {
                 loadTicketDetail(); // Reset dropdown
                 return;
             }
@@ -935,22 +483,22 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Đã cập nhật trạng thái!');
+                    alert('Status updated!');
                     loadTicketDetail();
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                     loadTicketDetail(); // Reset dropdown
                 }
             } catch (error) {
                 console.error('Error updating status:', error);
-                alert('Có lỗi khi cập nhật trạng thái');
+                alert('Error updating status');
                 loadTicketDetail();
             }
         }
 
         // Delete ticket
         async function deleteTicket() {
-            if (!confirm('Bạn có chắc muốn xóa ticket này? Hành động không thể hoàn tác!')) {
+            if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone!')) {
                 return;
             }
 
@@ -969,22 +517,22 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Đã xóa ticket thành công!');
+                    alert('Ticket deleted successfully!');
                     window.location.href = '<?php echo URL_ROOT; ?>/reflect';
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error deleting ticket:', error);
-                alert('Có lỗi khi xóa ticket');
+                alert('Error deleting ticket');
             }
         }
 
         // Delete response
         async function deleteResponse(detailId, replyCount) {
             const confirmMessage = replyCount > 0
-                ? `Phản hồi này có ${replyCount} câu trả lời. Xóa phản hồi sẽ xóa tất cả câu trả lời. Bạn có chắc muốn xóa?`
-                : 'Bạn có chắc muốn xóa phản hồi này? Hành động không thể hoàn tác!';
+                ? `This response has ${replyCount} replies. Deleting will also remove all replies. Are you sure you want to delete?`
+                : 'Are you sure you want to delete this response? This action cannot be undone!';
 
             if (!confirm(confirmMessage)) {
                 return;
@@ -1005,26 +553,26 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Đã xóa phản hồi thành công!');
+                    alert('Response deleted successfully!');
                     loadTicketDetail(); // Reload to refresh list
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error deleting response:', error);
-                alert('Có lỗi khi xóa phản hồi');
+                alert('Error deleting response');
             }
         }
 
         // Helper functions
         function getStatusLabel(status) {
             const labels = {
-                0: 'Mới tạo',
-                1: 'Đang xử lý',
-                2: 'Đã giải quyết',
-                3: 'Đã đóng'
+                0: 'New',
+                1: 'In Progress',
+                2: 'Resolved',
+                3: 'Closed'
             };
-            return labels[status] || 'Không xác định';
+            return labels[status] || 'Unknown';
         }
 
         function getStatusBadgeClass(status) {
@@ -1039,9 +587,9 @@ $user = $_SESSION['user'];
 
         function getRoleLabel(role) {
             const labels = {
-                admin: 'Quản trị viên',
-                teacher: 'Giáo viên',
-                student: 'Học sinh'
+                admin: 'Administrator',
+                teacher: 'Teacher',
+                student: 'Students'
             };
             return labels[role] || role;
         }

@@ -49,9 +49,9 @@ try {
 
             $group_id = createGroup($class_id, $group_name);
             if ($group_id) {
-                echo json_encode(['success' => true, 'group_id' => $group_id, 'message' => 'Tạo nhóm thành công']);
+                echo json_encode(['success' => true, 'group_id' => $group_id, 'message' => 'Group created successfully']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Không thể tạo nhóm']);
+                echo json_encode(['success' => false, 'message' => 'Cannot create group']);
             }
             break;
 
@@ -65,7 +65,7 @@ try {
             }
 
             $result = deleteGroup($group_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Xóa nhóm thành công' : 'Xóa nhóm thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Group deleted successfully' : 'Delete group failed']);
             break;
 
         case 'update_group_name':
@@ -79,7 +79,7 @@ try {
             }
 
             $result = updateGroupName($group_id, $group_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Cập nhật tên nhóm thành công' : 'Cập nhật thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Group name updated successfully' : 'Update failed']);
             break;
 
         case 'get_group_details':
@@ -129,7 +129,7 @@ try {
             }
 
             $count = addGroupMembers($group_id, $user_ids, $user_id_request);
-            echo json_encode(['success' => true, 'count' => $count, 'message' => "Đã thêm $count thành viên"]);
+            echo json_encode(['success' => true, 'count' => $count, 'message' => "Added $count member(s)"]);
             break;
 
         case 'remove_member':
@@ -143,7 +143,7 @@ try {
             }
 
             $result = removeGroupMember($group_id, $user_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Xóa thành viên thành công' : 'Xóa thành viên thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Member removed successfully' : 'Remove member failed']);
             break;
 
         default:

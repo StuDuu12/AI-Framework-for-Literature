@@ -4,45 +4,456 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Nạp cấu hình (GEMINI_API_KEY nằm trong config/env.local.php — không hardcode)
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/helper_ai_settings.php';
+require_once __DIR__ . '/../config/ai_system_prompts.php';
+
+if (!isAiEnabled($pdo)) {
+    http_response_code(503);
+    echo json_encode(['error' => 'AI features are currently disabled by administrator.']);
+    exit;
+}
+
+$aiProvider = resolveAiProvider();
+if (!isAiApiKeyConfigured()) {
+    http_response_code(500);
+    $missing = $aiProvider === 'opencode' ? 'OPENCODE_API_KEY' : 'GEMINI_API_KEY';
+    echo json_encode(['error' => "Missing {$missing} in config/env.local.php"]);
+    exit;
+}
+
 // Set header to return JSON
 header('Content-Type: application/json');
 
 // Check authentication (skip if already validated by analyze_task.php)
 if (!defined('AUTH_PASSED')) {
-    if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
+    $loggedIn = (!empty($_SESSION['user'])) || (!empty($_SESSION['user_id']));
+    if (!$loggedIn) {
         http_response_code(401);
         echo json_encode(['error' => 'Unauthorized - Please login']);
         exit;
     }
 }
 
-// --- Main Function to Call Google Gemini API ---
-// This function now accepts a $contents array for chat-style requests.
-function callGeminiApi($systemPrompt, $contents, $schema)
+// ── OpenCode.ai (Zen) — MiMo V2.5 — OpenAI-compatible chat/completions ─────
+function openCodeApiUrl(): string
 {
-    $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs"; // This is handled by the execution environment.
-    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
+    global $pdo;
+    return resolveOpenCodeApiUrl($pdo ?? null);
+}
 
-    $payload = [
-        'contents' => $contents, // Use the full contents array for chat
-        'systemInstruction' => [
-            'parts' => [['text' => $systemPrompt]]
-        ],
-        'generationConfig' => [
-            'responseMimeType' => "application/json",
-            'responseSchema' => $schema
-        ]
-    ];
+function parseOpenCodeErrorMessage(string $responseBody): string
+{
+    if ($responseBody === '') {
+        return '';
+    }
+    $decoded = json_decode($responseBody, true);
+    if (!is_array($decoded)) {
+        return '';
+    }
+    $msg = $decoded['error']['message'] ?? $decoded['message'] ?? '';
+    if (!is_string($msg) || $msg === '') {
+        return '';
+    }
+    if (stripos($msg, 'No payment method') !== false || stripos($msg, 'CreditsError') !== false) {
+        return 'OpenCode Go requires billing. Use Zen free tier: OPENCODE_API_URL=zen/v1/chat/completions and OPENCODE_MODEL=mimo-v2.5-free in env.local.php.';
+    }
+    if (stripos($msg, 'not supported') !== false) {
+        return 'AI model/endpoint mismatch: ' . $msg . ' — check OPENCODE_API_URL and OPENCODE_MODEL in env.local.php.';
+    }
+    return 'AI API error: ' . $msg;
+}
 
-    $jsonData = json_encode($payload);
+function contentsToOpenAiMessages(string $systemPrompt, array $contents): array
+{
+    $messages = [['role' => 'system', 'content' => $systemPrompt]];
+    foreach ($contents as $item) {
+        $role = $item['role'] ?? 'user';
+        if ($role === 'model') {
+            $role = 'assistant';
+        }
+        $text = '';
+        if (!empty($item['parts']) && is_array($item['parts'])) {
+            foreach ($item['parts'] as $part) {
+                $text .= $part['text'] ?? '';
+            }
+        } elseif (isset($item['content'])) {
+            $text = (string)$item['content'];
+        }
+        if ($text !== '') {
+            $messages[] = ['role' => $role, 'content' => $text];
+        }
+    }
+    return $messages;
+}
+
+function isOpenCodeReasoningModel(string $model): bool
+{
+    return preg_match('/deepseek|nemotron|north-mini/i', $model) === 1;
+}
+
+function openCodeReasoningHint(): string
+{
+    return "\n\nIMPORTANT: Put the complete user-facing answer in the main response body. "
+        . "Do not spend all tokens on internal reasoning; keep reasoning brief.";
+}
+
+function extractOpenCodeChoice(?array $body): ?array
+{
+    if (!is_array($body) || empty($body['choices'][0]) || !is_array($body['choices'][0])) {
+        return null;
+    }
+    return $body['choices'][0];
+}
+
+/**
+ * Some Zen models (e.g. deepseek-v4-flash-free) return an empty message.content
+ * when max_tokens is consumed by reasoning_content.
+ */
+function extractOpenCodeAssistantText(?array $body, bool $jsonMode = false): ?string
+{
+    $choice = extractOpenCodeChoice($body);
+    if (!$choice) {
+        return null;
+    }
+
+    $message = $choice['message'] ?? null;
+    if (is_array($message)) {
+        $content = trim((string)($message['content'] ?? ''));
+        if ($content !== '') {
+            return $content;
+        }
+
+        if ($jsonMode) {
+            $reasoning = trim((string)($message['reasoning_content'] ?? ''));
+            if ($reasoning !== '' && preg_match('/^[\[{]/', $reasoning)) {
+                return $reasoning;
+            }
+            return null;
+        }
+
+        $reasoning = trim((string)($message['reasoning_content'] ?? ''));
+        if ($reasoning !== '') {
+            return $reasoning;
+        }
+    }
+
+    $legacy = trim((string)($choice['text'] ?? ''));
+    return $legacy !== '' ? $legacy : null;
+}
+
+function extractJsonCandidateFromText(string $text): string
+{
+    $text = trim($text);
+    $text = preg_replace('/^\xEF\xBB\xBF/', '', $text);
+    $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
+    $text = preg_replace('/\s*```\s*$/', '', $text);
+    $text = trim($text);
+
+    $start = strpos($text, '{');
+    if ($start === false) {
+        $start = strpos($text, '[');
+    }
+    if ($start === false) {
+        return $text;
+    }
+
+    $sub = substr($text, $start);
+    $depth = 0;
+    $inString = false;
+    $escape = false;
+    $end = -1;
+    $len = strlen($sub);
+    for ($i = 0; $i < $len; $i++) {
+        $ch = $sub[$i];
+        if ($inString) {
+            if ($escape) {
+                $escape = false;
+                continue;
+            }
+            if ($ch === '\\') {
+                $escape = true;
+                continue;
+            }
+            if ($ch === '"') {
+                $inString = false;
+            }
+            continue;
+        }
+        if ($ch === '"') {
+            $inString = true;
+            continue;
+        }
+        if ($ch === '{' || $ch === '[') {
+            $depth++;
+        } elseif ($ch === '}' || $ch === ']') {
+            $depth--;
+            if ($depth === 0) {
+                $end = $i;
+                break;
+            }
+        }
+    }
+
+    return $end >= 0 ? substr($sub, 0, $end + 1) : $sub;
+}
+
+function repairTruncatedJson(string $json): string
+{
+    $json = rtrim($json);
+    $json = preg_replace('/,\s*"[^"]*":\s*"[^"]*$/s', '', $json);
+    $json = preg_replace('/,\s*"[^"]*":\s*$/s', '', $json);
+    $json = preg_replace('/,\s*$/', '', $json);
+
+    $openCurly = substr_count($json, '{') - substr_count($json, '}');
+    $openSquare = substr_count($json, '[') - substr_count($json, ']');
+
+    return $json . str_repeat(']', max(0, $openSquare)) . str_repeat('}', max(0, $openCurly));
+}
+
+function parseJsonFromAiText(string $text): ?array
+{
+    $text = trim($text);
+    if ($text === '') {
+        return null;
+    }
+
+    $candidates = array_unique([
+        $text,
+        extractJsonCandidateFromText($text),
+        repairTruncatedJson(extractJsonCandidateFromText($text)),
+    ]);
+
+    foreach ($candidates as $candidate) {
+        if ($candidate === '') {
+            continue;
+        }
+        $decoded = json_decode($candidate, true);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+    }
+
+    return null;
+}
+
+function getOpenCodeFinishReason(?array $body): string
+{
+    $choice = extractOpenCodeChoice($body);
+    return is_array($choice) ? (string)($choice['finish_reason'] ?? '') : '';
+}
+
+function logOpenCodeStructureFailure(?array $body, string $context): void
+{
+    $choice = extractOpenCodeChoice($body);
+    $message = is_array($choice) ? ($choice['message'] ?? []) : [];
+    $keys = is_array($body) ? implode(',', array_keys($body)) : 'null';
+    $messageKeys = is_array($message) ? implode(',', array_keys($message)) : 'none';
+    error_log(sprintf(
+        'OpenCode invalid structure (%s): body_keys=%s message_keys=%s finish=%s',
+        $context,
+        $keys,
+        $messageKeys,
+        getOpenCodeFinishReason($body)
+    ));
+}
+
+function openCodeRequest(array $payload, int $timeout = 180): array
+{
+    $jsonData = json_encode($payload, JSON_UNESCAPED_UNICODE);
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $apiUrl);
+    curl_setopt($ch, CURLOPT_URL, openCodeApiUrl());
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
+        'Authorization: Bearer ' . OPENCODE_API_KEY,
+    ]);
+
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($httpcode != 200) {
+        $apiMessage = parseOpenCodeErrorMessage((string)$response);
+        error_log("OpenCode API error (HTTP $httpcode): $error | body: " . substr((string)$response, 0, 500));
+        return [
+            'error' => $apiMessage ?: 'AI service is temporarily unavailable. Please try again.',
+            'httpcode' => $httpcode,
+        ];
+    }
+
+    $decoded = json_decode((string)$response, true);
+    if (!is_array($decoded)) {
+        error_log('OpenCode API returned non-JSON body: ' . substr((string)$response, 0, 500));
+        return ['error' => 'AI returned an invalid response format.'];
+    }
+
+    return ['body' => $decoded];
+}
+
+function requestOpenCodeAssistantText(array $payload, int $timeout = 180, string $context = 'request'): array
+{
+    $jsonMode = ($context === 'json');
+    $model = (string)($payload['model'] ?? '');
+    if (isOpenCodeReasoningModel($model)) {
+        $minTokens = $jsonMode ? 6000 : 6000;
+        $payload['max_tokens'] = max((int)($payload['max_tokens'] ?? 0), $minTokens);
+    }
+
+    $result = openCodeRequest($payload, $timeout);
+    if (isset($result['error'])) {
+        return $result;
+    }
+
+    $body = $result['body'] ?? null;
+    $text = extractOpenCodeAssistantText($body, $jsonMode);
+    if ($text !== null && $text !== '') {
+        return ['body' => $body, 'text' => $text];
+    }
+
+    $finish = getOpenCodeFinishReason($body);
+    if ($finish === 'length' || isOpenCodeReasoningModel($model)) {
+        $retryPayload = $payload;
+        $retryPayload['max_tokens'] = min(12000, max((int)($retryPayload['max_tokens'] ?? 0) * 2, 8000));
+
+        $messages = $retryPayload['messages'] ?? [];
+        $hint = $jsonMode
+            ? "\n\nIMPORTANT: Return ONLY one valid JSON object in the main response. No markdown, no reasoning text."
+            : openCodeReasoningHint();
+        if (!empty($messages[0]['role']) && $messages[0]['role'] === 'system') {
+            $messages[0]['content'] = rtrim((string)$messages[0]['content']) . $hint;
+        } else {
+            array_unshift($messages, ['role' => 'system', 'content' => trim($hint)]);
+        }
+        $retryPayload['messages'] = $messages;
+
+        $retry = openCodeRequest($retryPayload, max($timeout, 180));
+        if (!isset($retry['error'])) {
+            $retryText = extractOpenCodeAssistantText($retry['body'] ?? null, $jsonMode);
+            if ($retryText !== null && $retryText !== '') {
+                return ['body' => $retry['body'], 'text' => $retryText];
+            }
+            $body = $retry['body'] ?? $body;
+        }
+    }
+
+    logOpenCodeStructureFailure($body, $context);
+    return [
+        'error' => 'Invalid response structure from API.',
+        'body' => $body,
+    ];
+}
+
+function getCompactAnalyzeSchemaHint(): string
+{
+    return 'Return ONE valid JSON object (no markdown). Required keys: title, characteristics (Thể loại, Phong cách, Giọng điệu), keywords[], generalAnalysis (thematicAnalysis[{heading,content}], linguisticInsights), concludingThoughts (lesson, message), intertextuality (initialAnalysis, comparativeText{title,author}, comparison{similarities,differences,effects}). Create EXACTLY ONE genre block: poetryAnalysis OR storyAnalysis OR dramaAnalysis — never more than one.';
+}
+
+function callOpenCodeJsonApi($systemPrompt, $contents, $schema, array $options = []): array
+{
+    global $pdo;
+    $compactSchema = !empty($options['compact_schema']);
+    if ($compactSchema) {
+        $jsonSystem = $systemPrompt . "\n\n───────────────────────────────\n"
+            . "OUTPUT: Return ONLY one valid JSON object (no markdown, no extra text).\n"
+            . getCompactAnalyzeSchemaHint();
+    } else {
+        $schemaJson = json_encode($schema, JSON_UNESCAPED_UNICODE);
+        $jsonSystem = $systemPrompt . "\n\n───────────────────────────────\n"
+            . "YÊU CẦU ĐẦU RA: Trả về DUY NHẤT một JSON object hợp lệ (không markdown, không giải thích thêm), tuân thủ schema:\n"
+            . $schemaJson;
+    }
+
+    $defaultMax = (int)getAppSetting($pdo, 'ai_max_tokens', getAppSetting($pdo, 'gemini_max_tokens', '6000'));
+    $maxTokens = max(6000, (int)($options['max_tokens'] ?? $defaultMax));
+    $temperature = (float)($options['temperature'] ?? getAppSetting($pdo, 'ai_temperature', getAppSetting($pdo, 'gemini_temperature', '0.7')));
+
+    $model = resolveOpenCodeJsonModel($pdo ?? null);
+    $payload = [
+        'model' => $model,
+        'messages' => contentsToOpenAiMessages($jsonSystem, $contents),
+        'temperature' => $temperature,
+        'max_tokens' => $maxTokens,
+        'response_format' => ['type' => 'json_object'],
+    ];
+
+    $timeout = (int)($options['timeout'] ?? 180);
+    $result = requestOpenCodeAssistantText($payload, $timeout, 'json');
+    if (isset($result['error'])) {
+        return ['error' => $result['error']];
+    }
+
+    $text = $result['text'] ?? '';
+    $decoded = parseJsonFromAiText($text);
+    if (!is_array($decoded) && $model !== 'mimo-v2.5-free') {
+        $payload['model'] = 'mimo-v2.5-free';
+        $payload['max_tokens'] = max($maxTokens, 6000);
+        $retry = requestOpenCodeAssistantText($payload, $timeout, 'json');
+        if (!isset($retry['error'])) {
+            $decoded = parseJsonFromAiText($retry['text'] ?? '');
+        }
+    }
+
+    if (!is_array($decoded)) {
+        error_log('OpenCode invalid JSON (model=' . $model . '): ' . substr($text, 0, 400));
+        return ['error' => 'AI returned invalid JSON.'];
+    }
+
+    return $decoded;
+}
+
+function callOpenCodeFreeform(string $systemPrompt, array $contents, array $generationConfig = []): array
+{
+    global $pdo;
+    $payload = [
+        'model' => resolveOpenCodeModel($pdo ?? null),
+        'messages' => contentsToOpenAiMessages($systemPrompt, $contents),
+        'temperature' => (float)($generationConfig['temperature'] ?? getAppSetting($pdo, 'ai_temperature', getAppSetting($pdo, 'gemini_temperature', '0.7'))),
+        'max_tokens' => (int)($generationConfig['maxOutputTokens'] ?? $generationConfig['max_tokens'] ?? getAppSetting($pdo, 'ai_max_tokens', getAppSetting($pdo, 'gemini_max_tokens', '4000'))),
+    ];
+
+    $result = requestOpenCodeAssistantText($payload, 180, 'freeform');
+    if (isset($result['error'])) {
+        return ['error' => $result['error']];
+    }
+
+    $text = $result['text'] ?? '';
+    return ['answer' => $text, 'response' => $text, 'message' => $text];
+}
+
+/*
+ * ── Google Gemini (dự phòng) ───────────────────────────────────────────────
+ * Bỏ comment block này và đổi AI_PROVIDER = 'gemini' trong env.local.php để dùng lại.
+ *
+function geminiApiUrl(): string
+{
+    global $pdo;
+    $model = resolveGeminiModel($pdo ?? null);
+    return "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+}
+
+function geminiRequest(array $payload, int $timeout = 180): array
+{
+    $apiKey = GEMINI_API_KEY;
+    $jsonData = json_encode($payload);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, geminiApiUrl());
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'x-goog-api-key: ' . $apiKey,
         'Content-Length: ' . strlen($jsonData)
     ]);
 
@@ -52,17 +463,100 @@ function callGeminiApi($systemPrompt, $contents, $schema)
     curl_close($ch);
 
     if ($httpcode != 200) {
-        return ['error' => "API call failed with status code $httpcode: $response $error"];
+        error_log("Gemini API error (HTTP $httpcode): $error | body: " . substr((string)$response, 0, 500));
+        return ['error' => 'AI service is temporarily unavailable. Please try again.', 'httpcode' => $httpcode];
     }
 
-    $result = json_decode($response, true);
+    return ['body' => json_decode($response, true)];
+}
 
-    if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-        // The API returns a JSON string, so we need to decode it *again*
-        return json_decode($result['candidates'][0]['content']['parts'][0]['text'], true);
-    } else {
-        return ['error' => 'Invalid response structure from API.'];
+function callGeminiApi($systemPrompt, $contents, $schema)
+{
+    $payload = [
+        'contents' => $contents,
+        'systemInstruction' => [
+            'parts' => [['text' => $systemPrompt]]
+        ],
+        'generationConfig' => [
+            'responseMimeType' => 'application/json',
+            'responseSchema' => $schema
+        ]
+    ];
+
+    $result = geminiRequest($payload, 180);
+    if (isset($result['error'])) {
+        return ['error' => $result['error']];
     }
+
+    $body = $result['body'];
+    if (isset($body['candidates'][0]['content']['parts'][0]['text'])) {
+        return json_decode($body['candidates'][0]['content']['parts'][0]['text'], true);
+    }
+
+    return ['error' => 'Invalid response structure from API.'];
+}
+
+function callGeminiFreeform(string $systemPrompt, array $contents, array $generationConfig = []): array
+{
+    global $pdo;
+    $defaults = [
+        'temperature' => (float)getAppSetting($pdo, 'gemini_temperature', '0.7'),
+        'maxOutputTokens' => (int)getAppSetting($pdo, 'gemini_max_tokens', '2000')
+    ];
+    $payload = [
+        'contents' => $contents,
+        'systemInstruction' => [
+            'parts' => [['text' => $systemPrompt]]
+        ],
+        'generationConfig' => array_merge($defaults, $generationConfig)
+    ];
+
+    $result = geminiRequest($payload, 120);
+    if (isset($result['error'])) {
+        return ['error' => $result['error']];
+    }
+
+    $body = $result['body'];
+    if (isset($body['candidates'][0]['content']['parts'][0]['text'])) {
+        $text = $body['candidates'][0]['content']['parts'][0]['text'];
+        return ['answer' => $text, 'response' => $text, 'message' => $text];
+    }
+
+    return ['error' => 'Invalid response structure from API.'];
+}
+ */
+
+// ── Provider router (đổi AI_PROVIDER trong env.local.php để chuyển backend) ───
+function callAiJsonApi($systemPrompt, $contents, $schema, array $options = []): array
+{
+    if (resolveAiProvider() === 'gemini') {
+        // return callGeminiApi($systemPrompt, $contents, $schema);
+        return ['error' => 'Gemini provider is commented out. Set AI_PROVIDER=opencode or uncomment Gemini functions.'];
+    }
+    return callOpenCodeJsonApi($systemPrompt, $contents, $schema, $options);
+}
+
+/** Limit input size sent to the model (long stories slow down free-tier APIs). */
+function truncateAnalysisInput(string $text, int $maxChars = 12000): array
+{
+    $len = mb_strlen($text, 'UTF-8');
+    if ($len <= $maxChars) {
+        return ['text' => $text, 'truncated' => false];
+    }
+    $cut = mb_substr($text, 0, $maxChars, 'UTF-8');
+    return [
+        'text' => $cut . "\n\n[... text truncated for analysis — " . ($len - $maxChars) . " characters omitted ...]",
+        'truncated' => true,
+    ];
+}
+
+function callAiFreeform(string $systemPrompt, array $contents, array $generationConfig = []): array
+{
+    if (resolveAiProvider() === 'gemini') {
+        // return callGeminiFreeform($systemPrompt, $contents, $generationConfig);
+        return ['error' => 'Gemini provider is commented out. Set AI_PROVIDER=opencode or uncomment Gemini functions.'];
+    }
+    return callOpenCodeFreeform($systemPrompt, $contents, $generationConfig);
 }
 
 // --- Get Request Data ---
@@ -83,119 +577,7 @@ $response = null;
 // --- Main Action Switch ---
 switch ($action) {
     case 'analyze':
-        $systemPrompt = "Bạn là một **Giáo sư – Tiến sĩ chuyên ngành Văn học**, am hiểu sâu sắc về **lý luận, phê bình và phân tích tác phẩm văn chương** ở nhiều giai đoạn, trào lưu và phong cách khác nhau. Bạn có khả năng **giải mã tầng nghĩa tư tưởng, biểu tượng nghệ thuật, cấu trúc ngôn ngữ**, đồng thời **đặt tác phẩm trong mối quan hệ văn hóa – lịch sử và liên văn bản**. Giọng văn của bạn mang phong cách **học thuật, chuẩn mực, logic, có chiều sâu lý luận và cảm xúc nhân văn**. Khi thực hiện phân tích, bạn cần **diễn đạt bằng tiếng Việt học thuật**, tạo **đối tượng JSON hoàn chỉnh, chi tiết và hệ thống**.
-
-───────────────────────────────
-### I. QUY TẮC XÁC ĐỊNH THỂ LOẠI (Genre Classification)
-───────────────────────────────
-1. **Mục tiêu:** Xác định chính xác thể loại văn bản và gán vào trường 'Thể loại' trong 'characteristics' theo định dạng:
-   \"[Thể loại chính] – [Thể loại phụ hoặc đặc điểm nổi bật]\".
-
-2. **Phân cấp thể loại:**
-   a. **Văn xuôi (Prose):**
-      - *Tự sự (Truyện):* Có nhân vật, sự kiện, cốt truyện rõ ràng.
-      - *Miêu tả, Biểu cảm, Nghị luận, Thuyết minh, Hành chính – công vụ.*
-      - *Kịch:* Nhận diện qua đối thoại, chỉ dẫn sân khấu, xung đột và hành động kịch.
-   b. **Thơ (Poetry):**
-      - *Lục bát, Song Thất Lục Bát, Thơ tự do, Thơ 4/5/6/7/8 chữ.*
-      - *Thất ngôn bát cú / Tứ tuyệt, Thơ châm biếm, Thơ hiện đại.*
-
-───────────────────────────────
-### II. QUY TẮC PHÂN TÍCH TỔNG QUÁT (General Analysis)
-───────────────────────────────
-1. **Cấu trúc mục 'generalAnalysis':**
-   Bao gồm hai phần con chính:
-   - 'thematicAnalysis': Mảng các đối tượng {heading, content}, trong đó:
-     + heading: Tiêu đề chủ đề, viết hoa chữ đầu, không in đậm.
-     + content: Diễn giải nội dung bằng văn bản thuần túy.
-   - 'linguisticInsights': Phân tích ngôn ngữ và biểu tượng qua 4 mục con, trình bày bằng danh sách gạch đầu dòng (•):
-     + motifs: Các mô-típ, hình ảnh lặp lại trong văn bản.
-     + symbolsAndMetaphors: Các biểu tượng và ẩn dụ nghệ thuật.
-     + temporalElements: Thời gian, ký ức, trình tự kể.
-     + natureAndScenery: Không gian, thiên nhiên và vai trò biểu cảm.
-
-───────────────────────────────
-### III. PHÂN TÍCH CHUYÊN SÂU THEO THỂ LOẠI (Genre-Specific Deep Analysis)
-───────────────────────────────
-**Yêu cầu chung:**
-- Bắt buộc tạo object phân tích chuyên sâu tương ứng với thể loại đã xác định.
-- Mỗi phần phải có cấu trúc rõ ràng, lập luận chặt chẽ, và dẫn chứng cụ thể từ văn bản.
-
-1. **Nếu là Kịch (dramaAnalysis):**
-   Phân tích 5 yếu tố then chốt:
-   - characters: Hệ thống nhân vật, tính cách, xung đột nội tâm.
-   - conflict: Xung đột trung tâm, đối kháng và quá trình phát triển.
-   - action: Diễn tiến hành động kịch, sự kiện chính.
-   - structure: Bố cục, các hồi, lớp và cao trào.
-   - dialogue: Đặc điểm lời thoại, giọng điệu, ngữ cảnh sân khấu.
-
-2. **Nếu là Thơ (poetryAnalysis):**
-   Phân tích 7 yếu tố cốt lõi:
-   - rhyming: Vần, luật, cách gieo nhịp.
-   - emotionalFlow: Diễn biến cảm xúc, cung bậc trữ tình.
-   - structure: Bố cục, mạch cảm xúc và tổ chức khổ thơ.
-   - imagery: Hình ảnh, biểu tượng, không gian cảm xúc.
-   - rhythm: Nhịp điệu, tiết tấu, nhạc tính của ngôn ngữ thơ.
-   - spaceTimeOrganization: Sự vận động của thời gian và không gian trữ tình.
-   - rhetoricalDevices: Biện pháp tu từ (ẩn dụ, nhân hóa, hoán dụ...).
-
-3. **Nếu là Truyện (storyAnalysis):**
-   Phân tích 7 yếu tố nền tảng:
-   - character: Tuyến nhân vật, tâm lý, hành động, phát triển.
-   - space: Không gian nghệ thuật, ý nghĩa biểu trưng.
-   - time: Thời gian kể chuyện, hồi ức, tuyến tính hoặc phi tuyến.
-   - dialogue: Ngôn ngữ đối thoại, phong cách trần thuật.
-   - narrator: Điểm nhìn và giọng kể của người trần thuật.
-   - situation: Tình huống truyện, xung đột, mâu thuẫn trung tâm.
-   - prominentDetails: Chi tiết nghệ thuật tiêu biểu, giá trị biểu tượng.
-
-───────────────────────────────
-### IV. PHÂN TÍCH CUỐI CÙNG (Final Synthesis)
-───────────────────────────────
-1. **concludingThoughts:**
-   - Rút ra 'lesson' (bài học) và 'message' (thông điệp) mang tính khái quát, nhân văn và giá trị tư tưởng lâu dài.
-   - Tổng kết giá trị nội dung và nghệ thuật, nhấn mạnh đóng góp của tác phẩm đối với người đọc và thời đại.
-
-2. **intertextuality (Liên văn bản):**
-   - Phân tích dựa theo thể loại của tác phẩm chính.
-   - Gồm ba nhánh quy tắc:
-
-     a. **Kịch (Drama):**
-        - *Yêu cầu:* Tác phẩm so sánh (comparativeText) phải là một vở kịch của tác giả khác.
-        - *Mục tiêu:* Làm nổi bật tư tưởng, phong cách biểu đạt, xung đột và thông điệp nhân sinh.
-        - *Cấu trúc:*
-          + initialAnalysis: Nhận xét chung về nội dung, chủ đề, phong cách.
-          + comparativeText: { title, author }
-          + comparison: { similarities, differences, effects }
-
-     b. **Văn xuôi / Truyện ngắn / Tiểu thuyết (Prose / Story):**
-        - *Yêu cầu:* Tác phẩm so sánh là một truyện hoặc tiểu thuyết khác, có cùng chủ đề hoặc kiểu nhân vật, của tác giả khác.
-        - *Mục tiêu:* So sánh cách kể chuyện, xây dựng nhân vật, điểm nhìn trần thuật và thông điệp nhân văn.
-        - *Cấu trúc:*
-          + initialAnalysis: Tóm tắt chủ đề, thông điệp, phong cách trần thuật.
-          + comparativeText: { title, author }
-          + comparison: { similarities, differences, effects }
-
-     c. **Thơ (Poetry):**
-        - *Yêu cầu:* Tác phẩm so sánh là một bài thơ khác (cùng hoặc khác thời kỳ), có chủ đề hoặc cảm hứng tương đồng.
-        - *Mục tiêu:* So sánh giọng điệu, hình ảnh, thủ pháp nghệ thuật và cảm xúc trữ tình.
-        - *Cấu trúc:*
-          + initialAnalysis: Nhận xét về chủ đề, cảm xúc chủ đạo, phong cách thơ.
-          + comparativeText: { title, author }
-          + comparison: { similarities, differences, effects }
-
-───────────────────────────────
-### V. QUY TẮC HÌNH THỨC (Stylistic & Technical Rules)
-───────────────────────────────
-1. Toàn bộ nội dung **phải là văn bản thuần túy**, không sử dụng:
-   - Ký tự in đậm (**), nghiêng (*), Markdown hoặc các ký hiệu đặc biệt.
-2. Không in đậm hay đánh dấu:
-   - Tên nhân vật, địa danh, tác phẩm, trích dẫn hoặc từ khóa nhấn mạnh.
-3. Mỗi đoạn phân tích được viết **liền mạch, rõ ràng, chính xác**, thể hiện **phong cách học thuật, súc tích và logic của một học giả chuyên nghiệp**.
-";
-        '
-### YÊU CẦU ĐẦU RA JSON ###
-- title, characteristics, keywords, generalAnalysis ({thematicAnalysis, linguisticInsights}), poetryAnalysis (nếu là thơ), storyAnalysis (nếu là truyện), dramaAnalysis (nếu là kịch), concludingThoughts, intertextuality.';
+        $systemPrompt = getAiAnalyzePrompt($pdo);
 
         $schema = [
             "type" => "OBJECT",
@@ -241,7 +623,8 @@ switch ($action) {
                         "rhythm" => ["type" => "STRING"],
                         "spaceTimeOrganization" => ["type" => "STRING"],
                         "rhetoricalDevices" => ["type" => "STRING"]
-                    ]
+                    ],
+                    "required" => ["rhyming", "emotionalFlow", "structure", "imagery", "rhythm", "spaceTimeOrganization", "rhetoricalDevices"]
                 ],
                 "storyAnalysis" => [
                     "type" => "OBJECT",
@@ -253,7 +636,8 @@ switch ($action) {
                         "narrator" => ["type" => "STRING"],
                         "situation" => ["type" => "STRING"],
                         "prominentDetails" => ["type" => "STRING"]
-                    ]
+                    ],
+                    "required" => ["character", "space", "time", "dialogue", "narrator", "situation", "prominentDetails"]
                 ],
                 "dramaAnalysis" => [
                     "type" => "OBJECT",
@@ -263,7 +647,8 @@ switch ($action) {
                         "action" => ["type" => "STRING"],
                         "structure" => ["type" => "STRING"],
                         "dialogue" => ["type" => "STRING"]
-                    ]
+                    ],
+                    "required" => ["characters", "conflict", "action", "structure", "dialogue"]
                 ],
                 "concludingThoughts" => [
                     "type" => "OBJECT",
@@ -301,16 +686,32 @@ switch ($action) {
             "required" => ["title", "characteristics", "keywords", "generalAnalysis", "concludingThoughts", "intertextuality"]
         ];
 
-        // Format the user text as a chat 'contents' array
+        $input = truncateAnalysisInput((string)$data);
         $contents = [
-            ['role' => 'user', 'parts' => [['text' => $data]]]
+            ['role' => 'user', 'parts' => [['text' => $input['text']]]]
         ];
 
-        $response = callGeminiApi($systemPrompt, $contents, $schema);
+        $analyzeMaxTokens = max(6000, (int)getAppSetting($pdo, 'ai_max_tokens', 6000));
+        $analyzeTemp = min(0.8, (float)getAppSetting($pdo, 'ai_temperature', 0.7));
+
+        $response = callAiJsonApi($systemPrompt, $contents, $schema, [
+            'compact_schema' => true,
+            'max_tokens' => $analyzeMaxTokens,
+            'temperature' => $analyzeTemp,
+        ]);
+
+        if (is_array($response) && !isset($response['error'])) {
+            if ($input['truncated']) {
+                $response['_meta'] = ['input_truncated' => true];
+            }
+            require_once __DIR__ . '/../config/helper_outline_validation.php';
+            $response['_validation'] = validateStructuralOutline($response, [
+                'input_truncated' => !empty($input['truncated']),
+            ]);
+        }
         break;
 
     case 'chat':
-        // Multi-turn chat conversation (similar to refine but for task-based chat)
         $input = json_decode(file_get_contents('php://input'), true);
         $history = $input['history'] ?? [];
         $userMessage = $input['data'] ?? '';
@@ -320,114 +721,78 @@ switch ($action) {
             break;
         }
 
-        $systemPrompt = 'Bạn là một chuyên gia phân tích văn học. Dựa trên cuộc hội thoại trước đó và phân tích hiện tại, hãy trả lời câu hỏi của người dùng một cách chi tiết, chuyên sâu. Trả lời ngắn gọn, súc tích nhưng đầy đủ ý. Sử dụng văn bản thuần, không dùng markdown phức tạp.';
-
-        // Call API without schema for free-form text response
-        $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
-
-        $payload = [
-            'contents' => $history,
-            'systemInstruction' => [
-                'parts' => [['text' => $systemPrompt]]
-            ],
-            'generationConfig' => [
-                'temperature' => 0.7,
-                'maxOutputTokens' => 2000
-            ]
-        ];
-
-        $jsonData = json_encode($payload);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $apiUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonData)
-        ]);
-
-        $apiResponse = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpcode == 200) {
-            $result = json_decode($apiResponse, true);
-            if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                $responseText = $result['candidates'][0]['content']['parts'][0]['text'];
-                $response = ['answer' => $responseText];
-            } else {
-                $response = ['error' => 'Invalid response structure from API.'];
-            }
-        } else {
-            $response = ['error' => "API call failed with status code $httpcode"];
-        }
+        $systemPrompt = getAiChatPrompt($pdo);
+        $response = callAiFreeform($systemPrompt, $history);
         break;
 
     case 'refine':
-        // Multi-turn conversation for refining analysis
         $requestData = json_decode($data, true);
         $history = $requestData['history'] ?? [];
-        $currentAnalysis = $requestData['currentAnalysis'] ?? null;
 
         if (empty($history)) {
             $response = ['error' => 'No conversation history provided'];
             break;
         }
 
-        $systemPrompt = 'Bạn là một chuyên gia phân tích văn học. Dựa trên cuộc hội thoại trước đó và kết quả phân tích hiện tại, hãy trả lời câu hỏi của người dùng một cách chi tiết, chuyên sâu. Nếu người dùng yêu cầu điều chỉnh hoặc bổ sung phân tích, hãy cung cấp thông tin cụ thể và có căn cứ. Trả về câu trả lời dạng văn bản thuần (không phải JSON), sử dụng markdown để format nếu cần.';
-
-        // Use the full conversation history for context
-        $response = [
-            'response' => '',
-            'message' => ''
-        ];
-
-        // Call API without schema for free-form text response
-        $apiKey = "AIzaSyCkpk0BdN-S23WXb5_nqv1hryalaHvEaNs";
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key={$apiKey}";
-
-        $payload = [
-            'contents' => $history,
-            'systemInstruction' => [
-                'parts' => [['text' => $systemPrompt]]
-            ],
-            'generationConfig' => [
-                'temperature' => 0.8,
-                'maxOutputTokens' => 4000
-            ]
-        ];
-
-        $jsonData = json_encode($payload);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $apiUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($jsonData)
+        $systemPrompt = getAiRefinePrompt($pdo);
+        $response = callAiFreeform($systemPrompt, $history, [
+            'temperature' => 0.8,
+            'maxOutputTokens' => 4000
         ]);
+        break;
 
-        $apiResponse = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+    case 'slideshow':
+        $systemPrompt = getAiSlideshowPrompt($pdo);
+        $schema = [
+            'type' => 'object',
+            'properties' => [
+                'slides' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'heading' => ['type' => 'string'],
+                            'content' => ['type' => 'string']
+                        ],
+                        'required' => ['heading', 'content']
+                    ]
+                ],
+                'references' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'string']
+                ]
+            ],
+            'required' => ['slides']
+        ];
+        $contents = [['role' => 'user', 'parts' => [['text' => $data]]]];
+        $response = callAiJsonApi($systemPrompt, $contents, $schema);
+        break;
 
-        if ($httpcode == 200) {
-            $result = json_decode($apiResponse, true);
-            if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
-                $responseText = $result['candidates'][0]['content']['parts'][0]['text'];
-                $response['response'] = $responseText;
-                $response['message'] = $responseText;
-            } else {
-                $response['error'] = 'Invalid response structure from API.';
-            }
-        } else {
-            $response['error'] = "API call failed with status code $httpcode";
-        }
+    case 'quiz':
+        $systemPrompt = getAiQuizPrompt($pdo);
+        $schema = [
+            'type' => 'object',
+            'properties' => [
+                'quiz' => [
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'q' => ['type' => 'string'],
+                            'o' => [
+                                'type' => 'array',
+                                'items' => ['type' => 'string']
+                            ],
+                            'a' => ['type' => 'integer']
+                        ],
+                        'required' => ['q', 'o', 'a']
+                    ]
+                ]
+            ],
+            'required' => ['quiz']
+        ];
+        $contents = [['role' => 'user', 'parts' => [['text' => $data]]]];
+        $response = callAiJsonApi($systemPrompt, $contents, $schema);
         break;
 
     default:

@@ -3,6 +3,7 @@ session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/helper_homework.php';
+require_once __DIR__ . '/../config/helper_task.php';
 
 // Check authentication
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
@@ -25,6 +26,35 @@ $action = $input['action'] ?? '';
 
 try {
     switch ($action) {
+        case 'poll_all_comments':
+            $contentIds = array_values(array_filter(array_map('intval', $input['content_ids'] ?? [])));
+            $response_id = isset($input['response_id']) ? intval($input['response_id']) : 0;
+            $deliver_id = isset($input['deliver_id']) ? intval($input['deliver_id']) : 0;
+
+            if ($deliver_id <= 0 || !validateUserDeliverAccess($deliver_id, (int)$user_id)) {
+                throw new Exception('Access denied');
+            }
+
+            $byContent = [];
+            foreach ($contentIds as $contentId) {
+                if ($contentId > 0) {
+                    $byContent[$contentId] = getCommentsHierarchical($contentId);
+                }
+            }
+
+            $general = [];
+            if ($response_id > 0) {
+                $general = getGeneralCommentsByResponse($response_id);
+            }
+
+            echo json_encode([
+                'success' => true,
+                'content' => $byContent,
+                'general' => $general,
+                'server_time' => date('c'),
+            ]);
+            break;
+
         case 'load_comments':
             $content_id = isset($input['content_id']) ? intval($input['content_id']) : null;
             $task_id = isset($input['task_id']) ? intval($input['task_id']) : 0;

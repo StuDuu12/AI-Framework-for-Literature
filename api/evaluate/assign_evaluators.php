@@ -18,7 +18,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Bạn cần đăng nhập']);
+    echo json_encode(['success' => false, 'message' => 'Please log in']);
     exit;
 }
 
@@ -27,7 +27,7 @@ $userRole = $_SESSION['user']['role'];
 
 // Only teachers can assign evaluators
 if ($userRole !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Chỉ giáo viên mới có quyền phân công chấm bài']);
+    echo json_encode(['success' => false, 'message' => 'Only teachers have permission to assign evaluators']);
     exit;
 }
 
@@ -41,25 +41,25 @@ try {
     }
 
     if (!$taskId) {
-        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin task_id']);
+        echo json_encode(['success' => false, 'message' => 'Missing task_id information']);
         exit;
     }
 
     if (empty($assignments) || !is_array($assignments)) {
-        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin phân công chấm bài']);
+        echo json_encode(['success' => false, 'message' => 'Missing evaluation assignment information']);
         exit;
     }
 
     // Get task info to verify permissions
     $taskInfo = getInfoTask($taskId);
     if (!$taskInfo) {
-        echo json_encode(['success' => false, 'message' => 'Task không tồn tại']);
+        echo json_encode(['success' => false, 'message' => 'Task does not exist']);
         exit;
     }
 
     // Check if user is teacher of this class
     if (!isTeacherInClass($taskInfo['class_id'], $userId)) {
-        echo json_encode(['success' => false, 'message' => 'Bạn không có quyền phân công task này']);
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to assign this task']);
         exit;
     }
 
@@ -68,7 +68,7 @@ try {
     if (!$criteriaGroup) {
         echo json_encode([
             'success' => false,
-            'message' => 'Vui lòng cấu hình bộ tiêu chí đánh giá trước khi phân công chấm bài'
+            'message' => 'Please configure the evaluation criteria group before assigning evaluators'
         ]);
         exit;
     }
@@ -83,7 +83,7 @@ try {
         $evaluatorValue = isset($assignment['evaluator_value']) ? intval($assignment['evaluator_value']) : 0;
 
         if (!$responseId || !in_array($evaluatorType, ['user', 'group']) || !$evaluatorValue) {
-            $errors[] = "Thông tin không hợp lệ cho response_id: $responseId";
+            $errors[] = "Invalid information for response_id: $responseId";
             continue;
         }
 
@@ -97,9 +97,9 @@ try {
     }
 
     if ($successCount > 0) {
-        $message = "Đã phân công thành công $successCount bài chấm";
+        $message = "Successfully assigned $successCount evaluation(s)";
         if (!empty($errors)) {
-            $message .= ". Có " . count($errors) . " lỗi: " . implode("; ", $errors);
+            $message .= ". There is " . count($errors) . " error(s): " . implode("; ", $errors);
         }
 
         echo json_encode([
@@ -112,7 +112,7 @@ try {
     } else {
         echo json_encode([
             'success' => false,
-            'message' => 'Không thể phân công chấm bài. Lỗi: ' . implode("; ", $errors),
+            'message' => 'Cannot assign evaluators. Error: ' . implode("; ", $errors),
             'errors' => $errors
         ]);
     }
@@ -121,6 +121,6 @@ try {
     error_log("Error in assign_evaluators.php: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Lỗi hệ thống: ' . $e->getMessage()
+        'message' => 'System error: ' . $e->getMessage()
     ]);
 }

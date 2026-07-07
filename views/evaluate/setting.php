@@ -1,65 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Cấu hình đánh giá chéo</title>
-    <style>
-        .criteria-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #e3f2fd;
-            color: #1976d2;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            margin: 2px;
-        }
-
-        .deliver-card {
-            border-left: 4px solid #2196F3;
-            transition: all 0.3s ease;
-        }
-
-        .deliver-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: #fff3e0;
-            color: #e65100;
-        }
-
-        .status-in-progress {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .status-submitted {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .evaluator-select {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 8px 12px;
-        }
-
-        .evaluator-select:focus {
-            border-color: #2196F3;
-            outline: none;
-        }
-    </style>
+    <title data-lang-key="evaluate_setting_title">Peer Evaluation Configuration</title>
 </head>
 
 <body>
@@ -67,19 +13,27 @@
     require_once __DIR__ . '/../../config/db.php';
     require_once __DIR__ . '/../../config/helper_class.php';
     require_once __DIR__ . '/../../config/helper_homework.php';
+    require_once __DIR__ . '/../../config/helper_breadcrumb.php';
+    require_once __DIR__ . '/../../config/helper_criteria_i18n.php';
+    require_once __DIR__ . '/../../config/helper_phase.php';
 
-    require_once './views/templates/header.php';
-    require_once './views/templates/sidebar.php';
-
-    // Get parameters
     $task_id = isset($_GET['task_id']) ? intval($_GET['task_id']) : 0;
     $topic_id = isset($_GET['topic_id']) ? intval($_GET['topic_id']) : 0;
     $phase_id = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
+    $userId = (int)($_SESSION['user']['user_id'] ?? 0);
 
-    if (!$task_id) {
-        header("Location: /404");
+    if (!$task_id || !$topic_id) {
+        header('Location: ' . URL_ROOT . '/404');
         exit;
     }
+
+    if (!isTeacherInTopicClass($topic_id, $userId)) {
+        header('Location: ' . URL_ROOT . '/403');
+        exit;
+    }
+
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
 
     // Get task info
     $taskInfo = getInfoTask($task_id);
@@ -104,37 +58,28 @@
 
     // Check if this phase is for peer evaluation
     if (!$phaseInfo || $phaseInfo['phase_code'] !== 'PHASE_DANHGIANGUOIHOC') {
-        // Show error message
-        require_once './views/templates/header.php';
-        if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher') {
-            require_once './views/templates/sidebar_teacher.php';
-        } else if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'student') {
-            require_once './views/templates/sidebar_student.php';
-        }
         ?>
         <main id="main" class="main">
             <div class="pagetitle">
-                <h1><i class="bi bi-exclamation-triangle text-warning"></i> Không thể truy cập</h1>
+                <h1><i class="bi bi-exclamation-triangle text-warning"></i> <span data-lang-key="cannot_access">Cannot Access</span></h1>
             </div>
             <section class="section">
                 <div class="card">
                     <div class="card-body text-center py-5">
-                        <i class="bi bi-gear-fill" style="font-size: 4rem; color: #ccc;"></i>
-                        <h3 class="mt-3">Trang cấu hình đánh giá chéo</h3>
-                        <p class="text-muted">Trang này chỉ khả dụng cho các phase có loại <strong>"Đánh giá đồng
-                                đẳng"</strong></p>
+                        <i class="bi bi-gear-fill text-muted" style="font-size: 4rem;"></i>
+                        <h3 class="mt-3" data-lang-key="peer_eval_config_page">Peer Evaluation Configuration Page</h3>
+                        <p class="text-muted" data-lang-key="page_only_for_peer_eval">This page is only available for phases with type <strong>"Peer Evaluation"</strong></p>
 
                         <?php if ($phaseInfo): ?>
                             <div class="alert alert-warning mt-4">
-                                <strong>Phase hiện tại:</strong>
-                                <?= htmlspecialchars($phaseInfo['m_phase_name'] ?? 'Không xác định') ?><br>
-                                <small>Vui lòng chọn phase có loại "Đánh giá đồng đẳng" (PHASE_DANHGIANGUOIHOC) để cấu hình đánh
-                                    giá chéo.</small>
+                                <strong data-lang-key="current_phase">Current Phase:</strong>
+                                <?= htmlspecialchars($phaseInfo['m_phase_name'] ?? 'Unknown') ?><br>
+                                <small>Please select a phase with type "Peer Evaluation" (PHASE_DANHGIANGUOIHOC) to configure peer evaluation.</small>
                             </div>
                         <?php endif; ?>
 
                         <a href="javascript:history.back()" class="btn btn-primary mt-3">
-                            <i class="bi bi-arrow-left"></i> Quay lại
+                            <i class="bi bi-arrow-left"></i> <span data-lang-key="go_back">Go Back</span>
                         </a>
                     </div>
                 </div>
@@ -196,13 +141,13 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-gear-fill"></i> Cấu hình đánh giá chéo</h1>
+            <h1><i class="bi bi-gear-fill"></i> <span data-lang-key="evaluate_setting_title">Peer Evaluation Configuration</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a
-                            href="/class/detail?class_id=<?= $class_id ?>"><?= htmlspecialchars($class_name) ?></a></li>
-                    <li class="breadcrumb-item active"><?= htmlspecialchars($taskInfo['task_title']) ?></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topic_id) ?>"><?= htmlspecialchars($taskInfo['topic_name'] ?? 'Topic') ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topic_id, $phase_id) ?>">Learning Phases</a></li>
+                    <li class="breadcrumb-item active">Peer Evaluation Configuration</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -211,15 +156,15 @@
             <!-- Task Info Card -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-info-circle"></i> Thông tin bài tập</h5>
+                    <h5 class="card-title"><i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Task Info</span></h5>
                     <div class="row">
                         <div class="col-md-8">
-                            <p><strong>Tên bài tập:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
-                            <p><strong>Mô tả:</strong>
-                                <?= htmlspecialchars($taskInfo['task_description'] ?? 'Không có mô tả') ?></p>
+                            <p><strong>Task Name:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
+                            <p><strong>Description:</strong>
+                                <?= htmlspecialchars($taskInfo['task_description'] ?? 'No description') ?></p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <span class="badge bg-info">Tổng số bài nộp: <?= count($responses) ?></span>
+                            <span class="badge bg-info"><span>Total Submissions:</span> <?= count($responses) ?></span>
                         </div>
                     </div>
                 </div>
@@ -228,12 +173,12 @@
             <!-- Criteria Selection Card -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-clipboard-check"></i> Bộ tiêu chí đánh giá</h5>
+                    <h5 class="card-title"><i class="bi bi-clipboard-check"></i> <span data-lang-key="criteria_set">Evaluation Criteria Set</span></h5>
 
                     <?php if ($hasEvaluations): ?>
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle-fill"></i>
-                            Đã có bài chấm được thực hiện. Không thể thay đổi bộ tiêu chí.
+                            <span>Evaluations have already been completed. Cannot change the criteria set.</span>
                         </div>
                         <?php if ($currentCriteriaGroupId): ?>
                             <?php
@@ -241,8 +186,8 @@
                             $stmtCurrentGroup->execute([':id' => $currentCriteriaGroupId]);
                             $currentGroup = $stmtCurrentGroup->fetch(PDO::FETCH_ASSOC);
                             ?>
-                            <p><strong>Bộ tiêu chí hiện tại:</strong>
-                                <span class="badge bg-success"><?= htmlspecialchars($currentGroup['ten_nhom_tc']) ?></span>
+                            <p><strong>Current Criteria Set:</strong>
+                                <span class="badge bg-success"><?= htmlspecialchars(criteriaLabel($currentGroup['ten_nhom_tc'])) ?></span>
                             </p>
                         <?php endif; ?>
                     <?php else: ?>
@@ -251,24 +196,24 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <select name="nhom_tc_id" class="form-select" required <?= empty($criteriaGroups) ? 'disabled' : '' ?>>
-                                        <option value="">-- Chọn bộ tiêu chí --</option>
+                                    <option value="">-- -- Select Criteria Set --</option>
                                         <?php foreach ($criteriaGroups as $group): ?>
                                             <option value="<?= $group['nhom_tc_id'] ?>"
                                                 <?= $currentCriteriaGroupId == $group['nhom_tc_id'] ? 'selected' : '' ?>>
-                                                <?= htmlspecialchars($group['ten_nhom_tc']) ?>
-                                                <?= $group['description'] ? ' - ' . htmlspecialchars($group['description']) : '' ?>
+                                                <?= htmlspecialchars(criteriaLabel($group['ten_nhom_tc'])) ?>
+                                                <?= $group['description'] ? ' - ' . htmlspecialchars(criteriaLabel($group['description'])) : '' ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                     <?php if (empty($criteriaGroups)): ?>
-                                        <small class="text-muted">Chưa có bộ tiêu chí nào cho lớp này.
-                                            <a href="/class/criteria?class_id=<?= $class_id ?>">Tạo bộ tiêu chí mới</a>
+                                        <small class="text-muted"><span>No criteria sets for this class yet.</span>
+                                            <a href="/class/criteria?class_id=<?= $class_id ?>">Create new criteria set</a>
                                         </small>
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary w-100" <?= empty($criteriaGroups) ? 'disabled' : '' ?>>
-                                        <i class="bi bi-save"></i> Lưu cấu hình
+                                        <i class="bi bi-save"></i> <span>Save Config</span>
                                     </button>
                                 </div>
                             </div>
@@ -276,7 +221,7 @@
 
                         <?php if ($currentCriteriaGroupId): ?>
                             <div class="mt-3">
-                                <h6>Các tiêu chí trong bộ:</h6>
+                                <h6>Criteria in set:</h6>
                                 <?php
                                 $stmtCriteria = $pdo->prepare("
                                     SELECT tc_id, name_tc, min_score, max_score 
@@ -290,8 +235,8 @@
                                 foreach ($criteria as $criterion):
                                     ?>
                                     <span class="criteria-badge">
-                                        <?= htmlspecialchars($criterion['name_tc']) ?>
-                                        (<?= $criterion['min_score'] ?>-<?= $criterion['max_score'] ?> điểm)
+                                        <?= htmlspecialchars(criteriaLabel($criterion['name_tc'])) ?>
+                                        (<?= $criterion['min_score'] ?>-<?= $criterion['max_score'] ?> points)
                                     </span>
                                 <?php endforeach; ?>
                             </div>
@@ -300,39 +245,66 @@
                 </div>
             </div>
 
+            <!-- Anonymous Evaluation Toggle -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-eye-slash"></i> Đánh giá ẩn danh</h5>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="mb-1">Kích hoạt chế độ ẩn danh khi chấm điểm.</p>
+                            <small class="text-muted">Khi bật, học viên sẽ không thấy tên tác giả bài nộp khi đánh giá.</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <?php
+                            $stmtAnon = $pdo->prepare("SELECT is_anonymous FROM setting WHERE task_id = :task_id");
+                            $stmtAnon->execute([':task_id' => $task_id]);
+                            $anonRow = $stmtAnon->fetch(PDO::FETCH_ASSOC);
+                            $isAnonymous = $anonRow ? (int)$anonRow['is_anonymous'] : 0;
+                            ?>
+                            <input class="form-check-input" type="checkbox" id="anonymousToggle"
+                                <?= $isAnonymous ? 'checked' : '' ?>
+                                onchange="toggleAnonymous(this)">
+                            <label class="form-check-label" for="anonymousToggle">
+                                <?= $isAnonymous ? 'Đang bật' : 'Đang tắt' ?>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Deliver Assignment Card -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-people-fill"></i> Phân công chấm bài</h5>
+                    <h5 class="card-title"><i class="bi bi-people-fill"></i> <span data-lang-key="assign_graders">Assign Graders</span></h5>
 
                     <?php if (!$currentCriteriaGroupId): ?>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle"></i> 
-                            Vui lòng chọn bộ tiêu chí đánh giá trước khi phân công chấm bài.
+                            <span>Please select an evaluation criteria set before assigning graders.</span>
                         </div>
                     <?php elseif (empty($responses)): ?>
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle"></i> 
-                            Chưa có bài nộp nào hoàn thành (status = 2) cho bài tập này.
+                            <span>No completed submissions (status = 2) for this task yet.</span>
                         </div>
                     <?php else: ?>
                         <form id="assignEvaluatorsForm" method="POST" action="/api/evaluate/assign_evaluators.php">
                             <input type="hidden" name="task_id" value="<?= $task_id ?>">
                             
                             <div class="alert alert-info">
-                                <strong>Hướng dẫn:</strong> Chọn người chấm cho từng bài nộp. Một bài có thể được chấm bởi nhiều người.<br>
-                                <small>* Bạn có thể chọn nhiều người chấm cho cùng một bài bằng cách click vào nút "+ Thêm người chấm"</small>
+                                <strong>Guide:</strong> <span>Select a grader for each submission. A submission can be graded by multiple people.</span><br>
+                                <small>* You can select multiple graders for the same submission by clicking the "+ Add Grader" button</small>
                             </div>
                             
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                            <th width="25%">Bài nộp</th>
-                                            <th width="15%">Loại</th>
-                                            <th width="10%">Trạng thái</th>
-                                            <th width="40%">Người chấm</th>
-                                            <th width="10%">Hành động</th>
+                                            <th width="25%">Submission</th>
+                                            <th width="15%">Type</th>
+                                            <th width="10%">Status</th>
+                                            <th width="40%">Graders</th>
+                                            <th width="10%">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -341,25 +313,25 @@
                                                 <td>
                                                     <strong><?= htmlspecialchars($deliver['submitter_name']) ?></strong>
                                                     <br><small class="text-muted">
-                                                        Giao lúc: <?= date('d/m/Y H:i', strtotime($deliver['created_at'])) ?>
+                                                        <span>Assigned at:</span> <?= date('d/m/Y H:i', strtotime($deliver['created_at'])) ?>
                                                     </small>
                                                 </td>
                                                 <td>
                                                     <?php if ($deliver['deliver_type'] == 'user'): ?>
-                                                        <span class="badge bg-primary">Cá nhân</span>
+                                                        <span class="badge bg-primary">Personal</span>
                                                     <?php elseif ($deliver['deliver_type'] == 'group'): ?>
-                                                        <span class="badge bg-info">Nhóm</span>
+                                                        <span class="badge bg-info">Group</span>
                                                     <?php else: ?>
-                                                        <span class="badge bg-secondary">Cả lớp</span>
+                                                        <span class="badge bg-secondary">Whole Class</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <?php if ($deliver['deliver_status'] == 0): ?>
-                                                        <span class="badge bg-secondary">Đã giao</span>
+                                                        <span class="badge bg-secondary">Assigned</span>
                                                     <?php elseif ($deliver['deliver_status'] == 1): ?>
-                                                        <span class="badge bg-warning">Đang làm</span>
+                                                        <span class="badge bg-warning">In Progress</span>
                                                     <?php else: ?>
-                                                        <span class="badge bg-success">Đã nộp</span>
+                                                        <span class="badge bg-success">Submitted</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
@@ -374,8 +346,8 @@
                                                                             class="form-select form-select-sm evaluator-select"
                                                                             data-deliver-type="<?= $deliver['deliver_type'] ?>"
                                                                             data-deliver-value="<?= $deliver['deliver_value'] ?>">
-                                                                        <option value="">-- Chọn người chấm --</option>
-                                                                        <optgroup label="Học sinh">
+                                                                        <option value="">-- -- Select Grader --</option>
+                                                                        <optgroup label="Students">
                                                                             <?php foreach ($students as $student): ?>
                                                                                 <?php 
                                                                                 // Don't allow submitter to evaluate their own work
@@ -386,7 +358,7 @@
                                                                                 </option>
                                                                             <?php endforeach; ?>
                                                                         </optgroup>
-                                                                        <optgroup label="Nhóm">
+                                                                        <optgroup label="Group">
                                                                             <?php foreach ($groups as $group): ?>
                                                                                 <?php if ($deliver['deliver_type'] == 'group' && $deliver['deliver_value'] == $group['group_id']) continue; ?>
                                                                                 <option value="group_<?= $group['group_id'] ?>">
@@ -408,8 +380,8 @@
                                                                                 class="form-select form-select-sm evaluator-select"
                                                                                 data-deliver-type="<?= $deliver['deliver_type'] ?>"
                                                                                 data-deliver-value="<?= $deliver['deliver_value'] ?>">
-                                                                            <option value="">-- Chọn người chấm --</option>
-                                                                            <optgroup label="Học sinh">
+                                                                            <option value="">-- -- Select Grader --</option>
+                                                                            <optgroup label="Students">
                                                                                 <?php foreach ($students as $student): ?>
                                                                                     <?php if ($deliver['deliver_type'] == 'user' && $deliver['deliver_value'] == $student['user_id']) continue; ?>
                                                                                     <option value="user_<?= $student['user_id'] ?>"
@@ -418,7 +390,7 @@
                                                                                     </option>
                                                                                 <?php endforeach; ?>
                                                                             </optgroup>
-                                                                            <optgroup label="Nhóm">
+                                                                            <optgroup label="Group">
                                                                                 <?php foreach ($groups as $group): ?>
                                                                                     <?php if ($deliver['deliver_type'] == 'group' && $deliver['deliver_value'] == $group['group_id']) continue; ?>
                                                                                     <option value="group_<?= $group['group_id'] ?>"
@@ -438,17 +410,17 @@
                                                     </div>
                                                     <button type="button" class="btn btn-sm btn-outline-success add-evaluator" 
                                                             data-response-id="<?= $deliver['response'] ?>">
-                                                        <i class="bi bi-plus-circle"></i> Thêm người chấm
+                                                        <i class="bi bi-plus-circle"></i> <span>Add Grader</span>
                                                     </button>
                                                 </td>
                                                 <td>
                                                     <?php if (!empty($assignments)): ?>
-                                                        <span class="badge bg-success" title="Đã có <?= count($assignments) ?> người chấm">
+                                                        <span class="badge bg-success" title="Already has <?= count($assignments) ?> grader(s)">
                                                             <i class="bi bi-check-circle"></i> <?= count($assignments) ?>
                                                         </span>
                                                     <?php else: ?>
                                                         <span class="badge bg-warning">
-                                                            <i class="bi bi-exclamation-circle"></i> Chưa phân công
+                                                            <i class="bi bi-exclamation-circle"></i> <span>Not Assigned</span>
                                                         </span>
                                                     <?php endif; ?>
                                                 </td>
@@ -460,7 +432,7 @@
                             
                             <div class="text-center mt-3">
                                 <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-save"></i> Lưu phân công chấm bài
+                                    <i class="bi bi-save"></i> <span>Save Grading Assignment</span>
                                 </button>
                             </div>
                         </form>
@@ -513,7 +485,7 @@
 
         // Clear all assignments
         function clearAllAssignments() {
-            if (confirm('Bạn có chắc muốn xóa tất cả phân công chấm bài?')) {
+            if (confirm('Clear all evaluator assignments?')) {
                 document.querySelectorAll('.evaluator-select').forEach(select => {
                     select.value = '';
                 });
@@ -535,14 +507,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('Đã lưu cấu hình bộ tiêu chí thành công!');
+                    alert('Configuration saved successfully!');
                     location.reload();
                 } else {
-                    alert('Lỗi: ' + result.message);
+                    alert('Error: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi lưu cấu hình!');
+                alert('Error saving configuration');
             }
         });
 
@@ -570,7 +542,7 @@
             }
             
             if (assignments.length === 0) {
-                alert('Vui lòng phân công ít nhất một người chấm bài');
+                alert('Please assign at least one grader');
                 return;
             }
             
@@ -591,14 +563,14 @@
                     alert(result.message);
                     location.reload();
                 } else {
-                    alert('Lỗi: ' + result.message);
+                    alert('Error: ' + result.message);
                     if (result.errors && result.errors.length > 0) {
                         console.error('Errors:', result.errors);
                     }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Có lỗi xảy ra khi phân công chấm bài!');
+                alert('Error assigning graders');
             }
         });
         
@@ -647,6 +619,40 @@
                 }
             }
         });
+
+        // Handle optgroup label translations (label attribute is not textContent)
+        function applyOptgroupLabels() {
+            document.querySelectorAll('[data-lang-label-key]').forEach(function(el) {
+                el.setAttribute('label', el.getAttribute('data-lang-label-key'));
+            });
+        }
+        setTimeout(applyOptgroupLabels, 200);
+
+        async function toggleAnonymous(checkbox) {
+            const label = checkbox.nextElementSibling;
+            try {
+                const resp = await fetch('/api/evaluate/toggle_anonymous.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        task_id: <?= $task_id ?>,
+                        is_anonymous: checkbox.checked ? 1 : 0
+                    })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    label.textContent = checkbox.checked ? 'Đang bật' : 'Đang tắt';
+                } else {
+                    checkbox.checked = !checkbox.checked;
+                    label.textContent = checkbox.checked ? 'Đang bật' : 'Đang tắt';
+                    alert(data.message || 'Lỗi cập nhật');
+                }
+            } catch (e) {
+                checkbox.checked = !checkbox.checked;
+                label.textContent = checkbox.checked ? 'Đang bật' : 'Đang tắt';
+                alert('Lỗi kết nối');
+            }
+        }
     </script>
 </body>
 

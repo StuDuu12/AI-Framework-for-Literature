@@ -41,14 +41,7 @@ function checkDeliverAccess($userId, $deliverId)
 
         // Check access based on type
         if ($deliver['type'] === 'user') {
-            // Individual assignment: check if user_id matches value
-            if ($deliver['value'] == $userId) {
-                error_log("checkDeliverAccess: User $userId has access (individual)");
-                return $deliver;
-            } else {
-                error_log("checkDeliverAccess: User $userId != deliver value {$deliver['value']}");
-                return false;
-            }
+            return ($deliver['value'] == $userId) ? $deliver : false;
         } elseif ($deliver['type'] === 'group') {
             // Group assignment: check if user is member of group
             $memberStmt = $pdo->prepare("
@@ -62,16 +55,9 @@ function checkDeliverAccess($userId, $deliverId)
                 ':user_id' => $userId
             ]);
 
-            if ($memberStmt->fetch()) {
-                error_log("checkDeliverAccess: User $userId has access (group member of {$deliver['value']})");
-                return $deliver;
-            } else {
-                error_log("checkDeliverAccess: User $userId is not member of group {$deliver['value']}");
-                return false;
-            }
+            return $memberStmt->fetch() ? $deliver : false;
         }
 
-        error_log("checkDeliverAccess: Unknown deliver type: {$deliver['type']}");
         return false;
 
     } catch (PDOException $e) {
@@ -128,14 +114,80 @@ function getResponseToEvaluate($deliverId)
         $contentStmt->execute([':response_id' => $response['id_response']]);
         $response['contents'] = $contentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        error_log("getResponseToEvaluate: Found response {$response['id_response']} with " . count($response['contents']) . " content blocks");
-
         return $response;
 
     } catch (PDOException $e) {
         error_log("getResponseToEvaluate ERROR: " . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Load a submission response directly by ID (teacher grading / review).
+ */
+function getResponseForGrading(int $responseId): array|false
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT
+                r.id_response,
+                r.user_id AS response_user_id,
+                r.task_id AS response_task_id,
+                r.created_at AS response_created_at,
+                u.fullname AS response_author
+            FROM response r
+            LEFT JOIN users u ON r.user_id = u.user_id
+            WHERE r.id_response = :response_id
+        ");
+        $stmt->execute([':response_id' => $responseId]);
+        $response = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$response) {
+            return false;
+        }
+
+        $contentStmt = $pdo->prepare("
+            SELECT content_id, content, `order`, type_create
+            FROM content
+            WHERE response_id = :response_id
+            ORDER BY `order` ASC
+        ");
+        $contentStmt->execute([':response_id' => $responseId]);
+        $response['contents'] = $contentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $response;
+    } catch (PDOException $e) {
+        error_log('getResponseForGrading ERROR: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Ensure a response belongs to the grading task submission queue.
+ */
+function isResponseInGradingTask(int $gradingTaskId, int $responseId): bool
+{
+    foreach (getGradingSubmissions($gradingTaskId) as $row) {
+        if ((int)($row['response'] ?? 0) === $responseId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Resolve the source-task deliver_id for a graded response.
+ */
+function resolveSubmissionDeliverForGrading(int $gradingTaskId, int $responseId): ?int
+{
+    foreach (getGradingSubmissions($gradingTaskId) as $row) {
+        if ((int)($row['response'] ?? 0) === $responseId) {
+            return (int)($row['id_deliver'] ?? 0) ?: null;
+        }
+    }
+    return null;
 }
 
 /**
@@ -175,8 +227,6 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
         $evaluation = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($evaluation) {
-            error_log("getOrCreateEvaluation: Found existing evaluation {$evaluation['id_evaluate']}");
-
             // Get detail scores
             $detailStmt = $pdo->prepare("
                 SELECT 
@@ -207,10 +257,8 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
         ]);
 
         $evaluateId = $pdo->lastInsertId();
-        error_log("getOrCreateEvaluation: Created new evaluation $evaluateId");
 
         // Initialize detail_evaluate with NULL scores for all criteria
-        error_log("DEBUG: About to get criteria for deliver_id=$deliverId");
         $criteriaStmt = $pdo->prepare("
             SELECT tc.tc_id
             FROM task_evaluate te
@@ -221,7 +269,6 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
 
         $criteriaStmt->execute([':deliver_id' => $deliverId]);
         $criteria = $criteriaStmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("DEBUG: Found " . count($criteria) . " criteria");
 
         foreach ($criteria as $criterion) {
             $detailInsertStmt = $pdo->prepare("
@@ -234,8 +281,6 @@ function getOrCreateEvaluation($userId, $deliverId, $responseId)
                 ':evaluate_id' => $evaluateId
             ]);
         }
-
-        error_log("getOrCreateEvaluation: Initialized " . count($criteria) . " detail records");
 
         $pdo->commit();
 
@@ -294,8 +339,6 @@ function getEvaluationCriteria($taskId)
         $stmt->execute([':task_id' => $taskId]);
         $criteria = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        error_log("getEvaluationCriteria: Found " . count($criteria) . " criteria for task $taskId");
-
         return $criteria;
 
     } catch (PDOException $e) {
@@ -350,24 +393,38 @@ function saveEvaluation($data)
         $pdo->beginTransaction();
 
         $evaluateId = $data['evaluate_id'];
-        $scores = $data['scores']; // Array of tc_id => score
-        $status = $data['status']; // 0=draft, 2=submit
+        $scores     = $data['scores'];              // Array of tc_id => score
+        $status     = $data['status'];              // 0=draft, 2=submit
+        $isTeacher  = isset($data['is_teacher']) ? intval($data['is_teacher']) : null;
 
-        // Calculate total score
+        // Calculate total score (S_Peer)
         $totalScore = array_sum($scores);
 
-        // Update evaluate record
-        $updateStmt = $pdo->prepare("
-            UPDATE evaluate
-            SET status = :status, total_score = :total_score
-            WHERE id_evaluate = :evaluate_id
-        ");
-
-        $updateStmt->execute([
-            ':status' => $status,
-            ':total_score' => $totalScore,
-            ':evaluate_id' => $evaluateId
-        ]);
+        // Update evaluate record; stamp is_teacher only when explicitly provided
+        if ($isTeacher !== null) {
+            $updateStmt = $pdo->prepare("
+                UPDATE evaluate
+                SET status = :status, total_score = :total_score, is_teacher = :is_teacher
+                WHERE id_evaluate = :evaluate_id
+            ");
+            $updateStmt->execute([
+                ':status'      => $status,
+                ':total_score' => $totalScore,
+                ':is_teacher'  => $isTeacher,
+                ':evaluate_id' => $evaluateId,
+            ]);
+        } else {
+            $updateStmt = $pdo->prepare("
+                UPDATE evaluate
+                SET status = :status, total_score = :total_score
+                WHERE id_evaluate = :evaluate_id
+            ");
+            $updateStmt->execute([
+                ':status'      => $status,
+                ':total_score' => $totalScore,
+                ':evaluate_id' => $evaluateId,
+            ]);
+        }
 
         // Update detail_evaluate scores
         foreach ($scores as $tcId => $score) {
@@ -421,7 +478,8 @@ function getAssignedEvaluations($userId, $taskId)
                 u.fullname as response_author,
                 e.id_evaluate,
                 e.status as eval_status,
-                e.total_score
+                e.total_score,
+                e.accuracy_score
             FROM deliver d
             INNER JOIN deliver_evaluate de ON d.id_deliver = de.id_deliver
             INNER JOIN response r ON de.response_review = r.id_response
@@ -460,4 +518,352 @@ function getAssignedEvaluations($userId, $taskId)
         error_log("getAssignedEvaluations ERROR: " . $e->getMessage());
         return [];
     }
+}
+
+/**
+ * Get the maximum possible total score for a task (S_Max).
+ * S_Max = sum of max_score across all criteria linked to the task.
+ *
+ * @param int $taskId Task ID
+ * @return float Maximum possible total score (0 if no criteria found)
+ */
+function getMaxScoreForTask($taskId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT COALESCE(SUM(tc.max_score), 0) AS s_max
+            FROM task_evaluate te
+            INNER JOIN tieu_chi tc ON te.id_group_tc = tc.nhom_tc_id
+            WHERE te.id_task = :task_id
+        ");
+        $stmt->execute([':task_id' => $taskId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (float)($row['s_max'] ?? 0);
+    } catch (PDOException $e) {
+        error_log("getMaxScoreForTask ERROR: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Recalculate and persist accuracy_score (S_Acc) for every peer evaluator
+ * of a given response, using the teacher's submitted evaluation as ground truth.
+ *
+ * Formula:
+ *   Δ         = |S_Peer - S_Teacher|
+ *   S_Acc     = max(0, S_Max - α * Δ)   (linear decay)
+ *
+ * This function is called automatically whenever a teacher evaluation for
+ * the response is submitted (status = 2, is_teacher = 1).
+ *
+ * @param int   $responseId  Response ID that was evaluated
+ * @param int   $taskId      Task ID (used to derive S_Max)
+ * @param float $alpha       Penalty coefficient α (default 1.0 → 1 pt deducted per pt of deviation)
+ * @return int Number of peer evaluate records updated
+ */
+function calculateAndSaveAccuracyScores($responseId, $taskId, $alpha = 1.0)
+{
+    global $pdo;
+
+    try {
+        // 1. Find the teacher's submitted evaluation for this response
+        $teacherStmt = $pdo->prepare("
+            SELECT total_score
+            FROM evaluate
+            WHERE response_id = :response_id
+              AND is_teacher  = 1
+              AND status      = 2
+            ORDER BY id_evaluate DESC
+            LIMIT 1
+        ");
+        $teacherStmt->execute([':response_id' => $responseId]);
+        $teacherRow = $teacherStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$teacherRow) {
+            // No teacher evaluation yet — nothing to calculate
+            error_log("calculateAndSaveAccuracyScores: No teacher eval found for response $responseId");
+            return 0;
+        }
+
+        $sTeacher = (float)$teacherRow['total_score'];
+        $sMax     = getMaxScoreForTask($taskId);
+
+        // 2. Fetch all peer (non-teacher) submitted evaluations for this response
+        $peerStmt = $pdo->prepare("
+            SELECT id_evaluate, total_score
+            FROM evaluate
+            WHERE response_id = :response_id
+              AND is_teacher  = 0
+              AND status      = 2
+        ");
+        $peerStmt->execute([':response_id' => $responseId]);
+        $peers = $peerStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($peers)) {
+            error_log("calculateAndSaveAccuracyScores: No peer evals to update for response $responseId");
+            return 0;
+        }
+
+        // 3. Compute and persist S_Acc for each peer
+        $updateStmt = $pdo->prepare("
+            UPDATE evaluate
+            SET accuracy_score = :accuracy_score
+            WHERE id_evaluate  = :id_evaluate
+        ");
+
+        $updatedCount = 0;
+        foreach ($peers as $peer) {
+            $sPeer    = (float)$peer['total_score'];
+            $delta    = abs($sPeer - $sTeacher);
+            $sAcc     = max(0.0, $sMax - $alpha * $delta);
+
+            $updateStmt->execute([
+                ':accuracy_score' => round($sAcc, 2),
+                ':id_evaluate'    => $peer['id_evaluate'],
+            ]);
+            $updatedCount++;
+        }
+
+        error_log("calculateAndSaveAccuracyScores: Updated $updatedCount peer evals for response $responseId (S_Teacher=$sTeacher, S_Max=$sMax, alpha=$alpha)");
+        return $updatedCount;
+
+    } catch (PDOException $e) {
+        error_log("calculateAndSaveAccuracyScores ERROR: " . $e->getMessage());
+        return 0;
+    }
+}
+
+/**
+ * Get or create teacher ground-truth evaluation (is_teacher = 1).
+ */
+function getOrCreateTeacherEvaluation(int $teacherId, int $responseId, int $deliverId, int $gradingTaskId)
+{
+    global $pdo;
+
+    try {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare("
+            SELECT id_evaluate, deliver_id, user_id, response_id, status, total_score, is_teacher
+            FROM evaluate
+            WHERE response_id = :response_id AND user_id = :user_id AND is_teacher = 1
+            LIMIT 1
+        ");
+        $stmt->execute([':response_id' => $responseId, ':user_id' => $teacherId]);
+        $evaluation = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($evaluation) {
+            $detailStmt = $pdo->prepare("SELECT id_detail_eval, tc_id, diem FROM detail_evaluate WHERE id_evaluate = :id");
+            $detailStmt->execute([':id' => $evaluation['id_evaluate']]);
+            $evaluation['details'] = $detailStmt->fetchAll(PDO::FETCH_ASSOC);
+            $pdo->commit();
+            return $evaluation;
+        }
+
+        $insertStmt = $pdo->prepare("
+            INSERT INTO evaluate (deliver_id, user_id, response_id, status, total_score, is_teacher)
+            VALUES (:deliver_id, :user_id, :response_id, 1, 0, 1)
+        ");
+        $insertStmt->execute([
+            ':deliver_id' => $deliverId,
+            ':user_id' => $teacherId,
+            ':response_id' => $responseId,
+        ]);
+        $evaluateId = (int)$pdo->lastInsertId();
+
+        $criteriaStmt = $pdo->prepare("
+            SELECT tc.tc_id
+            FROM task_evaluate te
+            INNER JOIN tieu_chi tc ON te.id_group_tc = tc.nhom_tc_id
+            WHERE te.id_task = :task_id
+        ");
+        $criteriaStmt->execute([':task_id' => $gradingTaskId]);
+        foreach ($criteriaStmt->fetchAll(PDO::FETCH_ASSOC) as $criterion) {
+            $pdo->prepare("INSERT INTO detail_evaluate (tc_id, diem, id_evaluate) VALUES (:tc_id, NULL, :eid)")
+                ->execute([':tc_id' => $criterion['tc_id'], ':eid' => $evaluateId]);
+        }
+
+        $pdo->commit();
+        return [
+            'id_evaluate' => $evaluateId,
+            'deliver_id' => $deliverId,
+            'user_id' => $teacherId,
+            'response_id' => $responseId,
+            'status' => 1,
+            'total_score' => 0,
+            'is_teacher' => 1,
+            'details' => [],
+        ];
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+        error_log('getOrCreateTeacherEvaluation: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Peer evaluations summary for a response (for teacher grading view).
+ */
+function getPeerEvaluationsForResponse(int $responseId): array
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT e.id_evaluate, e.total_score, e.accuracy_score, e.status, u.fullname AS evaluator_name
+        FROM evaluate e
+        INNER JOIN users u ON e.user_id = u.user_id
+        WHERE e.response_id = :response_id AND e.is_teacher = 0 AND e.status = 2
+        ORDER BY e.total_score DESC
+    ");
+    $stmt->execute([':response_id' => $responseId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Submissions queue for PHASE_CHAMDIEM (teacher final grading).
+ */
+function getGradingSubmissions(int $gradingTaskId): array
+{
+    require_once __DIR__ . '/helper_homework.php';
+    $rows = getResponsesForEvaluation($gradingTaskId);
+    foreach ($rows as &$row) {
+        $responseId = (int)($row['response'] ?? 0);
+        $row['peer_evaluations'] = $responseId ? getPeerEvaluationsForResponse($responseId) : [];
+        if ($responseId) {
+            global $pdo;
+            $t = $pdo->prepare("SELECT id_evaluate, status, total_score FROM evaluate WHERE response_id = :rid AND is_teacher = 1 LIMIT 1");
+            $t->execute([':rid' => $responseId]);
+            $row['teacher_evaluation'] = $t->fetch(PDO::FETCH_ASSOC) ?: null;
+        } else {
+            $row['teacher_evaluation'] = null;
+        }
+        if ($responseId) {
+            $row['system_evaluation'] = getSystemEvaluationForResponse($responseId);
+        } else {
+            $row['system_evaluation'] = null;
+        }
+        $peers = $row['peer_evaluations'] ?? [];
+        $row['peer_avg'] = count($peers)
+            ? round(array_sum(array_column($peers, 'total_score')) / count($peers), 2)
+            : null;
+        $accuracies = array_values(array_filter(
+            array_map(static fn($p) => $p['accuracy_score'] ?? null, $peers),
+            static fn($v) => $v !== null && $v !== ''
+        ));
+        $row['peer_accuracy_avg'] = count($accuracies)
+            ? round(array_sum($accuracies) / count($accuracies), 2)
+            : null;
+    }
+    return $rows;
+}
+
+/**
+ * System-side evaluation metrics for instructor dashboard (Fig. 18).
+ */
+function getSystemEvaluationForResponse(int $responseId): ?array
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT json_ai, tracking_data
+            FROM response
+            WHERE id_response = :id
+            LIMIT 1
+        ");
+        $stmt->execute([':id' => $responseId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) {
+            return null;
+        }
+
+        $tracking = null;
+        if (!empty($row['tracking_data'])) {
+            $tracking = is_array($row['tracking_data'])
+                ? $row['tracking_data']
+                : json_decode((string)$row['tracking_data'], true);
+        }
+
+        $jsonAi = null;
+        if (!empty($row['json_ai'])) {
+            $jsonAi = is_array($row['json_ai'])
+                ? $row['json_ai']
+                : json_decode((string)$row['json_ai'], true);
+        }
+
+        $global = is_array($tracking) ? ($tracking['globalSummary'] ?? []) : [];
+        $validation = is_array($jsonAi) ? ($jsonAi['_validation'] ?? null) : null;
+
+        return [
+            'outline_score' => is_array($validation) ? (int)($validation['score'] ?? 0) : null,
+            'outline_passed' => is_array($validation) ? !empty($validation['passed']) : null,
+            'avg_edit_change_percent' => isset($global['averageEditChangePercent'])
+                ? (float)$global['averageEditChangePercent'] : null,
+            'sections_edited' => isset($global['sectionsEdited'])
+                ? (int)$global['sectionsEdited'] : null,
+            'total_copy_percent' => isset($global['totalCopyPercent'])
+                ? (float)$global['totalCopyPercent'] : null,
+            'session_duration_secs' => isset($global['sessionDuration'])
+                ? (int)$global['sessionDuration'] : null,
+        ];
+    } catch (PDOException $e) {
+        error_log('getSystemEvaluationForResponse ERROR: ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Summary metrics for instructor review dashboard (Fig. 18).
+ */
+function getInstructorReviewDashboardSummary(array $submissions): array
+{
+    $peerCount = 0;
+    $peerScoreSum = 0.0;
+    $accuracySum = 0.0;
+    $accuracyCount = 0;
+    $teacherGraded = 0;
+    $outlineScoreSum = 0;
+    $outlineCount = 0;
+    $editSum = 0.0;
+    $editCount = 0;
+
+    foreach ($submissions as $row) {
+        $peers = $row['peer_evaluations'] ?? [];
+        $peerCount += count($peers);
+        foreach ($peers as $peer) {
+            $peerScoreSum += (float)($peer['total_score'] ?? 0);
+            if ($peer['accuracy_score'] !== null && $peer['accuracy_score'] !== '') {
+                $accuracySum += (float)$peer['accuracy_score'];
+                $accuracyCount++;
+            }
+        }
+
+        $teacherEval = $row['teacher_evaluation'] ?? null;
+        if ($teacherEval && (int)($teacherEval['status'] ?? 0) === 2) {
+            $teacherGraded++;
+        }
+
+        $system = $row['system_evaluation'] ?? null;
+        if (is_array($system)) {
+            if ($system['outline_score'] !== null) {
+                $outlineScoreSum += (int)$system['outline_score'];
+                $outlineCount++;
+            }
+            if ($system['avg_edit_change_percent'] !== null) {
+                $editSum += (float)$system['avg_edit_change_percent'];
+                $editCount++;
+            }
+        }
+    }
+
+    return [
+        'submission_count' => count($submissions),
+        'peer_review_count' => $peerCount,
+        'peer_avg_score' => $peerCount > 0 ? round($peerScoreSum / $peerCount, 2) : null,
+        'peer_accuracy_avg' => $accuracyCount > 0 ? round($accuracySum / $accuracyCount, 2) : null,
+        'teacher_graded_count' => $teacherGraded,
+        'system_outline_avg' => $outlineCount > 0 ? round($outlineScoreSum / $outlineCount, 1) : null,
+        'system_edit_avg' => $editCount > 0 ? round($editSum / $editCount, 1) : null,
+    ];
 }

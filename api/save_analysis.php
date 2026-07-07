@@ -10,7 +10,7 @@ require_once __DIR__ . '/../config/helper_homework.php';
 // Check authentication
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'Vui lòng đăng nhập']);
+    echo json_encode(['error' => 'Unauthorized', 'message' => 'Please log in']);
     exit;
 }
 
@@ -43,13 +43,13 @@ $ai_history = $input['ai_history'] ?? null; // Full analysis data + conversation
 
 if ($task_id <= 0 || $deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid parameters', 'message' => 'Task ID hoặc Deliver ID không hợp lệ']);
+    echo json_encode(['error' => 'Invalid parameters', 'message' => 'Invalid Task ID or Deliver ID']);
     exit;
 }
 
 if (empty($sections)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing sections', 'message' => 'Không có nội dung để lưu']);
+    echo json_encode(['error' => 'Missing sections', 'message' => 'No content to save']);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
 
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden', 'message' => 'Bạn không có quyền truy cập deliver này']);
+        echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have access to this deliver']);
         exit;
     }
 
@@ -253,7 +253,7 @@ try {
     // Return success with IDs
     echo json_encode([
         'success' => true,
-        'message' => $existingResponse ? 'Đã cập nhật kết quả thành công' : 'Đã lưu kết quả thành công',
+        'message' => $existingResponse ? 'Result updated successfully' : 'Result saved successfully',
         'data' => [
             'response_id' => $response_id,
             'content_ids' => $content_ids,
@@ -267,6 +267,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Server error',
-        'message' => 'Đã xảy ra lỗi khi lưu kết quả: ' . $e->getMessage()
+        'message' => 'An error occurred while saving result. Please try again.'
     ]);
 }

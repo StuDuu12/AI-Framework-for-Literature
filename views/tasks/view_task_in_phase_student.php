@@ -5,32 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Danh sách nhiệm vụ</title>
-    <style>
-        .list-group-item {
-            transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .list-group-item:hover {
-            border-left-color: #0d6efd;
-            box-shadow: 0 0 15px rgba(13, 110, 253, 0.1);
-            background-color: #f8f9fa;
-        }
-
-        .badge {
-            font-size: 0.85rem;
-            padding: 0.4rem 0.7rem;
-            font-weight: 500;
-        }
-
-        .task-title {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-    </style>
+    <title data-lang-key="task_list_title">Task List</title>
 </head>
 
 <body>
@@ -73,19 +48,19 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Danh sách nhiệm vụ</h1>
+            <h1 data-lang-key="task_list_title">Task List</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học
-                            tập</a></li>
-                    <li class="breadcrumb-item active">Nhiệm vụ - Bước <?= $phase['phase_number'] ?></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Learning
+                            Phases</a></li>
+                    <li class="breadcrumb-item active">Tasks - Step <?= $phase['phase_number'] ?></li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
 
-        <section class="section">
+        <section class="section task-list-page">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
@@ -97,14 +72,14 @@
                                 </h5>
                                 <a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>"
                                     class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> Quay lại
+                                    <i class="bi bi-arrow-left"></i> <span>Back</span>
                                 </a>
                             </div>
 
                             <?php if (empty($tasks)): ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
-                                    Bạn chưa được giao nhiệm vụ nào trong pha này.
+                                    <span>No tasks assigned to you in this phase yet.</span>
                                 </div>
                             <?php else: ?>
                                 <div class="list-group">
@@ -121,11 +96,11 @@
                                                         <!-- Delivery Type Badge -->
                                                         <?php if ($task['delivery_type'] == 'user'): ?>
                                                             <span class="badge bg-primary">
-                                                                <i class="bi bi-person"></i> Cá nhân
+                                                                <i class="bi bi-person"></i> <span>Personal</span>
                                                             </span>
                                                         <?php elseif ($task['delivery_type'] == 'group'): ?>
                                                             <span class="badge bg-info">
-                                                                <i class="bi bi-people"></i> Nhóm: <?= htmlspecialchars($task['assigned_to_name'] ?? 'N/A') ?>
+                                                                <i class="bi bi-people"></i> <span>Group</span>: <?= htmlspecialchars($task['assigned_to_name'] ?? 'N/A') ?>
                                                             </span>
                                                         <?php endif; ?>
 
@@ -133,15 +108,15 @@
                                                         <?php $status = (int) ($task['delivery_status'] ?? 0); ?>
                                                         <?php if ($status === 2): ?>
                                                             <span class="badge bg-success">
-                                                                <i class="bi bi-check-circle"></i> Đã hoàn thành
+                                                                <i class="bi bi-check-circle"></i> <span>Completed</span>
                                                             </span>
                                                         <?php elseif ($status === 1): ?>
                                                             <span class="badge bg-primary">
-                                                                <i class="bi bi-arrow-repeat"></i> Đang thực hiện
+                                                                <i class="bi bi-arrow-repeat"></i> <span>In Progress</span>
                                                             </span>
                                                         <?php else: ?>
                                                             <span class="badge bg-warning text-dark">
-                                                                <i class="bi bi-clock"></i> Chưa làm
+                                                                <i class="bi bi-clock"></i> <span>Not Started</span>
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
@@ -155,13 +130,24 @@
                                                     <div class="d-flex flex-wrap gap-3 align-items-center small text-muted">
                                                         <span>
                                                             <i class="bi bi-person-badge"></i>
-                                                            Tạo bởi:
+                                                            <span>Created by</span>:
                                                             <strong><?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?></strong>
                                                         </span>
                                                         <span>
                                                             <i class="bi bi-calendar"></i>
                                                             <?= date('d/m/Y H:i', strtotime($task['created_at'])) ?>
                                                         </span>
+                                                        <?php if (!empty($task['deadline'])):
+                                                            $deadlineTime = strtotime($task['deadline']);
+                                                            $isOverdue = $deadlineTime < time();
+                                                            $badgeClass = $isOverdue ? 'bg-danger' : 'bg-warning text-dark';
+                                                        ?>
+                                                            <span class="badge <?= $badgeClass ?>">
+                                                                <i class="bi bi-clock"></i>
+                                                                <?= $isOverdue ? 'Quá hạn' : 'Hạn:' ?>
+                                                                <?= date('d/m/Y H:i', $deadlineTime) ?>
+                                                            </span>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
 
@@ -169,12 +155,12 @@
                                                     <?php if ($task['delivery_status'] == 1): ?>
                                                         <a href="/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $task['id_deliver'] ?>"
                                                             class="btn btn-sm btn-outline-success">
-                                                            <i class="bi bi-eye"></i> Xem bài làm
+                                                            <i class="bi bi-eye"></i> <span>View Submission</span>
                                                         </a>
                                                     <?php else: ?>
                                                         <a href="/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $task['id_deliver'] ?>"
                                                             class="btn btn-sm btn-success">
-                                                            <i class="bi bi-play-circle"></i> Thực hiện
+                                                            <i class="bi bi-play-circle"></i> <span>Perform</span>
                                                         </a>
                                                     <?php endif; ?>
                                                 </div>

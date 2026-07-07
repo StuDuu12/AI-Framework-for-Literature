@@ -1,0 +1,275 @@
+/* Research figure panels — Fig. 15, Fig. 18 (shared with outline-validation pattern) */
+
+.research-figure {
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.research-figure__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f1f5f9;
+}
+
+.research-figure__caption {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+}
+
+.research-figure__caption span {
+    color: #7c3aed;
+}
+
+.research-figure__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.research-figure__badge--ready {
+    color: #1e40af;
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.research-figure__badge--active {
+    color: #166534;
+    background: #dcfce7;
+    border-color: #86efac;
+    animation: fig-pulse 2s ease-in-out infinite;
+}
+
+.research-figure__badge--pending {
+    color: #92400e;
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
+
+@keyframes fig-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.25); }
+    50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12); }
+}
+
+.research-figure__body {
+    padding: 1rem;
+}
+
+.research-figure__workflow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+}
+
+.research-figure__workflow-step {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.55rem 0.5rem;
+    background: #fff;
+    text-align: center;
+}
+
+.research-figure__workflow-step--done {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.research-figure__workflow-step--current {
+    border-color: #a78bfa;
+    background: #f5f3ff;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.12);
+}
+
+.research-figure__workflow-num {
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #475569;
+    margin-bottom: 0.25rem;
+}
+
+.research-figure__workflow-step--done .research-figure__workflow-num {
+    background: #22c55e;
+    color: #fff;
+}
+
+.research-figure__workflow-step--current .research-figure__workflow-num {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.research-figure__workflow-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.25;
+}
+
+.research-figure__tracker {
+    margin-bottom: 0.75rem;
+}
+
+.research-figure__tracker-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.4rem;
+}
+
+.research-figure__section-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.research-figure__section-chip {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid #c4b5fd;
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.research-figure__section-chip--editing {
+    border-color: #86efac;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.research-figure--revision .change-stats-panel {
+    margin-top: 0;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.research-figure--revision .change-stats-panel h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+/* Fig. 18 — Instructor dashboard */
+
+.research-figure--instructor {
+    margin-bottom: 1.25rem;
+}
+
+.research-figure__metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+}
+
+.research-figure__metric {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    background: #fff;
+}
+
+.research-figure__metric-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.1;
+}
+
+.research-figure__metric-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 0.15rem;
+}
+
+.research-figure__table-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.research-figure__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.research-figure__table th,
+.research-figure__table td {
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.research-figure__table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.research-figure__table tr:last-child td {
+    border-bottom: none;
+}
+
+.research-figure__peer-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.research-figure__peer-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.15rem 0;
+}
+
+.research-figure__delta {
+    font-weight: 700;
+}
+
+.research-figure__delta--low { color: #16a34a; }
+.research-figure__delta--mid { color: #d97706; }
+.research-figure__delta--high { color: #dc2626; }
+
+@media (max-width: 768px) {
+    .research-figure__workflow {
+        grid-template-columns: 1fr;
+    }
+}

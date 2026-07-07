@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
@@ -56,34 +56,34 @@ try {
     $totalPages = 0;
 }
 
-$pageTitle = "Quản lý người dùng";
+$pageTitle = "User Management";
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?= $pageTitle ?> - Literature System</title>
+    <title data-lang-key="admin_user_management"><?= $pageTitle ?> - Literature System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <?php require_once 'views/templates/assets.php'; ?>
+    <?php require_once __DIR__ . '/../templates/assets.php'; ?>
 </head>
 
 <body>
     <?php
-    require_once 'views/templates/header.php';
-    require_once 'views/templates/sidebar_admin.php';
+    require_once __DIR__ . '/../templates/header.php';
+    require_once __DIR__ . '/../templates/sidebar_admin.php';
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Quản lý người dùng</h1>
+            <h1 data-lang-key="admin_user_management">User Management</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Quản lý người dùng</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="admin_user_management">User Management</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -92,26 +92,26 @@ $pageTitle = "Quản lý người dùng";
             <!-- Filters and Search -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title">Bộ lọc</h5>
+                    <h5 class="card-title" data-lang-key="filters">Filters</h5>
                     <form method="GET" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Vai trò</label>
+                            <label class="form-label">Role</label>
                             <select name="role" class="form-select" onchange="this.form.submit()">
-                                <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>Tất cả</option>
+                                <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>All</option>
                                 <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
-                                <option value="teacher" <?= $role === 'teacher' ? 'selected' : '' ?>>Giáo viên</option>
-                                <option value="student" <?= $role === 'student' ? 'selected' : '' ?>>Học sinh</option>
+                                <option value="teacher" <?= $role === 'teacher' ? 'selected' : '' ?>>Teacher</option>
+                                <option value="student" <?= $role === 'student' ? 'selected' : '' ?>>Student</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Tìm kiếm</label>
-                            <input type="text" name="search" class="form-control" placeholder="Tên, username, email..." value="<?= htmlspecialchars($search) ?>">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Name, username, email..." value="<?= htmlspecialchars($search) ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">&nbsp;</label>
                             <div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Tìm kiếm
+                                    <i class="bi bi-search"></i> <span>Search</span>
                                 </button>
                                 <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -126,13 +126,13 @@ $pageTitle = "Quản lý người dùng";
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title">Danh sách người dùng (<?= $total ?? 0 ?>)</h5>
+                        <h5 class="card-title"><span data-lang-key="user_list">User List</span> (<?= $total ?? 0 ?>)</h5>
                         <div>
                             <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=teacher" class="btn btn-sm btn-primary">
-                                <i class="bi bi-person-plus"></i> Thêm giáo viên
+                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_teacher">Add Teacher</span>
                             </a>
                             <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=student" class="btn btn-sm btn-success">
-                                <i class="bi bi-person-plus"></i> Thêm học sinh
+                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_student">Add Student</span>
                             </a>
                         </div>
                     </div>
@@ -141,18 +141,18 @@ $pageTitle = "Quản lý người dùng";
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Họ tên</th>
+                                    <th>Full Name</th>
                                     <th>Username</th>
                                     <th>Email</th>
-                                    <th>Vai trò</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Thao tác</th>
+                                    <th>Role</th>
+                                    <th>Created Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($users)): ?>
                                     <tr>
-                                        <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                        <td colspan="7" class="text-center">No data available</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($users as $user): ?>
@@ -171,8 +171,8 @@ $pageTitle = "Quản lý người dùng";
                                                 };
                                                 $roleText = match ($user['role']) {
                                                     'admin' => 'Admin',
-                                                    'teacher' => 'Giáo viên',
-                                                    'student' => 'Học sinh',
+                                                    'teacher' => 'Teacher',
+                                                    'student' => 'Student',
                                                     default => $user['role']
                                                 };
                                                 ?>
@@ -181,14 +181,14 @@ $pageTitle = "Quản lý người dùng";
                                             <td><?= date('d/m/Y H:i', strtotime($user['created_at'])) ?></td>
                                             <td>
                                                 <a href="<?= URL_ROOT ?>/views/admin/edit_user.php?id=<?= $user['user_id'] ?>"
-                                                    class="btn btn-sm btn-warning" title="Sửa">
+                                                    class="btn btn-sm btn-warning" title="Edit">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
                                                     <button class="btn btn-sm btn-danger delete-user"
                                                         data-id="<?= $user['user_id'] ?>"
                                                         data-name="<?= htmlspecialchars($user['fullname']) ?>"
-                                                        title="Xóa">
+                                                        title="Delete">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -206,7 +206,7 @@ $pageTitle = "Quản lý người dùng";
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?role=<?= $role ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
-                                        Trước
+                                        Previous
                                     </a>
                                 </li>
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -218,7 +218,7 @@ $pageTitle = "Quản lý người dùng";
                                 <?php endfor; ?>
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?role=<?= $role ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
-                                        Sau
+                                        Next
                                     </a>
                                 </li>
                             </ul>
@@ -235,7 +235,7 @@ $pageTitle = "Quản lý người dùng";
                 const userId = this.dataset.id;
                 const userName = this.dataset.name;
 
-                if (confirm(`Bạn có chắc muốn xóa người dùng "${userName}"?`)) {
+                if (confirm(`Are you sure you want to delete the user "${userName}"?`)) {
                     fetch('<?= URL_ROOT ?>/api/admin_actions.php', {
                             method: 'POST',
                             headers: {
@@ -249,15 +249,15 @@ $pageTitle = "Quản lý người dùng";
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert('Xóa người dùng thành công!');
+                                alert('User deleted successfully!');
                                 location.reload();
                             } else {
-                                alert('Lỗi: ' + (data.message || 'Không thể xóa người dùng'));
+                                alert('Error: ' + (data.message || 'Could not delete user'));
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Có lỗi xảy ra!');
+                            alert('An error occurred!');
                         });
                 }
             });
@@ -265,8 +265,8 @@ $pageTitle = "Quản lý người dùng";
     </script>
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

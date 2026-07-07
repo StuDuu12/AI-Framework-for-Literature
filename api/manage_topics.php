@@ -49,9 +49,9 @@ try {
 
             $topic_id = createTopic($class_id, $topic_name, $user_id_request);
             if ($topic_id) {
-                echo json_encode(['success' => true, 'topic_id' => $topic_id, 'message' => 'Tạo chủ đề thành công']);
+                echo json_encode(['success' => true, 'topic_id' => $topic_id, 'message' => 'Topic created successfully']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Không thể tạo chủ đề']);
+                echo json_encode(['success' => false, 'message' => 'Cannot create topic']);
             }
             break;
 
@@ -66,7 +66,7 @@ try {
             }
 
             $result = updateTopicName($topic_id, $topic_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Cập nhật thành công' : 'Cập nhật thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Update successful' : 'Update failed']);
             break;
 
         case 'delete_topic':
@@ -79,7 +79,7 @@ try {
             }
 
             $result = deleteTopic($topic_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Xóa chủ đề thành công' : 'Xóa thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Topic deleted successfully' : 'Delete failed']);
             break;
 
         case 'get_topic':

@@ -1,7 +1,11 @@
-<?php
+﻿<?php
 // All PHP logic MUST be before any HTML output
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../config/helper_evaluate.php';
+require_once __DIR__ . '/../../config/helper_breadcrumb.php';
+require_once __DIR__ . '/../../config/helper_phase.php';
+require_once __DIR__ . '/../../config/helper_task.php';
+require_once __DIR__ . '/../../config/helper_criteria_i18n.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -20,7 +24,7 @@ $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
 $deliverId = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
 if (!$taskId || !$deliverId) {
-    $_SESSION['error_message'] = 'Tham số không hợp lệ.';
+    $_SESSION['error_message'] = 'Invalid parameters.';
     header("Location: /404");
     exit;
 }
@@ -28,23 +32,35 @@ if (!$taskId || !$deliverId) {
 // STEP 1: Check if user has access to this deliver
 $deliverInfo = checkDeliverAccess($userId, $deliverId);
 if (!$deliverInfo) {
-    $_SESSION['error_message'] = 'Bạn không có quyền truy cập phân công đánh giá này.';
+    $_SESSION['error_message'] = 'You do not have access to this evaluation assignment.';
     header("Location: /dashboard");
+    exit;
+}
+
+// Deliver theo nhóm → chuyển sang luồng Cổng Đồng thuận (GĐ 4)
+if ($deliverInfo['type'] === 'group') {
+    header("Location: /class/evaluate/consensus?task_id={$taskId}&topic_id={$topicId}&phase_id={$phaseId}&deliver_id={$deliverId}");
     exit;
 }
 
 // Get task info
 $taskInfo = getTaskInfo($taskId);
 if (!$taskInfo) {
-    $_SESSION['error_message'] = 'Không tìm thấy thông tin bài tập.';
+    $_SESSION['error_message'] = 'Task information not found.';
     header("Location: /dashboard");
     exit;
 }
 
+// Check anonymous mode
+$stmtAnon = $pdo->prepare("SELECT is_anonymous FROM setting WHERE task_id = :task_id");
+$stmtAnon->execute([':task_id' => $taskId]);
+$anonRow = $stmtAnon->fetch(PDO::FETCH_ASSOC);
+$isAnonymous = $anonRow ? (int)$anonRow['is_anonymous'] : 0;
+
 // Get response to evaluate
 $responseInfo = getResponseToEvaluate($deliverId);
 if (!$responseInfo) {
-    $_SESSION['error_message'] = 'Không tìm thấy bài làm cần đánh giá.';
+    $_SESSION['error_message'] = 'Submission to evaluate not found.';
     header("Location: /dashboard");
     exit;
 }
@@ -52,15 +68,17 @@ if (!$responseInfo) {
 // STEP 2: Get or create evaluation record for this user
 $evaluation = getOrCreateEvaluation($userId, $deliverId, $responseInfo['id_response']);
 if (!$evaluation) {
-    $_SESSION['error_message'] = 'Lỗi khởi tạo đánh giá.';
+    $_SESSION['error_message'] = 'Error initializing evaluation.';
     header("Location: /dashboard");
     exit;
 }
 
 // Get criteria
 $criteria = getEvaluationCriteria($taskId);
+$phaseInfo = getPhaseDetails($phaseId);
+$topicInfo = getTopicDetails($topicId);
 if (empty($criteria)) {
-    $_SESSION['error_message'] = 'Chưa có tiêu chí đánh giá cho bài tập này.';
+    $_SESSION['error_message'] = 'No evaluation criteria set for this task yet.';
     header("Location: /dashboard");
     exit;
 }
@@ -76,125 +94,13 @@ if (!empty($evaluation['details'])) {
 // Now start HTML output
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Đánh giá chéo - <?= htmlspecialchars($taskInfo['title']) ?></title>
-    <style>
-        .response-content {
-            background: #f8f9fa;
-            border-left: 4px solid #2196F3;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-
-        .criteria-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .criteria-card:hover {
-            border-color: #2196F3;
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.1);
-        }
-
-        .score-input {
-            width: 80px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 2px solid #2196F3;
-            border-radius: 8px;
-            padding: 8px;
-        }
-
-        .score-range {
-            color: #666;
-            font-size: 0.9rem;
-            margin-left: 10px;
-        }
-
-        .total-score-display {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2196F3;
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-
-        .evaluation-status {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-0 {
-            background: #fce4ec;
-            color: #c2185b;
-        }
-
-        .status-1 {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .status-2 {
-            background: #e8f5e9;
-            color: #388e3c;
-        }
-
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #1976d2;
-        }
-
-        .markdown-content p {
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        .markdown-content ul,
-        .markdown-content ol {
-            margin-left: 25px;
-            margin-bottom: 15px;
-        }
-
-        .markdown-content strong {
-            color: #1565c0;
-        }
-
-        .info-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-left: 10px;
-        }
-
-        .badge-user {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .badge-group {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-    </style>
+    <title data-lang-key="peer_evaluation">Peer Evaluation - Literature System</title>
 </head>
 
 <body>
@@ -205,15 +111,17 @@ if (!empty($evaluation['details'])) {
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-star-fill"></i> Đánh giá chéo</h1>
+            <h1><i class="bi bi-star-fill"></i> <span data-lang-key="peer_evaluation">Peer Evaluation</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a href="/homeclass">Lớp học</a></li>
-                    <li class="breadcrumb-item"><a
-                            href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Danh
-                            sách đánh giá</a></li>
-                    <li class="breadcrumb-item active">Thực hiện đánh giá</li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
+                    <?php if ($topicInfo): ?>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= htmlspecialchars($topicInfo['topic_name']) ?></a></li>
+                    <?php endif; ?>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Learning Phases</a></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Tasks<?= $phaseInfo ? ' - Step ' . (int)$phaseInfo['phase_number'] : '' ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Peer Evaluation</a></li>
+                    <li class="breadcrumb-item active">Score</li>
                 </ol>
             </nav>
         </div>
@@ -223,37 +131,38 @@ if (!empty($evaluation['details'])) {
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="bi bi-info-circle"></i> Thông tin bài tập
+                        <i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Task Info</span>
                         <?php if ($deliverInfo['type'] === 'user'): ?>
                             <span class="info-badge badge-user">
-                                <i class="bi bi-person"></i> Cá nhân
+                                <i class="bi bi-person"></i> <span>Personal</span>
                             </span>
                         <?php else: ?>
                             <span class="info-badge badge-group">
-                                <i class="bi bi-people"></i> Nhóm
+                                <i class="bi bi-people"></i> <span>Group</span>
                             </span>
                         <?php endif; ?>
                     </h5>
                     <div class="row">
                         <div class="col-md-9">
-                            <p><strong>Bài tập:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
-                            <p><strong>Người làm bài:</strong> <?= htmlspecialchars($responseInfo['response_author']) ?>
+                            <p><strong>Task:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
+                            <p><strong>Respondent:</strong>
+                                <?= $isAnonymous ? '<span class="text-muted fst-italic">Ẩn danh</span>' : htmlspecialchars($responseInfo['response_author']) ?>
                             </p>
-                            <p><strong>Ngày nộp:</strong>
+                            <p><strong>Submission Date:</strong>
                                 <?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
                         </div>
                         <div class="col-md-3 text-end">
                             <?php if ($evaluation['status'] == 0): ?>
                                 <span class="evaluation-status status-0">
-                                    <i class="bi bi-circle"></i> Nháp
+                                    <i class="bi bi-circle"></i> <span>Draft</span>
                                 </span>
                             <?php elseif ($evaluation['status'] == 1): ?>
                                 <span class="evaluation-status status-1">
-                                    <i class="bi bi-hourglass-split"></i> Đang chấm
+                                    <i class="bi bi-hourglass-split"></i> <span>Grading</span>
                                 </span>
                             <?php else: ?>
                                 <span class="evaluation-status status-2">
-                                    <i class="bi bi-check-circle"></i> Đã hoàn thành
+                                    <i class="bi bi-check-circle"></i> <span>Completed</span>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -261,12 +170,12 @@ if (!empty($evaluation['details'])) {
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row g-3">
                 <!-- Left: Response Content -->
-                <div class="col-lg-6">
+                <div class="col-lg-7">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-file-text"></i> Bài làm cần đánh giá</h5>
+                            <h5 class="card-title"><i class="bi bi-file-text"></i> <span data-lang-key="response_to_evaluate">Submission to Evaluate</span></h5>
 
                             <?php if (!empty($responseInfo['contents'])): ?>
                                 <?php foreach ($responseInfo['contents'] as $content): ?>
@@ -292,18 +201,18 @@ if (!empty($evaluation['details'])) {
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle"></i> Chưa có nội dung bài làm
+                                    <i class="bi bi-exclamation-triangle"></i> <span>No response content yet</span>
                                 </div>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: Evaluation Form -->
-                <div class="col-lg-6">
-                    <div class="card">
+                <!-- Right: Evaluation Form (compact accordion) -->
+                <div class="col-lg-5">
+                    <div class="card eval-compact sticky-top" style="top: 80px;">
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-clipboard-check"></i> Đánh giá theo tiêu chí</h5>
+                            <h6 class="card-title mb-2"><i class="bi bi-clipboard-check"></i> Score by criterion</h6>
 
                             <form id="evaluationForm" method="POST" action="/api/evaluate/submit_evaluation.php">
                                 <input type="hidden" name="evaluate_id" value="<?= $evaluation['id_evaluate'] ?>">
@@ -312,41 +221,41 @@ if (!empty($evaluation['details'])) {
                                 <input type="hidden" name="topic_id" value="<?= $topicId ?>">
                                 <input type="hidden" name="phase_id" value="<?= $phaseId ?>">
 
-                                <?php foreach ($criteria as $criterion): ?>
-                                    <div class="criteria-card">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-2">
-                                                    <i class="bi bi-check-square"></i>
-                                                    <?= htmlspecialchars($criterion['name_tc']) ?>
-                                                </h6>
-                                                <?php if ($criterion['description']): ?>
-                                                    <p class="text-muted small mb-0">
-                                                        <?= nl2br(htmlspecialchars($criterion['description'])) ?>
-                                                    </p>
+                                <div class="accordion eval-criteria-accordion" id="criteriaAccordion">
+                                <?php foreach ($criteria as $i => $criterion):
+                                    $tcId = $criterion['tc_id'];
+                                    $cur = isset($existingScores[$tcId]) && $existingScores[$tcId] !== null ? $existingScores[$tcId] : $criterion['min_score'];
+                                    $min = (float)$criterion['min_score'];
+                                    $max = (float)$criterion['max_score'];
+                                    $step = ($max - $min) <= 4 ? 1 : 0.5;
+                                ?>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button <?= $i > 0 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#c<?= $tcId ?>">
+                                                <?= htmlspecialchars(criteriaLabel($criterion['name_tc'])) ?>
+                                                <span class="ms-auto me-2 badge bg-primary criterion-score-badge" data-tc="<?= $tcId ?>"><?= $cur ?></span>
+                                            </button>
+                                        </h2>
+                                        <div id="c<?= $tcId ?>" class="accordion-collapse collapse <?= $i === 0 ? 'show' : '' ?>" data-bs-parent="#criteriaAccordion">
+                                            <div class="accordion-body py-2">
+                                                <?php if ($criterion['description']): ?><p class="small text-muted mb-2"><?= htmlspecialchars(criteriaLabel($criterion['description'])) ?></p><?php endif; ?>
+                                                <?php if ($evaluation['status'] != 2): ?>
+                                                <div class="score-chip-group" data-tc="<?= $tcId ?>">
+                                                <?php for ($s = $min; $s <= $max + 0.001; $s += $step): ?>
+                                                    <button type="button" class="score-chip <?= abs((float)$cur - $s) < 0.01 ? 'active' : '' ?>" data-value="<?= $step >= 1 ? (int)$s : number_format($s, 1) ?>"><?= $step >= 1 ? (int)$s : number_format($s, 1) ?></button>
+                                                <?php endfor; ?>
+                                                </div>
                                                 <?php endif; ?>
-                                            </div>
-                                        </div>
-
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <label class="form-label mb-0">Điểm:</label>
-                                                <input type="number" name="scores[<?= $criterion['tc_id'] ?>]"
-                                                    class="score-input" min="<?= $criterion['min_score'] ?>"
-                                                    max="<?= $criterion['max_score'] ?>" step="0.5"
-                                                    value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
-                                                    <?= $evaluation['status'] == 2 ? 'readonly' : 'required' ?>>
-                                                <span class="score-range">
-                                                    (<?= $criterion['min_score'] ?> - <?= $criterion['max_score'] ?>)
-                                                </span>
+                                                <input type="hidden" name="scores[<?= $tcId ?>]" class="score-input" data-tc="<?= $tcId ?>" data-min="<?= $min ?>" data-max="<?= $max ?>" value="<?= $cur ?>" <?= $evaluation['status'] == 2 ? 'readonly' : '' ?>>
                                             </div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                                </div>
 
                                 <!-- Total Score Display -->
                                 <div class="total-score-display">
-                                    <div>Tổng điểm</div>
+                                    <div>Total Score</div>
                                     <div id="totalScore"><?= $evaluation['total_score'] ?></div>
                                 </div>
 
@@ -354,15 +263,15 @@ if (!empty($evaluation['details'])) {
                                 <?php if ($evaluation['status'] != 2): ?>
                                     <div class="d-flex gap-2 justify-content-end">
                                         <button type="submit" name="action" value="draft" class="btn btn-secondary">
-                                            <i class="bi bi-save"></i> Lưu nháp
+                                            <i class="bi bi-save"></i> <span>Save Draft</span>
                                         </button>
                                         <button type="submit" name="action" value="submit" class="btn btn-primary">
-                                            <i class="bi bi-send"></i> Hoàn thành đánh giá
+                                            <i class="bi bi-send"></i> <span>Complete evaluation</span>
                                         </button>
                                     </div>
                                 <?php else: ?>
                                     <div class="alert alert-success">
-                                        <i class="bi bi-check-circle"></i> Bạn đã hoàn thành đánh giá này.
+                                        <i class="bi bi-check-circle"></i> <span>You have completed this evaluation.</span>
                                     </div>
                                 <?php endif; ?>
                             </form>
@@ -379,16 +288,29 @@ if (!empty($evaluation['details'])) {
     ?>
 
     <script>
-        // Calculate total score on input change
-        document.querySelectorAll('.score-input').forEach(input => {
-            input.addEventListener('input', function () {
-                let total = 0;
-                document.querySelectorAll('.score-input').forEach(inp => {
-                    total += parseFloat(inp.value) || 0;
+        document.querySelectorAll('.score-chip-group').forEach(group => {
+            const tc = group.dataset.tc;
+            const input = document.querySelector('.score-input[data-tc="' + tc + '"]');
+            const badge = document.querySelector('.criterion-score-badge[data-tc="' + tc + '"]');
+            group.querySelectorAll('.score-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    if (!input || input.readOnly) return;
+                    group.querySelectorAll('.score-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    input.value = chip.dataset.value;
+                    if (badge) badge.textContent = chip.dataset.value;
+                    recalcTotal();
                 });
-                document.getElementById('totalScore').textContent = total.toFixed(1);
             });
         });
+
+        function recalcTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-input').forEach(inp => {
+                total += parseFloat(inp.value) || 0;
+            });
+            document.getElementById('totalScore').textContent = total.toFixed(1);
+        }
 
         // Form submission
         const form = document.getElementById('evaluationForm');
@@ -415,13 +337,13 @@ if (!empty($evaluation['details'])) {
                 });
 
                 if (!isValid) {
-                    alert('Vui lòng nhập điểm hợp lệ cho tất cả tiêu chí!');
+                    alert('Please enter valid scores for all criteria!');
                     return;
                 }
 
                 // Confirm before submit
                 if (action === 'submit') {
-                    if (!confirm('Bạn có chắc muốn hoàn thành đánh giá này? Sau khi hoàn thành, bạn không thể chỉnh sửa.')) {
+                    if (!confirm('Are you sure you want to complete this evaluation? Once completed, you cannot edit it.')) {
                         return;
                     }
                 }
@@ -444,11 +366,11 @@ if (!empty($evaluation['details'])) {
                             location.reload();
                         }
                     } else {
-                        alert('Lỗi: ' + result.message);
+                        alert('Error: ' + result.message);
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi lưu đánh giá!');
+                    alert('An error occurred while saving the evaluation!');
                 }
             });
         }

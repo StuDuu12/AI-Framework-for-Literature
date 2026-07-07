@@ -63,7 +63,7 @@ try {
             }
 
             $count = addClassMembers($class_id, $user_ids, $roles, $user_id_request);
-            echo json_encode(['success' => true, 'count' => $count, 'message' => "Đã thêm $count thành viên"]);
+            echo json_encode(['success' => true, 'count' => $count, 'message' => "Added $count members"]);
             break;
 
         case 'update_role':
@@ -77,7 +77,7 @@ try {
             }
 
             $result = updateMemberRole($class_id, $user_id, $role);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Cập nhật thành công' : 'Cập nhật thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Update successful' : 'Update failed']);
             break;
 
         case 'delete':
@@ -90,7 +90,7 @@ try {
             }
 
             $result = removeClassMember($class_id, $user_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Xóa thành công' : 'Xóa thất bại']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Delete successful' : 'Delete failed']);
             break;
 
         default:

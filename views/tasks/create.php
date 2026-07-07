@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Tạo nhiệm vụ mới</title>
+    <title data-lang-key="create_new_task">Create New Task - Literature System</title>
 </head>
 
 <body>
@@ -61,15 +61,15 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Tạo nhiệm vụ mới</h1>
+            <h1 data-lang-key="create_new_task">Create New Task</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Pha học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Learning Phases</a></li>
                     <li class="breadcrumb-item"><a
-                            href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Nhiệm vụ</a></li>
-                    <li class="breadcrumb-item active">Tạo mới</li>
+                            href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Tasks</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="create_new">Create New</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -82,10 +82,10 @@
                             <div class="mb-3">
                                 <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                     class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-left"></i> Quay lại danh sách nhiệm vụ
+                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="back_to_tasks">Back to Task List</span>
                                 </a>
                             </div>
-                            <h5 class="card-title">Thông tin nhiệm vụ</h5>
+                            <h5 class="card-title" data-lang-key="task_info">Task Information</h5>
 
                             <form id="createTaskForm" enctype="multipart/form-data">
                                 <input type="hidden" name="phase_id" value="<?= $phaseId ?>">
@@ -93,33 +93,33 @@
 
                                 <!-- Task Title -->
                                 <div class="mb-3">
-                                    <label class="form-label">Tiêu đề nhiệm vụ <span
+                                    <label class="form-label">Task Title <span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="taskTitle" name="title"
-                                        placeholder="Nhập tiêu đề nhiệm vụ..." required>
+                                        placeholder="Enter task title..." required>
                                 </div>
 
                                 <!-- Task Description -->
                                 <div class="mb-3">
-                                    <label class="form-label">Mô tả</label>
+                                    <label class="form-label">Description</label>
                                     <textarea class="form-control" id="taskDescription" name="description" rows="3"
-                                        placeholder="Nhập mô tả nhiệm vụ (không bắt buộc)..."></textarea>
+                                        placeholder="Enter task description (optional)..."></textarea>
                                 </div>
 
                                 <?php if ($isEvaluationPhase): ?>
                                     <!-- Evaluation Phase: Select Source Task -->
                                     <div class="mb-3">
-                                        <label class="form-label">Đánh giá dựa trên nội dung của nhiệm vụ <span
+                                        <label class="form-label">Evaluate based on task content <span
                                                 class="text-danger">*</span></label>
                                         <?php if (empty($sourceTasks)): ?>
                                             <div class="alert alert-warning" role="alert">
                                                 <i class="bi bi-exclamation-triangle"></i>
-                                                Không có nhiệm vụ nào từ pha <strong>Khởi động</strong> hoặc <strong>Bài tập về
-                                                    nhà</strong> để đánh giá.
+                                                There are no tasks from <strong>Starter</strong> or <strong>Homework</strong>
+                                                phases to evaluate.
                                             </div>
                                         <?php else: ?>
                                             <select class="form-select" name="source_task_id" id="sourceTaskSelect" required>
-                                                <option value="">-- Chọn nhiệm vụ cần đánh giá --</option>
+                                                <option value="">-- Select task to evaluate --</option>
                                                 <?php foreach ($sourceTasks as $task): ?>
                                                     <option value="<?= $task['task_id'] ?>"
                                                         data-description="<?= htmlspecialchars($task['description']) ?>">
@@ -130,15 +130,15 @@
                                             </select>
                                             <div class="form-text">
                                                 <i class="bi bi-info-circle"></i>
-                                                Chọn nhiệm vụ từ pha <strong>Khởi động</strong> hoặc <strong>Bài tập về
-                                                    nhà</strong> để tạo nhiệm vụ đánh giá
+                                                Select a task from <strong>Starter</strong> or <strong>Homework</strong>
+                                                phase to create an evaluation task
                                             </div>
 
                                             <!-- Preview selected task -->
                                             <!-- <div id="taskPreview" class="mt-3" style="display: none;">
                                                 <div class="card border-info">
                                                     <div class="card-body">
-                                                        <h6 class="card-subtitle mb-2 text-muted">Mô tả nhiệm vụ được chọn:</h6>
+                                                        <h6 class="card-subtitle mb-2 text-muted">Selected task description:</h6>
                                                         <p class="card-text" id="taskPreviewText"></p>
                                                     </div>
                                                 </div>
@@ -148,59 +148,69 @@
                                 <?php else: ?>
                                     <!-- Regular Phase: Content Input -->
                                     <div class="mb-3">
-                                        <label class="form-label">Nội dung nhiệm vụ</label>
+                                        <label class="form-label">Task Content</label>
                                         <div class="btn-group w-100 mb-3" role="group">
                                             <input type="radio" class="btn-check" name="content_type" id="contentTypeText"
                                                 value="text" checked autocomplete="off">
                                             <label class="btn btn-outline-primary" for="contentTypeText">
-                                                <i class="bi bi-textarea-t"></i> Nhập văn bản
+                                                <i class="bi bi-textarea-t"></i> Enter text
                                             </label>
 
                                             <input type="radio" class="btn-check" name="content_type" id="contentTypeFile"
                                                 value="file" autocomplete="off">
                                             <label class="btn btn-outline-primary" for="contentTypeFile">
-                                                <i class="bi bi-file-earmark-arrow-up"></i> Tải file lên
+                                                <i class="bi bi-file-earmark-arrow-up"></i> Upload file
                                             </label>
 
                                             <input type="radio" class="btn-check" name="content_type" id="contentTypeNone"
                                                 value="none" autocomplete="off">
                                             <label class="btn btn-outline-secondary" for="contentTypeNone">
-                                                <i class="bi bi-x-circle"></i> Không có nội dung
+                                                <i class="bi bi-x-circle"></i> No content
                                             </label>
                                         </div>
 
                                         <!-- Text Content Area -->
                                         <div id="textContentArea">
-                                            <label class="form-label">Nhập nội dung văn bản</label>
+                                            <label class="form-label">Enter text content</label>
                                             <textarea class="form-control" id="contentText" name="content_text" rows="8"
-                                                placeholder="Paste nội dung vào đây..."></textarea>
+                                                placeholder="Paste content here..."></textarea>
                                             <div class="form-text">
                                                 <i class="bi bi-info-circle"></i>
-                                                Bạn có thể paste nội dung trực tiếp vào đây
+                                                You can paste content directly here
                                             </div>
                                         </div>
 
                                         <!-- File Upload Area -->
                                         <div id="fileContentArea" style="display: none;">
-                                            <label class="form-label">Tải file lên (chỉ chấp nhận .txt)</label>
+                                            <label class="form-label">Upload file (.txt only)</label>
                                             <input class="form-control" type="file" id="contentFile" name="content_file"
                                                 accept=".txt">
                                             <div class="form-text">
                                                 <i class="bi bi-info-circle"></i>
-                                                Chỉ chấp nhận file .txt
+                                                Only .txt files are accepted
                                             </div>
                                         </div>
                                     </div>
                                 <?php endif; ?>
 
+                                <!-- Deadline -->
+                                <div class="mb-3">
+                                    <label class="form-label">Deadline (tùy chọn)</label>
+                                    <input type="datetime-local" class="form-control" id="taskDeadline" name="deadline">
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        Học viên sẽ thấy thông báo nhắc nhở trước khi hết hạn
+                                    </div>
+                                </div>
+
                                 <!-- Buttons -->
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                                        <i class="bi bi-check-circle"></i> Tạo nhiệm vụ
+                                        <i class="bi bi-check-circle"></i> <span data-lang-key="create_task_btn">Create Task</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
-                                        <i class="bi bi-x-circle"></i> Hủy
+                                        <i class="bi bi-x-circle"></i> <span data-lang-key="cancel">Cancel</span>
                                     </a>
                                 </div>
                             </form>
@@ -212,12 +222,12 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Thông tin</h5>
-                            <p><strong>Chủ đề:</strong> <?= htmlspecialchars($topic['topic_name']) ?></p>
-                            <p><strong>Pha:</strong> Bước <?= $phase['phase_number'] ?> -
+                            <h5 class="card-title">Information</h5>
+                            <p><strong>Topic:</strong> <?= htmlspecialchars($topic['topic_name']) ?></p>
+                            <p><strong>Phase:</strong> Step <?= $phase['phase_number'] ?> -
                                 <?= htmlspecialchars($phase['phase_name']) ?>
                             </p>
-                            <p><strong>Loại pha:</strong> <?= htmlspecialchars($phase['m_phase_name']) ?></p>
+                            <p><strong>Phase Type:</strong> <?= htmlspecialchars($phase['m_phase_name']) ?></p>
                         </div>
                     </div>
                 </div>
@@ -231,11 +241,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Nội dung thông báo
+                Notification content
             </div>
         </div>
     </div>
@@ -266,22 +276,22 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Thành công';
+                        toastTitle.textContent = 'Success';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
                         toastIcon.classList.add('bi-x-circle-fill');
-                        toastTitle.textContent = 'Lỗi';
+                        toastTitle.textContent = 'Error';
                         break;
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Cảnh báo';
+                        toastTitle.textContent = 'Warning';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Thông tin';
+                        toastTitle.textContent = 'Info';
                         break;
                 }
 
@@ -351,7 +361,7 @@
 
                 // Validate
                 if (!title) {
-                    showToast('Vui lòng nhập tiêu đề nhiệm vụ!', 'warning');
+                    showToast('Please enter task title!', 'warning');
                     return;
                 }
 
@@ -359,7 +369,7 @@
                 if (isEvaluationPhase) {
                     const sourceTaskId = document.querySelector('select[name="source_task_id"]')?.value;
                     if (!sourceTaskId) {
-                        showToast('Vui lòng chọn nhiệm vụ cần đánh giá!', 'warning');
+                        showToast('Please select a task to evaluate!', 'warning');
                         return;
                     }
                 } else {
@@ -368,13 +378,13 @@
                     if (contentType === 'text') {
                         const contentText = document.getElementById('contentText').value.trim();
                         if (!contentText) {
-                            showToast('Vui lòng nhập nội dung văn bản!', 'warning');
+                            showToast('Please enter text content!', 'warning');
                             return;
                         }
                     } else if (contentType === 'file') {
                         const contentFile = document.getElementById('contentFile').files[0];
                         if (!contentFile) {
-                            showToast('Vui lòng chọn file để tải lên!', 'warning');
+                            showToast('Please select a file to upload!', 'warning');
                             return;
                         }
                     }
@@ -382,7 +392,7 @@
 
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tạo...';
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Creating...';
 
                 try {
                     const formData = new FormData(this);
@@ -396,20 +406,20 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        showToast('Tạo nhiệm vụ thành công!', 'success');
+                        showToast('Task created successfully!', 'success');
                         setTimeout(() => {
                             window.location.href = '/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>';
                         }, 1500);
                     } else {
-                        showToast(data.message || 'Không thể tạo nhiệm vụ', 'error');
+                        showToast(data.message || 'Cannot create task', 'error');
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Tạo nhiệm vụ';
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Create Task';
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('Có lỗi xảy ra khi tạo nhiệm vụ', 'error');
+                    showToast('An error occurred while creating the task', 'error');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Tạo nhiệm vụ';
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Create Task';
                 }
             });
         })();

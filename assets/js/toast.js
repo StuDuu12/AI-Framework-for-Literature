@@ -20,8 +20,10 @@ class ToastManager {
             // Create toast container
             this.container = document.createElement('div');
             this.container.id = 'toast-container';
-            this.container.className = 'toast-container position-fixed top-0 end-0 p-3';
-            this.container.style.zIndex = '9999';
+            this.container.className = 'toast-container position-fixed end-0 p-1';
+            this.container.style.top = '60px';
+            this.container.style.zIndex = '100000';
+            this.container.style.maxWidth = '500px';
             document.body.appendChild(this.container);
         }
     }
@@ -36,41 +38,49 @@ class ToastManager {
     show(message, type = 'info', duration = 3000, onHidden = null) {
         const toastId = 'toast-' + Date.now();
 
-        // Toast colors and icons
+        // Toast colors and icons with text color tailored for each type
         const types = {
             success: {
                 bg: 'bg-success',
                 icon: 'bi-check-circle-fill',
                 textClass: 'text-white',
+                textColor: '#000000',
+                btnClass: 'btn-close-white',
             },
             error: {
                 bg: 'bg-danger',
                 icon: 'bi-x-circle-fill',
                 textClass: 'text-white',
+                textColor: '#000000',
+                btnClass: 'btn-close-white',
             },
             warning: {
                 bg: 'bg-warning',
                 icon: 'bi-exclamation-triangle-fill',
                 textClass: 'text-dark',
+                textColor: '#000000',
+                btnClass: 'btn-close',
             },
             info: {
                 bg: 'bg-info',
                 icon: 'bi-info-circle-fill',
                 textClass: 'text-white',
+                textColor: '#000000',
+                btnClass: 'btn-close-white',
             },
         };
 
         const config = types[type] || types.info;
 
-        // Create toast HTML
+        // Create toast HTML with enhanced styling
         const toastHTML = `
-            <div id="${toastId}" class="toast align-items-center ${config.bg} ${config.textClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="bi ${config.icon} me-2"></i>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div id="${toastId}" class="toast border-0" 
+                 role="alert" aria-live="assertive" aria-atomic="true"
+                 style="min-width: 340px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border-radius: 12px; font-size: 16px; font-weight: 800; letter-spacing: 0.5px;">
+                <div class="d-flex align-items-center justify-content-start" style="padding: 18px 22px; width: 100%;">
+                    <i class="bi ${config.icon} me-3" style="font-size: 22px; flex-shrink: 0; font-weight: 800;"></i>
+                    <span style="font-weight: 800; color: ${config.textColor}; line-height: 1.4; flex-grow: 1;">${message}</span>
+                    <button type="button" class="${config.btnClass} ms-3" data-bs-dismiss="toast" aria-label="Close" style="padding: 0.25rem; flex-shrink: 0;"></button>
                 </div>
             </div>
         `;

@@ -73,7 +73,7 @@ try {
             }
 
             if (empty($ten_nhom_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Tên nhóm tiêu chí không được để trống']);
+                echo json_encode(['success' => false, 'message' => 'Criteria group name cannot be empty']);
                 exit;
             }
 
@@ -93,7 +93,7 @@ try {
             }
 
             if (empty($ten_nhom_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Tên nhóm tiêu chí không được để trống']);
+                echo json_encode(['success' => false, 'message' => 'Criteria group name cannot be empty']);
                 exit;
             }
 
@@ -145,7 +145,7 @@ try {
             }
 
             if (empty($name_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Tên tiêu chí không được để trống']);
+                echo json_encode(['success' => false, 'message' => 'Criteria name cannot be empty']);
                 exit;
             }
 
@@ -167,7 +167,7 @@ try {
             }
 
             if (empty($name_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Tên tiêu chí không được để trống']);
+                echo json_encode(['success' => false, 'message' => 'Criteria name cannot be empty']);
                 exit;
             }
 

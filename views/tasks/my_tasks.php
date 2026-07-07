@@ -1,123 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Nhiệm vụ của tôi</title>
-    <style>
-        body {
-            font-family: 'Nunito', 'Segoe UI', 'Open Sans', sans-serif;
-        }
-
-        .card-title {
-            font-weight: bolder;
-        }
-
-        .task-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 4px solid #4154f1;
-        }
-
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-status {
-            font-size: 0.875rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .status-completed {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .status-overdue {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .phase-badge {
-            background-color: #e7f1ff;
-            color: #084298;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
-        }
-
-        .assignment-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: #dee2e6;
-            margin-bottom: 1rem;
-        }
-
-        .filter-tabs {
-            border-bottom: 2px solid #f0f0f0;
-            margin-bottom: 1.5rem;
-        }
-
-        .filter-tabs .nav-link {
-            color: #6c757d;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            position: relative;
-        }
-
-        .filter-tabs .nav-link.active {
-            color: #4154f1;
-            background: transparent;
-            font-weight: 600;
-        }
-
-        .filter-tabs .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #4154f1;
-        }
-
-        .task-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-
-        .task-meta>div {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-    </style>
+    <title data-lang-key="menu_my_tasks">My Tasks</title>
 </head>
 
 <body>
@@ -125,6 +13,7 @@
     require_once './config/db.php';
     require_once './config/helper_homework.php';
     require_once './config/helper_class.php';
+    require_once './config/helper_breadcrumb.php';
     require_once './views/templates/header.php';
     require_once './views/templates/sidebar.php';
     
@@ -135,7 +24,7 @@
     $classId = getCurrentClassId();
 
     if (!$userId || !$classId) {
-        echo '<main id="main" class="main"><div class="alert alert-warning">Vui lòng đăng nhập và chọn lớp học.</div></main>';
+        echo '<main id="main" class="main"><div class="alert alert-warning">Please log in and select a class.</div></main>';
         exit;
     }
 
@@ -224,22 +113,22 @@
         $endTime = strtotime($task['end_time']);
 
         if ($task['flag_active'] ?? false) {
-            return ['label' => 'Đang diễn ra', 'class' => 'status-completed'];
+            return ['label' => 'Ongoing', 'class' => 'status-active'];
         }
 
         if ($now < $startTime) {
-            return ['label' => 'Sắp tới', 'class' => 'status-pending'];
+            return ['label' => 'Upcoming', 'class' => 'status-pending'];
         }
 
         if ($now > $endTime) {
-            return ['label' => 'Đã kết thúc', 'class' => 'status-overdue'];
+            return ['label' => 'Ended', 'class' => 'status-overdue'];
         }
 
         if ($now >= $startTime && $now <= $endTime) {
-            return ['label' => 'Đang diễn ra', 'class' => 'status-completed'];
+            return ['label' => 'Ongoing', 'class' => 'status-active'];
         }
 
-        return ['label' => 'Chưa bắt đầu', 'class' => 'status-pending'];
+        return ['label' => 'Not Started', 'class' => 'status-pending'];
     }
 
     /**
@@ -249,15 +138,15 @@
     {
         switch ($type) {
             case 'user':
-                return '<i class="bi bi-person-fill"></i> Cá nhân';
+                return '<i class="bi bi-person-fill"></i> Individual';
             case 'group':
-                $label = '<i class="bi bi-people-fill"></i> Nhóm';
+                $label = '<i class="bi bi-people-fill"></i> Group';
                 if ($assignmentName) {
                     $label .= ': ' . htmlspecialchars($assignmentName);
                 }
                 return $label;
             case 'class':
-                return '<i class="bi bi-building"></i> Cả lớp';
+                return '<i class="bi bi-building"></i> Whole Class';
             default:
                 return $type;
         }
@@ -269,11 +158,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Nhiệm vụ của tôi</h1>
+            <h1 data-lang-key="menu_my_tasks">My Tasks</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name'] ?? 'Lớp học' ?></a></li>
-                    <li class="breadcrumb-item active">Nhiệm vụ của tôi</li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
+                    <li class="breadcrumb-item active" data-lang-key="menu_my_tasks">My Tasks</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -285,7 +174,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
                                 <h5 class=" mb-0">
-                                    Tất cả nhiệm vụ
+                                    <span data-lang-key="all_tasks">All Tasks</span>
                                     <span class="badge bg-primary rounded-pill"><?= $totalTasks ?></span>
                                 </h5>
                             </div>
@@ -295,25 +184,25 @@
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'all' ? 'active' : '' ?>"
                                         href="?filter=all">
-                                        Tất cả
+                                        <span data-lang-key="filter_all">All</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'active' ? 'active' : '' ?>"
                                         href="?filter=active">
-                                        Đang diễn ra
+                                        <span data-lang-key="ongoing">Ongoing</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'upcoming' ? 'active' : '' ?>"
                                         href="?filter=upcoming">
-                                        Sắp tới
+                                        <span data-lang-key="upcoming">Upcoming</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'past' ? 'active' : '' ?>"
                                         href="?filter=past">
-                                        Đã kết thúc
+                                        <span data-lang-key="ended">Ended</span>
                                     </a>
                                 </li>
                             </ul>
@@ -322,8 +211,8 @@
                             <?php if (empty($tasks)): ?>
                                 <div class="empty-state">
                                     <i class="bi bi-clipboard-x"></i>
-                                    <h5>Chưa có nhiệm vụ nào</h5>
-                                    <p>Bạn chưa được giao nhiệm vụ nào trong lớp học này.</p>
+                                    <h5 data-lang-key="no_tasks_yet">No tasks yet</h5>
+                                    <p data-lang-key="no_tasks_assigned_in_class">You have not been assigned any tasks in this class.</p>
                                 </div>
                             <?php else: ?>
                                 <div class="row">
@@ -359,7 +248,7 @@
                                                         </div>
                                                         <div>
                                                             <span class="phase-badge">
-                                                                Bước <?= $task['phase_number'] ?>: <?= htmlspecialchars($task['phase_name']) ?>
+                                                                Step <?= $task['phase_number'] ?>: <?= htmlspecialchars($task['phase_name']) ?>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -367,11 +256,11 @@
                                                     <div class="task-meta mb-3">
                                                         <div>
                                                             <i class="bi bi-calendar-event"></i>
-                                                            <span>Bắt đầu: <?= date('d/m/Y H:i', strtotime($task['start_time'])) ?></span>
+                                                            <span>Start: <?= date('d/m/Y H:i', strtotime($task['start_time'])) ?></span>
                                                         </div>
                                                         <div>
                                                             <i class="bi bi-calendar-check"></i>
-                                                            <span>Kết thúc: <?= date('d/m/Y H:i', strtotime($task['end_time'])) ?></span>
+                                                            <span>End: <?= date('d/m/Y H:i', strtotime($task['end_time'])) ?></span>
                                                         </div>
                                                     </div>
 
@@ -381,12 +270,12 @@
                                                         </div>
                                                         <a href="<?= URL_ROOT ?>/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $task['topic_id'] ?>&phase_id=<?= $task['phase_id'] ?>"
                                                             class="btn btn-sm btn-primary">
-                                                            <i class="bi bi-arrow-right-circle"></i> Xem chi tiết
+                                                            <i class="bi bi-arrow-right-circle"></i> View Details
                                                         </a>
                                                     </div>
 
                                                     <div class="text-muted small mt-2">
-                                                        <i class="bi bi-person"></i> Giáo viên: <?= htmlspecialchars($task['created_by_name'] ?? 'N/A') ?>
+                                                        <i class="bi bi-person"></i> Teacher: <?= htmlspecialchars($task['created_by_name'] ?? 'N/A') ?>
                                                     </div>
                                                 </div>
                                             </div>

@@ -1,165 +1,11 @@
-<!DOCTYPE html>
-<html lang="vi">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title>Nhóm của tôi</title>
-    <style>
-        body {
-            font-family: 'Nunito', 'Segoe UI', 'Open Sans', sans-serif;
-        }
-
-        .group-card {
-            transition: all 0.3s ease;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .group-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            border-color: #4154f1;
-        }
-
-        .group-header {
-            background: #4154f1;
-            color: white;
-            padding: 20px;
-        }
-
-        .group-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .member-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .member-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            font-size: 15px;
-            transition: transform 0.2s ease;
-        }
-
-        .member-avatar:hover {
-            transform: scale(1.15);
-        }
-
-        .avatar-stack {
-            display: flex;
-            padding: 10px 0;
-        }
-
-        .avatar-stack .member-avatar {
-            border: 3px solid white;
-            margin-left: -12px;
-            cursor: pointer;
-        }
-
-        .avatar-stack .member-avatar:first-child {
-            margin-left: 0;
-        }
-
-        .avatar-more {
-            background: #95a5a6;
-        }
-
-        .btn-view-details {
-            background: #4154f1;
-            border: none;
-            color: white;
-            font-weight: 500;
-            padding: 10px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-view-details:hover {
-            background: #2c3cdd;
-            transform: translateY(-2px);
-        }
-
-        .members-section {
-            background: #f8f9fc;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-
-        .members-label {
-            color: #6c757d;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        .empty-state {
-            padding: 60px 20px;
-            text-align: center;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: #d0d5dd;
-        }
-
-        .info-box {
-            background: #f0f4ff;
-            border: 1px solid #d4e1ff;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .info-box h6 {
-            color: #4154f1;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .info-box ol {
-            color: #666;
-        }
-
-        .modal-header {
-            background: #4154f1;
-            color: white;
-            border: none;
-        }
-
-        .modal-title {
-            font-weight: 600;
-        }
-
-        .table thead {
-            background: #f8f9fc;
-        }
-
-        .table-hover tbody tr:hover {
-            background: #f8f9fc;
-        }
-
-        .badge.bg-success {
-            background: #198754 !important;
-        }
-    </style>
+    <title data-lang-key="my_groups_title">My Groups - Literature System</title>
 </head>
 
 <body>
@@ -208,23 +54,23 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Nhóm của tôi</h1>
+            <h1 data-lang-key="my_groups_title">My Groups</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp học') ?></a></li>
-                    <li class="breadcrumb-item active">Nhóm của tôi</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Class') ?></a></li>
+                    <li class="breadcrumb-item active" data-lang-key="my_groups_title">My Groups</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
 
-        <section class="section dashboard">
+        <section class="section dashboard my-groups-page">
             <!-- Debug Info -->
             <?php if (isset($_GET['debug'])): ?>
                 <div class="alert alert-info">
                     <h6><i class="bi bi-bug"></i> Debug Information</h6>
                     <p><strong>User ID:</strong> <?= $userId ?></p>
                     <p><strong>Class ID:</strong> <?= $classId ?? 'NULL' ?></p>
-                    <p><strong>Số nhóm tìm thấy:</strong> <?= count($myGroups) ?></p>
+                    <p><strong>Groups found:</strong> <?= count($myGroups) ?></p>
 
                     <details>
                         <summary>Session User Data</summary>
@@ -260,13 +106,13 @@
                         <?php endif; ?>
                     <?php else: ?>
                         <div class="alert alert-danger mt-2">
-                            <strong>LỖI:</strong> User ID = 0. Session không có thông tin user_id!
+                            <strong>ERROR:</strong> User ID = 0. Session has no user_id!
                         </div>
                     <?php endif; ?>
 
                     <?php if (!empty($myGroups)): ?>
                         <details>
-                            <summary>Chi tiết các nhóm</summary>
+                            <summary>Group details</summary>
                             <pre><?php print_r($myGroups); ?></pre>
                         </details>
                     <?php endif; ?>
@@ -277,8 +123,8 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body empty-state">
                         <i class="bi bi-people"></i>
-                        <h5 class="mt-3 mb-2">Bạn chưa tham gia nhóm nào</h5>
-                        <p class="text-muted mb-4">Giáo viên sẽ thêm bạn vào nhóm khi cần thiết.</p>
+                        <h5 class="mt-3 mb-2" data-lang-key="not_in_any_group">You are not in any group yet</h5>
+                        <p class="text-muted mb-4" data-lang-key="teacher_will_add_you">Your teacher will add you to a group when needed.</p>
                     </div>
                 </div>
             <?php else: ?>
@@ -296,14 +142,14 @@
                                                 <?= htmlspecialchars($group['group_name']) ?>
                                             </h5>
                                             <span class="member-badge">
-                                                <?= count($members) ?> thành viên
+                                                <?= count($members) ?> members
                                             </span>
                                         </div>
                                     </div>
 
                                     <?php if (!empty($members)): ?>
                                         <div class="members-section">
-                                            <div class="members-label">Thành viên</div>
+                                            <div class="members-label" data-lang-key="members">Members</div>
                                             <div class="avatar-stack">
                                                 <?php
                                                 $displayLimit = 5;
@@ -323,7 +169,7 @@
                                                 <?php if (count($members) > $displayLimit): ?>
                                                     <div class="member-avatar avatar-more"
                                                         data-bs-toggle="tooltip"
-                                                        title="Còn <?= count($members) - $displayLimit ?> thành viên khác">
+                                                        title="<?= count($members) - $displayLimit ?> more members">
                                                         +<?= count($members) - $displayLimit ?>
                                                     </div>
                                                 <?php endif; ?>
@@ -335,7 +181,7 @@
                                         <button class="btn btn-view-details"
                                             data-bs-toggle="modal"
                                             data-bs-target="#groupModal<?= $group['group_id'] ?>">
-                                            <i class="bi bi-eye me-2"></i>Xem chi tiết
+                                            <i class="bi bi-eye me-2"></i><span data-lang-key="view_details">View Details</span>
                                         </button>
                                     </div>
                                 </div>
@@ -355,14 +201,14 @@
                                     </div>
                                     <div class="modal-body">
                                         <h6 class="mb-3 text-muted">
-                                            <i class="bi bi-list-ul me-2"></i>Danh sách thành viên (<?= count($members) ?>)
+                                            <i class="bi bi-list-ul me-2"></i>Member List (<?= count($members) ?>)
                                         </h6>
                                         <div class="table-responsive">
                                             <table class="table table-hover align-middle">
                                                 <thead>
                                                     <tr>
                                                         <th style="width: 60px;">#</th>
-                                                        <th>Họ và tên</th>
+                                                        <th>Full Name</th>
                                                         <th>Username</th>
                                                         <th>Email</th>
                                                     </tr>
@@ -379,7 +225,7 @@
                                                             <td>
                                                                 <?= htmlspecialchars($member['fullname']) ?>
                                                                 <?php if ($member['user_id'] == $userId): ?>
-                                                                    <span class="badge bg-success ms-2">Bạn</span>
+                                                                    <span class="badge bg-success ms-2">You</span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td class="text-muted"><?= htmlspecialchars($member['username']) ?></td>
@@ -392,7 +238,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            <i class="bi bi-x-circle me-1"></i>Đóng
+                                            <i class="bi bi-x-circle me-1"></i>Close
                                         </button>
                                     </div>
                                 </div>

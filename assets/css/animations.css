@@ -1,0 +1,578 @@
+/**
+ * ============================================================
+ * animations.css — Animation Utilities
+ * LiteratureVer2 — Modern Glassmorphism Design System
+ * ============================================================
+ * GSAP-powered animations via animations.js
+ * CSS provides base states + fallback animations
+ * Load order: glass.css → dark.css → animations.css
+ * ============================================================
+ */
+
+/* ============================================
+ * SECTION 1: GSAP Animation Targets
+ * ============================================ */
+/* Elements with data-animate are controlled by GSAP/ScrollTrigger */
+html.lit-js [data-animate]:not(.lit-animate-done) {
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+html.lit-js [data-animate].lit-animate-done {
+    opacity: 1;
+    transform: none;
+}
+
+[data-animate="fade-up"] {
+    transform: translateY(30px);
+}
+
+[data-animate="fade-down"] {
+    transform: translateY(-30px);
+}
+
+[data-animate="fade-left"] {
+    transform: translateX(-30px);
+}
+
+[data-animate="fade-right"] {
+    transform: translateX(30px);
+}
+
+[data-animate="scale"] {
+    transform: scale(0.9);
+}
+
+[data-animate="rotate"] {
+    transform: rotate(-5deg);
+}
+
+/* Stagger children: hidden only while JS animates (see .lit-stagger-done) */
+html.lit-js [data-stagger]:not(.lit-stagger-done) > * {
+    opacity: 0;
+    transform: translateY(20px);
+    will-change: transform, opacity;
+}
+
+[data-stagger].lit-stagger-done > * {
+    opacity: 1;
+    transform: none;
+}
+
+/* ============================================
+ * SECTION 2: CSS Fallback Animations (no JS)
+ * ============================================ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-24px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes ripple {
+    0% { transform: scale(0); opacity: 0.6; }
+    100% { transform: scale(4); opacity: 0; }
+}
+
+/* ============================================
+ * SECTION 3: Animation Utility Classes
+ * ============================================ */
+.animate-fade-in { animation: fadeIn 0.5s var(--lit-ease) both; }
+.animate-fade-in-up { animation: fadeInUp 0.5s var(--lit-ease) both; }
+.animate-fade-in-down { animation: fadeInDown 0.5s var(--lit-ease) both; }
+.animate-fade-in-left { animation: fadeInLeft 0.5s var(--lit-ease) both; }
+.animate-fade-in-right { animation: fadeInRight 0.5s var(--lit-ease) both; }
+.animate-scale-in { animation: scaleIn 0.4s var(--lit-ease-spring) both; }
+.animate-slide-in-up { animation: slideInUp 0.4s var(--lit-ease) both; }
+.animate-slide-in-down { animation: slideInDown 0.4s var(--lit-ease) both; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+
+/* Shimmer loading effect */
+.animate-shimmer {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+body.dark-theme .animate-shimmer {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+/* ============================================
+ * SECTION 4: Stagger Delays
+ * ============================================ */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* ============================================
+ * SECTION 5: Hover Micro-interactions
+ * ============================================ */
+.hover-lift {
+    transition: transform var(--lit-duration-base) var(--lit-ease),
+                box-shadow var(--lit-duration-base) var(--lit-ease);
+}
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--lit-shadow-lg);
+}
+
+.hover-glow {
+    transition: box-shadow var(--lit-duration-base) var(--lit-ease);
+}
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--lit-primary-rgb), 0.2),
+                0 0 40px rgba(var(--lit-primary-rgb), 0.1);
+}
+
+.hover-scale {
+    transition: transform var(--lit-duration-fast) var(--lit-ease-spring);
+}
+.hover-scale:hover {
+    transform: scale(1.03);
+}
+
+.hover-rotate {
+    transition: transform var(--lit-duration-base) var(--lit-ease);
+}
+.hover-rotate:hover {
+    transform: rotate(2deg);
+}
+
+/* Button press effect */
+.btn-press:active {
+    transform: scale(0.97);
+    transition: transform 0.1s;
+}
+
+/* ============================================
+ * SECTION 6: Scroll Reveal (CSS-only fallback)
+ * ============================================ */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s var(--lit-ease), transform 0.6s var(--lit-ease);
+}
+
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger reveal */
+.reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s var(--lit-ease), transform 0.5s var(--lit-ease);
+}
+
+.reveal-stagger.revealed > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal-stagger.revealed > *:nth-child(2) { transition-delay: 0.1s; }
+.reveal-stagger.revealed > *:nth-child(3) { transition-delay: 0.15s; }
+.reveal-stagger.revealed > *:nth-child(4) { transition-delay: 0.2s; }
+.reveal-stagger.revealed > *:nth-child(5) { transition-delay: 0.25s; }
+.reveal-stagger.revealed > *:nth-child(6) { transition-delay: 0.3s; }
+.reveal-stagger.revealed > *:nth-child(7) { transition-delay: 0.35s; }
+.reveal-stagger.revealed > *:nth-child(8) { transition-delay: 0.4s; }
+
+.reveal-stagger.revealed > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================
+ * SECTION 7: Page Transition
+ * ============================================ */
+.page-enter {
+    animation: fadeIn 0.3s var(--lit-ease) both;
+}
+
+/* ============================================
+ * SECTION 8: Loading Skeleton
+ * ============================================ */
+.skeleton {
+    border-radius: var(--lit-radius-sm);
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-text { height: 14px; margin-bottom: 8px; }
+.skeleton-heading { height: 24px; width: 60%; margin-bottom: 12px; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.skeleton-card { height: 120px; }
+
+body.dark-theme .skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+/* ============================================
+ * SECTION 9: Reduced Motion
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    html.lit-js [data-animate],
+    html.lit-js [data-stagger]:not(.lit-stagger-done) > *,
+    .reveal,
+    .reveal-stagger > * {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* ============================================
+ * SECTION 10: Number Count-Up Target
+ * ============================================ */
+.count-up {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+ * SECTION 11: Ripple Effect for Cards
+ * ============================================ */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(var(--lit-primary-rgb), 0.15);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ripple:active::after {
+    animation: ripple 0.6s ease-out;
+}
+
+/* ============================================
+ * SECTION 12: App Shell (header / sidebar / main)
+ * ============================================ */
+body.lit-anim-ready #header {
+    animation: litHeaderIn 0.45s var(--lit-ease) both;
+}
+
+body.lit-anim-ready #sidebar {
+    animation: litSidebarIn 0.5s var(--lit-ease) both;
+    animation-delay: 0.06s;
+}
+
+body.lit-anim-ready #main.page-enter {
+    animation: litMainIn 0.42s var(--lit-ease) both;
+    animation-delay: 0.1s;
+}
+
+@keyframes litHeaderIn {
+    from { opacity: 0; transform: translateY(-14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes litSidebarIn {
+    from { opacity: 0; transform: translateX(-18px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes litMainIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+ * SECTION 13: Header dropdowns & nav micro-interactions
+ * ============================================ */
+.header-nav .dropdown-menu.lit-dropdown {
+    transform-origin: top right;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .header-nav .dropdown-menu.lit-dropdown.show {
+        animation: litDropdownIn 0.22s var(--lit-ease) both;
+    }
+
+    .header-nav .dropdown-menu.lit-dropdown.dropdown-menu-start.show {
+        transform-origin: top left;
+    }
+}
+
+@keyframes litDropdownIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.header-nav .nav-icon,
+.header-nav .theme-toggle,
+.header-nav #language-toggle-btn,
+.header-nav .nav-profile {
+    transition: transform var(--lit-duration-fast) var(--lit-ease),
+                background var(--lit-duration-fast) var(--lit-ease),
+                color var(--lit-duration-fast) var(--lit-ease);
+}
+
+.header-nav .nav-icon:active,
+.header-nav .theme-toggle:active,
+.header-nav #language-toggle-btn:active,
+.header-nav .nav-profile:active {
+    transform: scale(0.92);
+}
+
+.header-nav .bi-bell.lit-ring {
+    animation: litBellRing 0.55s ease-in-out;
+}
+
+@keyframes litBellRing {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(14deg); }
+    40% { transform: rotate(-12deg); }
+    60% { transform: rotate(8deg); }
+    80% { transform: rotate(-6deg); }
+}
+
+#notif-badge:not(.d-none) {
+    animation: litBadgePop 0.45s var(--lit-ease-spring) both;
+}
+
+@keyframes litBadgePop {
+    0% { transform: scale(0.4); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================
+ * SECTION 14: Modals, alerts, toasts
+ * ============================================ */
+@media (prefers-reduced-motion: no-preference) {
+    .modal.fade.show .modal-dialog {
+        animation: litModalIn 0.32s var(--lit-ease) both;
+    }
+
+    .lit-alert-enter {
+        animation: fadeInDown 0.38s var(--lit-ease) both;
+    }
+
+    .lit-toast-enter {
+        animation: litToastIn 0.36s var(--lit-ease) both;
+    }
+}
+
+@keyframes litModalIn {
+    from { opacity: 0; transform: translateY(18px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes litToastIn {
+    from { opacity: 0; transform: translateX(36px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================
+ * SECTION 15: Dashboard cards & stat blocks
+ * ============================================ */
+#main .card:not(.class-card),
+#main .stat-card:not(.stat-card--dashboard),
+.assignment-card,
+.deliver-card {
+    transition: transform var(--lit-duration-base) var(--lit-ease),
+                box-shadow var(--lit-duration-base) var(--lit-ease);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    #main .card:not(.class-card):hover,
+    #main .stat-card:not(.stat-card--dashboard):hover,
+    .assignment-card:hover,
+    .deliver-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--lit-shadow-md);
+    }
+}
+
+.dashboard-stats .stat-card--dashboard,
+.class-card {
+    will-change: transform, opacity;
+}
+
+.class-grid > [class*="col"] {
+    display: flex;
+}
+
+.class-grid .class-card {
+    width: 100%;
+}
+
+.lit-table-row-enter {
+    animation: fadeInLeft 0.32s var(--lit-ease) both;
+}
+
+/* ============================================
+ * SECTION 16: Sidebar nav polish
+ * ============================================ */
+#sidebar-nav .nav-link {
+    transition: transform var(--lit-duration-fast) var(--lit-ease),
+                background var(--lit-duration-fast) var(--lit-ease),
+                color var(--lit-duration-fast) var(--lit-ease),
+                padding-left var(--lit-duration-fast) var(--lit-ease);
+}
+
+@media (hover: hover) {
+    #sidebar-nav .nav-link:hover {
+        transform: translateX(3px);
+    }
+}
+
+#sidebar-nav .nav-link.active {
+    animation: litNavActive 0.35s var(--lit-ease) both;
+}
+
+@keyframes litNavActive {
+    from { opacity: 0.7; transform: translateX(-6px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================
+ * SECTION 17: Back-to-top & loading spin
+ * ============================================ */
+.back-to-top {
+    transition: transform var(--lit-duration-base) var(--lit-ease-spring),
+                opacity var(--lit-duration-base) var(--lit-ease),
+                visibility var(--lit-duration-base) var(--lit-ease),
+                background var(--lit-duration-fast) var(--lit-ease);
+}
+
+.back-to-top.active {
+    animation: litBttPop 0.35s var(--lit-ease-spring) both;
+}
+
+@keyframes litBttPop {
+    from { opacity: 0; transform: translateY(12px) scale(0.85); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.lit-spin,
+.animate-spin {
+    animation: litSpin 0.75s linear infinite;
+}
+
+@keyframes litSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+ * SECTION 18: Login page (subtle)
+ * ============================================ */
+body.login-page .card {
+    animation: scaleIn 0.45s var(--lit-ease-spring) both;
+}
+
+body.login-page .logo {
+    animation: fadeInDown 0.4s var(--lit-ease) both;
+}
+
+/* ============================================
+ * SECTION 19: Collapse / accordion polish
+ * ============================================ */
+.accordion-button {
+    transition: background var(--lit-duration-fast) var(--lit-ease),
+                color var(--lit-duration-fast) var(--lit-ease);
+}
+
+.collapse.show {
+    animation: fadeIn 0.28s var(--lit-ease) both;
+}
+
+/* ============================================
+ * SECTION 20: Extended reduced motion
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    body.lit-anim-ready #header,
+    body.lit-anim-ready #sidebar,
+    body.lit-anim-ready #main.page-enter,
+    .header-nav .dropdown-menu.lit-dropdown.show,
+    .modal.fade.show .modal-dialog,
+    .lit-alert-enter,
+    .lit-toast-enter,
+    .lit-table-row-enter,
+    #sidebar-nav .nav-link.active,
+    .back-to-top.active,
+    body.login-page .card,
+    body.login-page .logo,
+    #notif-badge:not(.d-none),
+    .collapse.show {
+        animation: none !important;
+    }
+
+    #main .card:not(.class-card):hover,
+    #main .stat-card:not(.stat-card--dashboard):hover,
+    .assignment-card:hover,
+    .deliver-card:hover,
+    #sidebar-nav .nav-link:hover {
+        transform: none !important;
+    }
+}

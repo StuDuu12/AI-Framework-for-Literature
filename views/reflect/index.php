@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="vi">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Reflect - Hệ thống hỗ trợ</title>
+    <title data-lang-key="manage_reflect_title">Manage Reflect - Literature System</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
@@ -18,11 +18,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-ticket-detailed"></i> Quản lý phản hồi</h1>
+            <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="menu_feedback">Góp ý & hỗ trợ</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
-                    <li class="breadcrumb-item active">Phản hồi</li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Home</a></li>
+                    <li class="breadcrumb-item active">Responses</li>
                 </ol>
             </nav>
         </div>
@@ -33,28 +33,28 @@
                     <!-- Filter Card -->
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Bộ lọc</h5>
+                            <h5 class="card-title" data-lang-key="filters">Filters</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Loại phản hồi</label>
+                                    <label class="form-label" data-lang-key="reflect_type_label">Type responses</label>
                                     <select id="filterType" class="form-select">
-                                        <option value="">Tất cả loại</option>
+                                        <option value="" data-lang-key="filter_all">All Types</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Trạng thái</label>
+                                    <label class="form-label" data-lang-key="status">Status</label>
                                     <select id="filterStatus" class="form-select">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="0">Mới tạo</option>
-                                        <option value="1">Đang xử lý</option>
-                                        <option value="2">Đã giải quyết</option>
-                                        <option value="3">Đã đóng</option>
+                                        <option value="" data-lang-key="filter_all">All Statuses</option>
+                                        <option value="0" data-lang-key="reflect_status_new">New</option>
+                                        <option value="1" data-lang-key="reflect_status_progress">In Progress</option>
+                                        <option value="2" data-lang-key="reflect_status_resolved">Resolved</option>
+                                        <option value="3" data-lang-key="reflect_status_closed">Closed</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Tìm kiếm</label>
+                                    <label class="form-label" data-lang-key="search">Search</label>
                                     <input type="text" id="searchInput" class="form-control"
-                                        placeholder="Tìm theo tiêu đề...">
+                                        placeholder="Search by title..." data-lang-key="reflect_search_placeholder" data-lang-attr="placeholder">
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title">Danh sách phản hồi</h5>
+                                <h5 class="card-title" data-lang-key="feedback_list">Feedback List</h5>
                                 <span id="ticketCount" class="badge bg-primary">0 ticket</span>
                             </div>
 
@@ -79,7 +79,7 @@
                             <!-- Empty State -->
                             <div id="emptyState" class="empty-state" style="display: none;">
                                 <i class="bi bi-inbox"></i>
-                                <p>Chưa có ticket nào</p>
+                                <p>No tickets yet</p>
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
         </section>
 
         <!-- Create Ticket Button -->
-        <button class="btn-create-ticket" onclick="openCreateModal()" title="Tạo ticket mới">
+        <button class="btn-create-ticket" onclick="openCreateModal()" title="Create new ticket">
             <i class="bi bi-plus-lg"></i>
         </button>
     </main>
@@ -97,32 +97,34 @@
     <div id="createModal" class="reflect-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Tạo Reflect mới</h5>
-                <button class="modal-close" onclick="closeCreateModal()">×</button>
+                <h5>Create New Reflect</h5>
+                <button type="button" class="modal-close" onclick="closeCreateModal()" aria-label="Close">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="createTicketForm">
                     <div class="form-group">
-                        <label>Loại Reflect <span class="required">*</span></label>
+                        <label>Type Reflect <span class="required">*</span></label>
                         <select id="createType" class="form-control" required>
-                            <option value="">-- Chọn loại --</option>
+                            <option value="">-- -- Select Type --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Tiêu đề <span class="required">*</span></label>
-                        <input type="text" id="createTitle" class="form-control" placeholder="Nhập tiêu đề..." required>
+                        <label>Title <span class="required">*</span></label>
+                        <input type="text" id="createTitle" class="form-control" placeholder="Enter title..." required>
                     </div>
                     <div class="form-group">
-                        <label>Nội dung <span class="required">*</span></label>
-                        <textarea id="createContent" class="form-control" placeholder="Mô tả chi tiết vấn đề của bạn..."
+                        <label>Content <span class="required">*</span></label>
+                        <textarea id="createContent" class="form-control" placeholder="Describe your issue in detail..."
                             required></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Hủy</button>
+                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="createTicket()">
-                    <i class="bi bi-send"></i> Tạo Reflect
+                    <i class="bi bi-send"></i> <span>Create Reflect</span>
                 </button>
             </div>
         </div>
@@ -183,11 +185,11 @@
                     });
                 } else {
                     console.error('Types API error:', data.message || 'Unknown error');
-                    alert('Không thể tải danh sách loại reflect: ' + (data.message || 'Unknown error'));
+                    alert('Cannot load reflect type list: ' + (data.message || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Error loading types:', error);
-                alert('Có lỗi khi kết nối tới server: ' + error.message);
+                alert('Error connecting to server: ' + error.message);
             }
         }
 
@@ -227,7 +229,7 @@
             } catch (error) {
                 loading.style.display = 'none';
                 console.error('Error loading tickets:', error);
-                alert('Có lỗi khi tải danh sách ticket: ' + error.message);
+                alert('Error loading ticket list: ' + error.message);
             }
         }
 
@@ -282,7 +284,7 @@
                 </div>
                 <div class="ticket-meta-item">
                     <i class="bi bi-chat-dots"></i>
-                    <span>${ticket.response_count} phản hồi</span>
+                    <span>${ticket.response_count} responses</span>
                 </div>
                 <div class="ticket-meta-item">
                     <i class="bi bi-clock"></i>
@@ -296,12 +298,12 @@
         // Get status label
         function getStatusLabel(status) {
             const labels = {
-                0: 'Mới tạo',
-                1: 'Đang xử lý',
-                2: 'Đã giải quyết',
-                3: 'Đã đóng'
+                0: 'New',
+                1: 'In Progress',
+                2: 'Resolved',
+                3: 'Closed'
             };
-            return labels[status] || 'Không xác định';
+            return labels[status] || 'Unknown';
         }
 
         // Get status badge class
@@ -321,12 +323,12 @@
             const now = new Date();
             const diff = now - date;
 
-            if (diff < 60000) return 'Vừa xong';
-            if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-            if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-            if (diff < 604800000) return `${Math.floor(diff / 86400000)} ngày trước`;
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)} days ago`;
 
-            return date.toLocaleDateString('vi-VN');
+            return date.toLocaleDateString('en-US');
         }
 
         // Escape HTML
@@ -358,7 +360,7 @@
             const content = document.getElementById('createContent').value.trim();
 
             if (!typeId || !title || !content) {
-                alert('Vui lòng điền đầy đủ thông tin');
+                alert('Please fill in all required information');
                 return;
             }
 
@@ -377,14 +379,14 @@
                 const data = await response.json();
                 if (data.success) {
                     closeCreateModal();
-                    alert('Tạo reflect thành công!');
+                    alert('Reflect created successfully!');
                     loadTickets();
                 } else {
-                    alert('Lỗi: ' + data.message);
+                    alert('Error: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error creating ticket:', error);
-                alert('Có lỗi khi tạo ticket');
+                alert('Error creating ticket');
             }
         }
 

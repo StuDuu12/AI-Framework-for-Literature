@@ -1,4 +1,4 @@
-<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
+﻿<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
 <?php
 session_start();
 require_once __DIR__ . '/../../config/env.php';
@@ -83,22 +83,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
             exit();
         } catch (PDOException $e) {
             error_log("Error adding comment: " . $e->getMessage());
-            $error = "Không thể thêm phản hồi. Vui lòng thử lại!";
+            $error = "Cannot add response. Please try again!";
         }
     } else {
-        $error = "Nội dung phản hồi không được để trống!";
+        $error = "Content cannot be empty!";
     }
 }
 
-$pageTitle = "Chi tiết Reflect";
+$pageTitle = "Details Reflect";
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?= $pageTitle ?> - Literature System</title>
+    <title data-lang-key="reflect_detail"><?= $pageTitle ?> - Literature System</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -113,12 +113,12 @@ $pageTitle = "Chi tiết Reflect";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Chi tiết Reflect</h1>
+            <h1 data-lang-key="reflect_detail">Feedback Details</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php">Quản lý Reflect</a></li>
-                    <li class="breadcrumb-item active">Chi tiết</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" data-lang-key="manage_reflect_title">Manage Reflect</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="details">Details</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -148,7 +148,7 @@ $pageTitle = "Chi tiết Reflect";
                             <!-- Replies -->
                             <div class="mt-4">
                                 <h6 class="mb-3">
-                                    <i class="bi bi-chat-dots me-2"></i>Phản hồi (<?= count($replies) ?>)
+                                    <i class="bi bi-chat-dots me-2"></i><span>Responses</span> (<?= count($replies) ?>)
                                 </h6>
 
                                 <?php if (isset($error)): ?>
@@ -160,7 +160,7 @@ $pageTitle = "Chi tiết Reflect";
 
                                 <?php if (empty($replies)): ?>
                                     <div class="alert alert-info">
-                                        <i class="bi bi-info-circle me-2"></i>Chưa có phản hồi nào
+                                        <i class="bi bi-info-circle me-2"></i><span>No responses yet</span>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($replies as $reply): ?>
@@ -176,11 +176,11 @@ $pageTitle = "Chi tiết Reflect";
                                                             <div>
                                                                 <strong><?= htmlspecialchars($reply['fullname']) ?></strong>
                                                                 <?php if ($reply['user_role'] === 'teacher'): ?>
-                                                                    <span class="badge bg-success ms-2">Giáo viên</span>
+                                                                    <span class="badge bg-success ms-2">Teacher</span>
                                                                 <?php elseif ($reply['user_role'] === 'admin'): ?>
                                                                     <span class="badge bg-danger ms-2">Admin</span>
                                                                 <?php else: ?>
-                                                                    <span class="badge bg-secondary ms-2">Học sinh</span>
+                                                                    <span class="badge bg-secondary ms-2">Students</span>
                                                                 <?php endif; ?>
                                                             </div>
                                                             <small class="text-muted">
@@ -199,16 +199,16 @@ $pageTitle = "Chi tiết Reflect";
                                 <div class="card mt-4">
                                     <div class="card-body">
                                         <h6 class="card-title">
-                                            <i class="bi bi-pencil-square me-2"></i>Thêm phản hồi
+                                            <i class="bi bi-pencil-square me-2"></i><span>Add Response</span>
                                         </h6>
                                         <form method="POST">
                                             <div class="mb-3">
                                                 <textarea name="content" class="form-control" rows="4"
-                                                    placeholder="Nhập nội dung phản hồi của bạn..." required></textarea>
+                                                    placeholder="Enter your response content..." required></textarea>
                                             </div>
                                             <div class="d-grid">
                                                 <button type="submit" name="add_comment" class="btn btn-primary">
-                                                    <i class="bi bi-send me-2"></i>Gửi phản hồi
+                                                    <i class="bi bi-send me-2"></i><span>Send Response</span>
                                                 </button>
                                             </div>
                                         </form>
@@ -223,17 +223,17 @@ $pageTitle = "Chi tiết Reflect";
                     <!-- Info Card -->
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Thông tin</h5>
+                            <h5 class="card-title">Information</h5>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Loại</label>
+                                <label class="form-label text-muted">Type</label>
                                 <div>
                                     <span class="badge bg-info"><?= htmlspecialchars($reflect['type_name']) ?></span>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Người gửi</label>
+                                <label class="form-label text-muted">Sender</label>
                                 <div>
                                     <strong><?= htmlspecialchars($reflect['fullname']) ?></strong><br>
                                     <small><?= htmlspecialchars($reflect['email'] ?? 'N/A') ?></small>
@@ -241,7 +241,7 @@ $pageTitle = "Chi tiết Reflect";
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Số phản hồi</label>
+                                <label class="form-label text-muted">Reply Count</label>
                                 <div>
                                     <span class="badge bg-secondary">
                                         <i class="bi bi-chat-dots"></i> <?= count($replies) ?>
@@ -250,12 +250,12 @@ $pageTitle = "Chi tiết Reflect";
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Ngày tạo</label>
+                                <label class="form-label text-muted">Created Date</label>
                                 <div><?= date('d/m/Y H:i:s', strtotime($reflect['created_at'])) ?></div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Cập nhật lần cuối</label>
+                                <label class="form-label text-muted">Last Updated</label>
                                 <div><?= date('d/m/Y H:i:s', strtotime($reflect['updated_at'])) ?></div>
                             </div>
 
@@ -264,19 +264,19 @@ $pageTitle = "Chi tiết Reflect";
                             <!-- Update Status -->
                             <form method="POST">
                                 <div class="mb-3">
-                                    <label class="form-label">Trạng thái</label>
+                                    <label class="form-label">Status</label>
                                     <select name="status" class="form-select">
-                                        <option value="0" <?= $reflect['status'] == 0 ? 'selected' : '' ?>>Chờ xử lý</option>
-                                        <option value="1" <?= $reflect['status'] == 1 ? 'selected' : '' ?>>Đang xử lý</option>
-                                        <option value="2" <?= $reflect['status'] == 2 ? 'selected' : '' ?>>Đã hoàn thành</option>
+                                        <option value="0" <?= $reflect['status'] == 0 ? 'selected' : '' ?>>Pending</option>
+                                        <option value="1" <?= $reflect['status'] == 1 ? 'selected' : '' ?>>In Progress</option>
+                                        <option value="2" <?= $reflect['status'] == 2 ? 'selected' : '' ?>>Completed</option>
                                     </select>
                                 </div>
                                 <div class="d-grid gap-2">
                                     <button type="submit" name="update_status" class="btn btn-primary">
-                                        <i class="bi bi-check-circle"></i> Cập nhật trạng thái
+                                        <i class="bi bi-check-circle"></i> <span>Update Status</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left"></i> Quay lại
+                                        <i class="bi bi-arrow-left"></i> <span>Go Back</span>
                                     </a>
                                 </div>
                             </form>
@@ -288,8 +288,8 @@ $pageTitle = "Chi tiết Reflect";
     </main><!-- End #main -->
 
     <?php
-    require_once 'views/templates/footer.php';
-    require_once 'views/templates/vendors.php';
+    require_once __DIR__ . '/../templates/footer.php';
+    require_once __DIR__ . '/../templates/vendors.php';
     ?>
 
 

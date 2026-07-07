@@ -1,9 +1,24 @@
-<?php 
-define('DB_HOST', 'nvme.h2cloud.vn');
-define('DB_USER', 'diemdanh_literature');
-define('DB_PASS', 'literature@mon');
-define('DB_NAME', 'diemdanh_literature');
+<?php
+// Nạp cấu hình bí mật nếu chưa được nạp (các API require db.php trực tiếp, không qua index.php)
+if (!defined('DB_NAME') && file_exists(__DIR__ . '/env.local.php')) {
+    require_once __DIR__ . '/env.local.php';
+}
 
-$pdo = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME, DB_USER, DB_PASS);
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$pdo->exec("SET NAMES 'utf8'");
+// Fallback cho môi trường chưa có env.local.php
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
+if (!defined('DB_NAME')) define('DB_NAME', 'diemdanh_literature');
+
+$pdo = new PDO(
+    "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+    DB_USER,
+    DB_PASS,
+    [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
+    ]
+);
+
+// Lớp bảo vệ chung (CSRF...) — áp dụng cho mọi file require db.php
+require_once __DIR__ . '/security.php';

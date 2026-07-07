@@ -1,4 +1,4 @@
-<script>
+﻿<script>
     // DOM Elements
     const fileUpload = document.getElementById('file-upload'),
         fileNameDisplay = document.getElementById('file-name'),
@@ -44,7 +44,7 @@
             if (file.name.endsWith('.txt')) {
                 reader.readAsText(file);
             } else {
-                textInput.value = `(Xem trước nội dung tệp ${file.name}...\nĐây là công cụ mô phỏng, vui lòng dán nội dung văn bản để phân tích chi tiết.)`;
+                textInput.value = `(File content preview ${file.name}...\nThis is a simulation tool, please paste text content for detailed analysis.)`;
             }
         }
     }
@@ -62,7 +62,7 @@
     async function handleAnalysis() {
         const textToAnalyze = textInput.value.trim();
         if (!textToAnalyze) {
-            alert('Vui lòng nhập văn bản hoặc tải lên một tệp tin.');
+            alert('Please enter text or upload a file.');
             return;
         }
         setLoadingState(true);
@@ -97,7 +97,7 @@
         if (slideshowData) {
             displaySlideshow(slideshowData);
         } else {
-            container.innerHTML = `<p class="text-red-500">Không thể tạo trình chiếu. Vui lòng thử lại.</p>`;
+            container.innerHTML = `<p class="text-red-500">Cannot generate slideshow. Please try again.</p>`;
         }
     }
 
@@ -112,7 +112,7 @@
             currentAnalysisData.quiz = quizData.quiz; // Merge quiz data
             displayQuiz(currentAnalysisData);
         } else {
-            container.innerHTML = `<p class="text-red-500">Không thể tạo câu hỏi. Vui lòng thử lại.</p>`;
+            container.innerHTML = `<p class="text-red-500">Cannot generate questions. Please try again.</p>`;
         }
     }
 
@@ -121,12 +121,12 @@
         if (isLoading) {
             loadingSpinner.classList.remove('hidden');
             analyzeButton.querySelector('#analyze-icon').classList.add('hidden');
-            buttonText.textContent = 'Đang phân tích...';
+            buttonText.textContent = 'Analyzing...';
             analyzeButton.disabled = true;
         } else {
             loadingSpinner.classList.add('hidden');
             analyzeButton.querySelector('#analyze-icon').classList.remove('hidden');
-            buttonText.textContent = 'Phân tích Văn bản';
+            buttonText.textContent = 'Analyze Text';
             analyzeButton.disabled = false;
         }
     }
@@ -146,14 +146,14 @@
 
     function setupGeneratorTabs() {
         contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Trình chiếu</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bản trình bày dựa trên kết quả phân tích.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Trình chiếu</button>
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Generate Slideshow</h3>
+                <p class="text-slate-500 mb-6">Click the button below to create a presentation based on analysis results.</p>
+                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Generate Slideshow</button>
             </div>`;
         contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo Bài kiểm tra</h3>
-                <p class="text-slate-500 mb-6">Nhấn nút bên dưới để tạo một bài kiểm tra ngắn dựa trên nội dung văn bản.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo Câu hỏi</button>
+                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Generate Quiz</h3>
+                <p class="text-slate-500 mb-6">Click the button below to create a short quiz based on the text content.</p>
+                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Generate Questions</button>
             </div>`;
 
         document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
@@ -199,16 +199,16 @@
             }
         } catch (error) {
             console.error("Error during API call:", error);
-            alert('Đã xảy ra lỗi khi giao tiếp với AI. Vui lòng thử lại.');
+            alert('An error occurred while communicating with AI. Please try again.');
             return null;
         }
     }
 
     async function performMainAnalysis(text) {
-        const systemPrompt = `Bạn là một chuyên gia phân tích văn học. Phân tích văn bản được cung cấp và trả về một đối tượng JSON. Nội dung phải bằng tiếng Việt và chi tiết, sâu sắc.
+        const systemPrompt = `Bạn là một chuyên gia phân tích văn học. Phân tích văn bản được cung cấp và trả về một đối tượng JSON. Content phải bằng tiếng Việt và chi tiết, sâu sắc.
 
 ### QUY TẮC PHÂN LOẠI THỂ LOẠI ###
-Dựa vào các quy tắc sau để xác định 'Thể loại' trong 'characteristics'. Hãy chú ý đến cấu trúc tổng thể và đặc điểm nổi trội nhất. Khi trả về giá trị cho 'Thể loại', hãy sử dụng định dạng: "**[Tên thể loại chính] – [Tên thể loại phụ/đặc điểm]**".
+Dựa vào các quy tắc sau để xác định 'Thể loại' trong 'characteristics'. Hãy chú ý đến cấu trúc tổng thể và đặc points nổi trội nhất. Khi trả về giá trị cho 'Thể loại', hãy sử dụng định dạng: "**[Tên thể loại chính] – [Tên thể loại phụ/đặc points]**".
 1. VĂN BẢN (VĂN XUÔI):
 - Tự sự (Truyện): Có nhân vật, sự kiện, cốt truyện.
 - Miêu tả, Biểu cảm, Nghị luận, Thuyết minh, Hành chính - công vụ.
@@ -224,37 +224,37 @@ Gộp các phân tích chủ đề (thematicAnalysis) và ngôn ngữ/biểu tư
 ### QUY TẮC PHÂN TÍCH CHUYÊN SÂU THEO THỂ LOẠI ###
 BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với thể loại đã xác định và thực hiện đầy đủ các mục phân tích yêu cầu cho thể loại đó. Mỗi phân tích phải được chia thành các ý nhỏ, rõ ràng và kèm theo dẫn chứng trực tiếp từ văn bản, đặt trong thẻ <i>.
 
-- **Nếu là Kịch (dramaAnalysis):** Phân tích chi tiết thành các ý nhỏ, mỗi ý có tiêu đề in đậm và xuống dòng theo định dạng: "**Tiêu đề ý:**\\n• Nội dung phân tích. <i>Dẫn chứng...</i>" cho các mục: **characters, conflict, action, structure, dialogue**.
+- **Nếu là Kịch (dramaAnalysis):** Phân tích chi tiết thành các ý nhỏ, mỗi ý có tiêu đề in đậm và xuống dòng theo định dạng: "**Title ý:**\\n• Content phân tích. <i>Dẫn chứng...</i>" cho các mục: **characters, conflict, action, structure, dialogue**.
 - **Nếu là Thơ (poetryAnalysis):** Phân tích các mục sau: **rhyming, emotionalFlow, structure, imagery, rhythm, spaceTimeOrganization, rhetoricalDevices**.
-- **Nếu là Truyện (storyAnalysis):** Phân tích từng mục thành các ý nhỏ, mỗi ý có tiêu đề in đậm và xuống dòng theo định dạng: "**Tiêu đề ý:**\\n• Nội dung phân tích. <i>Dẫn chứng...</i>" cho các mục: **character, space, time, dialogue (bao gồm cả đối thoại và độc thoại nội tâm), narrator, situation (tình huống truyện), prominentDetails (chi tiết nổi bật)**.
+- **Nếu là Truyện (storyAnalysis):** Phân tích từng mục thành các ý nhỏ, mỗi ý có tiêu đề in đậm và xuống dòng theo định dạng: "**Title ý:**\\n• Content phân tích. <i>Dẫn chứng...</i>" cho các mục: **character, space, time, dialogue (bao gồm cả đối thoại và độc thoại nội tâm), narrator, situation (tình huống truyện), prominentDetails (chi tiết nổi bật)**.
 
 ### PHÂN TÍCH CUỐI CÙNG ###
-1. 'concludingThoughts': Rút ra 'lesson' (Bài học) và 'message' (Thông điệp).
-2. 'intertextuality' (Phân tích Liên văn bản):
+1. 'concludingThoughts': Rút ra 'lesson' (Lesson) và 'message' (Message).
+2. 'intertextuality' (Intertextuality Analysis):
    - **Quy tắc chung:** Phân tích phải dựa trên thể loại của tác phẩm chính.
    
    - **1. Đối với Kịch (Drama):**
      - **Yêu cầu:** Tác phẩm so sánh ('comparativeText') BẮT BUỘC phải là một vở kịch của một tác giả khác.
      - **Mục tiêu:** Làm nổi bật ý tưởng, phong cách biểu đạt, xung đột kịch và thông điệp nhân văn.
-     - **Cấu trúc:**
+     - **Structure:**
        + initialAnalysis: Nhận xét chung về nội dung, chủ đề, phong cách của vở kịch chính.
        + comparativeText: { title, author }
        + comparison: { similarities (tương đồng), differences (khác biệt), effects (hiệu quả) }
 
    - **2. Đối với Văn xuôi / Truyện ngắn / Tiểu thuyết (Prose / Story):**
-     - **Yêu cầu:** Tác phẩm so sánh ('comparativeText') BẮT BUỘC phải là một truyện ngắn hoặc tiểu thuyết khác, có cùng chủ đề hoặc kiểu nhân vật, của một tác giả khác.
-     - **Mục tiêu:** So sánh cách kể chuyện, xây dựng nhân vật, điểm nhìn trần thuật và thông điệp nhân văn.
+     - **Yêu cầu:** Tác phẩm so sánh ('comparativeText') BẮT BUỘC phải là một truyện ngắn or tiểu thuyết khác, có cùng chủ đề or kiểu nhân vật, của một tác giả khác.
+     - **Mục tiêu:** So sánh cách kể chuyện, xây dựng nhân vật, points nhìn trần thuật và thông điệp nhân văn.
      - **Lựa chọn gợi ý:** Nếu truyện chính là hiện thực → chọn một truyện hiện thực khác. Nếu truyện có yếu tố tượng trưng/tâm lý → chọn tác phẩm cùng phong cách.
-     - **Cấu trúc:**
+     - **Structure:**
        + initialAnalysis: Tóm tắt chủ đề, thông điệp, lối kể chuyện.
        + comparativeText: { title, author }
        + comparison: { similarities, differences, effects }
 
    - **3. Đối với Thơ (Poetry):**
-     - **Yêu cầu:** Tác phẩm so sánh là một bài thơ khác, cùng hoặc khác thời kỳ, có chủ đề hoặc nguồn cảm hứng tương tự (tình yêu, quê hương, chiến tranh, v.v.).
+     - **Yêu cầu:** Tác phẩm so sánh là một bài thơ khác, cùng or khác thời kỳ, có chủ đề or nguồn cảm hứng tương tự (tình yêu, quê hương, chiến tranh, v.v.).
      - **Mục tiêu:** Làm nổi bật giọng điệu, hình ảnh nghệ thuật, thủ pháp tu từ và cảm xúc trữ tình.
      - **Lựa chọn gợi ý:** Nếu thơ cổ điển → so sánh với thơ hiện đại cùng chủ đề. Nếu thơ hiện đại → so sánh với tác phẩm cùng thời kỳ.
-     - **Cấu trúc:**
+     - **Structure:**
        + initialAnalysis: Nhận xét về chủ đề, cảm xúc chủ đạo, phong cách thơ.
        + comparativeText: { title, author }
        + comparison: { similarities, differences, effects }
@@ -467,7 +467,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
     }
 
     async function generateSlideshowContent(analysisContext) {
-        const systemPrompt = `Bạn là một chuyên gia biên tập nội dung. Dựa trên phân tích văn học chi tiết sau (dạng JSON), hãy tóm tắt các điểm chính từ các phần phân tích chuyên sâu (poetryAnalysis, storyAnalysis, dramaAnalysis) và các phần khác thành nội dung ngắn gọn cho các slide thuyết trình. Mỗi slide nên có tiêu đề (heading) và nội dung (content) súc tích, dễ đọc. Đồng thời, cung cấp thêm 3-4 bài báo nghiên cứu học thuật liên quan (về tác phẩm, tác giả, hoặc thể loại), định dạng theo chuẩn MLA Việt hóa (Tác giả. <i>Tên sách</i>. NXB, Năm. hoặc Tác giả. "Tên bài báo." <i>Tên tạp chí</i>, số, năm, trang.). Trả về một đối tượng JSON.`;
+        const systemPrompt = `Bạn là một chuyên gia biên tập nội dung. Dựa trên phân tích văn học chi tiết sau (dạng JSON), hãy tóm tắt các points chính từ các phần phân tích chuyên sâu (poetryAnalysis, storyAnalysis, dramaAnalysis) và các phần khác thành nội dung ngắn gọn cho các slide thuyết trình. Mỗi slide nên có tiêu đề (heading) và nội dung (content) súc tích, dễ đọc. Đồng thời, cung cấp thêm 3-4 bài báo nghiên cứu học thuật liên quan (về tác phẩm, tác giả, or thể loại), định dạng theo chuẩn MLA Việt hóa (Tác giả. <i>Tên sách</i>. NXB, Năm. or Tác giả. "Tên bài báo." <i>Tên tạp chí</i>, số, năm, trang.). Trả về một đối tượng JSON.`;
         const schema = {
             type: "OBJECT",
             properties: {
@@ -554,7 +554,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
     // --- Display Functions ---
     function displayAnalysis(result) {
         if (!result) return;
-        let html = `<h1>${result.title || 'Không có tiêu đề'}</h1>`;
+        let html = `<h1>${result.title || 'No title'}</h1>`;
 
         const formatDetailedAnalysis = (text) => {
             if (!text) return '';
@@ -576,7 +576,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
         };
 
 
-        html += `<h2>Đặc điểm văn bản</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+        html += `<h2>Text Characteristics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
         if (result.characteristics) {
             for (const [key, value] of Object.entries(result.characteristics)) {
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">${key}</strong><span class="text-indigo-700 font-semibold">${value}</span></div>`;
@@ -584,16 +584,16 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
         }
         html += `</div>`;
 
-        html += `<h2>Thống kê Ngôn ngữ</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+        html += `<h2>Language Statistics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
         if (result.stats) {
-            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số ký tự</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
-            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
-            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ nổi bật (tần suất)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
+            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Character Count</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
+            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Word Count</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
+            html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
         }
         html += `</div>`;
 
         if (result.keywords && result.keywords.length > 0) {
-            html += `<h2>Từ khóa chính</h2><div class="flex flex-wrap gap-2 mb-6">`;
+            html += `<h2>Key Terms</h2><div class="flex flex-wrap gap-2 mb-6">`;
             result.keywords.forEach(keyword => {
                 html += `<span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full">${keyword}</span>`;
             });
@@ -602,7 +602,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
 
         // --- General Analysis Section ---
         if (result.generalAnalysis) {
-            html += `<h2>Phân tích Chung</h2>`;
+            html += `<h2>General Analysis</h2>`;
             const ga = result.generalAnalysis;
 
             // Thematic Analysis within General Analysis
@@ -614,28 +614,28 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
 
             // Linguistic Insights within General Analysis
             if (ga.linguisticInsights) {
-                html += `<h3>Ngôn ngữ & Biểu tượng</h3>`; // Sub-heading for linguistic insights
+                html += `<h3>Language & Symbolism</h3>`; // Sub-heading for linguistic insights
                 const insights = ga.linguisticInsights;
                 html += `<ul>`; // Start bullet list for insights
                 if (insights.motifs?.length > 0) {
-                    html += `<li><strong>Mô-típ lặp lại:</strong><ul>`; // Nested list for motifs
+                    html += `<li><strong>Recurring Motifs:</strong><ul>`; // Nested list for motifs
                     insights.motifs.forEach(item => {
                         html += `<li>${item}</li>`;
                     });
                     html += `</ul></li>`;
                 }
                 if (insights.symbolsAndMetaphors?.length > 0) {
-                    html += `<li><strong>Biểu tượng & Ẩn dụ:</strong><ul>`; // Nested list for symbols
+                    html += `<li><strong>Symbols & Metaphors:</strong><ul>`; // Nested list for symbols
                     insights.symbolsAndMetaphors.forEach(item => {
                         html += `<li>${item}</li>`;
                     });
                     html += `</ul></li>`;
                 }
                 if (insights.temporalElements) {
-                    html += `<li><strong>Yếu tố Thời gian:</strong> ${insights.temporalElements}</li>`;
+                    html += `<li><strong>Temporal Elements:</strong> ${insights.temporalElements}</li>`;
                 }
                 if (insights.natureAndScenery) {
-                    html += `<li><strong>Thiên nhiên & Phong cảnh:</strong> ${insights.natureAndScenery}</li>`;
+                    html += `<li><strong>Nature & Scenery:</strong> ${insights.natureAndScenery}</li>`;
                 }
                 html += `</ul>`; // End bullet list for insights
             }
@@ -644,61 +644,61 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
 
         // --- Genre-Specific Analysis ---
         if (result.storyAnalysis) {
-            html += `<h2>Phân tích Truyện</h2>`;
+            html += `<h2>Story Analysis</h2>`;
             const sa = result.storyAnalysis;
-            if (sa.character) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
+            if (sa.character) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
             // Removed plot for Story analysis as per last instructions
-            if (sa.space) html += `<h3>Không gian</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
-            if (sa.time) html += `<h3>Thời gian</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
-            if (sa.dialogue) html += `<h3>Lời thoại & Độc thoại nội tâm</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
-            if (sa.narrator) html += `<h3>Người kể chuyện</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
-            if (sa.situation) html += `<h3>Tình huống truyện</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
-            if (sa.prominentDetails) html += `<h3>Chi tiết nổi bật</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
+            if (sa.space) html += `<h3>Space</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
+            if (sa.time) html += `<h3>Time</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
+            if (sa.dialogue) html += `<h3>Dialogue & Internal Monologue</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
+            if (sa.narrator) html += `<h3>Narrator</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
+            if (sa.situation) html += `<h3>Story Situation</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
+            if (sa.prominentDetails) html += `<h3>Prominent Details</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
         }
 
         if (result.dramaAnalysis) {
-            html += `<h2>Phân tích Kịch</h2>`;
+            html += `<h2>Drama Analysis</h2>`;
             const da = result.dramaAnalysis;
-            if (da.characters) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
-            if (da.conflict) html += `<h3>Xung đột</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
-            if (da.action) html += `<h3>Hành động</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
-            if (da.structure) html += `<h3>Cấu trúc</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
-            if (da.dialogue) html += `<h3>Đối thoại</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
+            if (da.characters) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
+            if (da.conflict) html += `<h3>Conflict</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
+            if (da.action) html += `<h3>Actions</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
+            if (da.structure) html += `<h3>Structure</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
+            if (da.dialogue) html += `<h3>Dialogue</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
         }
 
         if (result.poetryAnalysis) {
-            html += `<h2>Phân tích Thơ ca</h2>`;
+            html += `<h2>Poetry Analysis</h2>`;
             const pa = result.poetryAnalysis;
-            if (pa.rhyming) html += `<h3>Gieo vần trong thơ</h3><p>${pa.rhyming}</p>`;
-            if (pa.emotionalFlow) html += `<h3>Mạch cảm xúc</h3><p>${pa.emotionalFlow}</p>`;
-            if (pa.structure) html += `<h3>Cấu trúc bài thơ</h3><p>${pa.structure}</p>`;
-            if (pa.imagery) html += `<h3>Hình ảnh trong thơ</h3><p>${pa.imagery}</p>`;
-            if (pa.rhythm) html += `<h3>Phân tích Nhịp điệu</h3><p>${pa.rhythm.replace(/\n/g, '<br>')}</p>`;
-            if (pa.spaceTimeOrganization) html += `<h3>Tổ chức không gian & thời gian</h3><p>${pa.spaceTimeOrganization}</p>`;
-            if (pa.rhetoricalDevices) html += `<h3>Biện pháp tu từ</h3><p>${pa.rhetoricalDevices}</p>`;
+            if (pa.rhyming) html += `<h3>Rhyming in Poetry</h3><p>${pa.rhyming}</p>`;
+            if (pa.emotionalFlow) html += `<h3>Emotional Flow</h3><p>${pa.emotionalFlow}</p>`;
+            if (pa.structure) html += `<h3>Poem Structure</h3><p>${pa.structure}</p>`;
+            if (pa.imagery) html += `<h3>Imagery in Poetry</h3><p>${pa.imagery}</p>`;
+            if (pa.rhythm) html += `<h3>Rhythm Analysis</h3><p>${pa.rhythm.replace(/\n/g, '<br>')}</p>`;
+            if (pa.spaceTimeOrganization) html += `<h3>Space & Time Organization</h3><p>${pa.spaceTimeOrganization}</p>`;
+            if (pa.rhetoricalDevices) html += `<h3>Rhetorical Devices</h3><p>${pa.rhetoricalDevices}</p>`;
         }
 
         // --- Concluding Sections ---
         if (result.concludingThoughts) {
-            html += `<h2>Bài học & Thông điệp</h2>`;
+            html += `<h2>Lessons & Messages</h2>`;
             const ct = result.concludingThoughts;
-            if (ct.lesson) html += `<h3>Bài học</h3><p>${ct.lesson}</p>`;
-            if (ct.message) html += `<h3>Thông điệp</h3><p>${ct.message}</p>`;
+            if (ct.lesson) html += `<h3>Lesson</h3><p>${ct.lesson}</p>`;
+            if (ct.message) html += `<h3>Message</h3><p>${ct.message}</p>`;
         }
 
         if (result.intertextuality) {
-            html += `<h2>Phân tích Liên văn bản</h2>`;
+            html += `<h2>Intertextuality Analysis</h2>`;
             const it = result.intertextuality;
             if (it.initialAnalysis) {
                 html += `<p>${it.initialAnalysis}</p>`;
             }
             if (it.comparativeText) {
-                html += `<h3>So sánh với tác phẩm tương đồng: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
+                html += `<h3>Comparison with similar work: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
             }
             if (it.comparison) {
-                if (it.comparison.similarities) html += `<h4>Điểm tương đồng</h4><p>${it.comparison.similarities}</p>`;
-                if (it.comparison.differences) html += `<h4>Điểm khác biệt/thay đổi</h4><p>${it.comparison.differences}</p>`;
-                if (it.comparison.effects) html += `<h4>Hiệu quả</h4><p>${it.comparison.effects}</p>`;
+                if (it.comparison.similarities) html += `<h4>Similarities</h4><p>${it.comparison.similarities}</p>`;
+                if (it.comparison.differences) html += `<h4>Differences/Changes</h4><p>${it.comparison.differences}</p>`;
+                if (it.comparison.effects) html += `<h4>Effects</h4><p>${it.comparison.effects}</p>`;
             }
         }
 
@@ -719,7 +719,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
                 return ref.replace(/<i>(.*?)<\/i>/g, '<em>$1</em>'); // Use em for italics in prose context
             }).join('<br>');
             slides.push({
-                heading: 'Tài liệu tham khảo',
+                heading: 'References',
                 content: formattedReferences
             });
         }
@@ -736,14 +736,14 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
         const totalSlides = slides.length;
         contentSlideshow.innerHTML = `
                 <div class="mb-4">
-                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Bản trình bày'}</h2>
-                    <p class="text-slate-600">Bản trình bày tóm tắt nội dung phân tích.</p>
+                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Presentation'}</h2>
+                    <p class="text-slate-600">Presentation summarizing analysis content.</p>
                 </div>
                 <div id="slideshow-container" class="bg-white rounded-xl shadow-inner">${slideHTML}</div>
                 <div class="flex items-center justify-between mt-4">
-                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Trước</button>
+                    <button id="prev-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">&larr; Previous</button>
                     <span id="slide-counter" class="text-sm font-medium text-slate-600">1 / ${totalSlides}</span>
-                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Sau &rarr;</button>
+                    <button id="next-slide" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg font-semibold text-slate-700">Next &rarr;</button>
                 </div>`;
 
         const slideWrapper = contentSlideshow.querySelector('#slide-wrapper');
@@ -779,8 +779,8 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
         if (!result || !result.quiz) return;
         let quizHTML = `
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold">Bài kiểm tra: ${result.title || 'Văn bản'}</h2>
-                    <p class="text-slate-600">Kiểm tra kiến thức của bạn về tác phẩm.</p>
+                    <h2 class="text-2xl font-bold">Quiz: ${result.title || 'Text'}</h2>
+                    <p class="text-slate-600">Test your knowledge of the work.</p>
                 </div>
                 <div id="quiz-form" class="space-y-6">`;
 
@@ -795,7 +795,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
         });
 
         quizHTML += `</div><div class="mt-8">
-                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Nộp bài</button>
+                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Submit</button>
                 <div id="quiz-results" class="mt-4 text-lg font-bold"></div>
             </div>`;
         contentQuiz.innerHTML = quizHTML;
@@ -825,7 +825,7 @@ BẮT BUỘC phải tạo object phân tích chuyên sâu tương ứng với th
                     }
                 }
             });
-            resultsDiv.textContent = `Kết quả của bạn: ${score} / ${result.quiz.length}`;
+            resultsDiv.textContent = `Your score: ${score} / ${result.quiz.length}`;
             resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
         });
     }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -75,7 +75,7 @@
     }
 
     // Get current phase name for display (from URL phase_id, not task's phase_id)
-    $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
+    $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Unknown';
 
     // Only override topic_id and phase_id if they weren't provided in URL
     if (!isset($_GET['topic_id']) || $_GET['topic_id'] <= 0) {
@@ -108,20 +108,28 @@
 
     if (!$responseData) {
         // No response yet for this deliver - show empty state
-        echo "<script>alert('Chưa có bài làm cho giao hàng này. Vui lòng hoàn thành bài làm trước.'); window.location.href='/class/task?topic_id={$topic_id}&phase_id={$phase_id}';</script>";
+        echo "<script>alert('No submission for this deliver yet. Please complete your work first.'); window.location.href='/class/task?topic_id={$topic_id}&phase_id={$phase_id}';</script>";
         exit;
     }
 
     // Get deliver details to identify the owner
     $deliverDetails = getDeliverDetails($deliver_id);
+    $deliver_status = 0;
     if ($deliverDetails) {
+        $deliver_status = (int)($deliverDetails['status'] ?? 0);
         $target_user_id = $deliverDetails['type'] === 'user' ? $deliverDetails['value'] : $current_user_id;
 
         // Get user name
         $userStmt = $pdo->prepare("SELECT fullname FROM users WHERE user_id = :user_id");
         $userStmt->execute([':user_id' => $target_user_id]);
         $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
-        $target_user_name = $userData['fullname'] ?? 'Không rõ';
+        $target_user_name = $userData['fullname'] ?? 'Unknown';
+    }
+
+    // Teachers only see the student's confirmed final submission
+    if ($current_user_role === 'teacher' && $deliver_status < 2) {
+        echo "<script>alert('This student has not confirmed a final submission yet.'); history.back();</script>";
+        exit;
     }
 
     $response_id = $responseData['id_response'];
@@ -136,13 +144,16 @@
 
     // Check if there are no content blocks
     $hasNoContent = empty($contentBlocks);
+
+    // Take Note — only in PHASE_TAKENOTE
+    $phaseCode = $phaseInfo['phase_code'] ?? '';
+    $isTakeNotePhase = ($phaseCode === 'PHASE_TAKENOTE');
+    $studentNotes = [];
+    // Use $display_response_id to fetch the target student's notes, even if viewed by teacher
+    $studentNotes = getNotesByResponse($display_response_id);
     ?>
-    <title>Bình luận - <?= htmlspecialchars($task_title) ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/comment.css">
+    <title data-lang-key="comment_page">Comments - <?= htmlspecialchars($task_title) ?></title>
+    <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/comment.css">
 </head>
 
 <body>
@@ -175,7 +186,7 @@
                     <?php if ($target_user_id != $current_user_id): ?>
                         <p class="text-muted mb-0">
                             <i class="bi bi-person"></i>
-                            Bài làm của: <strong><?= htmlspecialchars($target_user_name) ?></strong>
+                            <span>Work by:</span> <strong><?= htmlspecialchars($target_user_name) ?></strong>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -183,38 +194,104 @@
                     <div>
                         <a href="/class/task/view?task_id=<?= $back_task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
                             class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                            <i class="bi bi-arrow-left"></i> <span>Go Back to List</span>
                         </a>
                     </div>
                 <?php endif; ?>
             </div>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class">Lớp học</a></li>
+                    <li class="breadcrumb-item"><a href="/class">Class</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Phân
-                            tích</a>
+                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Analysis</a>
                     </li>
-                    <li class="breadcrumb-item active">Bình luận</li>
+                    <li class="breadcrumb-item active">Comments</li>
                 </ol>
             </nav>
         </div>
 
+        <?php if ($isTakeNotePhase): ?>
+        <!-- ===== PHASE 4: KNOWLEDGE BRIDGE — Classroom Instruction ===== -->
+
+        <div id="notes-panel">
+            <!-- Header — Knowledge Bridge -->
+            <div class="np-header">
+                <div class="np-header-left">
+                    <div class="np-icon"><i class="bi bi-diagram-3"></i></div>
+                    <div>
+                        <p class="np-title">Take Note</p>
+                        <p class="np-subtitle">Connect AI analysis with teacher's lecture</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
+                    <span class="np-badge" id="notes-count-badge"><?= count($studentNotes) ?> notes</span>
+                </div>
+            </div>
+
+            <!-- Two-pane body -->
+            <div id="np-body-content" class="">
+                <div class="np-body <?= $current_user_role === 'student' ? 'np-body--dual' : 'np-body--single' ?>">
+                    <?php if ($current_user_role === 'student'): ?>
+                    <!-- Write pane — Teacher's Insights (Student Only) -->
+                    <div class="np-write">
+                        <p class="np-section-label"><i class="bi bi-mortarboard"></i> Take note from lecture</p>
+                        <textarea id="note-input" class="np-textarea"
+                            placeholder="Write down the deep analysis from the teacher that AI may have missed...&#10;&#10;For example:&#10;• Historical and cultural context added by the teacher&#10;• Subtle feelings that the algorithm did not capture&#10;• Connections between the work and real life&#10;• Extended questions from the discussion"></textarea>
+                        <button id="save-note-btn" class="np-save-btn">
+                            <i class="bi bi-plus-circle"></i> Add note
+                        </button>
+                        <span id="note-save-status" class="np-status"></span>
+                        <p class="np-hint"><i class="bi bi-keyboard"></i> Ctrl + Enter to save</p>
+                    </div>
+                    <?php endif; ?>
+
+                <!-- Read pane — Bridge Journal -->
+                <div class="np-read">
+                    <p class="np-section-label"><i class="bi bi-link-45deg"></i> Bridge Journal <?= $current_user_role === 'teacher' ? '(Student\'s)' : '' ?></p>
+                    <div id="notes-list" class="np-items">
+                        <?php foreach ($studentNotes as $i => $note): ?>
+                        <div class="np-note-card" data-note-id="<?= $note['content_id'] ?>">
+                            <span class="np-note-num">#<?= $i + 1 ?></span>
+                            <p class="np-note-text"><?= htmlspecialchars($note['content']) ?></p>
+                            <div class="np-note-footer">
+                                <span class="np-note-time"><i class="bi bi-clock"></i> <?= date('d/m H:i', strtotime($note['created_at'])) ?></span>
+                                <?php if ($current_user_role === 'student'): ?>
+                                <button class="np-delete-btn delete-note-btn" data-note-id="<?= $note['content_id'] ?>" title="Delete">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        <?php if (empty($studentNotes)): ?>
+                        <div id="notes-empty-state" class="np-empty">
+                            <i class="bi bi-diagram-3 fs-2"></i>
+                            <span>Notes from the live lecture<br>will appear here</span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- ===== END PHASE 4: KNOWLEDGE BRIDGE ===== -->
+        <?php endif; ?>
+
         <?php if (!$allow_comment): ?>
             <div class="alert alert-warning">
                 <i class="bi bi-exclamation-triangle"></i>
-                Giai đoạn này không cho phép bình luận.
+                <span>This phase does not allow comments.</span>
             </div>
         <?php endif; ?>
 
         <?php if ($hasNoContent): ?>
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
-                <strong>Học sinh chưa có nội dung bài làm.</strong>
+                <strong>The student has not submitted any content yet.</strong>
                 <?php if ($current_user_role === 'teacher'): ?>
-                    <br>Bạn có thể để lại nhận xét chung bằng cách thêm content block hoặc đợi học sinh nộp bài.
+                    <br>You can leave a general comment by adding a content block or wait for the student to submit their work.
                 <?php else: ?>
-                    <br>Vui lòng hoàn thành bài làm của bạn trước khi truy cập trang này.
+                    <br>Please complete your work before accessing this page.
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -225,7 +302,7 @@
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-chat-square-text-fill text-primary"></i>
-                        Nhận xét chung
+                        General Comment
                     </h5>
 
                     <!-- General Comments List -->
@@ -239,9 +316,9 @@
                             <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg" alt="Avatar"
                                 class="fb-avatar">
                             <textarea class="fb-comment-input" id="general-comment-input"
-                                placeholder="Viết nhận xét chung về bài làm..."></textarea>
+                                placeholder="Write a general comment about the work..."></textarea>
                             <button class="fb-comment-btn" id="general-comment-btn">
-                                <i class="bi bi-send-fill"></i> Gửi nhận xét
+                                <i class="bi bi-send-fill"></i> <span>Send Comment</span>
                             </button>
                         </div>
                     </div>
@@ -252,14 +329,17 @@
             <div class="comment-view-toggle">
                 <div>
                     <i class="bi bi-chat-dots"></i>
-                    <strong>Chế độ xem bình luận</strong>
+                    <strong>Comment View Mode</strong>
+                    <span id="comment-live-badge" class="comment-live-badge" title="Comments refresh automatically">
+                        <span class="comment-live-dot"></span> Live
+                    </span>
                 </div>
                 <div class="toggle-buttons">
                     <button class="toggle-btn active" data-view="individual">
-                        <i class="bi bi-file-earmark-text"></i> Theo từng content
+                        <i class="bi bi-file-earmark-text"></i> <span>View by Content</span>
                     </button>
                     <button class="toggle-btn" data-view="all">
-                        <i class="bi bi-list-ul"></i> Hiển thị tất cả
+                        <i class="bi bi-list-ul"></i> <span>Show All</span>
                     </button>
                 </div>
             </div>
@@ -269,7 +349,7 @@
             <?php if ($hasNoContent): ?>
                 <div class="text-center py-5">
                     <i class="bi bi-file-earmark-x" style="font-size: 4rem; color: #6c757d;"></i>
-                    <p class="text-muted mt-3">Chưa có nội dung để hiển thị</p>
+                    <p class="text-muted mt-3">No content to display</p>
                 </div>
             <?php else: ?>
                 <div id="content-blocks-container">
@@ -285,16 +365,16 @@
                                 <div class="fb-comment-block" id="comment-block-<?= $block['content_id'] ?>">
                                     <!-- Comments List -->
                                     <div class="fb-comments-list" id="comments-list-<?= $block['content_id'] ?>">
-                                        <div class="text-center text-slate-400 text-sm py-2">Đang tải bình luận...</div>
+                                        <div class="text-center text-slate-400 text-sm py-2">Loading comments...</div>
                                     </div>
 
                                     <!-- Comment Input -->
                                     <div class="fb-comment-input-area">
                                         <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg"
                                             alt="Avatar">
-                                        <textarea class="fb-comment-input" placeholder="Viết bình luận..."
+                                        <textarea class="fb-comment-input" placeholder="Write comments..."
                                             data-content-id="<?= $block['content_id'] ?>" rows="1"></textarea>
-                                        <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Gửi</button>
+                                        <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Send</button>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -319,6 +399,7 @@
         const CURRENT_USER_ID = <?= $current_user_id ?>;
         const CURRENT_USER_ROLE = <?= json_encode($current_user_role) ?>;
         const ALLOW_COMMENT = <?= $allow_comment ? 'true' : 'false' ?>;
+        const IS_TAKE_NOTE_PHASE = <?= $isTakeNotePhase ? 'true' : 'false' ?>;
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
         const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
         const TARGET_USER_NAME = <?= json_encode($target_user_name) ?>;
@@ -327,6 +408,7 @@
         const VIEWING_FROM_TASK_ID = <?= $viewing_from_task_id > 0 ? $viewing_from_task_id : 'null' ?>;
         // Use viewing task for new comments if provided, otherwise use original task
         const COMMENT_TASK_ID = VIEWING_FROM_TASK_ID || TASK_ID;
+        const DELIVER_ID = <?= (int)$deliver_id ?>;
         // Current phase name for badge display
         const CURRENT_PHASE_NAME = <?= json_encode($currentPhaseName) ?>;
 
@@ -347,8 +429,13 @@
             // Load comments for all blocks
             if (ALLOW_COMMENT) {
                 loadAllComments();
-                loadGeneralComments(); // Load general comments
-                setupGeneralCommentButton(); // Setup general comment button
+                setupGeneralCommentButton();
+                startCommentPolling();
+            }
+
+            if (IS_TAKE_NOTE_PHASE) {
+                setupNotesHandlers();
+                startNotesPolling();
             }
         });
 
@@ -720,71 +807,30 @@
                     const commentText = textarea.value.trim();
 
                     if (!commentText) {
-                        alert('Vui lòng nhập nội dung bình luận');
+                        alert('Please enter a comment');
                         return;
                     }
 
                     this.disabled = true;
-                    this.textContent = 'Đang gửi...';
+                    this.textContent = 'Sending...';
 
                     try {
                         await addComment(contentId, commentText);
                         textarea.value = '';
                     } catch (error) {
-                        alert('Lỗi: ' + error.message);
+                        alert('Error: ' + error.message);
                     } finally {
                         this.disabled = false;
-                        this.textContent = 'Gửi';
+                        this.textContent = 'Send';
                     }
                 });
             });
         }
 
-        // Load comments for all content blocks
-        async function loadAllComments() {
-            for (const block of contentBlocksData) {
-                await loadComments(block.content_id);
-            }
-        }
-
         // ========== GENERAL COMMENTS FUNCTIONS ==========
 
-        // Load general comments (content_id = null)
         async function loadGeneralComments() {
-            try {
-                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'load_comments',
-                        response_id: RESPONSE_ID, // Load general comments for this specific response
-                        content_id: null // NULL for general comments
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    renderGeneralComments(result.comments);
-                }
-            } catch (error) {
-                console.error('Error loading general comments:', error);
-            }
-        }
-
-        // Render general comments
-        function renderGeneralComments(comments) {
-            const container = document.getElementById('general-comments-list');
-
-            if (comments.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có nhận xét nào</div>';
-                return;
-            }
-
-            container.innerHTML = comments.map(comment => createCommentHTML(comment)).join('');
-            attachGeneralCommentEventListeners();
+            await pollAllComments(true);
         }
 
         // Setup general comment button
@@ -798,48 +844,53 @@
                 const commentText = textarea.value.trim();
 
                 if (!commentText) {
-                    alert('Vui lòng nhập nội dung nhận xét');
+                    alert('Please enter comment content');
                     return;
                 }
 
                 this.disabled = true;
-                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
 
                 try {
                     await addGeneralComment(commentText);
                     textarea.value = '';
                 } catch (error) {
-                    alert('Lỗi: ' + error.message);
+                    alert('Error: ' + error.message);
                 } finally {
                     this.disabled = false;
-                    this.innerHTML = '<i class="bi bi-send-fill"></i> Gửi nhận xét';
+                    this.innerHTML = '<i class="bi bi-send-fill"></i> Send Comment';
                 }
             });
         }
 
         // Add general comment
         async function addGeneralComment(commentText, replyToId = null) {
-            const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'add_comment',
-                    content_id: null, // NULL for general comments
-                    task_id: COMMENT_TASK_ID, // Still needed for the comment table
-                    response_id: RESPONSE_ID, // Associate with specific response
-                    comment_text: commentText,
-                    reply_comment_id: replyToId
-                })
-            });
+            isSubmittingComment = true;
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'add_comment',
+                        content_id: null,
+                        task_id: COMMENT_TASK_ID,
+                        response_id: RESPONSE_ID,
+                        comment_text: commentText,
+                        reply_comment_id: replyToId
+                    })
+                });
 
-            const result = await response.json();
+                const result = await response.json();
 
-            if (result.success) {
-                await loadGeneralComments();
-            } else {
-                throw new Error(result.message);
+                if (result.success) {
+                    await pollAllComments(true);
+                } else {
+                    throw new Error(result.message);
+                }
+            } finally {
+                isSubmittingComment = false;
             }
         }
 
@@ -859,7 +910,7 @@
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
-                    if (!confirm('Bạn có chắc muốn xóa nhận xét này?')) return;
+                    if (!confirm('Are you sure you want to delete this comment?')) return;
 
                     const commentId = this.dataset.commentId;
 
@@ -878,12 +929,12 @@
                         const result = await response.json();
 
                         if (result.success) {
-                            await loadGeneralComments();
+                            await pollAllComments(true);
                         } else {
-                            alert('Lỗi: ' + result.message);
+                            alert('Error: ' + result.message);
                         }
                     } catch (error) {
-                        alert('Lỗi: ' + error.message);
+                        alert('Error: ' + error.message);
                     }
                 });
             });
@@ -897,22 +948,22 @@
                     const replyText = textarea.value.trim();
 
                     if (!replyText) {
-                        alert('Vui lòng nhập nội dung trả lời');
+                        alert('Please enter a reply.');
                         return;
                     }
 
                     this.disabled = true;
-                    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+                    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
 
                     try {
                         await addGeneralComment(replyText, parentId);
                         textarea.value = '';
                         replyForm.style.display = 'none';
                     } catch (error) {
-                        alert('Lỗi: ' + error.message);
+                        alert('Error: ' + error.message);
                     } finally {
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-send-fill"></i> Gửi';
+                        this.innerHTML = '<i class="bi bi-send-fill"></i> Send';
                     }
                 });
             });
@@ -920,96 +971,135 @@
 
         // ========== END GENERAL COMMENTS FUNCTIONS ==========
 
-        // Load comments for all content blocks
-        async function loadAllComments() {
-            for (const block of contentBlocksData) {
-                await loadComments(block.content_id);
-            }
-        }
+        let commentPollTimer = null;
+        let notesPollTimer = null;
+        const commentFingerprints = {};
+        let generalCommentsFingerprint = '';
+        let notesFingerprint = '';
+        const COMMENT_POLL_MS = 4000;
+        const NOTES_POLL_MS = 4000;
+        let isSubmittingComment = false;
 
-        // Load comments for a content block
-        async function loadComments(contentId) {
-            try {
-                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'load_comments',
-                        content_id: contentId
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    console.log('Loaded comments for content_id:', contentId, '- Count:', result.comments.length);
-                    if (result.debug) {
-                        console.log('Debug info:', result.debug);
-                    }
-                    renderComments(contentId, result.comments);
-                } else {
-                    console.error('Failed to load comments:', result);
+        function countAllComments(comments) {
+            let total = comments.length;
+            comments.forEach((c) => {
+                if (c.replies && c.replies.length) {
+                    total += countAllComments(c.replies);
                 }
-            } catch (error) {
-                console.error('Error loading comments:', error);
-            }
+            });
+            return total;
         }
 
-        // Render comments
-        function renderComments(contentId, comments) {
-            const container = document.getElementById(`comments-list-${contentId}`);
+        function fingerprintComments(comments) {
+            const parts = [];
+            const walk = (items) => {
+                items.forEach((c) => {
+                    parts.push(`${c.comment_id}:${c.created_at}`);
+                    if (c.replies && c.replies.length) {
+                        walk(c.replies);
+                    }
+                });
+            };
+            walk(comments);
+            return parts.join('|');
+        }
 
-            if (comments.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận nào</div>';
+        function getOpenReplyFormIds(container) {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.fb-reply-form'))
+                .filter((form) => form.style.display !== 'none')
+                .map((form) => form.id);
+        }
+
+        function restoreOpenReplyForms(container, openIds) {
+            openIds.forEach((id) => {
+                const form = container.querySelector(`#${id}`);
+                if (form) form.style.display = 'block';
+            });
+        }
+
+        function renderComments(contentId, comments, force = false) {
+            const container = document.getElementById(`comments-list-${contentId}`);
+            if (!container) return;
+
+            const fp = fingerprintComments(comments);
+            if (!force && commentFingerprints[contentId] === fp) {
                 return;
             }
 
-            container.innerHTML = comments.map(comment => createCommentHTML(comment)).join('');
+            const scrollTop = container.scrollTop;
+            const openReplyForms = getOpenReplyFormIds(container);
 
-            // Attach event listeners
-            attachCommentEventListeners(contentId);
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">No comments yet</div>';
+            } else {
+                container.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
+                attachCommentEventListeners(contentId);
+                restoreOpenReplyForms(container, openReplyForms);
+            }
+
+            container.scrollTop = scrollTop;
+            commentFingerprints[contentId] = fp;
         }
 
-        // Create comment HTML
-        // Create comment HTML (with depth limit and labels)
+        function renderGeneralComments(comments, force = false) {
+            const container = document.getElementById('general-comments-list');
+            if (!container) return;
+
+            const fp = fingerprintComments(comments);
+            if (!force && generalCommentsFingerprint === fp) {
+                return;
+            }
+
+            const scrollTop = container.scrollTop;
+            const openReplyForms = getOpenReplyFormIds(container);
+
+            if (comments.length === 0) {
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">No comments yet</div>';
+            } else {
+                container.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
+                attachGeneralCommentEventListeners();
+                restoreOpenReplyForms(container, openReplyForms);
+            }
+
+            container.scrollTop = scrollTop;
+            generalCommentsFingerprint = fp;
+        }
+
         function createCommentHTML(comment) {
-            const avatar = comment.avatar || 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
+            const avatar = comment.avatar || USER_AVATAR;
             const time = new Date(comment.created_at).toLocaleString('vi-VN');
             const depth = comment.depth || 0;
-            const canReply = depth < 2; // Only allow reply if depth < 2 (max 3 levels: 0, 1, 2)
-
-            // Labels
-            const roleLabel = comment.role_label || 'Học sinh';
-            const roleClass = (comment.role_label === 'Giáo viên') ? 'label-teacher' : 'label-student';
-            // Always use current phase name, not the phase from when comment was created
-            const phaseLabel = CURRENT_PHASE_NAME || 'Không rõ';
+            const canReply = depth < 2;
+            const roleLabel = comment.role_label || (comment.role === 'teacher' ? 'Teacher' : 'Student');
+            const roleClass = roleLabel === 'Teacher' ? 'label-teacher' : 'label-student';
+            const phaseLabel = comment.phase_label || comment.m_phase_name || CURRENT_PHASE_NAME || 'Unknown';
+            const canDelete = comment.user_id == CURRENT_USER_ID || CURRENT_USER_ROLE === 'teacher';
 
             let html = `
                 <div class="fb-comment-item" data-comment-id="${comment.comment_id}" data-depth="${depth}">
                     <div class="fb-comment-core">
-                        <img src="${avatar}" alt="${comment.fullname}">
+                        <img src="${avatar}" alt="${escapeHtml(comment.fullname || 'User')}">
                         <div style="flex-grow: 1;">
                             <div class="fb-comment-bubble">
                                 <div class="comment-author">
-                                    <span>${comment.fullname}</span>
-                                    <span class="comment-label ${roleClass}">${comment.role_label}</span>
-                                    <span class="comment-label label-phase">${comment.m_phase_name}</span>
+                                    <span>${escapeHtml(comment.fullname || 'User')}</span>
+                                    <span class="comment-label ${roleClass}">${escapeHtml(roleLabel)}</span>
+                                    <span class="comment-label label-phase">${escapeHtml(phaseLabel)}</span>
                                 </div>
                                 <div class="comment-content">${escapeHtml(comment.comment_text)}</div>
                             </div>
                             <div class="fb-comment-actions">
                                 <span class="comment-time">${time}</span>
-                                ${canReply ? `<button class="reply-btn" data-comment-id="${comment.comment_id}">Trả lời</button>` : ''}
-                                <button class="delete-btn" data-comment-id="${comment.comment_id}">Xóa</button>
+                                ${canReply ? `<button type="button" class="reply-btn" data-comment-id="${comment.comment_id}">Reply</button>` : ''}
+                                ${canDelete ? `<button type="button" class="delete-btn" data-comment-id="${comment.comment_id}">Delete</button>` : ''}
                             </div>
                             ${canReply ? `
                             <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
                                 <div class="fb-comment-input-area">
                                     <img src="${USER_AVATAR}" alt="Avatar">
-                                    <textarea class="fb-comment-input" placeholder="Viết trả lời..." rows="1"></textarea>
-                                    <button class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Gửi</button>
+                                    <textarea class="fb-comment-input" placeholder="Write a reply..." rows="1"></textarea>
+                                    <button type="button" class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Send</button>
                                 </div>
                             </div>
                             ` : ''}
@@ -1017,127 +1107,346 @@
                     </div>
             `;
 
-            // Render replies
             if (comment.replies && comment.replies.length > 0) {
                 html += '<div class="fb-replies">';
-                comment.replies.forEach(reply => {
+                comment.replies.forEach((reply) => {
                     html += createCommentHTML(reply);
                 });
                 html += '</div>';
             }
 
             html += '</div>';
-
             return html;
         }
 
-        // Add comment
         async function addComment(contentId, commentText, replyToId = null) {
-            const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'add_comment',
-                    content_id: contentId,
-                    // Use COMMENT_TASK_ID: if viewing from Phase 2, save comment with Phase 2 task_id
-                    // Otherwise use original TASK_ID (Phase 1)
-                    task_id: COMMENT_TASK_ID,
-                    response_id: RESPONSE_ID,
-                    comment_text: commentText,
-                    reply_comment_id: replyToId
-                })
-            });
+            isSubmittingComment = true;
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'add_comment',
+                        content_id: contentId,
+                        task_id: COMMENT_TASK_ID,
+                        response_id: RESPONSE_ID,
+                        comment_text: commentText,
+                        reply_comment_id: replyToId
+                    })
+                });
 
-            const result = await response.json();
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message || 'Could not send comment');
+                }
 
-            if (result.success) {
-                // Reload comments
-                await loadComments(contentId);
-            } else {
-                throw new Error(result.message);
+                await pollAllComments(true);
+            } finally {
+                isSubmittingComment = false;
             }
         }
 
-        // Attach event listeners to comment actions
         function attachCommentEventListeners(contentId) {
             const container = document.getElementById(`comments-list-${contentId}`);
+            if (!container) return;
 
-            // Reply buttons
-            container.querySelectorAll('.reply-btn').forEach(btn => {
+            container.querySelectorAll('.reply-btn').forEach((btn) => {
                 btn.addEventListener('click', function () {
                     const commentId = this.dataset.commentId;
                     const replyForm = document.getElementById(`reply-form-${commentId}`);
-                    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                    if (replyForm) {
+                        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                    }
                 });
             });
 
-            // Delete buttons
-            container.querySelectorAll('.delete-btn').forEach(btn => {
+            container.querySelectorAll('.delete-btn').forEach((btn) => {
                 btn.addEventListener('click', async function () {
-                    if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+                    if (!confirm('Are you sure you want to delete this comment?')) return;
 
                     const commentId = this.dataset.commentId;
-
                     try {
                         const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
+                            headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 action: 'delete_comment',
                                 comment_id: commentId
                             })
                         });
-
                         const result = await response.json();
-
                         if (result.success) {
-                            await loadComments(contentId);
+                            await pollAllComments(true);
                         } else {
-                            alert('Lỗi: ' + result.message);
+                            alert('Error: ' + result.message);
                         }
                     } catch (error) {
-                        alert('Lỗi: ' + error.message);
+                        alert('Error: ' + error.message);
                     }
                 });
             });
 
-            // Submit reply buttons
-            container.querySelectorAll('.submit-reply-btn').forEach(btn => {
+            container.querySelectorAll('.submit-reply-btn').forEach((btn) => {
                 btn.addEventListener('click', async function () {
                     const parentId = this.dataset.parentId;
-                    const textarea = this.previousElementSibling;
-                    const replyText = textarea.value.trim();
+                    const replyForm = document.getElementById(`reply-form-${parentId}`);
+                    const textarea = replyForm ? replyForm.querySelector('.fb-comment-input') : null;
+                    const replyText = textarea ? textarea.value.trim() : '';
 
                     if (!replyText) {
-                        alert('Vui lòng nhập nội dung trả lời');
+                        alert('Please enter a reply.');
                         return;
                     }
 
                     this.disabled = true;
-                    this.textContent = 'Đang gửi...';
+                    const original = this.textContent;
+                    this.textContent = 'Sending...';
 
                     try {
                         await addComment(contentId, replyText, parentId);
-                        textarea.value = '';
-                        document.getElementById(`reply-form-${parentId}`).style.display = 'none';
+                        if (textarea) textarea.value = '';
+                        if (replyForm) replyForm.style.display = 'none';
                     } catch (error) {
-                        alert('Lỗi: ' + error.message);
+                        alert('Error: ' + error.message);
                     } finally {
                         this.disabled = false;
-                        this.textContent = 'Gửi';
+                        this.textContent = original;
                     }
                 });
             });
         }
 
+        async function pollAllComments(force = false) {
+            if (!ALLOW_COMMENT) return;
+
+            const contentIds = contentBlocksData.map((b) => b.content_id);
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/comment_actions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'poll_all_comments',
+                        content_ids: contentIds,
+                        response_id: RESPONSE_ID,
+                        deliver_id: DELIVER_ID
+                    })
+                });
+
+                const result = await response.json();
+                if (!result.success) return;
+
+                Object.entries(result.content || {}).forEach(([contentId, comments]) => {
+                    renderComments(parseInt(contentId, 10), comments, force);
+                });
+
+                if (Array.isArray(result.general)) {
+                    renderGeneralComments(result.general, force);
+                }
+            } catch (error) {
+                console.error('Comment poll failed:', error);
+            }
+        }
+
+        async function loadComments(contentId) {
+            await pollAllComments(true);
+        }
+
+        async function loadAllComments() {
+            await pollAllComments(true);
+        }
+
+        function startCommentPolling() {
+            if (commentPollTimer) clearInterval(commentPollTimer);
+            commentPollTimer = setInterval(() => {
+                if (!isSubmittingComment && !document.hidden) {
+                    pollAllComments(false);
+                }
+            }, COMMENT_POLL_MS);
+        }
+
+        function stopCommentPolling() {
+            if (commentPollTimer) {
+                clearInterval(commentPollTimer);
+                commentPollTimer = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopCommentPolling();
+                stopNotesPolling();
+            } else {
+                if (ALLOW_COMMENT) {
+                    pollAllComments(false);
+                    startCommentPolling();
+                }
+                if (IS_TAKE_NOTE_PHASE) {
+                    pollNotes(false);
+                    startNotesPolling();
+                }
+            }
+        });
+
         function escapeHtml(text) {
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = text ?? '';
             return div.innerHTML;
+        }
+
+        // ========== TAKE NOTE REAL-TIME ==========
+        function fingerprintNotes(notes) {
+            return notes.map((n) => `${n.content_id}:${n.created_at}`).join('|');
+        }
+
+        function renderNotes(notes, force = false) {
+            const list = document.getElementById('notes-list');
+            const badge = document.getElementById('notes-count-badge');
+            if (!list) return;
+
+            const fp = fingerprintNotes(notes);
+            if (!force && notesFingerprint === fp) return;
+            notesFingerprint = fp;
+
+            if (badge) {
+                badge.textContent = `${notes.length} note${notes.length === 1 ? '' : 's'}`;
+            }
+
+            if (!notes.length) {
+                list.innerHTML = `
+                    <div id="notes-empty-state" class="np-empty">
+                        <i class="bi bi-diagram-3 fs-2"></i>
+                        <span>Notes from the live lecture<br>will appear here</span>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = notes.map((note, i) => `
+                <div class="np-note-card" data-note-id="${note.content_id}">
+                    <span class="np-note-num">#${i + 1}</span>
+                    <p class="np-note-text">${escapeHtml(note.content)}</p>
+                    <div class="np-note-footer">
+                        <span class="np-note-time"><i class="bi bi-clock"></i> ${new Date(note.created_at).toLocaleString('vi-VN')}</span>
+                        ${CURRENT_USER_ROLE === 'student' ? `
+                        <button type="button" class="np-delete-btn delete-note-btn" data-note-id="${note.content_id}" title="Delete">
+                            <i class="bi bi-x-lg"></i>
+                        </button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            list.querySelectorAll('.delete-note-btn').forEach((btn) => {
+                btn.addEventListener('click', () => deleteNote(btn.dataset.noteId));
+            });
+        }
+
+        async function pollNotes(force = false) {
+            if (!IS_TAKE_NOTE_PHASE) return;
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/save_note.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'load_notes',
+                        response_id: RESPONSE_ID
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    renderNotes(result.notes || [], force);
+                }
+            } catch (error) {
+                console.error('Notes poll failed:', error);
+            }
+        }
+
+        function startNotesPolling() {
+            if (notesPollTimer) clearInterval(notesPollTimer);
+            notesPollTimer = setInterval(() => {
+                if (!document.hidden) {
+                    pollNotes(false);
+                }
+            }, NOTES_POLL_MS);
+        }
+
+        function stopNotesPolling() {
+            if (notesPollTimer) {
+                clearInterval(notesPollTimer);
+                notesPollTimer = null;
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Delete this note?')) return;
+            try {
+                const response = await fetch('<?= URL_ROOT ?>/api/save_note.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'delete_note',
+                        content_id: parseInt(noteId, 10)
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    await pollNotes(true);
+                } else {
+                    alert(result.message || 'Could not delete note');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function setupNotesHandlers() {
+            const saveBtn = document.getElementById('save-note-btn');
+            const noteInput = document.getElementById('note-input');
+            const statusEl = document.getElementById('note-save-status');
+            if (!saveBtn || !noteInput || CURRENT_USER_ROLE !== 'student') return;
+
+            const saveNote = async () => {
+                const noteText = noteInput.value.trim();
+                if (!noteText) {
+                    if (statusEl) statusEl.textContent = 'Please enter note content.';
+                    return;
+                }
+
+                saveBtn.disabled = true;
+                if (statusEl) statusEl.textContent = 'Saving...';
+
+                try {
+                    const response = await fetch('<?= URL_ROOT ?>/api/save_note.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'save_note',
+                            response_id: RESPONSE_ID,
+                            note_text: noteText
+                        })
+                    });
+                    const result = await response.json();
+                    if (!result.success) {
+                        throw new Error(result.message || 'Could not save note');
+                    }
+                    noteInput.value = '';
+                    if (statusEl) statusEl.textContent = 'Saved';
+                    await pollNotes(true);
+                    setTimeout(() => {
+                        if (statusEl) statusEl.textContent = '';
+                    }, 2000);
+                } catch (error) {
+                    if (statusEl) statusEl.textContent = error.message;
+                } finally {
+                    saveBtn.disabled = false;
+                }
+            };
+
+            saveBtn.addEventListener('click', saveNote);
+            noteInput.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    saveNote();
+                }
+            });
         }
     </script>
 </body>

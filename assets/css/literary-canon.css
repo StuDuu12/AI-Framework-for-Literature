@@ -1,0 +1,816 @@
+/* Literary canon library pages */
+
+.canon-page .main {
+    min-height: calc(100vh - 60px);
+}
+
+.canon-detail-page .main {
+    min-height: auto;
+    padding-bottom: 0;
+}
+
+.canon-detail-page .section {
+    padding-bottom: 0;
+}
+
+.canon-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.canon-toolbar__search {
+    flex: 1 1 280px;
+    max-width: 420px;
+    position: relative;
+}
+
+.canon-toolbar__search input {
+    width: 100%;
+    padding: 0.55rem 1rem 0.55rem 2.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: #fff;
+}
+
+.canon-toolbar__search i {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.canon-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.canon-filter-chip {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.82rem;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.canon-filter-chip:hover,
+.canon-filter-chip.is-active {
+    background: #4154f1;
+    border-color: #4154f1;
+    color: #fff;
+}
+
+.canon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.canon-card {
+    display: block;
+    background: #fff;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.canon-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+    color: inherit;
+}
+
+.canon-card__cover {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #1e293b;
+}
+
+.canon-card__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.canon-card__badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+}
+
+.canon-card__badge--vn { background: #dc2626; }
+.canon-card__badge--intl { background: #2563eb; }
+
+.canon-card__body {
+    padding: 0.85rem 0.9rem 1rem;
+}
+
+.canon-card__title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 0.2rem;
+    line-height: 1.35;
+}
+
+.canon-card__author {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.canon-card__meta {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin: 0.35rem 0 0;
+}
+
+/* Detail page */
+.canon-detail-hero {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(65, 84, 241, 0.06), rgba(147, 51, 234, 0.04));
+    border: 1px solid rgba(65, 84, 241, 0.1);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 767.98px) {
+    .canon-detail-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .canon-detail-hero__cover {
+        margin: 0 auto;
+        max-width: 160px;
+    }
+}
+
+.canon-detail-hero__cover {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    aspect-ratio: 3 / 4;
+}
+
+.canon-detail-hero__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.canon-detail-hero__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+}
+
+.canon-detail-hero__author-link {
+    font-size: 1.05rem;
+    color: #4154f1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.canon-detail-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+.canon-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 0.78rem;
+    color: #475569;
+}
+
+.canon-author-panel {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1.25rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 575.98px) {
+    .canon-author-panel {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .canon-author-panel__portrait {
+        margin: 0 auto;
+    }
+}
+
+.canon-author-panel__portrait {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #e2e8f0;
+}
+
+.canon-author-panel__portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.canon-author-panel__name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+}
+
+.canon-author-panel__lifespan {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 0.75rem;
+}
+
+.canon-author-panel__bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #334155;
+    margin: 0;
+}
+
+.canon-read-panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.canon-read-panel__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.canon-read-body {
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: #1e293b;
+    max-width: 72ch;
+}
+
+.canon-read-body h2 {
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.75rem;
+    color: #4154f1;
+}
+
+.canon-read-body p {
+    margin-bottom: 1rem;
+}
+
+.canon-verse {
+    font-style: italic;
+    padding-left: 1rem;
+    border-left: 3px solid #c7d2fe;
+    margin: 1rem 0;
+    line-height: 2;
+}
+
+.canon-related {
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.canon-related__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.canon-related__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.canon-related__hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.canon-related-carousel {
+    position: relative;
+}
+
+.canon-related-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0.15rem 0.65rem;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    cursor: grab;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #c7d2fe transparent;
+}
+
+.canon-related-scroll.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    user-select: none;
+}
+
+.canon-related-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.canon-related-scroll::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    border-radius: 999px;
+}
+
+.canon-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-65%);
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+    color: #4154f1;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.canon-carousel-btn:hover {
+    background: #4154f1;
+    color: #fff;
+}
+
+.canon-carousel-btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.canon-carousel-btn--prev { left: -0.5rem; }
+.canon-carousel-btn--next { right: -0.5rem; }
+
+@media (max-width: 575.98px) {
+    .canon-carousel-btn { display: none; }
+    .canon-related__hint { display: none; }
+}
+
+.canon-related-card {
+    flex: 0 0 150px;
+    text-decoration: none;
+    color: inherit;
+    scroll-snap-align: start;
+    transition: transform 0.15s;
+}
+
+.canon-related-card:hover {
+    color: inherit;
+    transform: translateY(-2px);
+}
+
+.canon-related-scroll.is-dragging .canon-related-card {
+    pointer-events: none;
+}
+
+.canon-related-card__img {
+    width: 150px;
+    height: 205px;
+    border-radius: 0.65rem;
+    object-fit: cover;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    display: block;
+}
+
+.canon-related-card__title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 0.45rem 0 0;
+    line-height: 1.35;
+}
+
+.canon-related-card__author {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin: 0.15rem 0 0;
+}
+
+.canon-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #64748b;
+}
+
+/* Detail page — creative footer tail */
+.canon-tail {
+    margin: 2rem -0.75rem 0;
+    position: relative;
+}
+
+.canon-tail__wave {
+    color: rgba(65, 84, 241, 0.07);
+    line-height: 0;
+    margin-bottom: -1px;
+}
+
+.canon-tail__wave svg {
+    width: 100%;
+    height: 56px;
+    display: block;
+}
+
+.canon-tail__body {
+    background: linear-gradient(165deg, rgba(65, 84, 241, 0.08) 0%, rgba(147, 51, 234, 0.05) 45%, rgba(255, 255, 255, 0.9) 100%);
+    border: 1px solid rgba(65, 84, 241, 0.1);
+    border-radius: 1.25rem;
+    padding: 1.75rem 1.5rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.canon-tail__body::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -30px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.12), transparent 70%);
+    pointer-events: none;
+}
+
+.canon-tail__body::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: -20px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(65, 84, 241, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+.canon-tail__quote {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 1.5rem;
+    padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(65, 84, 241, 0.12);
+    border-radius: 1rem;
+    box-shadow: 0 8px 28px rgba(65, 84, 241, 0.08);
+}
+
+.canon-tail__quote-mark {
+    position: absolute;
+    left: 1rem;
+    top: 0.15rem;
+    font-size: 3.5rem;
+    line-height: 1;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: rgba(65, 84, 241, 0.25);
+    pointer-events: none;
+}
+
+.canon-tail__quote p {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.85;
+    font-style: italic;
+    color: #334155;
+}
+
+.canon-tail__quote footer {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: #64748b;
+    font-style: normal;
+}
+
+.canon-tail__quote-author::before {
+    content: '·';
+    margin: 0 0.35rem;
+}
+
+.canon-tail__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 991.98px) {
+    .canon-tail__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.canon-tail__panel {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 1.1rem 1.15rem;
+    min-height: 100%;
+}
+
+.canon-tail__panel--spotlight {
+    background: linear-gradient(145deg, rgba(65, 84, 241, 0.95), rgba(99, 102, 241, 0.88));
+    border-color: transparent;
+    color: #fff;
+}
+
+.canon-tail__panel--spotlight .canon-tail__panel-head p,
+.canon-tail__panel--spotlight .canon-tail__spotlight p {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.canon-tail__panel-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+}
+
+.canon-tail__panel-head h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.canon-tail__panel-head p {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.canon-tail__panel-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(65, 84, 241, 0.1);
+    color: #4154f1;
+    flex-shrink: 0;
+}
+
+.canon-tail__panel--spotlight .canon-tail__panel-icon {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.canon-tail__mini-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.canon-tail__mini-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.4rem 0.45rem;
+    border-radius: 0.65rem;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.canon-tail__mini-list a:hover {
+    background: rgba(65, 84, 241, 0.06);
+    transform: translateX(3px);
+    color: inherit;
+}
+
+.canon-tail__mini-list img,
+.canon-tail__mini-fallback {
+    width: 38px;
+    height: 52px;
+    border-radius: 0.35rem;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.canon-tail__mini-list strong {
+    display: block;
+    font-size: 0.82rem;
+    line-height: 1.35;
+}
+
+.canon-tail__mini-list small {
+    font-size: 0.72rem;
+    color: #64748b;
+}
+
+.canon-tail__spotlight {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    gap: 0.85rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.65rem;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: background 0.15s, transform 0.15s;
+}
+
+.canon-tail__spotlight:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    color: inherit;
+}
+
+.canon-tail__spotlight img,
+.canon-tail__spotlight-fallback {
+    width: 72px;
+    height: 98px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.canon-tail__spotlight-label {
+    margin: 0 0 0.2rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+}
+
+.canon-tail__spotlight h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.canon-tail__spotlight > div > p:last-child {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+}
+
+.canon-tail__spotlight > .bi {
+    font-size: 1.35rem;
+    opacity: 0.9;
+}
+
+.canon-tail__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.canon-tail__action {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #f8fafc;
+    text-decoration: none;
+    color: #334155;
+    font-size: 0.84rem;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.canon-tail__action:hover {
+    border-color: rgba(65, 84, 241, 0.25);
+    background: #fff;
+    color: #4154f1;
+    transform: translateX(4px);
+}
+
+.canon-tail__action--primary {
+    background: linear-gradient(135deg, #4154f1, #6366f1);
+    border-color: transparent;
+    color: #fff;
+}
+
+.canon-tail__action--primary:hover {
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(65, 84, 241, 0.35);
+}
+
+.canon-tail__ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(65, 84, 241, 0.18);
+    position: relative;
+    z-index: 1;
+}
+
+.canon-tail__ribbon-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 0.76rem;
+    color: #475569;
+}
+
+.canon-tail__ribbon-item--muted {
+    color: #94a3b8;
+    background: transparent;
+    border-style: dashed;
+}
+
+@media (max-width: 575.98px) {
+    .canon-tail {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .canon-tail__body {
+        padding: 1.25rem 1rem 1rem;
+    }
+
+    .canon-tail__quote {
+        padding-left: 1.25rem;
+        padding-top: 2.5rem;
+    }
+
+    .canon-tail__quote-mark {
+        left: 0.75rem;
+        top: 0.35rem;
+        font-size: 2.5rem;
+    }
+
+    .canon-tail__spotlight {
+        grid-template-columns: 60px 1fr;
+    }
+
+    .canon-tail__spotlight > .bi {
+        display: none;
+    }
+}

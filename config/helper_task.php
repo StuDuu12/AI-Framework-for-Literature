@@ -80,23 +80,27 @@ function createTask($data)
     try {
         $pdo->beginTransaction();
 
+        $deadline = !empty($data['deadline']) ? $data['deadline'] : null;
+
         $stmt = $pdo->prepare("
             INSERT INTO task (
-                phase_id, 
-                title, 
-                description, 
-                file_content, 
+                phase_id,
+                title,
+                description,
+                file_content,
                 content_creator,
-                review_task, 
-                added_by
+                review_task,
+                added_by,
+                deadline
             ) VALUES (
-                :phase_id, 
-                :title, 
-                :description, 
-                :file_content, 
+                :phase_id,
+                :title,
+                :description,
+                :file_content,
                 :content_creator,
-                :review_task, 
-                :added_by
+                :review_task,
+                :added_by,
+                :deadline
             )
         ");
 
@@ -107,7 +111,8 @@ function createTask($data)
             ':file_content' => $data['file_content'] ?? null,
             ':content_creator' => $data['content_creator'] ?? null,
             ':review_task' => $data['review_task'] ?? null,
-            ':added_by' => $data['added_by']
+            ':added_by' => $data['added_by'],
+            ':deadline' => $deadline
         ]);
 
         $taskId = $pdo->lastInsertId();
@@ -132,13 +137,16 @@ function updateTask($taskId, $data)
     global $pdo;
 
     try {
+        $deadline = !empty($data['deadline']) ? $data['deadline'] : null;
+
         $stmt = $pdo->prepare("
             UPDATE task SET
                 title = :title,
                 description = :description,
                 file_content = :file_content,
                 content_creator = :content_creator,
-                review_task = :review_task
+                review_task = :review_task,
+                deadline = :deadline
             WHERE task_id = :task_id
         ");
 
@@ -148,7 +156,8 @@ function updateTask($taskId, $data)
             ':description' => $data['description'] ?? null,
             ':file_content' => $data['file_content'] ?? null,
             ':content_creator' => $data['content_creator'] ?? null,
-            ':review_task' => $data['review_task'] ?? null
+            ':review_task' => $data['review_task'] ?? null,
+            ':deadline' => $deadline
         ]);
     } catch (PDOException $e) {
         error_log("Error in updateTask: " . $e->getMessage());
@@ -831,9 +840,14 @@ function getDeliverDetails($deliverId)
  * @param int $deliverId Deliver ID
  * @return array|null Response data with json_ai and id_response, or null if not found
  */
-function getResponseFromDeliver($deliverId, $currentUserId = null)
+function getResponseFromDeliver($deliverId, $currentUserId = null, $depth = 0)
 {
     global $pdo;
+
+    if ($depth > 10) {
+        error_log("getResponseFromDeliver: max recursion depth reached for deliver $deliverId");
+        return null;
+    }
 
     try {
         // First, try to get response directly from this deliver
@@ -915,7 +929,7 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                     ]);
                     $newResponseId = $pdo->lastInsertId();
 
-                    // Update deliver with new response and set status = 1 (đang thực hiện)
+                    // Update deliver with new response and set status = 1 (in progress)
                     $updateDeliverStmt = $pdo->prepare("
                         UPDATE deliver 
                         SET response = :response_id, status = 1
@@ -929,7 +943,7 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                     $pdo->commit();
 
                     // Recursively call again to get the newly created response with all details
-                    return getResponseFromDeliver($deliverId, null);
+                    return getResponseFromDeliver($deliverId, null, $depth + 1);
                 } catch (PDOException $e) {
                     $pdo->rollBack();
                     error_log("Error creating response for non-review deliver: " . $e->getMessage());
@@ -963,7 +977,7 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
         }
 
         // Recursively get response from parent deliver (pass null to NOT auto-create)
-        $parentResponse = getResponseFromDeliver($parentDeliver['id_deliver'], null);
+        $parentResponse = getResponseFromDeliver($parentDeliver['id_deliver'], null, $depth + 1);
 
         if (!$parentResponse) {
             return null;
@@ -988,7 +1002,7 @@ function getResponseFromDeliver($deliverId, $currentUserId = null)
                 ]);
                 $newResponseId = $pdo->lastInsertId();
 
-                // Update deliver with new response and set status = 1 (đang thực hiện)
+                // Update deliver with new response and set status = 1 (in progress)
                 $updateDeliverStmt = $pdo->prepare("
                     UPDATE deliver 
                     SET response = :response_id, status = 1
@@ -1061,14 +1075,14 @@ function checkAssignmentConflict($taskId, $assignType, $assignValue)
 
         if ($result['count'] > 0) {
             $nameMap = [
-                'class' => 'lớp học',
-                'group' => 'nhóm',
-                'user' => 'học sinh'
+                'class' => 'class',
+                'group' => 'group',
+                'user' => 'student'
             ];
 
             return [
                 'has_conflict' => true,
-                'message' => 'Nhiệm vụ đã được giao cho ' . $nameMap[$deliverType] . ' này rồi',
+                'message' => 'Task has already been assigned to this ' . $nameMap[$deliverType],
                 'conflict_type' => 'duplicate'
             ];
         }
@@ -1082,7 +1096,7 @@ function checkAssignmentConflict($taskId, $assignType, $assignValue)
         error_log("Error in checkAssignmentConflict: " . $e->getMessage());
         return [
             'has_conflict' => true,
-            'message' => 'Có lỗi khi kiểm tra xung đột: ' . $e->getMessage(),
+            'message' => 'Error checking conflict: ' . $e->getMessage(),
             'conflict_type' => 'error'
         ];
     }
@@ -1122,5 +1136,388 @@ function getGroupSubmission($taskId, $deliverId)
     } catch (PDOException $e) {
         error_log("Error in getGroupSubmission: " . $e->getMessage());
         return null;
+    }
+}
+
+/**
+ * Get all task IDs belonging to a topic.
+ */
+function getTopicTaskIds($topicId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT t.task_id
+            FROM task t
+            INNER JOIN phase p ON t.phase_id = p.phase_id
+            WHERE p.topic_id = :topic_id
+            ORDER BY p.phase_number, t.task_id
+        ");
+        $stmt->execute([':topic_id' => $topicId]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    } catch (PDOException $e) {
+        error_log("Error in getTopicTaskIds: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Check whether a student has any submission in a topic (any phase).
+ */
+function studentHasSubmissionsInTopic($topicId, $studentUserId)
+{
+    global $pdo;
+
+    $taskIds = getTopicTaskIds($topicId);
+    if (empty($taskIds)) {
+        return false;
+    }
+
+    try {
+        $placeholders = implode(',', array_fill(0, count($taskIds), '?'));
+        $params = array_merge($taskIds, [$studentUserId]);
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) FROM response
+            WHERE task_id IN ($placeholders)
+            AND user_id = ?
+            AND parent_response IS NULL
+        ");
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn() > 0;
+    } catch (PDOException $e) {
+        error_log("Error in studentHasSubmissionsInTopic: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Collect a response tree (root + descendants) for one task/user pair.
+ */
+function collectResponseTreeIdsForTaskUser($taskId, $studentUserId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            WITH RECURSIVE resp_tree AS (
+                SELECT id_response
+                FROM response
+                WHERE task_id = :task_id
+                  AND user_id = :user_id
+                  AND parent_response IS NULL
+                UNION ALL
+                SELECT r.id_response
+                FROM response r
+                INNER JOIN resp_tree rt ON r.parent_response = rt.id_response
+            )
+            SELECT id_response FROM resp_tree
+        ");
+        $stmt->execute([
+            ':task_id' => $taskId,
+            ':user_id' => $studentUserId,
+        ]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+    } catch (PDOException $e) {
+        error_log("Error in collectResponseTreeIdsForTaskUser: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Deliver rows that apply to a student on a given task.
+ */
+function getDeliversForStudentOnTask($taskId, $studentUserId)
+{
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("
+            SELECT d.id_deliver, d.response, d.type, d.value
+            FROM deliver d
+            WHERE d.task_id = :task_id
+            AND (
+                (d.type = 'user' AND d.value = :user_id)
+                OR (d.type = 'class' AND d.value IN (
+                    SELECT cm.class_id FROM class_member cm WHERE cm.user_id = :user_id
+                ))
+                OR (d.type = 'group' AND d.value IN (
+                    SELECT gm.group_id FROM group_member gm WHERE gm.user_id = :user_id
+                ))
+            )
+        ");
+        $stmt->execute([
+            ':task_id' => $taskId,
+            ':user_id' => $studentUserId,
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error in getDeliversForStudentOnTask: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Delete evaluation/submission artifacts for response IDs (keeps deliver assignment).
+ */
+function deleteResponsesAndRelated(array $responseIds)
+{
+    global $pdo;
+
+    $responseIds = array_values(array_unique(array_filter(array_map('intval', $responseIds))));
+    if (empty($responseIds)) {
+        return;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($responseIds), '?'));
+
+    $pdo->prepare("DELETE FROM evaluate WHERE response_id IN ($placeholders)")
+        ->execute($responseIds);
+
+    $pdo->prepare("DELETE FROM response WHERE id_response IN ($placeholders)")
+        ->execute($responseIds);
+}
+
+/**
+ * Clear submission state on a deliver while keeping the assignment row.
+ */
+function clearDeliverSubmission($deliverId, $studentUserId, $taskId)
+{
+    global $pdo;
+
+    $deliverId = (int) $deliverId;
+    $studentUserId = (int) $studentUserId;
+    $taskId = (int) $taskId;
+
+    $pdo->prepare("DELETE FROM peer_review_consensus WHERE id_deliver = :did")
+        ->execute([':did' => $deliverId]);
+    $pdo->prepare("DELETE FROM deliver_evaluate WHERE id_deliver = :did")
+        ->execute([':did' => $deliverId]);
+    $pdo->prepare("DELETE FROM evaluate WHERE deliver_id = :did")
+        ->execute([':did' => $deliverId]);
+
+    $pdo->prepare("
+        DELETE FROM analysis_draft
+        WHERE user_id = :uid AND task_id = :tid AND deliver_id = :did
+    ")->execute([
+        ':uid' => $studentUserId,
+        ':tid' => $taskId,
+        ':did' => $deliverId,
+    ]);
+
+    $pdo->prepare("
+        DELETE FROM analysis_history
+        WHERE user_id = :uid AND task_id = :tid AND deliver_id = :did
+    ")->execute([
+        ':uid' => $studentUserId,
+        ':tid' => $taskId,
+        ':did' => $deliverId,
+    ]);
+
+    $pdo->prepare("
+        UPDATE deliver
+        SET response = NULL, status = 0, updated_at = NOW()
+        WHERE id_deliver = :did
+    ")->execute([':did' => $deliverId]);
+}
+
+/**
+ * Reset all submissions for one student across every phase/task in a topic.
+ * Assignments (deliver rows) are preserved.
+ */
+function resetStudentSubmissionsInTopic($topicId, $studentUserId)
+{
+    global $pdo;
+
+    $topicId = (int) $topicId;
+    $studentUserId = (int) $studentUserId;
+
+    if (!$topicId || !$studentUserId) {
+        return ['success' => false, 'message' => 'Invalid information'];
+    }
+
+    $taskIds = getTopicTaskIds($topicId);
+    if (empty($taskIds)) {
+        return ['success' => false, 'message' => 'No tasks found in this topic'];
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $clearedResponses = 0;
+        $clearedDelivers = 0;
+
+        foreach ($taskIds as $taskId) {
+            $delivers = getDeliversForStudentOnTask($taskId, $studentUserId);
+            foreach ($delivers as $deliver) {
+                clearDeliverSubmission((int) $deliver['id_deliver'], $studentUserId, $taskId);
+                $clearedDelivers++;
+            }
+
+            $responseIds = collectResponseTreeIdsForTaskUser($taskId, $studentUserId);
+            if (!empty($responseIds)) {
+                deleteResponsesAndRelated($responseIds);
+                $clearedResponses += count($responseIds);
+            }
+        }
+
+        $pdo->commit();
+
+        if ($clearedResponses === 0 && $clearedDelivers === 0) {
+            return ['success' => false, 'message' => 'No submissions found to reset'];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Student submissions reset across all phases',
+            'cleared_responses' => $clearedResponses,
+            'cleared_delivers' => $clearedDelivers,
+        ];
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Error in resetStudentSubmissionsInTopic: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Failed to reset submissions'];
+    }
+}
+
+/**
+ * Reset group submission across all phases in a topic (keeps assignments).
+ */
+function resetGroupSubmissionsInTopic($topicId, $groupId)
+{
+    global $pdo;
+
+    $topicId = (int) $topicId;
+    $groupId = (int) $groupId;
+
+    if (!$topicId || !$groupId) {
+        return ['success' => false, 'message' => 'Invalid information'];
+    }
+
+    $taskIds = getTopicTaskIds($topicId);
+    if (empty($taskIds)) {
+        return ['success' => false, 'message' => 'No tasks found in this topic'];
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $clearedResponses = 0;
+        $clearedDelivers = 0;
+
+        foreach ($taskIds as $taskId) {
+            $stmt = $pdo->prepare("
+                SELECT id_deliver, response
+                FROM deliver
+                WHERE task_id = :task_id AND type = 'group' AND value = :group_id
+            ");
+            $stmt->execute([':task_id' => $taskId, ':group_id' => $groupId]);
+            $delivers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($delivers as $deliver) {
+                $deliverId = (int) $deliver['id_deliver'];
+                $responseId = (int) ($deliver['response'] ?? 0);
+
+                $memberStmt = $pdo->prepare("
+                    SELECT user_id FROM group_member WHERE group_id = :group_id
+                ");
+                $memberStmt->execute([':group_id' => $groupId]);
+                $memberIds = array_map('intval', $memberStmt->fetchAll(PDO::FETCH_COLUMN));
+
+                foreach ($memberIds as $memberId) {
+                    clearDeliverSubmission($deliverId, $memberId, $taskId);
+                }
+
+                $pdo->prepare("
+                    UPDATE deliver
+                    SET response = NULL, status = 0, updated_at = NOW()
+                    WHERE id_deliver = :did
+                ")->execute([':did' => $deliverId]);
+
+                $clearedDelivers++;
+
+                if ($responseId > 0) {
+                    $childStmt = $pdo->prepare("
+                        WITH RECURSIVE resp_tree AS (
+                            SELECT id_response FROM response WHERE id_response = :root
+                            UNION ALL
+                            SELECT r.id_response
+                            FROM response r
+                            INNER JOIN resp_tree rt ON r.parent_response = rt.id_response
+                        )
+                        SELECT id_response FROM resp_tree
+                    ");
+                    $childStmt->execute([':root' => $responseId]);
+                    $responseIds = array_map('intval', $childStmt->fetchAll(PDO::FETCH_COLUMN));
+                    if (!empty($responseIds)) {
+                        deleteResponsesAndRelated($responseIds);
+                        $clearedResponses += count($responseIds);
+                    }
+                }
+
+                foreach ($memberIds as $memberId) {
+                    $memberResponses = collectResponseTreeIdsForTaskUser($taskId, $memberId);
+                    if (!empty($memberResponses)) {
+                        deleteResponsesAndRelated($memberResponses);
+                        $clearedResponses += count($memberResponses);
+                    }
+                }
+            }
+        }
+
+        $pdo->commit();
+
+        if ($clearedResponses === 0 && $clearedDelivers === 0) {
+            return ['success' => false, 'message' => 'No submissions found to reset'];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Group submissions reset across all phases',
+            'cleared_responses' => $clearedResponses,
+            'cleared_delivers' => $clearedDelivers,
+        ];
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        error_log("Error in resetGroupSubmissionsInTopic: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Failed to reset submissions'];
+    }
+}
+
+/**
+ * SQL: deliver rows visible to a student (direct, group, or whole-class assignment).
+ */
+function studentDeliverVisibilitySql(string $alias = 'd'): string
+{
+    return "(
+        ({$alias}.type = 'user' AND {$alias}.value = :uid)
+        OR ({$alias}.type = 'group' AND EXISTS (
+            SELECT 1 FROM group_member gm
+            WHERE gm.group_id = {$alias}.value AND gm.user_id = :uid
+        ))
+        OR ({$alias}.type = 'class' AND EXISTS (
+            SELECT 1 FROM class_member cm
+            WHERE cm.class_id = {$alias}.value AND cm.user_id = :uid AND cm.role = 'student'
+        ))
+    )";
+}
+
+/** Count distinct deliver assignments for a student. */
+function countStudentAssignedDelivers(PDO $pdo, int $userId, bool $completedOnly = false): int
+{
+    try {
+        $completed = $completedOnly ? ' AND d.response IS NOT NULL AND d.response > 0' : '';
+        $sql = 'SELECT COUNT(DISTINCT d.id_deliver) FROM deliver d WHERE '
+            . studentDeliverVisibilitySql('d') . $completed;
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':uid' => $userId]);
+        return (int) $stmt->fetchColumn();
+    } catch (PDOException $e) {
+        error_log('countStudentAssignedDelivers: ' . $e->getMessage());
+        return 0;
     }
 }

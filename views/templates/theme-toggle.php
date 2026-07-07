@@ -1,8 +1,8 @@
-<!-- Dark Theme CSS is already included in assets.php (dark-theme-enhanced.css) -->
+<!-- Dark Theme CSS is loaded via assets.php (dark.css) -->
 
 <!-- Theme Toggle Script -->
 <script>
-    // Khởi tạo theme từ PHP session
+    // Initialize theme from PHP session
     document.addEventListener('DOMContentLoaded', function() {
         const currentTheme = '<?php echo isset($_SESSION['theme']) ? $_SESSION['theme'] : 'light'; ?>';
         if (currentTheme === 'dark') {

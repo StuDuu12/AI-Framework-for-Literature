@@ -1,0 +1,239 @@
+/**
+ * ============================================================
+ * glass.css — Glassmorphism Design Tokens
+ * LiteratureVer2 — Modern Glassmorphism Design System
+ * ============================================================
+ * Load order: app.css → glass.css → dark.css
+ * ============================================================
+ */
+
+/* ============================================
+ * SECTION 1: Glass Variables
+ * ============================================ */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg-hover: rgba(255, 255, 255, 0.85);
+    --glass-bg-strong: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-border-strong: rgba(255, 255, 255, 0.7);
+    --glass-blur: blur(16px);
+    --glass-blur-strong: blur(24px);
+    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    --glass-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1);
+    --glass-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.12);
+}
+
+body.dark-theme {
+    --glass-bg: rgba(13, 34, 56, 0.72);
+    --glass-bg-hover: rgba(19, 47, 76, 0.85);
+    --glass-bg-strong: rgba(13, 34, 56, 0.88);
+    --glass-border: rgba(61, 90, 128, 0.5);
+    --glass-border-strong: rgba(61, 90, 128, 0.7);
+    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    --glass-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.3);
+    --glass-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+ * SECTION 2: Glass Header
+ * ============================================ */
+.header.glass {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: var(--glass-blur-strong) !important;
+    -webkit-backdrop-filter: var(--glass-blur-strong) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+body.dark-theme .header.glass {
+    background: rgba(13, 34, 56, 0.95) !important;
+}
+
+/* ============================================
+ * SECTION 3: Glass Sidebar
+ * ============================================ */
+.sidebar.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border-right: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+body.dark-theme .sidebar.glass {
+    background: var(--glass-bg) !important;
+}
+
+/* ============================================
+ * SECTION 4: Glass Cards
+ * ============================================ */
+.card.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+    transition: all var(--lit-duration-base) var(--lit-ease);
+}
+
+.card.glass:hover {
+    background: var(--glass-bg-hover) !important;
+    box-shadow: var(--glass-shadow-lg) !important;
+    transform: translateY(-2px);
+}
+
+body.dark-theme .card.glass {
+    background: var(--glass-bg) !important;
+}
+body.dark-theme .card.glass:hover {
+    background: var(--glass-bg-hover) !important;
+}
+
+/* ============================================
+ * SECTION 5: Glass Modals
+ * ============================================ */
+.modal-content.glass {
+    background: var(--glass-bg-strong) !important;
+    backdrop-filter: var(--glass-blur-strong) !important;
+    -webkit-backdrop-filter: var(--glass-blur-strong) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+/* ============================================
+ * SECTION 6: Glass Dropdowns
+ * ============================================ */
+.dropdown-menu.glass {
+    background: var(--glass-bg-strong) !important;
+    backdrop-filter: var(--glass-blur-strong) !important;
+    -webkit-backdrop-filter: var(--glass-blur-strong) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow-lg) !important;
+}
+
+/* ============================================
+ * SECTION 7: Glass Pagetitle
+ * ============================================ */
+.pagetitle.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: var(--glass-shadow) !important;
+}
+
+/* ============================================
+ * SECTION 8: Glass Footer
+ * ============================================ */
+.footer.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border-top: 1px solid var(--glass-border) !important;
+}
+
+body.dark-theme .footer.glass {
+    background: var(--glass-bg) !important;
+}
+
+/* ============================================
+ * SECTION 9: Glass Login Card
+ * ============================================ */
+.login-page .card.glass {
+    background: var(--glass-bg-strong) !important;
+    backdrop-filter: var(--glass-blur-strong) !important;
+    -webkit-backdrop-filter: var(--glass-blur-strong) !important;
+    border: 1px solid var(--glass-border-strong) !important;
+    box-shadow: var(--glass-shadow-xl) !important;
+}
+
+/* ============================================
+ * SECTION 10: Glass Alerts
+ * ============================================ */
+.alert.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+/* ============================================
+ * SECTION 11: Glass Notes Panel
+ * ============================================ */
+#notes-panel.glass {
+    background: var(--glass-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-border) !important;
+}
+
+/* ============================================
+ * SECTION 12: Glass Utility Classes
+ * ============================================ */
+.glass-surface {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+.glass-surface-strong {
+    background: var(--glass-bg-strong);
+    backdrop-filter: var(--glass-blur-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    border: 1px solid var(--glass-border-strong);
+}
+
+/* Frosted glass with gradient */
+.glass-gradient {
+    background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+body.dark-theme .glass-gradient {
+    background: linear-gradient(135deg, rgba(13,34,56,0.6) 0%, rgba(19,47,76,0.3) 100%);
+    border-color: rgba(61,90,128,0.4);
+}
+
+/* Glass card with accent border */
+.glass-accent {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--lit-primary);
+}
+
+/* ============================================
+ * SECTION 13: Glass Hover Effects
+ * ============================================ */
+.glass-hover {
+    transition: all var(--lit-duration-base) var(--lit-ease);
+}
+
+.glass-hover:hover {
+    background: var(--glass-bg-hover);
+    box-shadow: var(--glass-shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+ * SECTION 14: Glass Scrollbar
+ * ============================================ */
+.glass::-webkit-scrollbar { width: 6px; }
+.glass::-webkit-scrollbar-track { background: transparent; }
+.glass::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 10px;
+}
+.glass::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+
+body.dark-theme .glass::-webkit-scrollbar-thumb {
+    background: rgba(77, 171, 247, 0.3);
+}
+body.dark-theme .glass::-webkit-scrollbar-thumb:hover {
+    background: rgba(77, 171, 247, 0.5);
+}
