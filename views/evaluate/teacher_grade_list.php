@@ -21,6 +21,7 @@ if (!$taskId || $role !== 'teacher') {
 }
 
 $taskInfo = getTaskInfo($taskId);
+requireIdsInTopic($topicId, $taskId, $phaseId);
 if (!$taskInfo || !isTeacherInTopicClass($topicId, $teacherId)) {
     header('Location: ' . URL_ROOT . '/403');
     exit;

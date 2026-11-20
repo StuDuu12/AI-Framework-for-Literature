@@ -68,6 +68,24 @@ if ($deliver_id > 0) {
     }
 }
 
+// Task phải là task của deliver: suy ra từ deliver nếu client không gửi (hoặc gửi lệch),
+// để các ràng buộc theo pha bên dưới (cấm AI / cấm chat) không bị bỏ qua.
+if ($deliver_id > 0) {
+    $deliverTaskStmt = $pdo->prepare("SELECT task_id FROM deliver WHERE id_deliver = :id");
+    $deliverTaskStmt->execute([':id' => $deliver_id]);
+    $deliverTaskId = (int)$deliverTaskStmt->fetchColumn();
+    // Ở pha "chữa bài", task_id là task nguồn còn deliver thuộc task hiện tại —
+    // hợp lệ miễn là hai task nằm chung một topic.
+    require_once __DIR__ . '/../config/helper_phase.php';
+    if ($task_id <= 0) {
+        $task_id = $deliverTaskId;
+    } elseif ($task_id !== $deliverTaskId && getTopicIdOfTask($task_id) !== getTopicIdOfTask($deliverTaskId)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Forbidden', 'message' => 'Task does not match this assignment']);
+        exit;
+    }
+}
+
 // Validate action
 if (!in_array($action, ['analyze', 'chat', 'slideshow', 'quiz'])) {
     http_response_code(400);

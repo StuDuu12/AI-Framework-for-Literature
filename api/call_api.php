@@ -88,6 +88,60 @@ function contentsToOpenAiMessages(string $systemPrompt, array $contents): array
     return $messages;
 }
 
+/**
+ * Chuẩn hoá lịch sử hội thoại do client gửi lên trước khi chuyển cho AI:
+ *  - chỉ chấp nhận vai trò user / model (assistant được đổi thành model) — client
+ *    KHÔNG được chèn tin nhắn 'system' để ghi đè system prompt (prompt injection);
+ *  - giới hạn số lượt, độ dài mỗi tin và tổng độ dài để chống đốt token.
+ */
+function sanitizeAiHistory($history, int $maxTurns = 30, int $maxCharsPerTurn = 8000, int $maxTotalChars = 60000): array
+{
+    if (!is_array($history)) {
+        return [];
+    }
+
+    $clean = [];
+    foreach ($history as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        $role = $item['role'] ?? 'user';
+        if ($role === 'assistant') {
+            $role = 'model';
+        }
+        if (!in_array($role, ['user', 'model'], true)) {
+            continue; // bỏ 'system' và mọi vai trò lạ
+        }
+
+        $text = '';
+        if (!empty($item['parts']) && is_array($item['parts'])) {
+            foreach ($item['parts'] as $part) {
+                if (is_array($part) && isset($part['text']) && is_scalar($part['text'])) {
+                    $text .= (string)$part['text'];
+                }
+            }
+        } elseif (isset($item['content']) && is_scalar($item['content'])) {
+            $text = (string)$item['content'];
+        }
+
+        $text = trim($text);
+        if ($text === '') {
+            continue;
+        }
+        $clean[] = ['role' => $role, 'parts' => [['text' => mb_substr($text, 0, $maxCharsPerTurn)]]];
+    }
+
+    // Giữ các lượt gần nhất, rồi cắt bớt từ đầu cho tới khi tổng độ dài nằm trong giới hạn
+    $clean = array_slice($clean, -$maxTurns);
+    $total = array_sum(array_map(static fn($m) => mb_strlen($m['parts'][0]['text']), $clean));
+    while ($total > $maxTotalChars && count($clean) > 1) {
+        $removed = array_shift($clean);
+        $total -= mb_strlen($removed['parts'][0]['text']);
+    }
+
+    return $clean;
+}
+
 function isOpenCodeReasoningModel(string $model): bool
 {
     return preg_match('/deepseek|nemotron|north-mini/i', $model) === 1;
@@ -713,7 +767,7 @@ switch ($action) {
 
     case 'chat':
         $input = json_decode(file_get_contents('php://input'), true);
-        $history = $input['history'] ?? [];
+        $history = sanitizeAiHistory($input['history'] ?? []);
         $userMessage = $input['data'] ?? '';
 
         if (empty($history)) {
@@ -726,8 +780,8 @@ switch ($action) {
         break;
 
     case 'refine':
-        $requestData = json_decode($data, true);
-        $history = $requestData['history'] ?? [];
+        $requestData = json_decode((string)$data, true);
+        $history = sanitizeAiHistory($requestData['history'] ?? []);
 
         if (empty($history)) {
             $response = ['error' => 'No conversation history provided'];
@@ -764,7 +818,7 @@ switch ($action) {
             ],
             'required' => ['slides']
         ];
-        $contents = [['role' => 'user', 'parts' => [['text' => $data]]]];
+        $contents = [['role' => 'user', 'parts' => [['text' => mb_substr((string)$data, 0, 12000)]]]];
         $response = callAiJsonApi($systemPrompt, $contents, $schema);
         break;
 
@@ -791,7 +845,7 @@ switch ($action) {
             ],
             'required' => ['quiz']
         ];
-        $contents = [['role' => 'user', 'parts' => [['text' => $data]]]];
+        $contents = [['role' => 'user', 'parts' => [['text' => mb_substr((string)$data, 0, 12000)]]]];
         $response = callAiJsonApi($systemPrompt, $contents, $schema);
         break;
 

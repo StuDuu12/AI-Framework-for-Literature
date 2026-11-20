@@ -1114,16 +1114,17 @@ function getGroupSubmission($taskId, $deliverId)
     global $pdo;
 
     try {
+        // Bài nộp của một deliver được liên kết qua deliver.response (bảng response
+        // không có cột deliver_id — truy vấn cũ luôn lỗi và trả null).
         $stmt = $pdo->prepare("
-            SELECT 
+            SELECT
                 r.id_response,
                 r.created_at as submitted_at,
                 r.user_id
-            FROM response r
-            WHERE r.task_id = :task_id
-            AND r.deliver_id = :deliver_id
-            AND r.parent_response IS NULL
-            ORDER BY r.created_at DESC
+            FROM deliver d
+            INNER JOIN response r ON r.id_response = d.response
+            WHERE d.id_deliver = :deliver_id
+            AND r.task_id = :task_id
             LIMIT 1
         ");
 

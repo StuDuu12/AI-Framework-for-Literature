@@ -40,6 +40,28 @@ function loadDotEnvFile(string $path): void
 
 loadDotEnvFile(__DIR__ . '/../.env');
 
+/*
+ * Hiển thị lỗi PHP: chỉ bật khi phát triển local. Trên server thật, lỗi in ra trình duyệt
+ * làm lộ đường dẫn file, tên bảng/cột... => chỉ ghi vào log.
+ * Local = APP_ENV là local/development trong .env, hoặc chạy trên *.test / localhost (Laragon).
+ */
+if (!function_exists('app_is_local')) {
+    function app_is_local(): bool
+    {
+        $env = strtolower((string)(getenv('APP_ENV') ?: ''));
+        if ($env !== '') {
+            return in_array($env, ['local', 'development', 'dev'], true);
+        }
+        if (PHP_SAPI === 'cli') {
+            return true;
+        }
+        $host = strtolower(explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]);
+        return $host === 'localhost' || $host === '127.0.0.1' || str_ends_with($host, '.test');
+    }
+}
+ini_set('display_errors', app_is_local() ? '1' : '0');
+ini_set('log_errors', '1');
+
 // Nạp cấu hình bí mật theo máy (DB, API key...) — file này không nằm trong git
 if (file_exists(__DIR__ . '/env.local.php')) {
     require_once __DIR__ . '/env.local.php';

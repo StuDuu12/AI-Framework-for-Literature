@@ -35,6 +35,34 @@ $jsonInput = json_decode(file_get_contents('php://input'), true);
 // Get action from POST/GET or JSON body
 $action = $_POST['action'] ?? $_GET['action'] ?? ($jsonInput['action'] ?? '');
 
+// ---- Phân quyền theo đối tượng: mọi class/nhóm tiêu chí/tiêu chí được tham chiếu
+// phải thuộc lớp mà người gọi là giáo viên (chống sửa/xoá tiêu chí của lớp khác) ----
+$criteriaParam = function (string $key) use ($jsonInput) {
+    $val = $_POST[$key] ?? $_GET[$key] ?? ($jsonInput[$key] ?? null);
+    return $val !== null ? intval($val) : 0;
+};
+$classIdsToCheck = [];
+if ($criteriaParam('class_id') > 0) {
+    $classIdsToCheck[] = $criteriaParam('class_id');
+}
+if ($criteriaParam('nhom_tc_id') > 0) {
+    $stmt = $pdo->prepare("SELECT class_id FROM nhom_tc WHERE nhom_tc_id = :id");
+    $stmt->execute([':id' => $criteriaParam('nhom_tc_id')]);
+    $classIdsToCheck[] = (int)($stmt->fetchColumn() ?: 0);
+}
+if ($criteriaParam('tc_id') > 0) {
+    $stmt = $pdo->prepare("SELECT n.class_id FROM tieu_chi t INNER JOIN nhom_tc n ON t.nhom_tc_id = n.nhom_tc_id WHERE t.tc_id = :id");
+    $stmt->execute([':id' => $criteriaParam('tc_id')]);
+    $classIdsToCheck[] = (int)($stmt->fetchColumn() ?: 0);
+}
+foreach ($classIdsToCheck as $cid) {
+    if ($cid <= 0 || !teacherCanAccessClassCriteria($cid, (int)$user_id)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to manage criteria of this class']);
+        exit;
+    }
+}
+
 // Debug logging
 error_log("Manage Criteria - Action: " . $action);
 error_log("Manage Criteria - JSON Input: " . print_r($jsonInput, true));
@@ -202,5 +230,5 @@ try {
     }
 } catch (Exception $e) {
     error_log("Error in manage_criteria.php: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . client_error_message($e)]);
 }

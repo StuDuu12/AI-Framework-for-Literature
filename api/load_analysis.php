@@ -104,6 +104,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'error' => 'Server error',
-        'message' => 'An error occurred while loading data: ' . $e->getMessage()
+        'message' => 'An error occurred while loading data: ' . client_error_message($e)
     ]);
 }

@@ -38,8 +38,8 @@
             SELECT r.*, u.fullname, u.user_id,
                    d.type as deliver_type, d.value as deliver_value, d.id_deliver
             FROM response r
-            INNER JOIN user u ON r.user_id = u.user_id
-            INNER JOIN deliver d ON r.deliver_id = d.id_deliver
+            INNER JOIN users u ON r.user_id = u.user_id
+            LEFT JOIN deliver d ON d.response = r.id_response
             WHERE r.id_response = :submission_id
             AND r.task_id = :task_id
             AND r.parent_response IS NULL

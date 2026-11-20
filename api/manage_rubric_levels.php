@@ -13,6 +13,43 @@ if (!$userId) {
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// ---- Phân quyền theo đối tượng: rubric thuộc tiêu chí/nhóm tiêu chí của một lớp,
+// chỉ giáo viên của lớp đó (hoặc admin) mới được đọc/sửa ----
+require_once __DIR__ . '/../config/helper_criteria.php';
+
+function rubricDeny(): void
+{
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Không có quyền thao tác rubric của lớp này']);
+    exit();
+}
+
+function rubricClassOfCriterion(PDO $pdo, int $tcId): int
+{
+    $stmt = $pdo->prepare("SELECT n.class_id FROM tieu_chi t INNER JOIN nhom_tc n ON t.nhom_tc_id = n.nhom_tc_id WHERE t.tc_id = :id");
+    $stmt->execute([':id' => $tcId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+function rubricClassOfGroup(PDO $pdo, int $groupId): int
+{
+    $stmt = $pdo->prepare("SELECT class_id FROM nhom_tc WHERE nhom_tc_id = :id");
+    $stmt->execute([':id' => $groupId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+function rubricRequireClass(int $classId, int $userId): void
+{
+    if ($classId <= 0 || !teacherCanAccessClassCriteria($classId, $userId)) {
+        rubricDeny();
+    }
+}
+
+$sessionRole = $_SESSION['user']['role'] ?? ($_SESSION['role'] ?? '');
+if (!in_array($sessionRole, ['teacher', 'admin'], true)) {
+    rubricDeny();
+}
+
 try {
     switch ($action) {
         case 'get_levels':
@@ -21,6 +58,7 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Missing tc_id']);
                 exit();
             }
+            rubricRequireClass(rubricClassOfCriterion($pdo, $tcId), (int)$userId);
             $stmt = $pdo->prepare("SELECT * FROM rubric_level WHERE tc_id = :tc_id ORDER BY score DESC, sort_order ASC");
             $stmt->execute([':tc_id' => $tcId]);
             echo json_encode(['success' => true, 'levels' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
@@ -34,6 +72,10 @@ try {
             if (!$tcId) {
                 echo json_encode(['success' => false, 'message' => 'Missing tc_id']);
                 exit();
+            }
+            rubricRequireClass(rubricClassOfCriterion($pdo, $tcId), (int)$userId);
+            if (!is_array($levels)) {
+                $levels = [];
             }
 
             $pdo->beginTransaction();
@@ -69,6 +111,12 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
                 exit();
             }
+            // Template gắn vào nhóm tiêu chí của lớp mình; class_id lấy từ nhóm, không tin client
+            $groupClassId = rubricClassOfGroup($pdo, $groupId);
+            rubricRequireClass($groupClassId, (int)$userId);
+            if ($classId) {
+                $classId = $groupClassId;
+            }
 
             $stmt = $pdo->prepare("INSERT INTO rubric_template (class_id, name, description, created_by) VALUES (:class_id, :name, :desc, :created_by)");
             $stmt->execute([
@@ -88,7 +136,10 @@ try {
 
         case 'get_templates':
             $classId = intval($_GET['class_id'] ?? 0);
-            $sql = "SELECT rt.*, 
+            if ($classId > 0) {
+                rubricRequireClass($classId, (int)$userId);
+            }
+            $sql ="SELECT rt.*, 
                     (SELECT COUNT(*) FROM nhom_tc WHERE template_id = rt.template_id) as group_count
                     FROM rubric_template rt 
                     WHERE rt.class_id = :class_id OR rt.class_id IS NULL
@@ -106,6 +157,20 @@ try {
             if (!$templateId || !$targetGroupId) {
                 echo json_encode(['success' => false, 'message' => 'Thiếu thông tin']);
                 exit();
+            }
+
+            // Nhóm đích phải thuộc lớp mình; template phải là template dùng chung (class_id NULL)
+            // hoặc thuộc lớp mình đang dạy
+            rubricRequireClass(rubricClassOfGroup($pdo, $targetGroupId), (int)$userId);
+            $tplStmt = $pdo->prepare("SELECT class_id FROM rubric_template WHERE template_id = :tid");
+            $tplStmt->execute([':tid' => $templateId]);
+            $tplRow = $tplStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$tplRow) {
+                echo json_encode(['success' => false, 'message' => 'Template không tồn tại']);
+                exit();
+            }
+            if (!empty($tplRow['class_id'])) {
+                rubricRequireClass((int)$tplRow['class_id'], (int)$userId);
             }
 
             // Get criteria from template group

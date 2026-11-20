@@ -119,24 +119,11 @@ try {
             break;
 
         case 'add_points':
-            $input = json_decode(file_get_contents('php://input'), true);
-            $points = intval($input['points'] ?? 0);
-            $reason = trim($input['reason'] ?? '');
-
-            if ($points <= 0 || !$reason) {
-                echo json_encode(['success' => false, 'message' => 'Invalid params']);
-                exit();
-            }
-
-            // Upsert user_points
-            $stmt = $pdo->prepare("INSERT INTO user_points (user_id, total_points) VALUES (:uid, :pts) ON DUPLICATE KEY UPDATE total_points = total_points + :pts2");
-            $stmt->execute([':uid' => $userId, ':pts' => $points, ':pts2' => $points]);
-
-            // Log
-            $stmt = $pdo->prepare("INSERT INTO points_log (user_id, points, reason) VALUES (:uid, :pts, :reason)");
-            $stmt->execute([':uid' => $userId, ':pts' => $points, ':reason' => $reason]);
-
-            echo json_encode(['success' => true]);
+            // Đã tắt: client tự gửi số điểm cho chính mình => gian lận bảng xếp hạng.
+            // Điểm phải được cộng ở phía server tại nơi hoạt động thực sự diễn ra
+            // (nộp bài, đánh giá...), không qua endpoint công khai.
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Points can only be awarded by the server']);
             break;
 
         default:
@@ -163,9 +150,10 @@ function checkAndAwardBadges(PDO $pdo, int $userId): void
 
         switch ($badge['criteria_type']) {
             case 'tasks_completed':
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM deliver WHERE user_id = :uid AND status = 1");
-                $stmt->execute([':uid' => $userId]);
-                $count = (int)$stmt->fetchColumn();
+                // deliver không có user_id (giao theo type/value: user/group/class) —
+                // dùng helper chung đếm bài đã nộp, áp dụng cho cả bài nhóm và bài lớp
+                require_once __DIR__ . '/../config/helper_task.php';
+                $count = countStudentAssignedDelivers($pdo, (int)$userId, true);
                 $earned = $count >= $badge['criteria_value'];
                 break;
 

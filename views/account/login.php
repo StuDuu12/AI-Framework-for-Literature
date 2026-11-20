@@ -12,8 +12,15 @@ if (isset($_POST['login'])) {
     $error = '';
     $success = '';
 
+    // Chống dò mật khẩu: tối đa 10 lần/5 phút cho mỗi username, 60 lần/5 phút cho mỗi IP
+    // (IP nới rộng vì cả lớp học thường dùng chung một IP NAT).
+    $loginByUser = rate_limit_check('login', 10, 300, 'login-user:' . mb_strtolower($username));
+    $loginByIp = rate_limit_check('login', 60, 300, 'login-ip:' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+
     if (!csrf_verify()) {
         $error = 'Your session has expired. Please try again.';
+    } elseif (!$loginByUser['allowed'] || !$loginByIp['allowed']) {
+        $error = 'Too many login attempts. Please wait a few minutes and try again.';
     } elseif (empty($username) || empty($password)) {
         $error = 'Please fill in all required fields.';
     } else {

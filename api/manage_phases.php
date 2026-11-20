@@ -122,6 +122,26 @@ try {
                 exit;
             }
 
+            // Phase phải thuộc đúng topic đã kiểm tra quyền (chống xoá phase lớp khác)
+            if (getTopicIdOfPhase($phaseId) !== $topicId) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                exit;
+            }
+
+            // Khoá ngoại task -> phase là RESTRICT: phase còn task thì DB từ chối xoá.
+            // Báo rõ lý do thay vì để lỗi SQL chung chung.
+            $taskCountStmt = $pdo->prepare("SELECT COUNT(*) FROM task WHERE phase_id = ?");
+            $taskCountStmt->execute([$phaseId]);
+            $taskCount = (int)$taskCountStmt->fetchColumn();
+            if ($taskCount > 0) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => "This phase still has {$taskCount} task(s). Please delete its tasks first."
+                ]);
+                exit;
+            }
+
             deletePhase($phaseId);
 
             echo json_encode([
@@ -157,6 +177,6 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => client_error_message($e)
     ]);
 }

@@ -26,6 +26,7 @@ if (!$taskId || !$responseId || $role !== 'teacher') {
 require_once __DIR__ . '/../../config/helper_task.php';
 
 $taskInfo = getTaskInfo($taskId);
+requireIdsInTopic($topicId, $taskId, $phaseId);
 if (!$taskInfo || !isTeacherInTopicClass($topicId, $teacherId)) {
     header('Location: ' . URL_ROOT . '/403');
     exit;

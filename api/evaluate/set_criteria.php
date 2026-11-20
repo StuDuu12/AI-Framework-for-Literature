@@ -81,6 +81,6 @@ try {
     error_log("Error in set_criteria.php: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'System error: ' . $e->getMessage()
+        'message' => 'System error: ' . client_error_message($e)
     ]);
 }

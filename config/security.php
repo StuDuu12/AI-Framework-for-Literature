@@ -10,6 +10,25 @@
  * Với request POST tới các file trong /api/, token được kiểm tra tự động.
  */
 
+// Cookie phiên an toàn (HttpOnly/SameSite/Secure) cho mọi request đi qua db.php
+require_once __DIR__ . '/session.php';
+
+if (!function_exists('client_error_message')) {
+    /**
+     * Thông báo lỗi an toàn để trả về client.
+     * Lỗi DB (PDOException) chứa tên bảng/cột/câu SQL => chỉ ghi log, trả thông báo chung.
+     * Exception nghiệp vụ (do code tự throw, vd "Access denied") => giữ nguyên thông báo.
+     */
+    function client_error_message(Throwable $e, string $fallback = 'Lỗi hệ thống. Vui lòng thử lại sau.'): string
+    {
+        if ($e instanceof PDOException) {
+            error_log('[DB] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            return $fallback;
+        }
+        return $e->getMessage();
+    }
+}
+
 if (!function_exists('csrf_token')) {
 
     function csrf_token(): string
@@ -77,14 +96,13 @@ if (!function_exists('csrf_token')) {
         $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
         if (strpos($script, '/api/') !== false) {
             $endpoint = basename($script, '.php');
-            $result = rate_limit_check($endpoint, 60, 60);
-            if (!$result['allowed']) {
-                while (ob_get_level() > 0) { ob_end_clean(); }
-                http_response_code(429);
-                header('Content-Type: application/json; charset=utf-8');
-                header('Retry-After: ' . $result['retry_after']);
-                echo json_encode(['success' => false, 'message' => 'Quá nhiều yêu cầu. Vui lòng thử lại sau.']);
-                exit;
+            // Giới hạn tính theo từng user đã đăng nhập (IP nếu chưa đăng nhập).
+            // Endpoint gọi AI tốn chi phí nên chặt hơn.
+            $aiEndpoints = ['call_api', 'analyze_task'];
+            if (in_array($endpoint, $aiEndpoints, true)) {
+                rate_limit_enforce('ai', 20, 60);
+            } else {
+                rate_limit_enforce($endpoint, 120, 60);
             }
         }
     }

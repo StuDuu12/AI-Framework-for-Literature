@@ -1,4 +1,5 @@
 ﻿<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 /**
  * Seed full English literary analysis data (json_ai + content blocks)
  * for all demo student submissions on analysis tasks.

@@ -1,4 +1,10 @@
 <?php
+// Nạp hằng số chung (URL_ROOT, PATH_ROOT, .env) nếu API gọi thẳng db.php mà chưa nạp env.php.
+// Thiếu bước này, các helper dùng URL_ROOT (vd: thông báo giao bài) gây Fatal error.
+if (!defined('URL_ROOT')) {
+    require_once __DIR__ . '/env.php';
+}
+
 // Nạp cấu hình bí mật nếu chưa được nạp (các API require db.php trực tiếp, không qua index.php)
 if (!defined('DB_NAME') && file_exists(__DIR__ . '/env.local.php')) {
     require_once __DIR__ . '/env.local.php';

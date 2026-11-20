@@ -21,7 +21,52 @@ if (!isset($_SESSION['user'])) {
 }
 
 $action = $_POST['action'] ?? '';
+// Ngoại lệ duy nhất cho GET: kiểm tra trùng giao bài (chỉ đọc). UI gọi bằng GET nên
+// trước đây luôn rơi vào "Invalid action". Các action ghi dữ liệu vẫn bắt buộc POST
+// (POST mới được kiểm tra CSRF).
+if ($action === '' && ($_GET['action'] ?? '') === 'check_assignment_conflict') {
+    $action = 'check_assignment_conflict';
+}
 $userId = $_SESSION['user']['user_id'];
+
+/**
+ * Kiểm tra file nội dung task tải lên. Không tin Content-Type do trình duyệt gửi:
+ * bắt buộc đuôi .txt, MIME thật (finfo) là văn bản, tối đa 2MB.
+ * Trả về thông báo lỗi, hoặc null nếu hợp lệ.
+ */
+function validateTaskUpload(array $file): ?string
+{
+    if (strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION)) !== 'txt') {
+        return 'Only .txt files are accepted';
+    }
+    if (($file['size'] ?? 0) <= 0 || $file['size'] > 2 * 1024 * 1024) {
+        return 'File quá lớn hoặc rỗng (tối đa 2MB)';
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (!in_array($mime, ['text/plain', 'text/x-c', 'text/x-c++', 'application/octet-stream', 'inode/x-empty'], true)
+        && strpos((string)$mime, 'text/') !== 0) {
+        return 'Only .txt files are accepted';
+    }
+    return null;
+}
+
+/** Tên file lưu trên server: id ngẫu nhiên + phần tên gốc đã làm sạch, luôn đuôi .txt */
+function safeTaskFileName(string $originalName): string
+{
+    $stem = pathinfo($originalName, PATHINFO_FILENAME);
+    $stem = preg_replace('/[^A-Za-z0-9_-]+/', '', $stem);
+    $stem = substr((string)$stem, 0, 40);
+    return uniqid('task_') . ($stem !== '' ? '_' . $stem : '') . '.txt';
+}
+
+/** Trả 403 JSON và dừng — dùng khi đối tượng không thuộc lớp của giáo viên */
+function denyTaskAccess(string $message = 'You do not have permission to perform this action'): void
+{
+    ob_end_clean();
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => $message]);
+    exit;
+}
 
 try {
     switch ($action) {
@@ -46,6 +91,11 @@ try {
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
                 exit;
+            }
+
+            // Phase phải thuộc đúng topic mà giáo viên quản lý
+            if (getTopicIdOfPhase($phaseId) !== $topicId) {
+                denyTaskAccess('Phase does not belong to this topic');
             }
 
             // Get phase details to check if it's evaluation phase
@@ -78,6 +128,11 @@ try {
                     exit;
                 }
 
+                // Bài nguồn phải thuộc lớp của giáo viên
+                if (!isTeacherOfTask($sourceTaskId, $userId)) {
+                    denyTaskAccess('Source task does not belong to your class');
+                }
+
                 // Validate source task is from correct phase (PHASE_START or PHASE_BTVN)
                 $sourcePhase = getPhaseDetails($sourceTask['phase_id']);
                 if (!$sourcePhase || !in_array($sourcePhase['phase_code'], ['PHASE_START', 'PHASE_BTVN'])) {
@@ -92,27 +147,21 @@ try {
                 // Handle file upload
                 if ($contentType === 'file' && isset($_FILES['content_file']) && $_FILES['content_file']['error'] === UPLOAD_ERR_OK) {
                     $file = $_FILES['content_file'];
-                    $allowedTypes = ['text/plain'];
 
-                    if (!in_array($file['type'], $allowedTypes)) {
+                    $uploadError = validateTaskUpload($file);
+                    if ($uploadError !== null) {
                         ob_end_clean();
-                        echo json_encode(['success' => false, 'message' => 'Only .txt files are accepted']);
-                        exit;
-                    }
-
-                    if ($file['size'] > 2 * 1024 * 1024) {
-                        ob_end_clean();
-                        echo json_encode(['success' => false, 'message' => 'File quá lớn, tối đa 2MB']);
+                        echo json_encode(['success' => false, 'message' => $uploadError]);
                         exit;
                     }
 
                     // Create upload directory if not exists
                     $uploadDir = '../uploads/tasks/';
                     if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
+                        mkdir($uploadDir, 0755, true);
                     }
 
-                    $fileName = uniqid('task_') . '_' . basename($file['name']);
+                    $fileName = safeTaskFileName($file['name']);
                     $uploadPath = $uploadDir . $fileName;
 
                     if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
@@ -126,7 +175,7 @@ try {
                     // Save text content to file
                     $uploadDir = '../uploads/tasks/';
                     if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
+                        mkdir($uploadDir, 0755, true);
                     }
 
                     $fileName = uniqid('task_') . '.txt';
@@ -188,6 +237,11 @@ try {
                 exit;
             }
 
+            // Task phải thuộc đúng topic đã kiểm tra quyền
+            if (!taskBelongsToTopic($taskId, $topicId)) {
+                denyTaskAccess();
+            }
+
             // Get current task
             $currentTask = getTaskDetails($taskId);
             if (!$currentTask) {
@@ -226,6 +280,11 @@ try {
                     exit;
                 }
 
+                // Bài nguồn phải thuộc lớp của giáo viên
+                if (!isTeacherOfTask($sourceTaskId, $userId)) {
+                    denyTaskAccess('Source task does not belong to your class');
+                }
+
                 // Validate source task is from correct phase
                 $sourcePhase = getPhaseDetails($sourceTask['phase_id']);
                 if (!$sourcePhase || !in_array($sourcePhase['phase_code'], ['PHASE_START', 'PHASE_BTVN'])) {
@@ -241,17 +300,17 @@ try {
                 if ($keepOldFile === 'no') {
                     if ($contentType === 'file' && isset($_FILES['content_file']) && $_FILES['content_file']['error'] === UPLOAD_ERR_OK) {
                         $file = $_FILES['content_file'];
-                        $allowedTypes = ['text/plain'];
 
-                        if (!in_array($file['type'], $allowedTypes)) {
+                        $uploadError = validateTaskUpload($file);
+                        if ($uploadError !== null) {
                             ob_end_clean();
-                        echo json_encode(['success' => false, 'message' => 'Only .txt files are accepted']);
+                            echo json_encode(['success' => false, 'message' => $uploadError]);
                             exit;
                         }
 
                         $uploadDir = '../uploads/tasks/';
                         if (!is_dir($uploadDir)) {
-                            mkdir($uploadDir, 0777, true);
+                            mkdir($uploadDir, 0755, true);
                         }
 
                         // Delete old file if exists
@@ -262,7 +321,7 @@ try {
                             }
                         }
 
-                        $fileName = uniqid('task_') . '_' . basename($file['name']);
+                        $fileName = safeTaskFileName($file['name']);
                         $uploadPath = $uploadDir . $fileName;
 
                         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
@@ -272,7 +331,7 @@ try {
                     } elseif ($contentType === 'text' && !empty($contentText)) {
                         $uploadDir = '../uploads/tasks/';
                         if (!is_dir($uploadDir)) {
-                            mkdir($uploadDir, 0777, true);
+                            mkdir($uploadDir, 0755, true);
                         }
 
                         // Delete old file if exists
@@ -329,6 +388,10 @@ try {
                 exit;
             }
 
+            if (!taskBelongsToTopic($taskId, $topicId)) {
+                denyTaskAccess();
+            }
+
             // Get task to delete file
             $task = getTaskDetails($taskId);
             if ($task && $task['file_content']) {
@@ -354,6 +417,10 @@ try {
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'Invalid information']);
                 exit;
+            }
+
+            if (!isTeacherOfTask($taskId, $userId)) {
+                denyTaskAccess();
             }
 
             $task = getTaskDetails($taskId);
@@ -392,6 +459,10 @@ try {
                 exit;
             }
 
+            if (!taskBelongsToTopic($taskId, $topicId)) {
+                denyTaskAccess();
+            }
+
             // Validate assign values
             if (empty($assignValues)) {
                 ob_end_clean();
@@ -405,7 +476,30 @@ try {
                 2 => 'group',
                 3 => 'user'
             ];
-            $deliverType = $typeMap[$assignType] ?? 'user';
+            if (!isset($typeMap[$assignType]) || !is_array($assignValues)) {
+                ob_end_clean();
+                echo json_encode(['success' => false, 'message' => 'Invalid assignment type']);
+                exit;
+            }
+            $deliverType = $typeMap[$assignType];
+
+            // Đối tượng được giao (lớp / nhóm / học sinh) phải thuộc đúng lớp chứa task
+            $taskClassId = getClassIdOfTopic($topicId);
+            $assignValues = array_values(array_unique(array_map('intval', $assignValues)));
+            foreach ($assignValues as $value) {
+                if ($deliverType === 'class') {
+                    $belongs = ($value === $taskClassId);
+                } elseif ($deliverType === 'group') {
+                    $belongs = (getClassIdOfGroup($value) === $taskClassId);
+                } else {
+                    $memberStmt = $pdo->prepare("SELECT 1 FROM class_member WHERE class_id = :cid AND user_id = :uid");
+                    $memberStmt->execute([':cid' => $taskClassId, ':uid' => $value]);
+                    $belongs = (bool)$memberStmt->fetchColumn();
+                }
+                if ($value <= 0 || !$belongs) {
+                    denyTaskAccess('Assignment target does not belong to this class');
+                }
+            }
 
             // Check for conflicts for each value
             $conflicts = [];
@@ -487,6 +581,11 @@ try {
                 exit;
             }
 
+            // Deliver phải thuộc một task trong topic này
+            if (getTopicIdOfDeliver($deliverId) !== $topicId) {
+                denyTaskAccess();
+            }
+
             if (removeTaskAssignment($deliverId)) {
                 ob_end_clean();
                 echo json_encode(['success' => true, 'message' => 'Task unassigned successfully']);
@@ -505,6 +604,10 @@ try {
                 ob_end_clean();
                 echo json_encode(['success' => false, 'message' => 'Invalid information']);
                 exit;
+            }
+
+            if (!isTeacherOfTask($taskId, $userId)) {
+                denyTaskAccess();
             }
 
             $conflictCheck = checkAssignmentConflict($taskId, $assignType, $assignValue);
@@ -526,5 +629,5 @@ try {
 } catch (Exception $e) {
     ob_end_clean();
     error_log("Error in manage_tasks.php: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . client_error_message($e)]);
 }

@@ -18,6 +18,20 @@ if (!$userId) {
     exit();
 }
 
+/** Admin, hoặc giáo viên (trong class_member) của chính lớp đó */
+function canManageClassInvites(PDO $pdo, int $classId, int $userId, string $role): bool
+{
+    if ($classId <= 0) {
+        return false;
+    }
+    if ($role === 'admin') {
+        return true;
+    }
+    $stmt = $pdo->prepare("SELECT 1 FROM class_member WHERE class_id = :cid AND user_id = :uid AND role = 'teacher'");
+    $stmt->execute([':cid' => $classId, ':uid' => $userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $action = '';
 
@@ -35,6 +49,13 @@ switch ($action) {
         $classId = (int)($_GET['class_id'] ?? 0);
         if ($classId <= 0) {
             echo json_encode(['success' => false, 'message' => 'Thiếu class_id']);
+            exit();
+        }
+
+        // Mã mời là bí mật của lớp — chỉ giáo viên lớp đó (hoặc admin) được xem
+        if (!canManageClassInvites($pdo, $classId, (int)$userId, $role)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Không có quyền']);
             exit();
         }
 
@@ -69,6 +90,11 @@ switch ($action) {
         $stmt->execute([':cid' => $classId]);
         if (!$stmt->fetch()) {
             echo json_encode(['success' => false, 'message' => 'Lớp học không tồn tại']);
+            exit();
+        }
+        if (!canManageClassInvites($pdo, $classId, (int)$userId, $role)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Không có quyền']);
             exit();
         }
 
@@ -112,6 +138,15 @@ switch ($action) {
             exit();
         }
 
+        // Mã phải thuộc lớp mà người gọi quản lý
+        $ownStmt = $pdo->prepare("SELECT class_id FROM class_invitations WHERE id = :id");
+        $ownStmt->execute([':id' => $codeId]);
+        if (!canManageClassInvites($pdo, (int)$ownStmt->fetchColumn(), (int)$userId, $role)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Không có quyền']);
+            exit();
+        }
+
         try {
             $stmt = $pdo->prepare("UPDATE class_invitations SET active = 0 WHERE id = :id");
             $stmt->execute([':id' => $codeId]);
@@ -128,6 +163,9 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Vui lòng nhập mã mời']);
             exit();
         }
+
+        // Chống dò mã mời: tối đa 10 lần thử / 10 phút cho mỗi tài khoản
+        rate_limit_enforce('verify_code', 10, 600, null, 'Bạn đã thử quá nhiều mã. Vui lòng đợi vài phút rồi thử lại.');
 
         try {
             $stmt = $pdo->prepare("SELECT ci.*, c.class_name FROM class_invitations ci JOIN class c ON ci.class_id = c.class_id WHERE ci.code = :code AND ci.active = 1");

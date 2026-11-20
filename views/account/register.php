@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Tên đăng nhập phải từ 3-100 ký tự.';
         } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
             $error = 'Tên đăng nhập chỉ được dùng chữ, số và gạch dưới.';
-        } elseif ($password < 6) {
+        } elseif (mb_strlen($password) < 6) {
             $error = 'Mật khẩu phải có ít nhất 6 ký tự.';
         } elseif ($password !== $confirm) {
             $error = 'Mật khẩu xác nhận không khớp.';

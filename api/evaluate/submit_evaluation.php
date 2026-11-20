@@ -58,15 +58,31 @@ if ($evaluation['status'] == 2) {
     exit;
 }
 
-// Get criteria to validate scores
+// task_id chỉ dùng để tính lại S_Acc; phải khớp với task của deliver được đánh giá
 $taskId = isset($_POST['task_id']) ? intval($_POST['task_id']) : 0;
-$criteria = getEvaluationCriteria($taskId);
 
-// Validate each score
+// Lấy tiêu chí từ CHÍNH bản ghi đánh giá (detail_evaluate) — không tin task_id client gửi,
+// nếu không có thể gửi task_id sai để bỏ qua validate và nhồi điểm tuỳ ý.
+$critStmt = $pdo->prepare("
+    SELECT de.tc_id, tc.name_tc, tc.min_score, tc.max_score
+    FROM detail_evaluate de
+    INNER JOIN tieu_chi tc ON tc.tc_id = de.tc_id
+    WHERE de.id_evaluate = :evaluate_id
+");
+$critStmt->execute([':evaluate_id' => $evaluateId]);
+$criteria = $critStmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($criteria) || !is_array($scores)) {
+    echo json_encode(['success' => false, 'message' => 'No evaluation criteria configured for this evaluation.']);
+    exit;
+}
+
+// Chỉ giữ điểm của đúng các tiêu chí thuộc bài đánh giá (bỏ key thừa) và kiểm tra khoảng điểm
+$cleanScores = [];
 foreach ($criteria as $criterion) {
-    $tcId = $criterion['tc_id'];
+    $tcId = (int)$criterion['tc_id'];
 
-    if (!isset($scores[$tcId])) {
+    if (!isset($scores[$tcId]) || !is_numeric($scores[$tcId])) {
         echo json_encode(['success' => false, 'message' => 'Missing score for criterion: ' . $criterion['name_tc']]);
         exit;
     }
@@ -80,6 +96,16 @@ foreach ($criteria as $criterion) {
         ]);
         exit;
     }
+
+    $cleanScores[$tcId] = $score;
+}
+$scores = $cleanScores;
+
+// task_id dùng cho tính S_Acc phải cùng topic với deliver được đánh giá
+// (task chấm điểm và task nguồn luôn nằm chung một topic)
+require_once __DIR__ . '/../../config/helper_phase.php';
+if ($taskId > 0 && getTopicIdOfTask($taskId) !== getTopicIdOfDeliver($deliverId)) {
+    $taskId = 0; // không khớp => bỏ qua bước tính lại S_Acc thay vì tính trên task của lớp khác
 }
 
 // Determine status: 0=draft, 2=completed

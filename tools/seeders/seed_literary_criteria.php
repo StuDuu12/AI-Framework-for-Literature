@@ -1,4 +1,5 @@
 ﻿<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 /**
  * Seed literary evaluation criteria (Poetry, Story, Drama) for one or all classes.
  *

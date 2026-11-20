@@ -36,6 +36,15 @@ if ($userRole !== 'teacher') {
     exit;
 }
 
+// Nhóm được thao tác phải thuộc đúng lớp đã kiểm tra quyền (chống sửa/xoá nhóm lớp khác)
+require_once __DIR__ . '/../config/helper_phase.php';
+$postedGroupId = isset($_POST['group_id']) ? intval($_POST['group_id']) : 0;
+if ($postedGroupId > 0 && getClassIdOfGroup($postedGroupId) !== $class_id) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Group does not belong to this class']);
+    exit;
+}
+
 try {
     switch ($action) {
         case 'create_group':
@@ -151,6 +160,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
 }
 exit;

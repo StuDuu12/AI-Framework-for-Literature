@@ -12,6 +12,9 @@ if ($topicId > 0) {
 if ($phaseId > 0) {
     $_SESSION['nav_phase_id'] = $phaseId;
 }
+if ($topicId > 0) {
+    requireIdsInTopic($topicId, 0, $phaseId);
+}
 $isTeacher = isTeacherInTopicClass($topicId, $_SESSION['user']['user_id']);
 
 if ($isTeacher) {

@@ -13,6 +13,44 @@ if (!$userId) {
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+/** Danh sách đọc có thuộc về user hiện tại không */
+function ownsReadingList(PDO $pdo, int $listId, int $userId): bool
+{
+    $stmt = $pdo->prepare("SELECT 1 FROM reading_list WHERE list_id = :lid AND user_id = :uid");
+    $stmt->execute([':lid' => $listId, ':uid' => $userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+/**
+ * User có được xem task này không (là thành viên lớp chứa task, hoặc admin).
+ * Nếu không chặn, bookmark task_id bất kỳ rồi get_bookmarks sẽ lộ tiêu đề/mô tả task lớp khác.
+ */
+function canSeeTask(PDO $pdo, int $taskId, int $userId): bool
+{
+    if (($_SESSION['user']['role'] ?? '') === 'admin') {
+        return true;
+    }
+    $stmt = $pdo->prepare("
+        SELECT 1
+        FROM task t
+        INNER JOIN phase p ON t.phase_id = p.phase_id
+        INNER JOIN topic tp ON p.topic_id = tp.topic_id
+        INNER JOIN class_member cm ON cm.class_id = tp.class_id AND cm.user_id = :uid
+        WHERE t.task_id = :tid
+    ");
+    $stmt->execute([':tid' => $taskId, ':uid' => $userId]);
+    return (bool)$stmt->fetchColumn();
+}
+
+function readingListDeny(): void
+{
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Không có quyền']);
+    exit();
+}
+
+$userId = (int)$userId;
+
 try {
     switch ($action) {
         case 'toggle_bookmark':
@@ -23,6 +61,13 @@ try {
             if (!$taskId) {
                 echo json_encode(['success' => false, 'message' => 'Missing task_id']);
                 exit();
+            }
+
+            // Check if already bookmarked (cho phép bỏ bookmark cũ kể cả khi đã rời lớp)
+            $stmt = $pdo->prepare("SELECT 1 FROM bookmark WHERE user_id = :uid AND task_id = :tid");
+            $stmt->execute([':uid' => $userId, ':tid' => $taskId]);
+            if (!$stmt->fetchColumn() && !canSeeTask($pdo, $taskId, $userId)) {
+                readingListDeny();
             }
 
             // Check if already bookmarked
@@ -94,6 +139,9 @@ try {
 
         case 'get_list_items':
             $listId = intval($_GET['list_id'] ?? 0);
+            if (!ownsReadingList($pdo, $listId, $userId)) {
+                readingListDeny();
+            }
             $stmt = $pdo->prepare("
                 SELECT rli.*, t.title as task_title, t.description as task_description,
                        p.phase_name, tp.topic_name
@@ -117,6 +165,9 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Missing params']);
                 exit();
             }
+            if (!ownsReadingList($pdo, $listId, $userId) || !canSeeTask($pdo, $taskId, $userId)) {
+                readingListDeny();
+            }
 
             $stmt = $pdo->prepare("INSERT IGNORE INTO reading_list_item (list_id, task_id) VALUES (:lid, :tid)");
             $stmt->execute([':lid' => $listId, ':tid' => $taskId]);
@@ -127,6 +178,9 @@ try {
             $input = json_decode(file_get_contents('php://input'), true);
             $listId = intval($input['list_id'] ?? 0);
             $taskId = intval($input['task_id'] ?? 0);
+            if (!ownsReadingList($pdo, $listId, $userId)) {
+                readingListDeny();
+            }
 
             $stmt = $pdo->prepare("DELETE FROM reading_list_item WHERE list_id = :lid AND task_id = :tid");
             $stmt->execute([':lid' => $listId, ':tid' => $taskId]);
@@ -136,6 +190,10 @@ try {
         case 'delete_list':
             $input = json_decode(file_get_contents('php://input'), true);
             $listId = intval($input['list_id'] ?? 0);
+            // Kiểm tra chủ sở hữu TRƯỚC khi xoá item (bản cũ xoá item của mọi danh sách)
+            if (!ownsReadingList($pdo, $listId, $userId)) {
+                readingListDeny();
+            }
 
             $pdo->beginTransaction();
             $stmt = $pdo->prepare("DELETE FROM reading_list_item WHERE list_id = :lid");

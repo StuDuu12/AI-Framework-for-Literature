@@ -1,4 +1,5 @@
 ﻿<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 /**
  * Seed literary authors + full readable content for canon works.
  * Run: php seed_literary_canon.php

@@ -6,7 +6,7 @@ RewriteBase /
 
 # ===== Bảo vệ thư mục/file nhạy cảm =====
 # Chặn truy cập trực tiếp vào config, database, docs nội bộ, file giải nén tạm
-RewriteRule ^(config|database|temp_docx|docs)(/|$) - [F,L]
+RewriteRule ^(config|database|temp_docx|docs|tools|scripts)(/|$) - [F,L]
 
 # Chặn các script tiện ích/seed/debug ở webroot (chỉ chạy qua CLI)
 RewriteRule ^(chk|test_seed|teacher_seed|assign_all|seed_evaluations|fix_class_duplicates|fetch_literary_covers|apply_literary.*)\.php$ - [F,L]

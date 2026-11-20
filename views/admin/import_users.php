@@ -74,7 +74,7 @@ if ($role !== 'admin') {
                 <strong><i class="bi bi-info-circle me-1"></i> Định dạng CSV:</strong>
                 <br>File CSV phải có header ở dòng đầu tiên:
                 <br><code>fullname,username,email,role,password</code>
-                <br>Trong đó: <code>role</code> = student | teacher, <code>password</code> (tuỳ chọn, mặc định là <code>1</code>)
+                <br>Trong đó: <code>role</code> = student | teacher, <code>password</code> (tuỳ chọn, tối thiểu 6 ký tự; để trống thì hệ thống tự sinh mật khẩu ngẫu nhiên và cho tải danh sách về)
                 <br>Ví dụ: <code>Nguyễn Văn A,nguyenvana,nguyenvana@gmail.com,student,</code>
             </div>
 
@@ -155,7 +155,7 @@ if ($role !== 'admin') {
             document.getElementById('rowCount').textContent = csvData.length;
             const thead = document.getElementById('previewHead');
             const tbody = document.getElementById('previewBody');
-            thead.innerHTML = '<tr><th>#</th>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
+            thead.innerHTML = '<tr><th>#</th>' + headers.map(h => '<th>' + escapeHtml(h) + '</th>').join('') + '</tr>';
             tbody.innerHTML = csvData.slice(0, 50).map((row, i) =>
                 '<tr><td>' + (i+1) + '</td>' + headers.map(h => '<td>' + escapeHtml(row[h] || '') + '</td>').join('') + '</tr>'
             ).join('');
@@ -185,7 +185,18 @@ if ($role !== 'admin') {
             section.style.display = 'block';
 
             if (data.success) {
-                let html = '<div class="alert alert-success"><i class="bi bi-check-circle me-1"></i> ' + data.message + '</div>';
+                let html = '<div class="alert alert-success"><i class="bi bi-check-circle me-1"></i> ' + escapeHtml(data.message) + '</div>';
+                if (data.generated && data.generated.length) {
+                    // Mật khẩu ngẫu nhiên chỉ hiển thị MỘT lần — admin cần tải về để phát cho người dùng
+                    lastGenerated = data.generated;
+                    html += '<div class="alert alert-warning"><i class="bi bi-key me-1"></i> ' + data.generated.length +
+                        ' tài khoản không có mật khẩu trong file đã được cấp mật khẩu ngẫu nhiên. ' +
+                        '<strong>Danh sách chỉ hiển thị một lần</strong> — hãy tải về ngay.' +
+                        ' <button type="button" class="btn btn-sm btn-warning ms-2" onclick="downloadGenerated()"><i class="bi bi-download me-1"></i>Tải CSV</button></div>';
+                    html += '<div class="result-card"><table class="table table-sm mb-0"><thead><tr><th>Họ tên</th><th>Username</th><th>Mật khẩu</th></tr></thead><tbody>' +
+                        data.generated.map(g => '<tr><td>' + escapeHtml(g.fullname) + '</td><td>' + escapeHtml(g.username) + '</td><td><code>' + escapeHtml(g.password) + '</code></td></tr>').join('') +
+                        '</tbody></table></div>';
+                }
                 if (data.errors && data.errors.length) {
                     html += '<div class="result-card"><h6>Lỗi (' + data.errors.length + '):</h6>';
                     data.errors.forEach(e => {
@@ -195,7 +206,7 @@ if ($role !== 'admin') {
                 }
                 section.innerHTML = html;
             } else {
-                section.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-1"></i> ' + data.message + '</div>';
+                section.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-1"></i> ' + escapeHtml(data.message) + '</div>';
             }
         } catch(e) {
             document.getElementById('resultSection').style.display = 'block';
@@ -206,6 +217,19 @@ if ($role !== 'admin') {
     }
 
     function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+    let lastGenerated = [];
+    function downloadGenerated() {
+        const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+        const csv = '﻿' + ['fullname,username,password']
+            .concat(lastGenerated.map(g => [g.fullname, g.username, g.password].map(q).join(',')))
+            .join('\r\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        a.download = 'mat_khau_tai_khoan_moi.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
     </script>
 </body>
 

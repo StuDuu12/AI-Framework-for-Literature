@@ -35,26 +35,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([':uid' => $user['user_id']]);
 
                     $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:uid, :token, :expires)");
-                    $stmt->execute([':uid' => $user['user_id'], ':token' => $token, ':expires' => $expires]);
+                    // Chỉ lưu hash của token — token gốc chỉ nằm trong link gửi qua email
+                    $stmt->execute([':uid' => $user['user_id'], ':token' => hash('sha256', $token), ':expires' => $expires]);
 
                     $resetUrl = URL_ROOT . "/reset_password?token=" . $token;
 
-                    $emailSent = false;
+                    // Tuyệt đối không trả link reset về trình duyệt (chống chiếm tài khoản).
+                    // Chưa cấu hình mailer => link chỉ được gửi khi có sendPasswordResetEmail().
                     if (function_exists('sendPasswordResetEmail')) {
-                        $emailSent = sendPasswordResetEmail($user['fullname'], $email, $resetUrl);
-                    }
-
-                    if ($emailSent) {
-                        $message = 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.';
-                        $msgType = 'success';
+                        sendPasswordResetEmail($user['fullname'], $email, $resetUrl);
                     } else {
-                        $message = 'Liên kết đặt lại: ' . $resetUrl;
-                        $msgType = 'info';
+                        error_log('Forgot password: chưa cấu hình sendPasswordResetEmail(), không gửi được email đặt lại mật khẩu.');
                     }
-                } else {
-                    $message = 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.';
-                    $msgType = 'success';
                 }
+
+                // Cùng một thông báo cho mọi trường hợp để không lộ email nào tồn tại
+                $message = 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.';
+                $msgType = 'success';
             } catch (PDOException $e) {
                 error_log("Forgot password error: " . $e->getMessage());
                 $message = 'Lỗi hệ thống. Vui lòng thử lại.';

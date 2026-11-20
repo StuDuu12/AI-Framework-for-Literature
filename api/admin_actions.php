@@ -42,19 +42,39 @@ try {
 
             $imported = 0;
             $errors = [];
+            $generated = []; // mật khẩu được sinh ngẫu nhiên — trả về để admin phát cho người dùng
+
+            // Sinh mật khẩu ngẫu nhiên dễ đọc (bỏ các ký tự dễ nhầm 0/O, 1/l/I)
+            $makePassword = static function (int $len = 10): string {
+                $alphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+                $out = '';
+                for ($k = 0; $k < $len; $k++) {
+                    $out .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+                }
+                return $out;
+            };
 
             foreach ($users as $i => $row) {
                 $fullname = trim($row['fullname'] ?? '');
                 $username = trim($row['username'] ?? '');
                 $email = trim($row['email'] ?? '');
                 $userRole = strtolower(trim($row['role'] ?? 'student'));
-                $password = trim($row['password'] ?? '') ?: '1';
+                $password = trim($row['password'] ?? '');
 
                 $lineNum = $i + 2;
 
                 if ($fullname === '' || $username === '') {
                     $errors[] = "Dòng {$lineNum}: Thiếu họ tên hoặc username";
                     continue;
+                }
+                if ($password !== '' && mb_strlen($password) < 6) {
+                    $errors[] = "Dòng {$lineNum}: Mật khẩu của '{$username}' phải có ít nhất 6 ký tự";
+                    continue;
+                }
+                // Không còn mật khẩu mặc định '1' dùng chung: để trống thì sinh ngẫu nhiên riêng
+                $isGenerated = ($password === '');
+                if ($isGenerated) {
+                    $password = $makePassword();
                 }
                 if (!in_array($userRole, ['student', 'teacher'])) {
                     $userRole = 'student';
@@ -71,11 +91,15 @@ try {
                         ':role' => $userRole,
                     ]);
                     $imported++;
+                    if ($isGenerated) {
+                        $generated[] = ['fullname' => $fullname, 'username' => $username, 'password' => $password];
+                    }
                 } catch (PDOException $e) {
                     if ($e->getCode() == 23000) {
                         $errors[] = "Dòng {$lineNum}: Username '{$username}' đã tồn tại";
                     } else {
-                        $errors[] = "Dòng {$lineNum}: Lỗi DB - " . $e->getMessage();
+                        error_log("import_users line {$lineNum}: " . $e->getMessage());
+                        $errors[] = "Dòng {$lineNum}: Lỗi cơ sở dữ liệu";
                     }
                 }
             }
@@ -90,6 +114,7 @@ try {
                 'message' => $msg,
                 'imported' => $imported,
                 'errors' => $errors,
+                'generated' => $generated,
             ]);
             break;
 

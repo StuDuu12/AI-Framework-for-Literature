@@ -27,6 +27,7 @@
         exit;
     }
 
+    requireIdsInTopic($topic_id, $task_id, $phase_id);
     if (!isTeacherInTopicClass($topic_id, $userId)) {
         header('Location: ' . URL_ROOT . '/403');
         exit;

@@ -168,20 +168,20 @@ switch ($action) {
             $stmt->execute([':uid' => $user['user_id']]);
 
             $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:uid, :token, :expires)");
-            $stmt->execute([':uid' => $user['user_id'], ':token' => $token, ':expires' => $expires]);
+            // Chỉ lưu hash của token — token gốc chỉ nằm trong link gửi qua email
+            $stmt->execute([':uid' => $user['user_id'], ':token' => hash('sha256', $token), ':expires' => $expires]);
 
             $resetUrl = URL_ROOT . "/reset_password?token=" . $token;
 
-            $emailSent = false;
+            // Tuyệt đối không trả link reset trong response (chống chiếm tài khoản).
             if (function_exists('sendPasswordResetEmail')) {
-                $emailSent = sendPasswordResetEmail($user['fullname'], $email, $resetUrl);
+                sendPasswordResetEmail($user['fullname'], $email, $resetUrl);
+            } else {
+                error_log('Forgot password: chưa cấu hình sendPasswordResetEmail(), không gửi được email đặt lại mật khẩu.');
             }
 
-            if ($emailSent) {
-                echo json_encode(['success' => true, 'message' => 'Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.']);
-            } else {
-                echo json_encode(['success' => true, 'message' => 'Liên kết đặt lại mật khẩu: ' . $resetUrl, 'debug_url' => $resetUrl]);
-            }
+            // Cùng thông báo với nhánh "email không tồn tại" để không lộ tài khoản
+            echo json_encode(['success' => true, 'message' => 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.']);
         } catch (PDOException $e) {
             error_log("Forgot password error: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Lỗi hệ thống']);
@@ -204,7 +204,7 @@ switch ($action) {
 
         try {
             $stmt = $pdo->prepare("SELECT * FROM password_resets WHERE token = :token AND used = 0 AND expires_at > NOW()");
-            $stmt->execute([':token' => $token]);
+            $stmt->execute([':token' => hash('sha256', $token)]);
             $reset = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$reset) {

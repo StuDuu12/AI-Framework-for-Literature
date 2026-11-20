@@ -1,4 +1,10 @@
 <?php
+// Đệm toàn bộ output của view: nhiều view in header/sidebar TRƯỚC khi kiểm tra quyền
+// rồi mới gọi header('Location: ...'). Không có buffer, các redirect đó thất bại
+// ("headers already sent") và PHP in cảnh báo lộ đường dẫn server.
+ob_start();
+
+require_once __DIR__ . '/config/session.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

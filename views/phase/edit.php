@@ -40,6 +40,7 @@
     }
 
     // Check if user is teacher
+    requireIdsInTopic($topicId, 0, $phaseId);
     $isTeacher = isTeacherInTopicClass($topicId, $_SESSION['user']['user_id']);
     if (!$isTeacher) {
         header('Location: /class');

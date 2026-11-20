@@ -244,6 +244,107 @@ function isTeacherInTopicClass($topicId, $userId)
     return $result && $result['role'] === 'teacher';
 }
 
+/* ------------------------------------------------------------------
+ * Phân quyền theo đối tượng (chống IDOR xuyên lớp)
+ *
+ * Luôn suy ra topic/class từ CHÍNH đối tượng bị thao tác (task, deliver,
+ * phase, group...) thay vì tin topic_id/class_id do client gửi lên.
+ * ------------------------------------------------------------------ */
+
+/** topic_id thực của một task (0 nếu không tồn tại) */
+function getTopicIdOfTask($taskId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT p.topic_id
+        FROM task t
+        INNER JOIN phase p ON t.phase_id = p.phase_id
+        WHERE t.task_id = ?
+    ");
+    $stmt->execute([(int)$taskId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+/** topic_id thực của một phase (0 nếu không tồn tại) */
+function getTopicIdOfPhase($phaseId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT topic_id FROM phase WHERE phase_id = ?");
+    $stmt->execute([(int)$phaseId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+/** topic_id thực của một deliver (qua task) */
+function getTopicIdOfDeliver($deliverId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT p.topic_id
+        FROM deliver d
+        INNER JOIN task t ON d.task_id = t.task_id
+        INNER JOIN phase p ON t.phase_id = p.phase_id
+        WHERE d.id_deliver = ?
+    ");
+    $stmt->execute([(int)$deliverId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+/** class_id thực của một topic */
+function getClassIdOfTopic($topicId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT class_id FROM topic WHERE topic_id = ?");
+    $stmt->execute([(int)$topicId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+/** class_id thực của một nhóm học sinh */
+function getClassIdOfGroup($groupId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT class_id FROM `group` WHERE group_id = ?");
+    $stmt->execute([(int)$groupId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+/** User là giáo viên của lớp chứa task này */
+function isTeacherOfTask($taskId, $userId): bool
+{
+    $topicId = getTopicIdOfTask($taskId);
+    return $topicId > 0 && isTeacherInTopicClass($topicId, $userId);
+}
+
+/** Task có thực sự thuộc topic này không */
+function taskBelongsToTopic($taskId, $topicId): bool
+{
+    $real = getTopicIdOfTask($taskId);
+    return $real > 0 && $real === (int)$topicId;
+}
+
+/**
+ * Dùng trong view: các trang kiểm tra quyền giáo viên theo topic_id trên URL,
+ * nên task_id / phase_id trên URL bắt buộc phải thuộc đúng topic đó.
+ * Nếu không khớp => chuyển tới trang 403 và dừng.
+ */
+function requireIdsInTopic(int $topicId, int $taskId = 0, int $phaseId = 0): void
+{
+    $ok = $topicId > 0
+        && ($taskId <= 0 || getTopicIdOfTask($taskId) === $topicId)
+        && ($phaseId <= 0 || getTopicIdOfPhase($phaseId) === $topicId);
+
+    if ($ok) {
+        return;
+    }
+
+    $target = (defined('URL_ROOT') ? URL_ROOT : '') . '/403';
+    if (!headers_sent()) {
+        header('Location: ' . $target);
+    } else {
+        echo '<script>location.href=' . json_encode($target) . ';</script>';
+    }
+    exit;
+}
+
 /**
  * Check if user is teacher in the class (directly by class_id)
  */

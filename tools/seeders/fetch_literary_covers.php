@@ -1,4 +1,5 @@
 ﻿<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 /**
  * Download literary work cover images â€” Open Library, Gutenberg, Internet Archive (not Wikipedia-first).
  * Run: php fetch_literary_covers.php

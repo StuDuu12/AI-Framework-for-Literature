@@ -98,6 +98,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
 }
 exit;

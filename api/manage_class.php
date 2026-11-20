@@ -34,8 +34,14 @@ try {
                 exit;
             }
 
-            // Check if user is teacher (optional - you may want any logged user to create class)
-            // For now, allowing any logged user to create class
+            // Chỉ giáo viên/admin (role toàn cục) mới được tạo lớp — nếu không, học sinh
+            // tự tạo lớp sẽ trở thành "teacher" trong class_member và leo thang quyền.
+            $globalRole = $_SESSION['user']['role'] ?? ($_SESSION['role'] ?? '');
+            if (!in_array($globalRole, ['teacher', 'admin'], true)) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Only teachers can create classes']);
+                exit;
+            }
 
             $class_id = createClass($class_name, $user_id_request);
             if ($class_id) {
@@ -91,6 +97,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
 }
 exit;

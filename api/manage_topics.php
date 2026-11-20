@@ -36,6 +36,15 @@ if ($userRole !== 'teacher') {
     exit;
 }
 
+// Topic được thao tác phải thuộc đúng lớp hiện tại (chống sửa/xoá topic lớp khác)
+require_once __DIR__ . '/../config/helper_phase.php';
+$postedTopicId = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : 0;
+if ($postedTopicId > 0 && getClassIdOfTopic($postedTopicId) !== $class_id) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Topic does not belong to this class']);
+    exit;
+}
+
 try {
     switch ($action) {
         case 'create_topic':
@@ -104,6 +113,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
 }
 exit;

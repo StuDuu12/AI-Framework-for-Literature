@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 $landing = file_get_contents(__DIR__ . '/../views/Landing/landing_page.php');
 preg_match('/<style>(.*?)<\/style>/s', $landing, $inline);
 $css = "/**\n * Landing page styles (replaces Tailwind CDN)\n * Scoped to body.landing-page\n */\n\n";

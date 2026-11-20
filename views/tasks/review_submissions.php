@@ -34,6 +34,7 @@
 
     require_once __DIR__ . '/../../config/helper_phase.php';
 
+    requireIdsInTopic($topicId, $taskId, $phaseId);
     if (!isTeacherInTopicClass($topicId, $_SESSION['user']['user_id'])) {
         header('Location: ' . URL_ROOT . '/403');
         exit;

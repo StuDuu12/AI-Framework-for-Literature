@@ -20,7 +20,9 @@ if ($method === 'GET') {
     $action = $_GET['action'] ?? '';
     if ($action === 'stats') {
         try {
-            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM content WHERE user_id = :uid");
+            // Số bài phân tích = số bài gốc (response cấp đầu) do user tạo
+            // (bảng content không có user_id — truy vấn cũ luôn lỗi)
+            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM response WHERE user_id = :uid AND parent_response IS NULL");
             $stmt->execute([':uid' => $userId]);
             $analysisCount = $stmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
 
@@ -28,7 +30,8 @@ if ($method === 'GET') {
             $stmt->execute([':uid' => $userId]);
             $classCount = $stmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
 
-            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM evaluate WHERE evaluator_id = :uid");
+            // Số lượt đánh giá đã nộp (status 2); người chấm lưu ở evaluate.user_id
+            $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM evaluate WHERE user_id = :uid AND status = 2");
             $stmt->execute([':uid' => $userId]);
             $evalCount = $stmt->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
 

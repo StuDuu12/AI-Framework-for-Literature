@@ -16,7 +16,7 @@ $userId = null;
 
 try {
     $stmt = $pdo->prepare("SELECT user_id FROM password_resets WHERE token = :token AND used = 0 AND expires_at > NOW()");
-    $stmt->execute([':token' => $token]);
+    $stmt->execute([':token' => hash('sha256', $token)]); // DB chỉ lưu hash của token
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($row) {
         $validToken = true;
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $validToken) {
                 $stmt->execute([':hash' => $newHash, ':uid' => $userId]);
 
                 $stmt = $pdo->prepare("UPDATE password_resets SET used = 1 WHERE token = :token");
-                $stmt->execute([':token' => $token]);
+                $stmt->execute([':token' => hash('sha256', $token)]);
 
                 $message = 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.';
                 $msgType = 'success';

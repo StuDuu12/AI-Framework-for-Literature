@@ -1,4 +1,5 @@
 ﻿<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('CLI only'); }
 /**
  * Insert 100 expansion works into literary_work.
  * Run: php apply_literary_expansion.php

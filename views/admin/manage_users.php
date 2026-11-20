@@ -17,7 +17,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $role = $_GET['role'] ?? 'all';
 $search = $_GET['search'] ?? '';
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $limit = 20;
 $offset = ($page - 1) * $limit;
 
@@ -205,19 +205,19 @@ $pageTitle = "User Management";
                         <nav aria-label="Page navigation">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?role=<?= $role ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
+                                    <a class="page-link" href="?role=<?= urlencode($role) ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
                                         Previous
                                     </a>
                                 </li>
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                                     <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                                        <a class="page-link" href="?role=<?= $role ?>&search=<?= urlencode($search) ?>&page=<?= $i ?>">
+                                        <a class="page-link" href="?role=<?= urlencode($role) ?>&search=<?= urlencode($search) ?>&page=<?= $i ?>">
                                             <?= $i ?>
                                         </a>
                                     </li>
                                 <?php endfor; ?>
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="?role=<?= $role ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
+                                    <a class="page-link" href="?role=<?= urlencode($role) ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
                                         Next
                                     </a>
                                 </li>

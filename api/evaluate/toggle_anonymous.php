@@ -20,6 +20,15 @@ if (!$taskId) {
     exit();
 }
 
+// Chỉ giáo viên của lớp chứa task mới được bật/tắt ẩn danh
+require_once __DIR__ . '/../../config/helper_phase.php';
+if (!isTeacherOfTask($taskId, (int)$userId)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'You do not have permission to change this setting']);
+    exit();
+}
+$isAnonymous = $isAnonymous ? 1 : 0;
+
 try {
     // Check if setting exists for this task
     $stmt = $pdo->prepare("SELECT id_setting FROM setting WHERE task_id = :task_id");

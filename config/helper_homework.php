@@ -374,7 +374,7 @@ function getCommentsByContent($contentId)
 {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT c.*, u.fullname, u.email
+        SELECT c.*, u.fullname
         FROM comment c
         LEFT JOIN users u ON c.user_id = u.user_id
         WHERE c.content_id = :content_id
@@ -403,7 +403,7 @@ function getCommentsHierarchical($contentId)
 
     // Get all comments for this content with user role and phase info
     $stmt = $pdo->prepare("
-        SELECT c.*, u.fullname, u.email, u.role,
+        SELECT c.*, u.fullname, u.role,
                t.phase_id, p.phase_name, mp.m_phase_name
         FROM comment c
         LEFT JOIN users u ON c.user_id = u.user_id
@@ -463,7 +463,6 @@ function getGeneralCommentsHierarchical($taskId)
         SELECT 
             c.*,
             u.fullname,
-            u.email,
             cm.role,
             CASE 
                 WHEN cm.role = 'teacher' THEN 'Teacher'
@@ -528,7 +527,6 @@ function getGeneralCommentsByResponse($responseId)
         SELECT 
             c.*,
             u.fullname,
-            u.email,
             cm.role,
             CASE 
                 WHEN cm.role = 'teacher' THEN 'Teacher'
@@ -601,23 +599,97 @@ function deleteComment($commentId, $userId)
         return false;
     }
 
-    // Check permission
-    $isOwner = ($comment['user_id'] == $userId);
-    $userRole = $_SESSION['user']['role'] ?? $_SESSION['role'] ?? '';
-    $isTeacher = ($userRole === 'teacher');
+    // Check permission: chủ bình luận, hoặc giáo viên CỦA LỚP chứa bình luận
+    // (trước đây mọi giáo viên đều xoá được bình luận ở mọi lớp)
+    $isOwner = ((int)$comment['user_id'] === (int)$userId);
+    $isTeacher = getCommentRoleInClass(commentClassOfComment((int)$commentId), (int)$userId) === 'teacher';
 
     if (!$isOwner && !$isTeacher) {
         return false;
     }
 
-    // Delete the comment and its replies
-    $stmt = $pdo->prepare("
-        DELETE FROM comment 
-        WHERE comment_id = :comment_id OR reply_comment = :comment_id
-    ");
-    $stmt->execute(['comment_id' => $commentId]);
+    // Gom toàn bộ cây trả lời (mọi cấp) để không để lại reply mồ côi
+    $ids = [(int)$commentId];
+    $frontier = [(int)$commentId];
+    while (!empty($frontier)) {
+        $ph = implode(',', array_fill(0, count($frontier), '?'));
+        $childStmt = $pdo->prepare("SELECT comment_id FROM comment WHERE reply_comment IN ($ph)");
+        $childStmt->execute($frontier);
+        $frontier = array_values(array_diff(array_map('intval', $childStmt->fetchAll(PDO::FETCH_COLUMN)), $ids));
+        $ids = array_merge($ids, $frontier);
+    }
+
+    $ph = implode(',', array_fill(0, count($ids), '?'));
+    $pdo->prepare("DELETE FROM comment WHERE comment_id IN ($ph)")->execute($ids);
 
     return true;
+}
+
+/* ------------------------------------------------------------------
+ * Phân quyền bình luận theo lớp (chống đọc/ghi bình luận xuyên lớp)
+ * Mọi bình luận/nội dung/bài làm đều thuộc một task => một lớp.
+ * ------------------------------------------------------------------ */
+
+function commentClassOfTask(int $taskId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT tp.class_id
+        FROM task t
+        INNER JOIN phase p ON t.phase_id = p.phase_id
+        INNER JOIN topic tp ON p.topic_id = tp.topic_id
+        WHERE t.task_id = ?
+    ");
+    $stmt->execute([$taskId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+function commentClassOfResponse(int $responseId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT task_id FROM response WHERE id_response = ?");
+    $stmt->execute([$responseId]);
+    $taskId = (int)($stmt->fetchColumn() ?: 0);
+    return $taskId > 0 ? commentClassOfTask($taskId) : 0;
+}
+
+function commentResponseOfContent(int $contentId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT response_id FROM content WHERE content_id = ?");
+    $stmt->execute([$contentId]);
+    return (int)($stmt->fetchColumn() ?: 0);
+}
+
+function commentClassOfContent(int $contentId): int
+{
+    $responseId = commentResponseOfContent($contentId);
+    return $responseId > 0 ? commentClassOfResponse($responseId) : 0;
+}
+
+function commentClassOfComment(int $commentId): int
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT task_id FROM comment WHERE comment_id = ?");
+    $stmt->execute([$commentId]);
+    $taskId = (int)($stmt->fetchColumn() ?: 0);
+    return $taskId > 0 ? commentClassOfTask($taskId) : 0;
+}
+
+/** Vai trò của user trong lớp ('teacher' / 'student' / ...), 'admin' nếu là admin hệ thống, null nếu không thuộc lớp */
+function getCommentRoleInClass(int $classId, int $userId): ?string
+{
+    global $pdo;
+    if (($_SESSION['user']['role'] ?? ($_SESSION['role'] ?? '')) === 'admin') {
+        return 'admin';
+    }
+    if ($classId <= 0 || $userId <= 0) {
+        return null;
+    }
+    $stmt = $pdo->prepare("SELECT role FROM class_member WHERE class_id = ? AND user_id = ?");
+    $stmt->execute([$classId, $userId]);
+    $role = $stmt->fetchColumn();
+    return $role !== false ? (string)$role : null;
 }
 
 /**
