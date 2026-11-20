@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -52,7 +52,7 @@
             <div class="workspace-topbar">
                 <div>
                     <h1 class="workspace-topbar__greeting">
-                        <span data-lang-key="workspace_greeting">Welcome back</span>,
+                        <span data-lang-key="workspace_greeting">Chào mừng bạn trở lại</span>,
                         <?= htmlspecialchars($userName) ?>
                     </h1>
                     <p class="workspace-topbar__sub" data-lang-key="workspace_subtitle">
@@ -90,24 +90,24 @@
                     <div class="lit-search-wrap">
                         <form class="lit-search-form" id="litSearchForm" role="search" autocomplete="off">
                             <input type="search" id="litSearchInput"
-                                placeholder="Search authors, titles, poems, novels worldwide..."
+                                placeholder="Tìm tác giả, tác phẩm, bài thơ, tiểu thuyết…"
                                 data-lang-key="workspace_search_placeholder"
-                                aria-label="Literature search"
+                                aria-label="Tìm tác phẩm"
                                 aria-autocomplete="list"
                                 aria-controls="litAutocomplete"
                                 aria-expanded="false">
-                            <button type="submit" data-lang-key="workspace_search_btn">Search</button>
+                            <button type="submit" data-lang-key="workspace_search_btn">Tìm kiếm</button>
                         </form>
                         <div class="lit-autocomplete" id="litAutocomplete" role="listbox"></div>
                     </div>
 
                     <div class="lit-search-filters" id="litSearchFilters">
                         <button type="button" class="lit-filter-chip active" data-region="all" data-lang-key="workspace_filter_all">All</button>
-                        <button type="button" class="lit-filter-chip" data-region="vietnam" data-lang-key="workspace_filter_vn">Vietnam</button>
-                        <button type="button" class="lit-filter-chip" data-region="international" data-lang-key="workspace_filter_intl">World</button>
-                        <button type="button" class="lit-filter-chip" data-genre="poem" data-lang-key="workspace_filter_poem">Poetry</button>
-                        <button type="button" class="lit-filter-chip" data-genre="story" data-lang-key="workspace_filter_story">Stories</button>
-                        <button type="button" class="lit-filter-chip" data-genre="novel" data-lang-key="workspace_filter_novel">Novels</button>
+                        <button type="button" class="lit-filter-chip" data-region="vietnam" data-lang-key="workspace_filter_vn">Việt Nam</button>
+                        <button type="button" class="lit-filter-chip" data-region="international" data-lang-key="workspace_filter_intl">Thế giới</button>
+                        <button type="button" class="lit-filter-chip" data-genre="poem" data-lang-key="workspace_filter_poem">Thơ</button>
+                        <button type="button" class="lit-filter-chip" data-genre="story" data-lang-key="workspace_filter_story">Truyện</button>
+                        <button type="button" class="lit-filter-chip" data-genre="novel" data-lang-key="workspace_filter_novel">Tiểu thuyết</button>
                     </div>
 
                     <?php if (!empty($suggestionChips)): ?>
@@ -122,13 +122,13 @@
 
                     <div class="lit-search-results" id="litSearchResults">
                         <div class="lit-search-results__empty" data-lang-key="workspace_search_hint">
-                            Type to see suggestions from the literary canon and Wikipedia
+                            Gõ để xem gợi ý từ kho tác phẩm và Wikipedia
                         </div>
                     </div>
 
                     <?php if (!empty($authorCards)): ?>
                         <div class="workspace-featured-authors">
-                            <div class="workspace-featured-authors__title" data-lang-key="workspace_featured_authors">Featured authors</div>
+                            <div class="workspace-featured-authors__title" data-lang-key="workspace_featured_authors">Tác giả tiêu biểu</div>
                             <div class="workspace-authors-scroll">
                                 <?php foreach ($authorCards as $ac): ?>
                                     <button type="button" class="workspace-author-card" data-query="<?= htmlspecialchars($ac['query']) ?>">
@@ -173,20 +173,20 @@
                         <div class="workspace-discover__card workspace-discover__card--progress">
                             <div class="workspace-discover__card-head">
                                 <i class="bi bi-graph-up-arrow"></i>
-                                <span data-lang-key="workspace_discover_progress">Your progress</span>
+                                <span data-lang-key="workspace_discover_progress">Tiến độ của bạn</span>
                             </div>
                             <div class="workspace-progress-ring" style="--pct: <?= $taskPct ?>">
                                 <span class="workspace-progress-ring__value"><?= $taskPct ?>%</span>
                             </div>
                             <p class="workspace-discover__stat-line">
                                 <strong><?= $stats['completed'] ?></strong>/<span><?= $stats['tasks'] ?></span>
-                                <span data-lang-key="workspace_discover_submitted">tasks submitted</span>
+                                <span data-lang-key="workspace_discover_submitted">nhiệm vụ đã nộp</span>
                             </p>
                             <?php if ($stats['pending_eval'] > 0): ?>
                                 <a href="<?= URL_ROOT ?>/class/my_tasks" class="workspace-discover__pill">
                                     <i class="bi bi-star"></i>
                                     <?= $stats['pending_eval'] ?>
-                                    <span data-lang-key="workspace_discover_eval_pending">evaluations pending</span>
+                                    <span data-lang-key="workspace_discover_eval_pending">bài chờ đánh giá</span>
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -194,24 +194,24 @@
                         <div class="workspace-discover__card">
                             <div class="workspace-discover__card-head">
                                 <i class="bi bi-compass"></i>
-                                <span data-lang-key="workspace_discover_paths">Quick paths</span>
+                                <span data-lang-key="workspace_discover_paths">Lối tắt</span>
                             </div>
                             <div class="workspace-path-tiles">
                                 <a href="<?= URL_ROOT ?>/canon?region=vietnam" class="workspace-path-tile workspace-path-tile--vn">
                                     <span>🇻🇳</span>
-                                    <strong data-lang-key="workspace_path_vn">Vietnam classics</strong>
+                                    <strong data-lang-key="workspace_path_vn">Kinh điển Việt Nam</strong>
                                 </a>
                                 <a href="<?= URL_ROOT ?>/canon?region=international" class="workspace-path-tile workspace-path-tile--world">
                                     <span>🌍</span>
-                                    <strong data-lang-key="workspace_path_world">World literature</strong>
+                                    <strong data-lang-key="workspace_path_world">Văn học thế giới</strong>
                                 </a>
                                 <a href="<?= URL_ROOT ?>/canon?genre=poem" class="workspace-path-tile workspace-path-tile--poem">
                                     <span>✒️</span>
-                                    <strong data-lang-key="workspace_path_poem">Poetry corner</strong>
+                                    <strong data-lang-key="workspace_path_poem">Góc thơ</strong>
                                 </a>
                                 <button type="button" class="workspace-path-tile workspace-path-tile--search" data-query="Truyện Kiều">
                                     <span>📖</span>
-                                    <strong data-lang-key="workspace_path_search">Surprise me</strong>
+                                    <strong data-lang-key="workspace_path_search">Gợi ý ngẫu nhiên</strong>
                                 </button>
                             </div>
                         </div>
@@ -221,7 +221,7 @@
                         <div class="workspace-picks">
                             <div class="workspace-picks__head">
                                 <span data-lang-key="workspace_discover_picks">Editor's picks</span>
-                                <a href="<?= URL_ROOT ?>/canon" data-lang-key="workspace_discover_view_all">View all</a>
+                                <a href="<?= URL_ROOT ?>/canon" data-lang-key="workspace_discover_view_all">Xem tất cả</a>
                             </div>
                             <div class="workspace-picks__scroll">
                                 <?php foreach (array_slice($featuredWorks, 0, 5) as $pick): ?>
@@ -333,7 +333,7 @@
 
             let html = '';
             if (local.length) {
-                html += '<div class="lit-results-section-title">Knowledge Base</div>';
+                html += '<div class="lit-results-section-title">Kho kiến thức</div>';
                 html += local.map(item => `
                     <a href="${urlRoot}/canon/view?id=${item.id || 0}" class="lit-result-item">
                         ${item.cover_image ? `<img src="${escapeHtml(item.cover_image)}" class="lit-result-item__cover" alt="">` : `<div class="lit-result-item__icon" style="background:${escapeHtml(item.gradient || '#4154f1')}"><i class="bi bi-book"></i></div>`}
@@ -372,10 +372,10 @@
                 if (data.success) {
                     renderLocalResults(data.local || [], data.online || [], query);
                 } else {
-                    resultsEl.innerHTML = '<div class="lit-search-results__empty">Search failed. Please try again.</div>';
+                    resultsEl.innerHTML = '<div class="lit-search-results__empty">Không tìm được. Vui lòng thử lại.</div>';
                 }
             } catch (e) {
-                resultsEl.innerHTML = '<div class="lit-search-results__empty">Network error. Check your connection.</div>';
+                resultsEl.innerHTML = '<div class="lit-search-results__empty">Lỗi mạng. Kiểm tra kết nối rồi thử lại.</div>';
             }
         }
 

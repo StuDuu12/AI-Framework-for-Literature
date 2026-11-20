@@ -14,21 +14,21 @@
     border-radius: 0.75rem;
     transition: all 0.3s ease;
     cursor: pointer;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--lit-surface);
+    border: 1px solid var(--lit-border);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }
 
 .content-image-wrapper:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(var(--lit-primary-rgb), 0.4);
     transform: translateY(-2px);
 }
 
 .content-image-wrapper.selected {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 4px rgba(79, 70, 229, 0.6);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), 0 0 0 4px rgba(var(--lit-primary-rgb), 0.6);
     transform: translateY(-2px);
-    background-color: #f9fafb;
+    background-color: var(--lit-surface-2);
 }
 
 .content-image-wrapper img {
@@ -48,8 +48,8 @@
     padding: 1.25rem;
     border-radius: 0.75rem;
     transition: all 0.3s ease;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--lit-surface);
+    border: 1px solid var(--lit-border);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -58,8 +58,8 @@
 }
 
 .content-text-wrapper.editing {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    border-color: var(--lit-primary);
+    box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.2);
 }
 
 .content-text-wrapper .section-header {
@@ -68,13 +68,13 @@
     align-items: center;
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--lit-border);
 }
 
 .content-text-wrapper .section-title {
     font-size: 1rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--lit-text);
     margin: 0;
 }
 
@@ -83,9 +83,9 @@
     font-size: 0.75rem;
     font-weight: 500;
     border-radius: 0.375rem;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #475569;
+    border: 1px solid var(--lit-border);
+    background: var(--lit-surface-2);
+    color: var(--lit-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
@@ -94,9 +94,9 @@
 }
 
 .content-text-wrapper .edit-btn:hover {
-    background: #4f46e5;
+    background: var(--lit-primary);
     color: white;
-    border-color: #4f46e5;
+    border-color: var(--lit-primary);
 }
 
 .content-text-wrapper .edit-btn.active {
@@ -108,7 +108,7 @@
 .content-text-wrapper .text-content {
     font-size: 0.9375rem;
     line-height: 1.75;
-    color: #334155;
+    color: var(--lit-text);
     white-space: pre-wrap;
     word-wrap: break-word;
 }
@@ -127,18 +127,18 @@
     padding: 0.75rem;
     font-size: 0.9375rem;
     line-height: 1.75;
-    color: #334155;
-    border: 1px solid #e2e8f0;
+    color: var(--lit-text);
+    border: 1px solid var(--lit-border);
     border-radius: 0.5rem;
     resize: vertical;
     font-family: inherit;
-    background: #fafafa;
+    background: var(--lit-surface-2);
 }
 
 .content-text-wrapper textarea.edit-textarea:focus {
     outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    border-color: var(--lit-primary);
+    box-shadow: 0 0 0 2px rgba(var(--lit-primary-rgb), 0.1);
 }
 
 .content-text-wrapper .edit-actions {
@@ -159,23 +159,23 @@
 }
 
 .content-text-wrapper .save-btn {
-    background: #4f46e5;
+    background: var(--lit-primary);
     color: white;
     border: none;
 }
 
 .content-text-wrapper .save-btn:hover {
-    background: #4338ca;
+    background: var(--lit-primary-hover);
 }
 
 .content-text-wrapper .cancel-btn {
-    background: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
+    background: var(--lit-surface-3);
+    color: var(--lit-text-secondary);
+    border: 1px solid var(--lit-border);
 }
 
 .content-text-wrapper .cancel-btn:hover {
-    background: #e2e8f0;
+    background: var(--lit-surface-3);
 }
 
 /* BTVN homework editor */
@@ -199,14 +199,14 @@
 }
 
 .editable-content:hover {
-    border-color: #6366f1;
-    box-shadow: 0 1px 3px 0 rgba(99, 102, 241, 0.1);
+    border-color: var(--lit-primary-2);
+    box-shadow: 0 1px 3px 0 rgba(var(--lit-primary-rgb), 0.1);
 }
 
 .editable-content:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--lit-primary-2);
+    box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1);
     resize: vertical;
 }
 
@@ -215,7 +215,7 @@
 }
 
 .analysis-point:hover {
-    background-color: #f8fafc;
+    background-color: var(--lit-surface-2);
     padding: 12px;
     margin: -12px;
     border-radius: 8px;
@@ -227,12 +227,12 @@
     margin-bottom: 16px;
     border: 2px solid transparent;
     border-radius: 8px;
-    background: white;
+    background: var(--lit-surface);
     transition: all 0.2s ease;
 }
 
 .sortable-section:hover {
-    border-color: #e2e8f0;
+    border-color: var(--lit-border);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -242,8 +242,8 @@
 }
 
 .sortable-section.drag-over {
-    border-color: #6366f1;
-    background-color: #eef2ff;
+    border-color: var(--lit-primary-2);
+    background-color: var(--lit-primary-subtle);
 }
 
 .section-controls {
@@ -261,17 +261,17 @@
 .drag-handle {
     cursor: move;
     padding: 4px 8px;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
+    background: var(--lit-surface-3);
+    border: 1px solid var(--lit-border-strong);
     border-radius: 4px;
     font-size: 12px;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     user-select: none;
 }
 
 .drag-handle:hover {
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--lit-surface-3);
+    color: var(--lit-text-secondary);
 }
 
 .delete-section-btn {
@@ -295,11 +295,11 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    background: #dbeafe;
-    border: 1px dashed #60a5fa;
+    background: var(--lit-primary-subtle);
+    border: 1px dashed var(--lit-primary-2);
     border-radius: 6px;
     font-size: 14px;
-    color: #2563eb;
+    color: var(--lit-primary);
     cursor: pointer;
     transition: all 0.2s ease;
     margin: 16px 0;
@@ -307,5 +307,5 @@
 
 .add-section-btn:hover {
     background: #bfdbfe;
-    border-color: #3b82f6;
+    border-color: var(--lit-primary);
 }

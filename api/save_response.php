@@ -11,14 +11,14 @@ require_once __DIR__ . '/../config/helper_task.php';
 // Check authentication
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'Please log in']);
+    echo json_encode(['error' => 'Bạn chưa đăng nhập hoặc không có quyền.', 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method Not Allowed']);
+    echo json_encode(['error' => 'Phương thức không được hỗ trợ.']);
     exit;
 }
 
@@ -27,7 +27,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    echo json_encode(['error' => 'Dữ liệu gửi lên không hợp lệ.']);
     exit;
 }
 
@@ -42,7 +42,7 @@ if (isset($_SESSION['user']['user_id'])) {
 
 if (!$user_id) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'User information not found']);
+    echo json_encode(['error' => 'Bạn chưa đăng nhập hoặc không có quyền.', 'message' => 'Không tìm thấy thông tin người dùng.']);
     exit;
 }
 
@@ -58,26 +58,26 @@ $tracking_data = $input['tracking_data'] ?? null; // New: User behavior tracking
 
 if ($task_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid task_id', 'message' => 'Invalid task ID']);
+    echo json_encode(['error' => 'Nhiệm vụ không hợp lệ.', 'message' => 'Nhiệm vụ không hợp lệ.']);
     exit;
 }
 
 if ($deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Invalid deliver ID']);
+    echo json_encode(['error' => 'Bài giao không hợp lệ.', 'message' => 'Bài giao không hợp lệ.']);
     exit;
 }
 
 // Validate deliver access
 if (!validateUserDeliverAccess($deliver_id, $user_id)) {
     http_response_code(403);
-    echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have permission to access this assignment']);
+    echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Bạn không có quyền với bài giao này.']);
     exit;
 }
 
 if (empty($action_type)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing action_type', 'message' => 'Missing action type']);
+    echo json_encode(['error' => 'Thiếu loại thao tác.', 'message' => 'Thiếu loại thao tác.']);
     exit;
 }
 
@@ -87,7 +87,7 @@ try {
 
     if (!$taskData) {
         http_response_code(404);
-        echo json_encode(['error' => 'Task not found', 'message' => 'Task not found']);
+        echo json_encode(['error' => 'Không tìm thấy nhiệm vụ.', 'message' => 'Không tìm thấy nhiệm vụ.']);
         exit;
     }
 
@@ -95,7 +95,7 @@ try {
     if ($user_role === 'student') {
         if (!checkTaskAssignedToStudent($task_id, $user_id)) {
             http_response_code(403);
-            echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have permission to access this task']);
+            echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Bạn không có quyền truy cập nhiệm vụ này.']);
             exit;
         }
     }
@@ -125,7 +125,7 @@ try {
             
             echo json_encode([
                 'success' => true,
-                'message' => 'Tracking data saved successfully',
+                'message' => 'Đã lưu dữ liệu quá trình làm bài.',
                 'data' => [
                     'response_id' => $existing_response_id,
                     'action_type' => $action_type,
@@ -135,7 +135,7 @@ try {
             exit;
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'No response found', 'message' => 'No response found to save tracking data']);
+            echo json_encode(['error' => 'Không tìm thấy bài làm.', 'message' => 'Không tìm thấy bài làm để lưu dữ liệu quá trình.']);
             exit;
         }
     }
@@ -147,7 +147,7 @@ try {
     ]);
 
     if (!$response_id) {
-        throw new Exception('Failed to insert response');
+        throw new Exception('Không lưu được bài làm.');
     }
 
     // Insert content if provided
@@ -162,7 +162,7 @@ try {
     // Return success with IDs
     echo json_encode([
         'success' => true,
-        'message' => 'Results saved successfully',
+        'message' => 'Đã lưu kết quả.',
         'data' => [
             'response_id' => $response_id,
             'content_ids' => $content_ids,
@@ -175,7 +175,7 @@ try {
     error_log("Error saving response: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
-        'error' => 'Server error',
-        'message' => 'An error occurred while saving results. Please try again.'
+        'error' => 'Lỗi máy chủ. Vui lòng thử lại.',
+        'message' => 'Không lưu được kết quả. Vui lòng thử lại.'
     ]);
 }

@@ -131,3 +131,18 @@
         return String(t || '#').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 })();
+
+/* Phím tắt Ctrl+K (⌘K trên Mac) hoặc "/" để mở ô tìm kiếm toàn cục */
+(function () {
+    document.addEventListener('keydown', function (e) {
+        const input = document.querySelector('.search-form input[name="query"]');
+        if (!input) return;
+        const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
+        if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing)) {
+            e.preventDefault();
+            document.querySelector('.search-bar')?.classList.add('search-bar-show');
+            input.focus();
+            input.select();
+        }
+    });
+})();

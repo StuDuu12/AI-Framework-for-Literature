@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 // Check if user is logged in
 if (!isset($_SESSION['user'])) {
     ob_end_clean();
-    echo json_encode(['success' => false, 'message' => 'Please log in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
@@ -60,7 +60,7 @@ function safeTaskFileName(string $originalName): string
 }
 
 /** Trả 403 JSON và dừng — dùng khi đối tượng không thuộc lớp của giáo viên */
-function denyTaskAccess(string $message = 'You do not have permission to perform this action'): void
+function denyTaskAccess(string $message = 'Bạn không có quyền thực hiện thao tác này.'): void
 {
     ob_end_clean();
     http_response_code(403);
@@ -82,27 +82,27 @@ try {
             // Validate required fields
             if (!$phaseId || !$topicId || empty($title)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Please fill in all required fields']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng điền đủ các mục bắt buộc.']);
                 exit;
             }
 
             // Check if user is teacher
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
             // Phase phải thuộc đúng topic mà giáo viên quản lý
             if (getTopicIdOfPhase($phaseId) !== $topicId) {
-                denyTaskAccess('Phase does not belong to this topic');
+                denyTaskAccess('Giai đoạn không thuộc chủ đề này.');
             }
 
             // Get phase details to check if it's evaluation phase
             $phase = getPhaseDetails($phaseId);
             if (!$phase) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Learning phase not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy giai đoạn.']);
                 exit;
             }
 
@@ -116,7 +116,7 @@ try {
             if ($isEvaluationPhase) {
                 if (!$sourceTaskId) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Please select a task to evaluate']);
+                    echo json_encode(['success' => false, 'message' => 'Hãy chọn nhiệm vụ cần đánh giá.']);
                     exit;
                 }
 
@@ -124,20 +124,20 @@ try {
                 $sourceTask = getTaskDetails($sourceTaskId);
                 if (!$sourceTask) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Source task does not exist']);
+                    echo json_encode(['success' => false, 'message' => 'Nhiệm vụ nguồn không tồn tại.']);
                     exit;
                 }
 
                 // Bài nguồn phải thuộc lớp của giáo viên
                 if (!isTeacherOfTask($sourceTaskId, $userId)) {
-                    denyTaskAccess('Source task does not belong to your class');
+                    denyTaskAccess('Nhiệm vụ nguồn không thuộc lớp của bạn.');
                 }
 
                 // Validate source task is from correct phase (PHASE_START or PHASE_BTVN)
                 $sourcePhase = getPhaseDetails($sourceTask['phase_id']);
                 if (!$sourcePhase || !in_array($sourcePhase['phase_code'], ['PHASE_START', 'PHASE_BTVN'])) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Source task must be from Starter or Homework phase']);
+                    echo json_encode(['success' => false, 'message' => 'Nhiệm vụ nguồn phải thuộc giai đoạn Phân tích cùng AI hoặc Bài tập về nhà.']);
                     exit;
                 }
 
@@ -168,7 +168,7 @@ try {
                         $fileContent = 'tasks/' . $fileName;
                     } else {
                         ob_end_clean();
-                        echo json_encode(['success' => false, 'message' => 'Error uploading file']);
+                        echo json_encode(['success' => false, 'message' => 'Không tải được tệp lên.']);
                         exit;
                     }
                 } elseif ($contentType === 'text' && !empty($contentText)) {
@@ -186,7 +186,7 @@ try {
                         $contentCreator = $userId;
                     } else {
                         ob_end_clean();
-                        echo json_encode(['success' => false, 'message' => 'Error saving content']);
+                        echo json_encode(['success' => false, 'message' => 'Không lưu được nội dung.']);
                         exit;
                     }
                 }
@@ -207,10 +207,10 @@ try {
 
             if ($taskId) {
                 ob_end_clean();
-                echo json_encode(['success' => true, 'message' => 'Task created successfully', 'task_id' => $taskId]);
+                echo json_encode(['success' => true, 'message' => 'Đã tạo nhiệm vụ.', 'task_id' => $taskId]);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Cannot create task']);
+                echo json_encode(['success' => false, 'message' => 'Không tạo được nhiệm vụ.']);
             }
             break;
 
@@ -226,14 +226,14 @@ try {
 
             if (!$taskId || !$topicId || empty($title)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Please fill in all required fields']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng điền đủ các mục bắt buộc.']);
                 exit;
             }
 
             // Check if user is teacher
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
@@ -246,7 +246,7 @@ try {
             $currentTask = getTaskDetails($taskId);
             if (!$currentTask) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Task not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy nhiệm vụ.']);
                 exit;
             }
 
@@ -254,7 +254,7 @@ try {
             $phase = getPhaseDetails($currentTask['phase_id']);
             if (!$phase) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Learning phase not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy giai đoạn.']);
                 exit;
             }
 
@@ -268,7 +268,7 @@ try {
             if ($isEvaluationPhase) {
                 if (!$sourceTaskId) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Please select a task to evaluate']);
+                    echo json_encode(['success' => false, 'message' => 'Hãy chọn nhiệm vụ cần đánh giá.']);
                     exit;
                 }
 
@@ -276,20 +276,20 @@ try {
                 $sourceTask = getTaskDetails($sourceTaskId);
                 if (!$sourceTask) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Source task does not exist']);
+                    echo json_encode(['success' => false, 'message' => 'Nhiệm vụ nguồn không tồn tại.']);
                     exit;
                 }
 
                 // Bài nguồn phải thuộc lớp của giáo viên
                 if (!isTeacherOfTask($sourceTaskId, $userId)) {
-                    denyTaskAccess('Source task does not belong to your class');
+                    denyTaskAccess('Nhiệm vụ nguồn không thuộc lớp của bạn.');
                 }
 
                 // Validate source task is from correct phase
                 $sourcePhase = getPhaseDetails($sourceTask['phase_id']);
                 if (!$sourcePhase || !in_array($sourcePhase['phase_code'], ['PHASE_START', 'PHASE_BTVN'])) {
                     ob_end_clean();
-                    echo json_encode(['success' => false, 'message' => 'Source task must be from Starter or Homework phase']);
+                    echo json_encode(['success' => false, 'message' => 'Nhiệm vụ nguồn phải thuộc giai đoạn Phân tích cùng AI hoặc Bài tập về nhà.']);
                     exit;
                 }
 
@@ -364,10 +364,10 @@ try {
 
             if (updateTask($taskId, $taskData)) {
                 ob_end_clean();
-                echo json_encode(['success' => true, 'message' => 'Task updated successfully']);
+                echo json_encode(['success' => true, 'message' => 'Đã cập nhật nhiệm vụ.']);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Cannot update task']);
+                echo json_encode(['success' => false, 'message' => 'Không cập nhật được nhiệm vụ.']);
             }
             break;
 
@@ -377,14 +377,14 @@ try {
 
             if (!$taskId || !$topicId) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
             // Check if user is teacher
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
@@ -403,10 +403,10 @@ try {
 
             if (deleteTask($taskId)) {
                 ob_end_clean();
-                echo json_encode(['success' => true, 'message' => 'Task deleted successfully']);
+                echo json_encode(['success' => true, 'message' => 'Đã xoá nhiệm vụ.']);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Cannot delete task']);
+                echo json_encode(['success' => false, 'message' => 'Không xoá được nhiệm vụ.']);
             }
             break;
 
@@ -415,7 +415,7 @@ try {
 
             if (!$taskId) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
@@ -436,7 +436,7 @@ try {
                 echo json_encode(['success' => true, 'task' => $task]);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Task not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy nhiệm vụ.']);
             }
             break;
 
@@ -448,14 +448,14 @@ try {
 
             if (!$taskId || !$topicId || !$assignType) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
             // Check if user is teacher
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
@@ -466,7 +466,7 @@ try {
             // Validate assign values
             if (empty($assignValues)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Please select a target to assign the task']);
+                echo json_encode(['success' => false, 'message' => 'Hãy chọn người hoặc nhóm để giao nhiệm vụ.']);
                 exit;
             }
 
@@ -478,7 +478,7 @@ try {
             ];
             if (!isset($typeMap[$assignType]) || !is_array($assignValues)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid assignment type']);
+                echo json_encode(['success' => false, 'message' => 'Kiểu giao bài không hợp lệ.']);
                 exit;
             }
             $deliverType = $typeMap[$assignType];
@@ -497,7 +497,7 @@ try {
                     $belongs = (bool)$memberStmt->fetchColumn();
                 }
                 if ($value <= 0 || !$belongs) {
-                    denyTaskAccess('Assignment target does not belong to this class');
+                    denyTaskAccess('Người hoặc nhóm được giao không thuộc lớp này.');
                 }
             }
 
@@ -530,10 +530,10 @@ try {
                 require_once __DIR__ . '/../config/helper_notifications.php';
                 notifyTaskAssignment($pdo, $taskId, $assignType, $assignValues, $userId);
                 ob_end_clean();
-                echo json_encode(['success' => true, 'message' => 'Task assigned successfully']);
+                echo json_encode(['success' => true, 'message' => 'Đã giao nhiệm vụ.']);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Cannot assign task']);
+                echo json_encode(['success' => false, 'message' => 'Không giao được nhiệm vụ.']);
             }
             break;
 
@@ -544,13 +544,13 @@ try {
 
             if (!$topicId || (!$studentUserId && !$groupId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
@@ -570,14 +570,14 @@ try {
 
             if (!$deliverId || !$topicId) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
             // Check if user is teacher
             if (!isTeacherInTopicClass($topicId, $userId)) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'You do not have permission to perform this action']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không có quyền thực hiện thao tác này.']);
                 exit;
             }
 
@@ -588,10 +588,10 @@ try {
 
             if (removeTaskAssignment($deliverId)) {
                 ob_end_clean();
-                echo json_encode(['success' => true, 'message' => 'Task unassigned successfully']);
+                echo json_encode(['success' => true, 'message' => 'Đã bỏ giao nhiệm vụ.']);
             } else {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Cannot unassign task']);
+                echo json_encode(['success' => false, 'message' => 'Không bỏ giao được nhiệm vụ.']);
             }
             break;
 
@@ -602,7 +602,7 @@ try {
 
             if (!$taskId || !$assignType || !$assignValue) {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Invalid information']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin không hợp lệ.']);
                 exit;
             }
 
@@ -623,11 +623,11 @@ try {
 
         default:
             ob_end_clean();
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
     ob_end_clean();
     error_log("Error in manage_tasks.php: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra: ' . client_error_message($e)]);
 }

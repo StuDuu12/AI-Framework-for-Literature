@@ -31,7 +31,7 @@ if (!defined('AUTH_PASSED')) {
     $loggedIn = (!empty($_SESSION['user'])) || (!empty($_SESSION['user_id']));
     if (!$loggedIn) {
         http_response_code(401);
-        echo json_encode(['error' => 'Unauthorized - Please login']);
+        echo json_encode(['error' => 'Vui lòng đăng nhập.']);
         exit;
     }
 }
@@ -400,7 +400,7 @@ function requestOpenCodeAssistantText(array $payload, int $timeout = 180, string
 
     logOpenCodeStructureFailure($body, $context);
     return [
-        'error' => 'Invalid response structure from API.',
+        'error' => 'AI trả về dữ liệu không đúng định dạng. Vui lòng thử lại.',
         'body' => $body,
     ];
 }
@@ -547,7 +547,7 @@ function callGeminiApi($systemPrompt, $contents, $schema)
         return json_decode($body['candidates'][0]['content']['parts'][0]['text'], true);
     }
 
-    return ['error' => 'Invalid response structure from API.'];
+    return ['error' => 'AI trả về dữ liệu không đúng định dạng. Vui lòng thử lại.'];
 }
 
 function callGeminiFreeform(string $systemPrompt, array $contents, array $generationConfig = []): array
@@ -576,7 +576,7 @@ function callGeminiFreeform(string $systemPrompt, array $contents, array $genera
         return ['answer' => $text, 'response' => $text, 'message' => $text];
     }
 
-    return ['error' => 'Invalid response structure from API.'];
+    return ['error' => 'AI trả về dữ liệu không đúng định dạng. Vui lòng thử lại.'];
 }
  */
 
@@ -771,7 +771,7 @@ switch ($action) {
         $userMessage = $input['data'] ?? '';
 
         if (empty($history)) {
-            $response = ['error' => 'No conversation history provided'];
+            $response = ['error' => 'Chưa có lịch sử trò chuyện.'];
             break;
         }
 
@@ -784,7 +784,7 @@ switch ($action) {
         $history = sanitizeAiHistory($requestData['history'] ?? []);
 
         if (empty($history)) {
-            $response = ['error' => 'No conversation history provided'];
+            $response = ['error' => 'Chưa có lịch sử trò chuyện.'];
             break;
         }
 
@@ -850,7 +850,7 @@ switch ($action) {
         break;
 
     default:
-        $response = ['error' => 'Invalid action provided.'];
+        $response = ['error' => 'Thao tác không hợp lệ.'];
         break;
 }
 

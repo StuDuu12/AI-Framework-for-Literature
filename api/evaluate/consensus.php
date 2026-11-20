@@ -23,7 +23,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user']['user_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Please log in.']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
@@ -32,21 +32,21 @@ $action    = $_POST['action'] ?? '';
 $deliverId = isset($_POST['deliver_id']) ? intval($_POST['deliver_id']) : 0;
 
 if (!$deliverId) {
-    echo json_encode(['success' => false, 'message' => 'Missing deliver_id.']);
+    echo json_encode(['success' => false, 'message' => 'Thiếu thông tin bài giao.']);
     exit;
 }
 
 // Chỉ thành viên nhóm của deliver mới được thao tác
 if (!isConsensusMember($deliverId, $userId)) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'You are not a member of this evaluation group.']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không thuộc nhóm chấm này.']);
     exit;
 }
 
 // Bài cần chấm + consensus record
 $responseInfo = getResponseToEvaluate($deliverId);
 if (!$responseInfo) {
-    echo json_encode(['success' => false, 'message' => 'No submission assigned to this group.']);
+    echo json_encode(['success' => false, 'message' => 'Nhóm chưa được giao bài nào để chấm.']);
     exit;
 }
 
@@ -90,12 +90,12 @@ switch ($action) {
         }
 
         if (empty($criterionScores)) {
-            echo json_encode(['success' => false, 'message' => 'Please score every criterion before submitting.']);
+            echo json_encode(['success' => false, 'message' => 'Hãy chấm đủ các tiêu chí trước khi gửi.']);
             break;
         }
 
         if (mb_strlen($comment) > 500) {
-            echo json_encode(['success' => false, 'message' => 'Comment must be 500 characters or fewer.']);
+            echo json_encode(['success' => false, 'message' => 'Nhận xét tối đa 500 ký tự.']);
             break;
         }
 
@@ -116,6 +116,6 @@ switch ($action) {
         break;
 
     default:
-        echo json_encode(['success' => false, 'message' => 'Invalid action.']);
+        echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
         break;
 }

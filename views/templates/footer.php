@@ -4,7 +4,7 @@
 
     <div class="copyright">
 
-        &copy; <span data-lang-key="copyright">Copyright</span> <strong><span data-lang-key="system_title">Literature System</span></strong>
+        &copy; <span data-lang-key="copyright">Bản quyền</span> <strong><span data-lang-key="system_title">Literature System</span></strong>
 
     </div>
 
@@ -12,7 +12,7 @@
 
 
 
-<a href="#" class="back-to-top d-flex align-items-center justify-content-center" aria-label="Back to top">
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center" aria-label="Lên đầu trang">
 
     <i class="bi bi-arrow-up-short"></i>
 

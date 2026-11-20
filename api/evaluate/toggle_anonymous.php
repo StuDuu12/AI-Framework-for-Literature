@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -7,7 +9,7 @@ header('Content-Type: application/json');
 
 $userId = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit();
 }
 
@@ -16,7 +18,7 @@ $taskId = intval($input['task_id'] ?? 0);
 $isAnonymous = intval($input['is_anonymous'] ?? 0);
 
 if (!$taskId) {
-    echo json_encode(['success' => false, 'message' => 'Missing task_id']);
+    echo json_encode(['success' => false, 'message' => 'Thiếu thông tin nhiệm vụ.']);
     exit();
 }
 
@@ -24,7 +26,7 @@ if (!$taskId) {
 require_once __DIR__ . '/../../config/helper_phase.php';
 if (!isTeacherOfTask($taskId, (int)$userId)) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'You do not have permission to change this setting']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền đổi cài đặt này.']);
     exit();
 }
 $isAnonymous = $isAnonymous ? 1 : 0;
@@ -46,5 +48,5 @@ try {
     echo json_encode(['success' => true, 'message' => 'Cập nhật thành công']);
 } catch (PDOException $e) {
     error_log("toggle_anonymous error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi cơ sở dữ liệu. Vui lòng thử lại.']);
 }

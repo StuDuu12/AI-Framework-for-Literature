@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -71,8 +71,8 @@
             <h1><?= htmlspecialchars($work['title']) ?></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/workspace" data-lang-key="menu_workspace">Workspace</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/canon" data-lang-key="canon_breadcrumb">Knowledge Base</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/workspace" data-lang-key="menu_workspace">Thư viện tác phẩm</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/canon" data-lang-key="canon_breadcrumb">Kho tri thức</a></li>
                     <li class="breadcrumb-item active"><?= htmlspecialchars($work['title']) ?></li>
                 </ol>
             </nav>
@@ -128,7 +128,7 @@
                         </div>
                     <?php endif; ?>
                     <div>
-                        <p class="text-uppercase text-muted small mb-1" data-lang-key="canon_about_author">About the author</p>
+                        <p class="text-uppercase text-muted small mb-1" data-lang-key="canon_about_author">Về tác giả</p>
                         <h3 class="canon-author-panel__name"><?= htmlspecialchars($author['name']) ?></h3>
                         <p class="canon-author-panel__lifespan">
                             <?php if (!empty($author['lifespan'])): ?>
@@ -144,7 +144,7 @@
                         <p class="canon-author-panel__bio"><?= nl2br(htmlspecialchars($author['biography'] ?? '')) ?></p>
                         <?php if (!empty($author['wikipedia_url'])): ?>
                             <a href="<?= htmlspecialchars($author['wikipedia_url']) ?>" class="btn btn-sm btn-link px-0" target="_blank" rel="noopener">
-                                <i class="bi bi-box-arrow-up-right"></i> <span data-lang-key="canon_author_wiki">Read more on Wikipedia</span>
+                                <i class="bi bi-box-arrow-up-right"></i> <span data-lang-key="canon_author_wiki">Đọc thêm trên Wikipedia</span>
                             </a>
                         <?php endif; ?>
                     </div>
@@ -152,7 +152,7 @@
             <?php endif; ?>
 
             <div class="canon-read-panel">
-                <h3 class="canon-read-panel__title" data-lang-key="canon_read_content">Read the work</h3>
+                <h3 class="canon-read-panel__title" data-lang-key="canon_read_content">Đọc tác phẩm</h3>
                 <div class="canon-read-body">
                     <?php if (!empty($work['content_html'])): ?>
                         <?= $readContent ?>
@@ -166,15 +166,15 @@
                 <div class="canon-related">
                     <div class="canon-related__head">
                         <h3 class="canon-related__title">
-                            <span data-lang-key="canon_related">Related works</span>
+                            <span data-lang-key="canon_related">Tác phẩm liên quan</span>
                             — <?= htmlspecialchars($author['name'] ?? $work['author'] ?? '') ?>
                         </h3>
                         <span class="canon-related__hint" data-lang-key="canon_drag_hint">
-                            <i class="bi bi-arrows-move"></i> Drag to slide
+                            <i class="bi bi-arrows-move"></i> Kéo để trượt
                         </span>
                     </div>
                     <div class="canon-related-carousel">
-                        <button type="button" class="canon-carousel-btn canon-carousel-btn--prev" id="canonCarouselPrev" aria-label="Previous">
+                        <button type="button" class="canon-carousel-btn canon-carousel-btn--prev" id="canonCarouselPrev" aria-label="Trước">
                             <i class="bi bi-chevron-left"></i>
                         </button>
                         <div class="canon-related-scroll" id="canonRelatedTrack">
@@ -190,7 +190,7 @@
                                 </a>
                             <?php endforeach; ?>
                         </div>
-                        <button type="button" class="canon-carousel-btn canon-carousel-btn--next" id="canonCarouselNext" aria-label="Next">
+                        <button type="button" class="canon-carousel-btn canon-carousel-btn--next" id="canonCarouselNext" aria-label="Sau">
                             <i class="bi bi-chevron-right"></i>
                         </button>
                     </div>
@@ -224,7 +224,7 @@
                                 <div class="canon-tail__panel-head">
                                     <span class="canon-tail__panel-icon"><i class="bi bi-collection"></i></span>
                                     <div>
-                                        <h4 data-lang-key="canon_tail_genre">Same genre</h4>
+                                        <h4 data-lang-key="canon_tail_genre">Cùng thể loại</h4>
                                         <p><?= htmlspecialchars($work['genre_label'] ?? '') ?></p>
                                     </div>
                                 </div>
@@ -252,8 +252,8 @@
                             <div class="canon-tail__panel-head">
                                 <span class="canon-tail__panel-icon"><i class="bi bi-stars"></i></span>
                                 <div>
-                                    <h4 data-lang-key="canon_tail_spotlight">Spotlight pick</h4>
-                                    <p data-lang-key="canon_tail_spotlight_sub">A work you might enjoy next</p>
+                                    <h4 data-lang-key="canon_tail_spotlight">Tác phẩm nổi bật</h4>
+                                    <p data-lang-key="canon_tail_spotlight_sub">Tác phẩm bạn có thể thích</p>
                                 </div>
                             </div>
                             <?php if ($dailyPick): ?>
@@ -264,7 +264,7 @@
                                         <div class="canon-tail__spotlight-fallback" style="background:<?= htmlspecialchars($dailyPick['gradient'] ?? '#7c3aed') ?>"></div>
                                     <?php endif; ?>
                                     <div>
-                                        <p class="canon-tail__spotlight-label" data-lang-key="canon_tail_try">Try reading</p>
+                                        <p class="canon-tail__spotlight-label" data-lang-key="canon_tail_try">Thử đọc</p>
                                         <h5><?= htmlspecialchars($dailyPick['title']) ?></h5>
                                         <p><?= htmlspecialchars($dailyPick['author'] ?? '') ?></p>
                                     </div>
@@ -277,25 +277,25 @@
                             <div class="canon-tail__panel-head">
                                 <span class="canon-tail__panel-icon"><i class="bi bi-compass"></i></span>
                                 <div>
-                                    <h4 data-lang-key="canon_tail_explore">Keep exploring</h4>
-                                    <p data-lang-key="canon_tail_explore_sub">Jump back into the library</p>
+                                    <h4 data-lang-key="canon_tail_explore">Khám phá tiếp</h4>
+                                    <p data-lang-key="canon_tail_explore_sub">Quay lại thư viện</p>
                                 </div>
                             </div>
                             <div class="canon-tail__actions">
                                 <a href="<?= URL_ROOT ?>/canon" class="canon-tail__action">
                                     <i class="bi bi-bookshelf"></i>
-                                    <span data-lang-key="canon_tail_library">Browse all works</span>
+                                    <span data-lang-key="canon_tail_library">Xem tất cả tác phẩm</span>
                                 </a>
                                 <a href="<?= URL_ROOT ?>/canon?region=<?= urlencode($work['region'] ?? '') ?>" class="canon-tail__action">
                                     <i class="bi bi-globe-asia-australia"></i>
                                     <span>
                                         <?= ($work['region'] ?? '') === 'vietnam' ? '🇻🇳 ' : '🌍 ' ?>
-                                        <span data-lang-key="canon_tail_region">Works from this region</span>
+                                        <span data-lang-key="canon_tail_region">Tác phẩm cùng khu vực</span>
                                     </span>
                                 </a>
                                 <a href="<?= URL_ROOT ?>/workspace" class="canon-tail__action canon-tail__action--primary">
                                     <i class="bi bi-search"></i>
-                                    <span data-lang-key="canon_tail_workspace">Search in workspace</span>
+                                    <span data-lang-key="canon_tail_workspace">Tìm trong thư viện</span>
                                 </a>
                             </div>
                         </div>
@@ -304,7 +304,7 @@
                     <div class="canon-tail__ribbon">
                         <div class="canon-tail__ribbon-item">
                             <i class="bi bi-journal-richtext"></i>
-                            <span><?= $canonTotal ?> <span data-lang-key="canon_tail_works">literary works</span></span>
+                            <span><?= $canonTotal ?> <span data-lang-key="canon_tail_works">tác phẩm văn học</span></span>
                         </div>
                         <?php if (!empty($work['genre_label'])): ?>
                             <div class="canon-tail__ribbon-item">
@@ -320,7 +320,7 @@
                         <?php endif; ?>
                         <div class="canon-tail__ribbon-item canon-tail__ribbon-item--muted">
                             <i class="bi bi-bookmark-heart"></i>
-                            <span data-lang-key="canon_tail_saved">Saved in your knowledge base</span>
+                            <span data-lang-key="canon_tail_saved">Đã lưu vào kho kiến thức của bạn</span>
                         </div>
                     </div>
                 </div>

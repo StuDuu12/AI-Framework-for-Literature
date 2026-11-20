@@ -17,6 +17,17 @@ const translations = {
         'role_student': 'Học sinh',
         'role_user': 'Người dùng',
         'logout': 'Đăng xuất',
+        'my_profile': 'Hồ sơ cá nhân',
+        'toggle_menu': 'Ẩn/hiện menu',
+        'search_placeholder_shortcut': 'Tìm lớp, nhiệm vụ, chủ đề… (Ctrl+K)',
+        'menu_today': 'Hôm nay',
+        'menu_leaderboard': 'Bảng xếp hạng',
+        'menu_reading_list': 'Danh sách đọc',
+        'menu_heading_achievement': 'Thành tích',
+        'menu_heading_account': 'Tài khoản',
+        'menu_import_csv': 'Nhập CSV',
+        'menu_pending_registrations': 'Duyệt đăng ký',
+        'menu_analytics': 'Thống kê',
         'no_email': 'Chưa có email',
 
         // ===== Footer =====
@@ -25,7 +36,7 @@ const translations = {
 
         // ===== Sidebar - Common =====
         'menu_dashboard': 'Trang chủ',
-        'menu_workspace': 'Không gian học tập',
+        'menu_workspace': 'Thư viện tác phẩm',
         'menu_classes': 'Danh sách lớp học',
         'menu_current_class': 'Lớp hiện tại',
 
@@ -466,7 +477,7 @@ const translations = {
         'analyzing': 'Đang phân tích...',
         'chat_with_ai': 'Trò chuyện với AI',
         'ask_ai': 'Hỏi AI',
-        'preview_changes': 'Xem preview',
+        'preview_changes': 'Xem trước thay đổi',
         'save_changes': 'Lưu thay đổi',
         'saving': 'Đang lưu...',
         'add_section': 'Thêm Section',
@@ -853,6 +864,17 @@ const translations = {
         'role_student': 'Student',
         'role_user': 'User',
         'logout': 'Logout',
+        'my_profile': 'My profile',
+        'toggle_menu': 'Toggle menu',
+        'search_placeholder_shortcut': 'Search classes, tasks, topics… (Ctrl+K)',
+        'menu_today': 'Today',
+        'menu_leaderboard': 'Leaderboard',
+        'menu_reading_list': 'Reading list',
+        'menu_heading_achievement': 'Achievements',
+        'menu_heading_account': 'Account',
+        'menu_import_csv': 'Import CSV',
+        'menu_pending_registrations': 'Registrations',
+        'menu_analytics': 'Analytics',
         'no_email': 'No email',
 
         // ===== Footer =====
@@ -861,7 +883,7 @@ const translations = {
 
         // ===== Sidebar - Common =====
         'menu_dashboard': 'Dashboard',
-        'menu_workspace': 'Workspace',
+        'menu_workspace': 'Literary library',
         'menu_classes': 'Class List',
         'menu_current_class': 'Currently in',
 

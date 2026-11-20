@@ -9,7 +9,7 @@ require_once __DIR__ . '/../config/helper_ai_settings.php';
 $role = $_SESSION['user']['role'] ?? $_SESSION['role'] ?? '';
 if ($role !== 'admin') {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Admin only']);
+    echo json_encode(['success' => false, 'message' => 'Chỉ quản trị viên được làm thao tác này.']);
     exit;
 }
 
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($model === '') {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Model is required']);
+        echo json_encode(['success' => false, 'message' => 'Vui lòng chọn model.']);
         exit;
     }
 
@@ -44,13 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         if (!in_array($model, $allowed, true)) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Unknown OpenCode model: ' . $model]);
+            echo json_encode(['success' => false, 'message' => 'Model OpenCode không hợp lệ: ' . $model]);
             exit;
         }
     } else {
         if (!array_key_exists($model, getGeminiModels())) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Unknown Gemini model: ' . $model]);
+            echo json_encode(['success' => false, 'message' => 'Model Gemini không hợp lệ: ' . $model]);
             exit;
         }
     }
@@ -75,4 +75,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ.']);

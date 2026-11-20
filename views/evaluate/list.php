@@ -61,7 +61,7 @@ $phaseInfo = $phaseId ? getPhaseDetails($phaseId) : null;
 $topicInfo = $topicId ? getTopicDetails($topicId) : null;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -83,9 +83,9 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
                     <?php if ($topicInfo): ?><li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= htmlspecialchars($topicInfo['topic_name']) ?></a></li><?php endif; ?>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Learning Phases</a></li>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Tasks<?= $phaseInfo ? ' - Step ' . (int)$phaseInfo['phase_number'] : '' ?></a></li>
-                    <li class="breadcrumb-item active">Peer Evaluation</li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Giai đoạn học tập</a></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Nhiệm vụ<?= $phaseInfo ? ' · Giai đoạn ' . (int)$phaseInfo['phase_number'] : '' ?></a></li>
+                    <li class="breadcrumb-item active">Đánh giá chéo</li>
                 </ol>
             </nav>
         </div>
@@ -98,11 +98,11 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                     <div class="row">
                         <div class="col-md-8">
                             <p><strong>Task Name:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
-                            <p><strong>Description:</strong>
+                            <p><strong>Mô tả:</strong>
                                 <?= htmlspecialchars($taskInfo['task_description'] ?? 'No description') ?></p>
                             <?php if (!empty($criteriaList)): ?>
                                 <div class="rubric-preview mt-2">
-                                    <small class="text-muted d-block mb-1"><i class="bi bi-list-check"></i> <span>Evaluation criteria:</span></small>
+                                    <small class="text-muted d-block mb-1"><i class="bi bi-list-check"></i> <span>Tiêu chí đánh giá:</span></small>
                                     <?php foreach ($criteriaList as $c): ?>
                                         <span class="rubric-chip" title="<?= htmlspecialchars(criteriaLabel($c['description'] ?? '')) ?>">
                                             <?= htmlspecialchars(criteriaLabel($c['name_tc'])) ?>
@@ -127,7 +127,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                 <div>
                                     <div class="progress-text text-primary"><?= $completed ?> / <?= $totalAssigned ?>
                                     </div>
-                                    <small class="text-muted">Completed</small>
+                                    <small class="text-muted">Đã hoàn thành</small>
                                 </div>
                                 <div class="progress-ring">
                                     <svg width="60" height="60">
@@ -151,11 +151,11 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
             <!-- Assignments List -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-clipboard-check"></i> <span data-lang-key="evaluate_assignments">Assignments to Evaluate</span></h5>
+                    <h5 class="card-title"><i class="bi bi-clipboard-check"></i> <span data-lang-key="evaluate_assignments">Bài cần đánh giá</span></h5>
 
                     <?php if (empty($assignments)): ?>
                         <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> <span>You have not been assigned any evaluations yet.</span>
+                            <i class="bi bi-info-circle"></i> <span>Bạn chưa được phân công đánh giá bài nào.</span>
                         </div>
                     <?php else: ?>
                         <?php foreach ($assignments as $assignment): ?>
@@ -172,7 +172,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                         </p>
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i>
-                                            <span>Submitted at:</span> <?= date('d/m/Y H:i', strtotime($assignment['created_at'] ?? 'now')) ?>
+                                            <span>Nộp lúc:</span> <?= date('d/m/Y H:i', strtotime($assignment['created_at'] ?? 'now')) ?>
                                         </small>
                                     </div>
 
@@ -180,17 +180,17 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                         <?php if ($assignment['eval_status'] !== null): ?>
                                             <span class="status-badge status-<?= $assignment['eval_status'] ?>">
                                                 <?php if ($assignment['eval_status'] == 0): ?>
-                                                    <i class="bi bi-circle"></i> <span>Draft</span>
+                                                    <i class="bi bi-circle"></i> <span>Bản nháp</span>
                                                 <?php elseif ($assignment['eval_status'] == 1): ?>
-                                                    <i class="bi bi-hourglass-split"></i> <span>Grading</span>
+                                                    <i class="bi bi-hourglass-split"></i> <span>Đang chấm</span>
                                                 <?php else: ?>
-                                                    <i class="bi bi-check-circle"></i> <span>Completed</span>
+                                                    <i class="bi bi-check-circle"></i> <span>Đã hoàn thành</span>
                                                 <?php endif; ?>
                                             </span>
                                             <?php if ($assignment['eval_status'] == 2): ?>
                                                 <div class="score-display mt-2">
                                                     <i class="bi bi-star-fill"></i>
-                                                    <span title="S_Peer - your assigned score">
+                                                    <span title="S_Peer — điểm bạn đã chấm">
                                                         <?= number_format($assignment['total_score'], 1) ?>
                                                     </span>
                                                 </div>
@@ -206,12 +206,12 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                                     </div>
                                                     <div class="mt-1 small fw-bold text-primary">
                                                         <i class="bi bi-trophy-fill"></i>
-                                                        Score<sub>Final</sub> = <?= number_format($sFinal, 1) ?>
+                                                        Điểm<sub>Final</sub> = <?= number_format($sFinal, 1) ?>
                                                     </div>
                                                 <?php else: ?>
                                                     <div class="mt-1 small text-warning">
                                                         <i class="bi bi-hourglass"></i>
-                                                        <em>Waiting for teacher grading to calculate S<sub>Acc</sub></em>
+                                                        <em>Chờ giáo viên chấm để tính S<sub>Acc</sub></em>
                                                     </div>
                                                 <?php endif; ?>
                                             <?php endif; ?>

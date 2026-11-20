@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -49,26 +51,26 @@ try {
         .status-approved { background: #d1e7dd; color: #0f5132; }
         .status-rejected { background: #f8d7da; color: #842029; }
         .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
-        .filter-tab { padding: 0.4rem 1rem; border-radius: 20px; border: 1.5px solid #e3e6f0; background: #fff; color: #6c757d; font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all 0.15s; }
-        .filter-tab:hover { border-color: #4154f1; color: #4154f1; }
-        .filter-tab.active { background: #4154f1; color: #fff; border-color: #4154f1; }
+        .filter-tab { padding: 0.4rem 1rem; border-radius: 20px; border: 1.5px solid #e3e6f0; background: var(--lit-surface); color: var(--lit-text-secondary); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all 0.15s; }
+        .filter-tab:hover { border-color: var(--lit-primary); color: var(--lit-primary); }
+        .filter-tab.active { background: var(--lit-primary); color: #fff; border-color: var(--lit-primary); }
         .filter-tab .count { background: rgba(0,0,0,0.1); padding: 0.1rem 0.45rem; border-radius: 10px; font-size: 0.75rem; margin-left: 0.3rem; }
         .filter-tab.active .count { background: rgba(255,255,255,0.25); }
-        .req-card { background: #fff; border: 1px solid #e3e6f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; transition: box-shadow 0.15s; }
+        .req-card { background: var(--lit-surface); border: 1px solid #e3e6f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; transition: box-shadow 0.15s; }
         .req-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
         .req-info { display: flex; align-items: center; gap: 1rem; }
         .req-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
-        .req-avatar.student { background: rgba(65,84,241,0.1); color: #4154f1; }
+        .req-avatar.student { background: rgba(var(--lit-primary-rgb), 0.1); color: var(--lit-primary); }
         .req-avatar.teacher { background: rgba(25,135,84,0.1); color: #198754; }
-        .req-name { font-weight: 600; color: #012970; font-size: 0.95rem; }
-        .req-meta { font-size: 0.8rem; color: #6c757d; margin-top: 0.15rem; }
+        .req-name { font-weight: 600; color: var(--lit-heading); font-size: 0.95rem; }
+        .req-meta { font-size: 0.8rem; color: var(--lit-text-secondary); margin-top: 0.15rem; }
         .req-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
         .btn-approve { background: #198754; border: none; color: #fff; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; }
         .btn-approve:hover { background: #157347; color: #fff; }
         .btn-reject { background: transparent; border: 1.5px solid #dc3545; color: #dc3545; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; }
         .btn-reject:hover { background: #dc3545; color: #fff; }
         .btn-approve:disabled, .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
-        .empty-state { text-align: center; padding: 3rem 1rem; color: #6c757d; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--lit-text-secondary); }
         .empty-state i { font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block; }
         .toast-msg { position: fixed; top: 80px; right: 20px; z-index: 9999; padding: 0.75rem 1.25rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; display: none; }
         .toast-msg.show { display: block; animation: slideIn 0.3s ease; }
@@ -172,7 +174,7 @@ try {
     }
 
     async function approveReq(id) {
-        if (!confirm('Duyệt yêu cầu đăng ký này?')) return;
+        if (!await UI.confirm({ message: 'Duyệt yêu cầu đăng ký này?', confirmText: 'Duyệt' })) return;
         const card = document.getElementById('req-' + id);
         const btns = card.querySelectorAll('button');
         btns.forEach(b => b.disabled = true);
@@ -201,7 +203,7 @@ try {
     }
 
     async function rejectReq(id) {
-        const reason = prompt('Lý do từ chối (không bắt buộc):');
+        const reason = await UI.prompt({ title: 'Từ chối đăng ký', message: 'Lý do từ chối (không bắt buộc):', multiline: true, confirmText: 'Từ chối', danger: true });
         if (reason === null) return;
         const card = document.getElementById('req-' + id);
         const btns = card.querySelectorAll('button');

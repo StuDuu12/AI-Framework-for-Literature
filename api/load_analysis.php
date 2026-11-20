@@ -11,14 +11,14 @@ require_once __DIR__ . '/../config/helper_task.php';
 // Check authentication
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'Please log in']);
+    echo json_encode(['error' => 'Bạn chưa đăng nhập hoặc không có quyền.', 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
 // Only accept GET requests
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method Not Allowed']);
+    echo json_encode(['error' => 'Phương thức không được hỗ trợ.']);
     exit;
 }
 
@@ -30,7 +30,7 @@ $deliver_id = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
 if ($deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid deliver_id', 'message' => 'Invalid Deliver ID']);
+    echo json_encode(['error' => 'Bài giao không hợp lệ.', 'message' => 'Bài giao không hợp lệ.']);
     exit;
 }
 
@@ -38,7 +38,7 @@ try {
     // Validate user access to deliver
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have access']);
+        echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Bạn không có quyền truy cập.']);
         exit;
     }
 
@@ -50,7 +50,7 @@ try {
         echo json_encode([
             'success' => true,
             'has_data' => false,
-            'message' => 'No saved data yet'
+            'message' => 'Chưa có dữ liệu đã lưu.'
         ]);
         exit;
     }
@@ -103,7 +103,7 @@ try {
     error_log("Error loading analysis: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
-        'error' => 'Server error',
-        'message' => 'An error occurred while loading data: ' . client_error_message($e)
+        'error' => 'Lỗi máy chủ. Vui lòng thử lại.',
+        'message' => 'Có lỗi khi tải dữ liệu: ' . client_error_message($e)
     ]);
 }

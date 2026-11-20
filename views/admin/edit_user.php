@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = "Edit Account";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -120,8 +120,8 @@ $pageTitle = "Edit Account";
             <h1 data-lang-key="edit_account">Edit Account</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users" data-lang-key="admin_user_management">User Management</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users" data-lang-key="admin_user_management">Quản lý người dùng</a></li>
                     <li class="breadcrumb-item active" data-lang-key="edit_account">Edit Account</li>
                 </ol>
             </nav>
@@ -138,14 +138,14 @@ $pageTitle = "Edit Account";
                             <?php if ($error): ?>
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                                 </div>
                             <?php endif; ?>
 
                             <?php if ($success): ?>
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     <i class="bi bi-check-circle me-2"></i><?= $success ?>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                                 </div>
                             <?php endif; ?>
 
@@ -153,31 +153,31 @@ $pageTitle = "Edit Account";
                                 <?= csrf_field() ?>
                                 <div class="mb-3">
                                     <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="fullname" class="form-control" required value="<?= htmlspecialchars($user['fullname']) ?>">
+                                    <input aria-label="Họ tên" type="text" name="fullname" class="form-control" required value="<?= htmlspecialchars($user['fullname']) ?>">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Username <span class="text-danger">*</span></label>
-                                    <input type="text" name="username" class="form-control" required value="<?= htmlspecialchars($user['username']) ?>">
-                                    <small class="form-text text-muted">Username used for login</small>
+                                    <label class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                                    <input aria-label="Tên đăng nhập" type="text" name="username" class="form-control" required value="<?= htmlspecialchars($user['username']) ?>">
+                                    <small class="form-text text-muted">Tên dùng để đăng nhập</small>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
+                                    <input aria-label="Email" type="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email'] ?? '') ?>">
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">New Password</label>
-                                    <input type="password" name="password" class="form-control">
-                                    <small class="form-text text-muted">Leave blank to keep unchanged</small>
+                                    <input aria-label="Mật khẩu" type="password" name="password" class="form-control">
+                                    <small class="form-text text-muted">Để trống nếu không đổi</small>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Role <span class="text-danger">*</span></label>
-                                    <select name="role" class="form-select" required>
-                                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Student</option>
-                                        <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Teacher</option>
+                                    <label class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                    <select aria-label="Vai trò" name="role" class="form-select" required>
+                                        <option value="student" <?= $user['role'] === 'student' ? 'selected' : '' ?>>Học sinh</option>
+                                        <option value="teacher" <?= $user['role'] === 'teacher' ? 'selected' : '' ?>>Giáo viên</option>
                                         <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                                     </select>
                                 </div>
@@ -187,7 +187,7 @@ $pageTitle = "Edit Account";
                                         <i class="bi bi-save me-1"></i> <span>Save Changes</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
-                                        <i class="bi bi-x-circle me-1"></i> <span>Cancel</span>
+                                        <i class="bi bi-x-circle me-1"></i> <span>Huỷ</span>
                                     </a>
                                 </div>
                             </form>

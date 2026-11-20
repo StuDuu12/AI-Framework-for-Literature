@@ -18,7 +18,6 @@ $routes = [
     // Default route
     '' => ['file' => 'views/Landing/landing_page.php', 'title' => 'Trang chủ', 'require_auth' => false],
 
-    'templates' => ['file' => 'views/tmp/index.php', 'require_auth' => true],
 
     // Đăng nhập đăng xuất
     'login' => ['file' => 'views/account/login.php', 'title' => 'Đăng nhập', 'require_auth' => false],
@@ -29,7 +28,8 @@ $routes = [
     'reset_password' => ['file' => 'views/account/reset_password.php', 'title' => 'Đặt lại mật khẩu', 'require_auth' => false],
 
     'dashboard' => ['file' => 'views/dashboard.php', 'title' => 'Dashboard', 'require_auth' => true],
-    'workspace' => ['file' => 'views/workspace/student_workspace.php', 'title' => 'Learning Workspace', 'require_auth' => true],
+    'today' => ['file' => 'views/workspace/today.php', 'title' => 'Hôm nay', 'require_auth' => true],
+    'workspace' => ['file' => 'views/workspace/student_workspace.php', 'title' => 'Thư viện tác phẩm', 'require_auth' => true],
     'canon' => ['file' => 'views/canon/index.php', 'title' => 'Literary Canon', 'require_auth' => true],
     'canon/view' => ['file' => 'views/canon/view.php', 'title' => 'Literary Work', 'require_auth' => true],
     // 'admin' => ['file' => 'views/admin/dashboard.php', 'title' => 'Admin Dashboard', 'require_auth' => true],
@@ -51,7 +51,6 @@ $routes = [
     'class/task/view' => ['file' => 'views/tasks/view.php', 'title' => 'Xem nhiệm vụ', 'require_auth' => true],
     'class/task/review' => ['file' => 'views/tasks/review_submissions.php', 'title' => 'Xem bài phân tích học sinh', 'require_auth' => true],
     'class/my_tasks' => ['file' => 'views/tasks/my_tasks.php', 'title' => 'Nhiệm vụ của tôi', 'require_auth' => true],
-    'class/homework/ai' => ['file' => 'views/homework/literary_analysis2.php', 'title' => 'Trợ lý AI', 'require_auth' => true],
     'class/homework/analysis_start' => ['file' => 'views/homework/genAI.php', 'title' => 'Phân tích Văn học - Bắt đầu', 'require_auth' => true],
     'class/homework/genAI' => ['file' => 'views/homework/genAI.php', 'title' => 'Phân tích Văn học', 'require_auth' => true],
     'class/my_groups' => ['file' => 'views/participants_groups/my_groups.php', 'title' => 'Nhóm của tôi', 'require_auth' => true],
@@ -141,6 +140,12 @@ if (isset($routeConfig['require_auth']) && $routeConfig['require_auth']) {
             exit;
         }
     }
+}
+
+// URL là nguồn ngữ cảnh lớp/chủ đề/giai đoạn (sidebar, breadcrumb đúng cả khi mở nhiều tab)
+if (strncmp($route, 'class', 5) === 0 && checkAuth()) {
+    require_once __DIR__ . '/config/nav_context.php';
+    syncNavContextFromUrl($pdo);
 }
 
 $filePath = PATH_ROOT . '/' . $routeConfig['file'];

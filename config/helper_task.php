@@ -1082,7 +1082,7 @@ function checkAssignmentConflict($taskId, $assignType, $assignValue)
 
             return [
                 'has_conflict' => true,
-                'message' => 'Task has already been assigned to this ' . $nameMap[$deliverType],
+                'message' => 'Nhiệm vụ đã được giao cho ' . $nameMap[$deliverType],
                 'conflict_type' => 'duplicate'
             ];
         }
@@ -1096,7 +1096,7 @@ function checkAssignmentConflict($taskId, $assignType, $assignValue)
         error_log("Error in checkAssignmentConflict: " . $e->getMessage());
         return [
             'has_conflict' => true,
-            'message' => 'Error checking conflict: ' . $e->getMessage(),
+            'message' => 'Lỗi khi kiểm tra trùng lặp: ' . $e->getMessage(),
             'conflict_type' => 'error'
         ];
     }
@@ -1334,12 +1334,12 @@ function resetStudentSubmissionsInTopic($topicId, $studentUserId)
     $studentUserId = (int) $studentUserId;
 
     if (!$topicId || !$studentUserId) {
-        return ['success' => false, 'message' => 'Invalid information'];
+        return ['success' => false, 'message' => 'Thông tin không hợp lệ.'];
     }
 
     $taskIds = getTopicTaskIds($topicId);
     if (empty($taskIds)) {
-        return ['success' => false, 'message' => 'No tasks found in this topic'];
+        return ['success' => false, 'message' => 'Chủ đề này chưa có nhiệm vụ.'];
     }
 
     try {
@@ -1365,12 +1365,12 @@ function resetStudentSubmissionsInTopic($topicId, $studentUserId)
         $pdo->commit();
 
         if ($clearedResponses === 0 && $clearedDelivers === 0) {
-            return ['success' => false, 'message' => 'No submissions found to reset'];
+            return ['success' => false, 'message' => 'Không có bài nộp nào để đặt lại.'];
         }
 
         return [
             'success' => true,
-            'message' => 'Student submissions reset across all phases',
+            'message' => 'Đã đặt lại bài nộp của học sinh ở mọi giai đoạn.',
             'cleared_responses' => $clearedResponses,
             'cleared_delivers' => $clearedDelivers,
         ];
@@ -1379,7 +1379,7 @@ function resetStudentSubmissionsInTopic($topicId, $studentUserId)
             $pdo->rollBack();
         }
         error_log("Error in resetStudentSubmissionsInTopic: " . $e->getMessage());
-        return ['success' => false, 'message' => 'Failed to reset submissions'];
+        return ['success' => false, 'message' => 'Không đặt lại được bài nộp.'];
     }
 }
 
@@ -1394,12 +1394,12 @@ function resetGroupSubmissionsInTopic($topicId, $groupId)
     $groupId = (int) $groupId;
 
     if (!$topicId || !$groupId) {
-        return ['success' => false, 'message' => 'Invalid information'];
+        return ['success' => false, 'message' => 'Thông tin không hợp lệ.'];
     }
 
     $taskIds = getTopicTaskIds($topicId);
     if (empty($taskIds)) {
-        return ['success' => false, 'message' => 'No tasks found in this topic'];
+        return ['success' => false, 'message' => 'Chủ đề này chưa có nhiệm vụ.'];
     }
 
     try {
@@ -1471,12 +1471,12 @@ function resetGroupSubmissionsInTopic($topicId, $groupId)
         $pdo->commit();
 
         if ($clearedResponses === 0 && $clearedDelivers === 0) {
-            return ['success' => false, 'message' => 'No submissions found to reset'];
+            return ['success' => false, 'message' => 'Không có bài nộp nào để đặt lại.'];
         }
 
         return [
             'success' => true,
-            'message' => 'Group submissions reset across all phases',
+            'message' => 'Đã đặt lại bài nộp của nhóm ở mọi giai đoạn.',
             'cleared_responses' => $clearedResponses,
             'cleared_delivers' => $clearedDelivers,
         ];
@@ -1485,7 +1485,7 @@ function resetGroupSubmissionsInTopic($topicId, $groupId)
             $pdo->rollBack();
         }
         error_log("Error in resetGroupSubmissionsInTopic: " . $e->getMessage());
-        return ['success' => false, 'message' => 'Failed to reset submissions'];
+        return ['success' => false, 'message' => 'Không đặt lại được bài nộp.'];
     }
 }
 

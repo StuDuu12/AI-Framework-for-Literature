@@ -51,7 +51,7 @@ try {
 $pageTitle = "Admin Dashboard";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -74,7 +74,7 @@ $pageTitle = "Admin Dashboard";
             <h1 data-lang-key="admin_dashboard">Admin Dashboard</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Dashboard</li>
+                    <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Trang chủ</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -88,9 +88,9 @@ $pageTitle = "Admin Dashboard";
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card sales-card">
                                 <div class="card-body">
-                                    <h5 class="card-title" data-lang-key="teachers">Teachers</h5>
+                                    <h5 class="card-title" data-lang-key="teachers">Giáo viên</h5>
                                     <div class="d-flex align-items-center">
-                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e8ebfd; color: #4154f1;">
+                                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e8ebfd; color: var(--lit-primary);">
                                             <i class="bi bi-person-badge"></i>
                                         </div>
                                         <div class="ps-3">
@@ -100,7 +100,7 @@ $pageTitle = "Admin Dashboard";
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/admin/users?role=teacher" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">Xem chi tiết</span>
                                         </a>
                                     </div>
                                 </div>
@@ -111,7 +111,7 @@ $pageTitle = "Admin Dashboard";
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card revenue-card">
                                 <div class="card-body">
-                                    <h5 class="card-title" data-lang-key="students">Students</h5>
+                                    <h5 class="card-title" data-lang-key="students">Học sinh</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e8f5e9; color: #4caf50;">
                                             <i class="bi bi-people"></i>
@@ -123,7 +123,7 @@ $pageTitle = "Admin Dashboard";
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/admin/users?role=student" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">Xem chi tiết</span>
                                         </a>
                                     </div>
                                 </div>
@@ -147,7 +147,7 @@ $pageTitle = "Admin Dashboard";
                                     </div>
                                     <div class="mt-3">
                                         <a href="<?= URL_ROOT ?>/reflect" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">View Details</span>
+                                            <i class="bi bi-eye"></i> <span data-lang-key="view_details">Xem chi tiết</span>
                                         </a>
                                     </div>
                                 </div>
@@ -158,7 +158,7 @@ $pageTitle = "Admin Dashboard";
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card">
                                 <div class="card-body">
-                                    <h5 class="card-title" data-lang-key="classes">Classes</h5>
+                                    <h5 class="card-title" data-lang-key="classes">Lớp học</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #e1f5fe; color: #00bcd4;">
                                             <i class="bi bi-book"></i>

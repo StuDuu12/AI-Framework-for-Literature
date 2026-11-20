@@ -10,14 +10,14 @@ require_once __DIR__ . '/../config/helper_homework.php';
 // Check authentication
 if (!isset($_SESSION['user']) || !isset($_SESSION['user']['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized', 'message' => 'Please log in']);
+    echo json_encode(['error' => 'Bạn chưa đăng nhập hoặc không có quyền.', 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method Not Allowed']);
+    echo json_encode(['error' => 'Phương thức không được hỗ trợ.']);
     exit;
 }
 
@@ -26,7 +26,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    echo json_encode(['error' => 'Dữ liệu gửi lên không hợp lệ.']);
     exit;
 }
 
@@ -43,13 +43,13 @@ $ai_history = $input['ai_history'] ?? null; // Full analysis data + conversation
 
 if ($task_id <= 0 || $deliver_id <= 0) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid parameters', 'message' => 'Invalid Task ID or Deliver ID']);
+    echo json_encode(['error' => 'Thông tin gửi lên không hợp lệ.', 'message' => 'Nhiệm vụ hoặc bài giao không hợp lệ.']);
     exit;
 }
 
 if (empty($sections)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing sections', 'message' => 'No content to save']);
+    echo json_encode(['error' => 'Thiếu nội dung các phần.', 'message' => 'Không có nội dung để lưu.']);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
 
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have access to this deliver']);
+        echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Bạn không có quyền với bài giao này.']);
         exit;
     }
 
@@ -138,7 +138,7 @@ try {
         $response_id = $pdo->lastInsertId();
 
         if (!$response_id) {
-            throw new Exception('Failed to create response');
+            throw new Exception('Không tạo được bài làm.');
         }
 
         // Update deliver with response_id and status = 1 (đang thực hiện)
@@ -253,7 +253,7 @@ try {
     // Return success with IDs
     echo json_encode([
         'success' => true,
-        'message' => $existingResponse ? 'Result updated successfully' : 'Result saved successfully',
+        'message' => $existingResponse ? 'Đã cập nhật kết quả.' : 'Đã lưu kết quả.',
         'data' => [
             'response_id' => $response_id,
             'content_ids' => $content_ids,
@@ -266,7 +266,7 @@ try {
     error_log("Error saving analysis: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
-        'error' => 'Server error',
-        'message' => 'An error occurred while saving result. Please try again.'
+        'error' => 'Lỗi máy chủ. Vui lòng thử lại.',
+        'message' => 'Không lưu được kết quả. Vui lòng thử lại.'
     ]);
 }

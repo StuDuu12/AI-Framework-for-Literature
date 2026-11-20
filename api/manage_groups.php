@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not logged in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 $user_id_request = $_SESSION['user']['user_id'];
@@ -25,14 +25,14 @@ $action = $_POST['action'] ?? '';
 $class_id = isset($_POST['class_id']) ? intval($_POST['class_id']) : 0;
 
 if ($class_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+    echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
     exit;
 }
 
 // Check if user is teacher in this class
 $userRole = getRoleInClass($class_id, $user_id_request);
 if ($userRole !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not a teacher in this class']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không phải giáo viên của lớp này.']);
     exit;
 }
 
@@ -41,7 +41,7 @@ require_once __DIR__ . '/../config/helper_phase.php';
 $postedGroupId = isset($_POST['group_id']) ? intval($_POST['group_id']) : 0;
 if ($postedGroupId > 0 && getClassIdOfGroup($postedGroupId) !== $class_id) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Group does not belong to this class']);
+    echo json_encode(['success' => false, 'message' => 'Nhóm không thuộc lớp này.']);
     exit;
 }
 
@@ -52,15 +52,15 @@ try {
             $group_name = trim($_POST['group_name'] ?? '');
 
             if (empty($group_name)) {
-                echo json_encode(['success' => false, 'message' => 'Group name is required']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên nhóm.']);
                 exit;
             }
 
             $group_id = createGroup($class_id, $group_name);
             if ($group_id) {
-                echo json_encode(['success' => true, 'group_id' => $group_id, 'message' => 'Group created successfully']);
+                echo json_encode(['success' => true, 'group_id' => $group_id, 'message' => 'Đã tạo nhóm.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Cannot create group']);
+                echo json_encode(['success' => false, 'message' => 'Không tạo được nhóm.']);
             }
             break;
 
@@ -69,12 +69,12 @@ try {
             $group_id = isset($_POST['group_id']) ? intval($_POST['group_id']) : 0;
 
             if ($group_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
             $result = deleteGroup($group_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Group deleted successfully' : 'Delete group failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã xoá nhóm.' : 'Không xoá được nhóm.']);
             break;
 
         case 'update_group_name':
@@ -83,12 +83,12 @@ try {
             $group_name = trim($_POST['group_name'] ?? '');
 
             if ($group_id <= 0 || empty($group_name)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
             $result = updateGroupName($group_id, $group_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Group name updated successfully' : 'Update failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã đổi tên nhóm.' : 'Cập nhật không thành công.']);
             break;
 
         case 'get_group_details':
@@ -96,7 +96,7 @@ try {
             $group_id = isset($_POST['group_id']) ? intval($_POST['group_id']) : 0;
 
             if ($group_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
@@ -104,7 +104,7 @@ try {
             if ($group) {
                 echo json_encode(['success' => true, 'group' => $group]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Group not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy nhóm.']);
             }
             break;
 
@@ -114,12 +114,12 @@ try {
             $keyword = $_POST['keyword'] ?? '';
 
             if ($group_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
             if (strlen($keyword) < 2) {
-                echo json_encode(['success' => false, 'message' => 'Keyword too short']);
+                echo json_encode(['success' => false, 'message' => 'Từ khoá quá ngắn.']);
                 exit;
             }
 
@@ -133,7 +133,7 @@ try {
             $user_ids = isset($_POST['user_ids']) && is_array($_POST['user_ids']) ? $_POST['user_ids'] : [];
 
             if ($group_id <= 0 || empty($user_ids)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
@@ -147,19 +147,19 @@ try {
             $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
 
             if ($group_id <= 0 || $user_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
             $result = removeGroupMember($group_id, $user_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Member removed successfully' : 'Remove member failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã xoá thành viên.' : 'Không xoá được thành viên.']);
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Lỗi: ' . client_error_message($e)]);
 }
 exit;

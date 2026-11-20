@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -30,24 +32,24 @@ if ($role !== 'admin') {
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            background: #fafbfc;
+            background: var(--lit-surface-2);
         }
-        .upload-zone:hover, .upload-zone.dragover { border-color: #4154f1; background: rgba(65,84,241,0.03); }
-        .upload-zone i { font-size: 2.5rem; color: #adb5bd; margin-bottom: 0.75rem; display: block; }
-        .upload-zone p { color: #6c757d; margin: 0; }
-        .upload-zone .small { font-size: 0.8rem; color: #adb5bd; margin-top: 0.5rem; }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--lit-primary); background: rgba(var(--lit-primary-rgb), 0.03); }
+        .upload-zone i { font-size: 2.5rem; color: var(--lit-text-muted); margin-bottom: 0.75rem; display: block; }
+        .upload-zone p { color: var(--lit-text-secondary); margin: 0; }
+        .upload-zone .small { font-size: 0.8rem; color: var(--lit-text-muted); margin-top: 0.5rem; }
         .preview-table { max-height: 400px; overflow-y: auto; }
-        .result-card { background: #fff; border: 1px solid #e3e6f0; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; }
+        .result-card { background: var(--lit-surface); border: 1px solid #e3e6f0; border-radius: 12px; padding: 1.5rem; margin-top: 1rem; }
         .result-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #f1f3f5; }
         .result-row:last-child { border: none; }
         .result-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.85rem; }
         .result-icon.ok { background: #d1e7dd; color: #0f5132; }
         .result-icon.err { background: #f8d7da; color: #842029; }
-        .btn-import { background: #4154f1; border: none; color: #fff; padding: 0.55rem 1.5rem; border-radius: 8px; font-weight: 600; }
+        .btn-import { background: var(--lit-primary); border: none; color: #fff; padding: 0.55rem 1.5rem; border-radius: 8px; font-weight: 600; }
         .btn-import:hover { background: #3445d1; color: #fff; }
         .btn-import:disabled { opacity: 0.6; cursor: not-allowed; }
-        .format-help { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.85rem; }
-        .format-help code { background: #e9ecef; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.82rem; }
+        .format-help { background: var(--lit-surface-2); border: 1px solid var(--lit-border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.85rem; }
+        .format-help code { background: var(--lit-surface-3); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.82rem; }
     </style>
 </head>
 
@@ -63,8 +65,8 @@ if ($role !== 'admin') {
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Trang quản trị</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users">Users</a></li>
-                    <li class="breadcrumb-item active">Import</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users">Người dùng</a></li>
+                    <li class="breadcrumb-item active">Nhập</li>
                 </ol>
             </nav>
         </div>
@@ -85,13 +87,13 @@ if ($role !== 'admin') {
                         <p>Nhấn hoặc kéo thả file CSV vào đây</p>
                         <div class="small">Hỗ trợ file .csv, tối đa 5MB</div>
                     </div>
-                    <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleFile(this)">
+                    <input aria-label="Tệp CSV" type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleFile(this)">
 
                     <div id="previewSection" style="display:none; margin-top:1.25rem;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="mb-0">Xem trước (<span id="rowCount">0</span> dòng)</h6>
                             <button class="btn btn-import btn-sm" id="btnImport" onclick="importUsers()">
-                                <i class="bi bi-upload me-1"></i> Import
+                                <i class="bi bi-upload me-1"></i> Nhập
                             </button>
                         </div>
                         <div class="table-responsive preview-table">
@@ -137,12 +139,12 @@ if ($role !== 'admin') {
         const reader = new FileReader();
         reader.onload = function(e) {
             const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
-            if (lines.length < 2) { alert('File CSV phải có ít nhất 2 dòng (header + data)'); return; }
+            if (lines.length < 2) { UI.warning('File CSV phải có ít nhất 2 dòng (dòng tiêu đề + dữ liệu).'); return; }
 
             const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
             const required = ['fullname', 'username'];
             const missing = required.filter(r => !headers.includes(r));
-            if (missing.length) { alert('Thiếu cột bắt buộc: ' + missing.join(', ')); return; }
+            if (missing.length) { UI.warning('Thiếu cột bắt buộc: ' + missing.join(', ')); return; }
 
             csvData = [];
             for (let i = 1; i < lines.length; i++) {

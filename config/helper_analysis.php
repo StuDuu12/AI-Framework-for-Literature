@@ -233,7 +233,7 @@ function ensureDeliverResponse(int $deliverId, int $taskId, int $userId): int
 
     $responseId = (int)insertResponse($taskId, $userId, ['owner_user_id' => $ownerUserId]);
     if (!$responseId) {
-        throw new RuntimeException('Failed to create response');
+        throw new RuntimeException('Không tạo được bài làm.');
     }
 
     updateDeliverStatus($deliverId, $responseId, 1);
@@ -268,14 +268,14 @@ function confirmAnalysisHistoryEntry(
         ]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) {
-            throw new InvalidArgumentException('History entry not found');
+            throw new InvalidArgumentException('Không tìm thấy phiên bản này trong lịch sử.');
         }
         $analysisData = json_decode($row['analysis_data'], true);
         if (!is_array($analysisData)) {
-            throw new InvalidArgumentException('Invalid analysis data');
+            throw new InvalidArgumentException('Dữ liệu phân tích không hợp lệ.');
         }
     } elseif (!is_array($analysisData) || empty($analysisData)) {
-        throw new InvalidArgumentException('Missing analysis data');
+        throw new InvalidArgumentException('Thiếu dữ liệu phân tích.');
     } else {
         $label = date('d/m/Y H:i') . ' (confirmed)';
         $json = json_encode($analysisData, JSON_UNESCAPED_UNICODE);

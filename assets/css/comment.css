@@ -7,7 +7,7 @@ body {
     position: relative;
     margin-bottom: 2rem;
     padding: 1rem;
-    background: white;
+    background: var(--lit-surface);
     border-radius: 0.75rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     cursor: pointer;
@@ -15,13 +15,13 @@ body {
 }
 
 .content-image-wrapper:hover {
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    box-shadow: 0 4px 12px rgba(var(--lit-primary-rgb), 0.15);
     transform: translateY(-2px);
 }
 
 .content-image-wrapper.selected {
-    border: 2px solid #4f46e5;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    border: 2px solid var(--lit-primary);
+    box-shadow: 0 4px 12px rgba(var(--lit-primary-rgb), 0.25);
 }
 
 .content-image-wrapper img {
@@ -52,7 +52,7 @@ body {
     max-height: 500px;
     overflow-y: auto;
     padding: 1rem;
-    background: #f8f9fa;
+    background: var(--lit-surface-2);
     border-radius: 0.5rem;
 }
 
@@ -74,7 +74,7 @@ body {
 }
 
 .fb-comment-bubble {
-    background: #fff;
+    background: var(--lit-surface);
     padding: 0.5rem 0.75rem;
     border-radius: 1rem;
     flex-grow: 1;
@@ -83,7 +83,7 @@ body {
 .comment-author {
     font-weight: 600;
     font-size: 0.875rem;
-    color: #1f2937;
+    color: var(--lit-text);
     margin-bottom: 0.25rem;
     display: flex;
     align-items: center;
@@ -101,7 +101,7 @@ body {
 }
 
 .label-teacher {
-    background: #dbeafe;
+    background: var(--lit-primary-subtle);
     color: #1e40af;
 }
 
@@ -117,7 +117,7 @@ body {
 
 .comment-content {
     font-size: 0.875rem;
-    color: #374151;
+    color: var(--lit-text);
     line-height: 1.5;
 }
 
@@ -130,7 +130,7 @@ body {
 }
 
 .fb-comment-actions button {
-    color: #6b7280;
+    color: var(--lit-text-secondary);
     background: none;
     border: none;
     cursor: pointer;
@@ -143,11 +143,11 @@ body {
 }
 
 .fb-comment-actions .like-btn.liked {
-    color: #4f46e5;
+    color: var(--lit-primary);
 }
 
 .comment-time {
-    color: #9ca3af;
+    color: var(--lit-text-muted);
     font-size: 0.75rem;
 }
 
@@ -155,7 +155,7 @@ body {
     display: flex;
     gap: 0.75rem;
     padding: 1rem;
-    background: white;
+    background: var(--lit-surface);
     border-radius: 0.5rem;
     margin-top: 1rem;
     align-items: flex-start;
@@ -171,7 +171,7 @@ body {
 
 .fb-comment-input {
     flex-grow: 1;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--lit-border);
     border-radius: 1rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
@@ -180,7 +180,7 @@ body {
 }
 
 .fb-comment-btn {
-    background: #4f46e5;
+    background: var(--lit-primary);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -192,7 +192,7 @@ body {
 }
 
 .fb-comment-btn:hover {
-    background: #4338ca;
+    background: var(--lit-primary-hover);
 }
 
 .fb-comment-btn:disabled {
@@ -210,12 +210,12 @@ body {
 
 /* Visual indicator for max depth */
 .fb-comment-item[data-depth='2'] {
-    border-left: 2px solid #e5e7eb;
+    border-left: 2px solid var(--lit-border);
     padding-left: 0.5rem;
 }
 
 .fb-comment-item[data-depth='2'] .fb-comment-bubble {
-    background: #f9fafb;
+    background: var(--lit-surface-2);
 }
 
 /* Comment view toggle */
@@ -223,7 +223,7 @@ body {
     position: sticky;
     top: 80px;
     z-index: 100;
-    background: white;
+    background: var(--lit-surface);
     padding: 1rem;
     margin-bottom: 1rem;
     border-radius: 0.5rem;
@@ -240,8 +240,8 @@ body {
 
 .toggle-btn {
     padding: 0.5rem 1rem;
-    border: 1px solid #e5e7eb;
-    background: white;
+    border: 1px solid var(--lit-border);
+    background: var(--lit-surface);
     border-radius: 0.375rem;
     cursor: pointer;
     font-size: 0.875rem;
@@ -249,13 +249,13 @@ body {
 }
 
 .toggle-btn:hover {
-    background: #f9fafb;
+    background: var(--lit-surface-2);
 }
 
 .toggle-btn.active {
-    background: #4f46e5;
+    background: var(--lit-primary);
     color: white;
-    border-color: #4f46e5;
+    border-color: var(--lit-primary);
 }
 
 /* View modes */

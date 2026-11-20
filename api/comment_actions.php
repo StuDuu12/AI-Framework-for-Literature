@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/helper_homework.php';
@@ -8,7 +10,7 @@ require_once __DIR__ . '/../config/helper_task.php';
 // Check authentication
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit;
 }
 
@@ -32,7 +34,7 @@ $action = $input['action'] ?? '';
 function requireCommentClassAccess(int $classId, int $userId): void
 {
     if ($classId <= 0 || getCommentRoleInClass($classId, $userId) === null) {
-        throw new Exception('Access denied');
+        throw new Exception('Bạn không có quyền truy cập.');
     }
 }
 
@@ -50,14 +52,14 @@ function validateCommentTargets(int $taskId, ?int $contentId, ?int $responseId, 
     if ($contentId) {
         $contentResponseId = commentResponseOfContent($contentId);
         if ($contentResponseId <= 0 || commentClassOfResponse($contentResponseId) !== $classId) {
-            throw new Exception('Access denied');
+            throw new Exception('Bạn không có quyền truy cập.');
         }
     }
     if ($responseId && commentClassOfResponse($responseId) !== $classId) {
-        throw new Exception('Access denied');
+        throw new Exception('Bạn không có quyền truy cập.');
     }
     if ($replyCommentId > 0 && commentClassOfComment($replyCommentId) !== $classId) {
-        throw new Exception('Access denied');
+        throw new Exception('Bạn không có quyền truy cập.');
     }
 
     return $contentResponseId;
@@ -88,7 +90,7 @@ try {
             $deliver_id = isset($input['deliver_id']) ? intval($input['deliver_id']) : 0;
 
             if ($deliver_id <= 0 || !validateUserDeliverAccess($deliver_id, $user_id)) {
-                throw new Exception('Access denied');
+                throw new Exception('Bạn không có quyền truy cập.');
             }
 
             // content_ids / response_id phải thuộc cùng lớp với deliver đã được kiểm tra quyền
@@ -136,7 +138,7 @@ try {
                 requireCommentClassAccess(commentClassOfTask($task_id), $user_id);
                 $comments = getGeneralCommentsHierarchical($task_id);
             } else {
-                throw new Exception('Either content_id, response_id, or task_id is required');
+                throw new Exception('Thiếu thông tin bài làm.');
             }
 
             echo json_encode([
@@ -153,11 +155,11 @@ try {
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
             if ($task_id <= 0) {
-                throw new Exception('Invalid task_id');
+                throw new Exception('Nhiệm vụ không hợp lệ.');
             }
 
             if (empty($comment_text)) {
-                throw new Exception('Comment text is required');
+                throw new Exception('Vui lòng nhập nội dung bình luận.');
             }
 
             validateCommentTargets($task_id, $content_id, $response_id, $reply_comment_id, $user_id);
@@ -168,7 +170,7 @@ try {
             if ($content_id > 0) {
                 $responseInfo = getResponseWithTaskInfo($response_id ?? 0);
                 if (!$responseInfo || !$responseInfo['allow_comment']) {
-                    throw new Exception('Commenting is not allowed for this phase');
+                    throw new Exception('Giai đoạn này không cho phép bình luận.');
                 }
             }
 
@@ -186,7 +188,7 @@ try {
             echo json_encode([
                 'success' => true,
                 'comment' => fetchNewComment((int)$comment_id),
-                'message' => 'Comment added successfully'
+                'message' => 'Đã thêm bình luận.'
             ]);
             break;
 
@@ -200,11 +202,11 @@ try {
             $reply_comment_id = intval($input['reply_comment_id'] ?? 0);
 
             if ($task_id <= 0) {
-                throw new Exception('Invalid task_id');
+                throw new Exception('Nhiệm vụ không hợp lệ.');
             }
 
             if (empty($comment_text)) {
-                throw new Exception('Comment text is required');
+                throw new Exception('Vui lòng nhập nội dung bình luận.');
             }
 
             validateCommentTargets($task_id, $content_id, $response_id, $reply_comment_id, $user_id);
@@ -223,7 +225,7 @@ try {
             echo json_encode([
                 'success' => true,
                 'comment' => fetchNewComment((int)$comment_id),
-                'message' => 'Comment added successfully'
+                'message' => 'Đã thêm bình luận.'
             ]);
             break;
 
@@ -231,26 +233,26 @@ try {
             $comment_id = intval($input['comment_id'] ?? 0);
 
             if ($comment_id <= 0) {
-                throw new Exception('Invalid comment_id');
+                throw new Exception('Bình luận không hợp lệ.');
             }
 
             $success = deleteComment($comment_id, $user_id);
 
             if (!$success) {
-                throw new Exception('Permission denied or comment not found');
+                throw new Exception('Không tìm thấy bình luận hoặc bạn không có quyền.');
             }
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Comment deleted successfully'
+                'message' => 'Đã xoá bình luận.'
             ]);
             break;
 
         default:
-            throw new Exception('Invalid action');
+            throw new Exception('Thao tác không hợp lệ.');
     }
 } catch (Exception $e) {
-    http_response_code($e->getMessage() === 'Access denied' ? 403 : 400);
+    http_response_code($e->getMessage() === 'Bạn không có quyền truy cập.' ? 403 : 400);
     echo json_encode([
         'success' => false,
         'message' => client_error_message($e)

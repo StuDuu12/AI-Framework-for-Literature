@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -85,9 +85,9 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Learning Phases</a></li>
+                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Tasks</a></li>
+                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Nhiệm vụ</a></li>
                     <li class="breadcrumb-item active" data-lang-key="assign_task">Assign Task</li>
                 </ol>
             </nav>
@@ -102,7 +102,7 @@
                             <div class="mb-3">
                                 <a href="/class/task/view?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                     class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="back_to_task_details">Back to Task Details</span>
+                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="back_to_task_details">Quay lại chi tiết nhiệm vụ</span>
                                 </a>
                             </div>
                             <h5 class="card-title">
@@ -116,19 +116,19 @@
 
                                 <!-- Assignment Type Selection -->
                                 <div class="mb-4">
-                                    <label class="form-label">Assignment Type <span
+                                    <label for="assignTypeGroup" class="form-label">Assignment Type <span
                                             class="text-danger">*</span></label>
                                     <div class="btn-group w-100" role="group">
                                         <input type="radio" class="btn-check" name="assign_type" id="assignTypeGroup"
                                             value="2" checked autocomplete="off">
                                         <label class="btn btn-outline-primary" for="assignTypeGroup">
-                                            <i class="bi bi-diagram-3-fill"></i> <span>Group</span>
+                                            <i class="bi bi-diagram-3-fill"></i> <span>Nhóm</span>
                                         </label>
 
                                         <input type="radio" class="btn-check" name="assign_type"
                                             id="assignTypeIndividual" value="3" autocomplete="off">
                                         <label class="btn btn-outline-primary" for="assignTypeIndividual">
-                                            <i class="bi bi-person-fill"></i> <span>Individual</span>
+                                            <i class="bi bi-person-fill"></i> <span>Cá nhân</span>
                                         </label>
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@
                                     <?php if (empty($classGroups)): ?>
                                         <div class="alert alert-warning">
                                             <i class="bi bi-exclamation-triangle"></i>
-                                            No groups in this class yet.
+                                            Lớp chưa có nhóm nào.
                                         </div>
                                     <?php else: ?>
                                         <div style="max-height: 500px; overflow-y: auto;">
@@ -147,7 +147,7 @@
                                                 <div class="card mb-3">
                                                     <div class="card-body p-3">
                                                         <label class="d-flex align-items-center mb-0 cursor-pointer">
-                                                            <input class="form-check-input me-2 group-checkbox"
+                                                            <input aria-label="Chọn" class="form-check-input me-2 group-checkbox"
                                                                 type="checkbox"
                                                                 name="group_values[]"
                                                                 value="<?= $group['group_id'] ?>"
@@ -165,7 +165,7 @@
                                                             style="display: none;">
                                                             <div class="border-start border-2 border-primary ps-3">
                                                                 <small class="text-muted d-block mb-2">
-                                                                    <i class="bi bi-people"></i> Group members:
+                                                                    <i class="bi bi-people"></i> Thành viên nhóm:
                                                                 </small>
                                                                 <?php if (!empty($groupMembers[$group['group_id']])): ?>
                                                                     <div class="list-group list-group-flush">
@@ -181,7 +181,7 @@
                                                                     </div>
                                                                 <?php else: ?>
                                                                     <small class="text-muted">
-                                                                        <i class="bi bi-info-circle"></i> No members yet
+                                                                        <i class="bi bi-info-circle"></i> Chưa có thành viên
                                                                     </small>
                                                                 <?php endif; ?>
                                                             </div>
@@ -201,7 +201,7 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="selectAllStudents">
                                                 <label class="form-check-label" for="selectAllStudents">
-                                                    Select all
+                                                    Chọn tất cả
                                                 </label>
                                             </div>
                                         <?php endif; ?>
@@ -209,12 +209,12 @@
                                     <?php if (empty($classStudents)): ?>
                                         <div class="alert alert-warning">
                                             <i class="bi bi-exclamation-triangle"></i>
-                                            No students in this class yet.
+                                            Lớp chưa có học sinh.
                                         </div>
                                     <?php else: ?>
                                         <div class="mb-3">
-                                            <input type="text" class="form-control" id="searchStudent"
-                                                placeholder="Search students...">
+                                            <input aria-label="Tìm học sinh" type="text" class="form-control" id="searchStudent"
+                                                placeholder="Tìm học sinh…">
                                         </div>
                                         <div class="list-group" id="studentList"
                                             style="max-height: 400px; overflow-y: auto;">
@@ -222,7 +222,7 @@
                                                 <label class="list-group-item student-item"
                                                     data-name="<?= strtolower(htmlspecialchars($student['fullname'])) ?>"
                                                     data-username="<?= strtolower(htmlspecialchars($student['username'])) ?>">
-                                                    <input class="form-check-input me-2 student-checkbox" type="checkbox"
+                                                    <input aria-label="Chọn" class="form-check-input me-2 student-checkbox" type="checkbox"
                                                         name="individual_values[]" value="<?= $student['user_id'] ?>">
                                                     <i class="bi bi-person"></i>
                                                     <?= htmlspecialchars($student['fullname']) ?>
@@ -241,7 +241,7 @@
                                     </button>
                                     <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
-                                        <i class="bi bi-x-circle"></i> <span>Cancel</span>
+                                        <i class="bi bi-x-circle"></i> <span>Huỷ</span>
                                     </a>
                                 </div>
                             </form>
@@ -254,26 +254,26 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title mb-0" data-lang-key="assigned_list_title">Assigned to</h5>
+                                <h5 class="card-title mb-0" data-lang-key="assigned_list_title">Giao cho</h5>
                                 <button type="button"
                                     id="deleteSelectedBtn"
                                     class="btn btn-sm btn-danger"
                                     style="display: none;">
-                                    <i class="bi bi-trash"></i> Delete selected (<span id="selectedCount">0</span>)
+                                    <i class="bi bi-trash"></i> Xoá mục đã chọn (<span id="selectedCount">0</span>)
                                 </button>
                             </div>
 
                             <?php if (empty($existingAssignments)): ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
-                                    Not assigned to anyone yet.
+                                    Chưa giao cho ai.
                                 </div>
                             <?php else: ?>
                                 <div class="list-group">
                                     <?php foreach ($existingAssignments as $assignment): ?>
                                         <div class="list-group-item assignment-item" data-deliver-id="<?= $assignment['id_deliver'] ?>">
                                             <div class="d-flex align-items-center">
-                                                <input class="form-check-input me-2 assignment-checkbox"
+                                                <input aria-label="Chọn" class="form-check-input me-2 assignment-checkbox"
                                                     type="checkbox"
                                                     id="assign-<?= $assignment['id_deliver'] ?>"
                                                     data-deliver-id="<?= $assignment['id_deliver'] ?>">
@@ -284,10 +284,10 @@
                                                             <strong>Whole Class:</strong>
                                                         <?php elseif ($assignment['type'] == 'group'): ?>
                                                             <i class="bi bi-diagram-3-fill text-success"></i>
-                                                            <strong>Group:</strong>
+                                                            <strong>Nhóm:</strong>
                                                         <?php else: ?>
                                                             <i class="bi bi-person-fill text-info"></i>
-                                                            <strong>Individual:</strong>
+                                                            <strong>Cá nhân:</strong>
                                                         <?php endif; ?>
                                                         <br>
                                                         <small><?= htmlspecialchars($assignment['assigned_to_name'] ?? '') ?></small>
@@ -305,10 +305,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Task Information</h5>
-                            <p><strong>Title:</strong> <?= htmlspecialchars($task['title'] ?? '') ?></p>
-                            <p><strong>Phase:</strong> Step <?= htmlspecialchars($phase['phase_number'] ?? '') ?> -
+                            <p><strong>Tiêu đề:</strong> <?= htmlspecialchars($task['title'] ?? '') ?></p>
+                            <p><strong>Giai đoạn:</strong> Bước <?= htmlspecialchars($phase['phase_number'] ?? '') ?> -
                                 <?= htmlspecialchars($phase['phase_name'] ?? '') ?></p>
-                            <p><strong>Topic:</strong> <?= htmlspecialchars($topic['topic_name'] ?? '') ?></p>
+                            <p><strong>Chủ đề:</strong> <?= htmlspecialchars($topic['topic_name'] ?? '') ?></p>
                         </div>
                     </div>
                 </div>
@@ -322,11 +322,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Đóng"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Notification content
+                Nội dung thông báo
             </div>
         </div>
     </div>
@@ -398,7 +398,7 @@
                 conflictAlert.className = 'alert alert-danger alert-dismissible fade show';
                 conflictAlert.innerHTML = `
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    <strong>Cannot assign!</strong>
+                    <strong>Không giao được!</strong>
                     <p class="mb-0 mt-2">${message}</p>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
@@ -605,14 +605,14 @@
                 if (assignType === '2') {
                     const checkedGroups = document.querySelectorAll('input[name="group_values[]"]:checked');
                     if (checkedGroups.length === 0) {
-                        showToast('Please select at least one group!', 'warning');
+                        showToast('Hãy chọn ít nhất một nhóm.', 'warning');
                         return;
                     }
                     assignValues = Array.from(checkedGroups).map(cb => cb.value);
                 } else if (assignType === '3') {
                     const checkedStudents = document.querySelectorAll('input[name="individual_values[]"]:checked');
                     if (checkedStudents.length === 0) {
-                        showToast('Please select at least one student!', 'warning');
+                        showToast('Hãy chọn ít nhất một học sinh.', 'warning');
                         return;
                     }
                     assignValues = Array.from(checkedStudents).map(cb => cb.value);
@@ -640,7 +640,7 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        showToast('Task assigned successfully!', 'success');
+                        showToast('Đã giao nhiệm vụ.', 'success');
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -651,7 +651,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('An error occurred while assigning the task', 'error');
+                    showToast('Không giao được nhiệm vụ. Vui lòng thử lại.', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Assign Task';
                 }
@@ -686,12 +686,12 @@
                     const deliverIds = Array.from(checkedBoxes).map(cb => cb.dataset.deliverId);
 
                     if (deliverIds.length === 0) {
-                        showToast('Please select at least one item to delete!', 'warning');
+                        showToast('Hãy chọn ít nhất một mục để xoá.', 'warning');
                         return;
                     }
 
                     const count = deliverIds.length;
-                    if (!confirm(`Are you sure you want to unassign ${count} selected items?`)) {
+                    if (!await UI.confirm(`Huỷ giao ${count} mục đã chọn?`)) {
                         return;
                     }
 
@@ -731,10 +731,10 @@
 
                         // Show result
                         if (successCount > 0) {
-                            showToast(`Successfully unassigned ${successCount} tasks!`, 'success');
+                            showToast(`Đã bỏ giao ${successCount} nhiệm vụ.`, 'success');
                         }
                         if (failCount > 0) {
-                            showToast(`Cannot unassign ${failCount} tasks!`, 'error');
+                            showToast(`Không bỏ giao được ${failCount} nhiệm vụ.`, 'error');
                         }
 
                         setTimeout(() => {
@@ -743,7 +743,7 @@
 
                     } catch (error) {
                         console.error('Error:', error);
-                        showToast('An error occurred while unassigning tasks', 'error');
+                        showToast('Không bỏ giao được nhiệm vụ. Vui lòng thử lại.', 'error');
                         this.disabled = false;
                         this.innerHTML = '<i class="bi bi-trash"></i> Delete selected (<span id="selectedCount">' + count + '</span>)';
                     }

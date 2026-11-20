@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
         .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #fff; }
         .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #fff; }
         .rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
-        .rank-default { background: #e9ecef; color: #495057; }
+        .rank-default { background: var(--lit-surface-3); color: var(--lit-text); }
         .badge-glow { animation: glow 2s ease-in-out infinite alternate; }
         @keyframes glow { from { box-shadow: 0 0 5px rgba(255,215,0,0.5); } to { box-shadow: 0 0 15px rgba(255,215,0,0.8); } }
     </style>

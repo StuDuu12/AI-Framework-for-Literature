@@ -363,3 +363,54 @@ function isTeacherInClass($classId, $userId)
 
     return $result && $result['role'] === 'teacher';
 }
+
+/**
+ * Nhãn tiếng Việt + icon cho loại giai đoạn (main_phase.phase_code).
+ * Dùng chung cho trang Hôm nay, timeline chủ đề, thẻ nhiệm vụ.
+ */
+if (!function_exists('phaseTypeMeta')) {
+    function phaseTypeMeta(?string $code, int $phaseNumber = 0): array
+    {
+        $map = [
+            'PHASE_START' => ['Phân tích cùng AI', 'bi-stars'],
+            'PHASE_BTVN' => ['Bài tập về nhà', 'bi-house-door'],
+            'PHASE_CHUABAI' => ['Chữa bài', 'bi-pencil-square'],
+            'PHASE_DANHGIANGUOIHOC' => ['Đánh giá chéo', 'bi-people'],
+            'PHASE_CHAMDIEM' => ['Chấm điểm', 'bi-award'],
+            'PHASE_TAKENOTE' => ['Ghi chép kiến thức', 'bi-journal-text'],
+        ];
+        return $map[$code ?? ''] ?? ['Giai đoạn ' . $phaseNumber, 'bi-flag'];
+    }
+}
+
+/**
+ * Nhiệm vụ của một học sinh trong một chủ đề, nhóm theo phase_id.
+ * Bao gồm bài giao cá nhân, cho nhóm của học sinh, hoặc cả lớp.
+ */
+if (!function_exists('getStudentTasksByPhase')) {
+    function getStudentTasksByPhase(int $topicId, int $userId): array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("
+            SELECT d.id_deliver, d.status, d.type AS deliver_type, t.task_id, t.title, t.phase_id,
+                   COALESCE(d.deadline, t.deadline, p.end_time) AS due_at
+            FROM deliver d
+            JOIN task t ON t.task_id = d.task_id
+            JOIN phase p ON p.phase_id = t.phase_id
+            JOIN topic top ON top.topic_id = p.topic_id
+            WHERE p.topic_id = :topic
+              AND (
+                    (d.type = 'user' AND d.value = :u1)
+                 OR (d.type = 'class' AND d.value = top.class_id)
+                 OR (d.type = 'group' AND EXISTS (SELECT 1 FROM group_member gm WHERE gm.group_id = d.value AND gm.user_id = :u2))
+              )
+            ORDER BY t.task_id
+        ");
+        $stmt->execute([':topic' => $topicId, ':u1' => $userId, ':u2' => $userId]);
+        $byPhase = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $byPhase[(int)$row['phase_id']][] = $row;
+        }
+        return $byPhase;
+    }
+}

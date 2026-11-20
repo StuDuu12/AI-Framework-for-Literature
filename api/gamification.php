@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -7,7 +9,7 @@ header('Content-Type: application/json');
 
 $userId = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit();
 }
 
@@ -123,16 +125,16 @@ try {
             // Điểm phải được cộng ở phía server tại nơi hoạt động thực sự diễn ra
             // (nộp bài, đánh giá...), không qua endpoint công khai.
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Points can only be awarded by the server']);
+            echo json_encode(['success' => false, 'message' => 'Điểm thưởng chỉ do hệ thống cộng.']);
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (PDOException $e) {
     error_log("gamification error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi cơ sở dữ liệu. Vui lòng thử lại.']);
 }
 
 function checkAndAwardBadges(PDO $pdo, int $userId): void

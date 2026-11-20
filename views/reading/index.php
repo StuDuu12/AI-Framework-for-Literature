@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -73,11 +73,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Tên danh sách <span class="text-danger">*</span></label>
+                        <label for="listName" class="form-label">Tên danh sách <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="listName" placeholder="VD: Bài đọc yêu thích">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mô tả</label>
+                        <label for="listDescription" class="form-label">Mô tả</label>
                         <textarea class="form-control" id="listDescription" rows="2" placeholder="Mô tả ngắn..."></textarea>
                     </div>
                 </div>
@@ -187,7 +187,7 @@
                 });
                 loadBookmarks();
             } catch (e) {
-                alert('Lỗi kết nối');
+                UI.error('Lỗi kết nối máy chủ. Vui lòng thử lại.');
             }
         }
 
@@ -202,7 +202,7 @@
             const description = document.getElementById('listDescription').value.trim();
 
             if (!name) {
-                alert('Vui lòng nhập tên danh sách');
+                UI.warning('Vui lòng nhập tên danh sách.');
                 return;
             }
 
@@ -218,10 +218,10 @@
                     createListModal.hide();
                     loadLists();
                 } else {
-                    alert(data.message || 'Lỗi tạo danh sách');
+                    UI.error(data.message || 'Không tạo được danh sách.');
                 }
             } catch (e) {
-                alert('Lỗi kết nối');
+                UI.error('Lỗi kết nối máy chủ. Vui lòng thử lại.');
             }
         }
 
@@ -245,8 +245,8 @@
                             <h6 class="mb-0">${escapeHtml(item.task_title)}</h6>
                             <small class="text-muted">${escapeHtml(item.topic_name || '')} · ${escapeHtml(item.phase_name || '')}</small>
                         </div>
-                        <button class="btn btn-sm btn-outline-danger" onclick="removeFromList(${listId}, ${item.task_id})">
-                            <i class="bi bi-x"></i>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeFromList(${listId}, ${item.task_id})" aria-label="Bỏ khỏi danh sách đọc" title="Bỏ khỏi danh sách đọc">
+                            <i class="bi bi-x" aria-hidden="true"></i>
                         </button>
                     </div>
                 `).join('');
@@ -265,12 +265,12 @@
                 viewListDetail(listId, document.getElementById('listDetailTitle').textContent);
                 loadLists();
             } catch (e) {
-                alert('Lỗi kết nối');
+                UI.error('Lỗi kết nối máy chủ. Vui lòng thử lại.');
             }
         }
 
         async function deleteList(listId) {
-            if (!confirm('Xóa danh sách này?')) return;
+            if (!await UI.confirm('Xóa danh sách này?')) return;
 
             try {
                 await fetch('/api/reading_list.php?action=delete_list', {
@@ -280,7 +280,7 @@
                 });
                 loadLists();
             } catch (e) {
-                alert('Lỗi kết nối');
+                UI.error('Lỗi kết nối máy chủ. Vui lòng thử lại.');
             }
         }
 

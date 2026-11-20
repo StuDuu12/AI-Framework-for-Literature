@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not logged in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 $user_id_request = $_SESSION['user']['user_id'];
@@ -25,14 +25,14 @@ $action = $_POST['action'] ?? '';
 $class_id = isset($_SESSION['current_class_id']) ? intval($_SESSION['current_class_id']) : 0;
 
 if ($class_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+    echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
     exit;
 }
 
 // Check if user is teacher in this class
 $userRole = getRoleInClass($class_id, $user_id_request);
 if ($userRole !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not a teacher in this class']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không phải giáo viên của lớp này.']);
     exit;
 }
 
@@ -41,7 +41,7 @@ require_once __DIR__ . '/../config/helper_phase.php';
 $postedTopicId = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : 0;
 if ($postedTopicId > 0 && getClassIdOfTopic($postedTopicId) !== $class_id) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Topic does not belong to this class']);
+    echo json_encode(['success' => false, 'message' => 'Chủ đề không thuộc lớp này.']);
     exit;
 }
 
@@ -52,15 +52,15 @@ try {
             $topic_name = trim($_POST['topic_name'] ?? '');
 
             if (empty($topic_name)) {
-                echo json_encode(['success' => false, 'message' => 'Topic name is required']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên chủ đề.']);
                 exit;
             }
 
             $topic_id = createTopic($class_id, $topic_name, $user_id_request);
             if ($topic_id) {
-                echo json_encode(['success' => true, 'topic_id' => $topic_id, 'message' => 'Topic created successfully']);
+                echo json_encode(['success' => true, 'topic_id' => $topic_id, 'message' => 'Đã tạo chủ đề.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Cannot create topic']);
+                echo json_encode(['success' => false, 'message' => 'Không tạo được chủ đề.']);
             }
             break;
 
@@ -70,12 +70,12 @@ try {
             $topic_name = trim($_POST['topic_name'] ?? '');
 
             if ($topic_id <= 0 || empty($topic_name)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
             $result = updateTopicName($topic_id, $topic_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Update successful' : 'Update failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã cập nhật.' : 'Cập nhật không thành công.']);
             break;
 
         case 'delete_topic':
@@ -83,12 +83,12 @@ try {
             $topic_id = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : 0;
 
             if ($topic_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid topic ID']);
+                echo json_encode(['success' => false, 'message' => 'Chủ đề không hợp lệ.']);
                 exit;
             }
 
             $result = deleteTopic($topic_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Topic deleted successfully' : 'Delete failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã xoá chủ đề.' : 'Xoá không thành công.']);
             break;
 
         case 'get_topic':
@@ -96,7 +96,7 @@ try {
             $topic_id = isset($_POST['topic_id']) ? intval($_POST['topic_id']) : 0;
 
             if ($topic_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid topic ID']);
+                echo json_encode(['success' => false, 'message' => 'Chủ đề không hợp lệ.']);
                 exit;
             }
 
@@ -104,15 +104,15 @@ try {
             if ($topic) {
                 echo json_encode(['success' => true, 'topic' => $topic]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Topic not found']);
+                echo json_encode(['success' => false, 'message' => 'Không tìm thấy chủ đề.']);
             }
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Lỗi: ' . client_error_message($e)]);
 }
 exit;

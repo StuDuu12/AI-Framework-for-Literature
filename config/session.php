@@ -42,3 +42,51 @@ if (!function_exists('app_session_cookie_options')) {
         }
     }
 }
+
+/*
+ * Flash message: lưu thông báo vào session để hiện (dạng toast) ở trang kế tiếp.
+ *   flash_set('error', 'Bạn chưa nộp bài.'); header('Location: ...'); exit;
+ * views/templates/assets.php in ra <meta name="app-flash">, ui.js hiển thị.
+ */
+if (!function_exists('flash_set')) {
+    function flash_set(string $type, string $message): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        $type = in_array($type, ['success', 'error', 'warning', 'info'], true) ? $type : 'info';
+        $_SESSION['_flash'][] = ['type' => $type, 'message' => $message];
+    }
+
+    function flash_consume(): array
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return [];
+        }
+        // Khoá cũ một số trang còn dùng: chuyển thành flash để hiện ra toast
+        foreach (['error_message' => 'error', 'success_message' => 'success'] as $legacy => $type) {
+            if (!empty($_SESSION[$legacy]) && is_string($_SESSION[$legacy])) {
+                $_SESSION['_flash'][] = ['type' => $type, 'message' => $_SESSION[$legacy]];
+            }
+            unset($_SESSION[$legacy]);
+        }
+        if (empty($_SESSION['_flash'])) {
+            return [];
+        }
+        $all = $_SESSION['_flash'];
+        unset($_SESSION['_flash']);
+        return $all;
+    }
+
+    /** Chuyển hướng kèm flash; dự phòng bằng JS nếu header đã gửi. */
+    function flash_redirect(string $url, string $type, string $message): void
+    {
+        flash_set($type, $message);
+        if (!headers_sent()) {
+            header('Location: ' . $url);
+        } else {
+            echo '<script>location.href=' . json_encode($url) . ';</script>';
+        }
+        exit;
+    }
+}

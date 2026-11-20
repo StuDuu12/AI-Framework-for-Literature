@@ -1,6 +1,8 @@
 ﻿<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -93,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment'])) {
 $pageTitle = "Details Reflect";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -116,9 +118,9 @@ $pageTitle = "Details Reflect";
             <h1 data-lang-key="reflect_detail">Feedback Details</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" data-lang-key="manage_reflect_title">Manage Reflect</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="details">Details</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" data-lang-key="manage_reflect_title">Quản lý góp ý</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="details">Chi tiết</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -148,19 +150,19 @@ $pageTitle = "Details Reflect";
                             <!-- Replies -->
                             <div class="mt-4">
                                 <h6 class="mb-3">
-                                    <i class="bi bi-chat-dots me-2"></i><span>Responses</span> (<?= count($replies) ?>)
+                                    <i class="bi bi-chat-dots me-2"></i><span>Bài làm</span> (<?= count($replies) ?>)
                                 </h6>
 
                                 <?php if (isset($error)): ?>
                                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                         <i class="bi bi-exclamation-triangle me-2"></i><?= $error ?>
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                                     </div>
                                 <?php endif; ?>
 
                                 <?php if (empty($replies)): ?>
                                     <div class="alert alert-info">
-                                        <i class="bi bi-info-circle me-2"></i><span>No responses yet</span>
+                                        <i class="bi bi-info-circle me-2"></i><span>Chưa có bài làm</span>
                                     </div>
                                 <?php else: ?>
                                     <?php foreach ($replies as $reply): ?>
@@ -176,11 +178,11 @@ $pageTitle = "Details Reflect";
                                                             <div>
                                                                 <strong><?= htmlspecialchars($reply['fullname']) ?></strong>
                                                                 <?php if ($reply['user_role'] === 'teacher'): ?>
-                                                                    <span class="badge bg-success ms-2">Teacher</span>
+                                                                    <span class="badge bg-success ms-2">Giáo viên</span>
                                                                 <?php elseif ($reply['user_role'] === 'admin'): ?>
                                                                     <span class="badge bg-danger ms-2">Admin</span>
                                                                 <?php else: ?>
-                                                                    <span class="badge bg-secondary ms-2">Students</span>
+                                                                    <span class="badge bg-secondary ms-2">Học sinh</span>
                                                                 <?php endif; ?>
                                                             </div>
                                                             <small class="text-muted">
@@ -203,8 +205,8 @@ $pageTitle = "Details Reflect";
                                         </h6>
                                         <form method="POST">
                                             <div class="mb-3">
-                                                <textarea name="content" class="form-control" rows="4"
-                                                    placeholder="Enter your response content..." required></textarea>
+                                                <textarea aria-label="Nhập nội dung bài làm" name="content" class="form-control" rows="4"
+                                                    placeholder="Nhập nội dung bài làm…" required></textarea>
                                             </div>
                                             <div class="d-grid">
                                                 <button type="submit" name="add_comment" class="btn btn-primary">
@@ -223,17 +225,17 @@ $pageTitle = "Details Reflect";
                     <!-- Info Card -->
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Information</h5>
+                            <h5 class="card-title">Thông tin</h5>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Type</label>
+                                <label class="form-label text-muted">Loại</label>
                                 <div>
                                     <span class="badge bg-info"><?= htmlspecialchars($reflect['type_name']) ?></span>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Sender</label>
+                                <label class="form-label text-muted">Người gửi</label>
                                 <div>
                                     <strong><?= htmlspecialchars($reflect['fullname']) ?></strong><br>
                                     <small><?= htmlspecialchars($reflect['email'] ?? 'N/A') ?></small>
@@ -264,11 +266,11 @@ $pageTitle = "Details Reflect";
                             <!-- Update Status -->
                             <form method="POST">
                                 <div class="mb-3">
-                                    <label class="form-label">Status</label>
-                                    <select name="status" class="form-select">
-                                        <option value="0" <?= $reflect['status'] == 0 ? 'selected' : '' ?>>Pending</option>
+                                    <label class="form-label">Trạng thái</label>
+                                    <select aria-label="Trạng thái" name="status" class="form-select">
+                                        <option value="0" <?= $reflect['status'] == 0 ? 'selected' : '' ?>>Đang chờ</option>
                                         <option value="1" <?= $reflect['status'] == 1 ? 'selected' : '' ?>>In Progress</option>
-                                        <option value="2" <?= $reflect['status'] == 2 ? 'selected' : '' ?>>Completed</option>
+                                        <option value="2" <?= $reflect['status'] == 2 ? 'selected' : '' ?>>Đã hoàn thành</option>
                                     </select>
                                 </div>
                                 <div class="d-grid gap-2">

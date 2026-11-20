@@ -130,7 +130,7 @@ class LanguageSwitcher {
             // Fallback if Toast is not available
             console.log(`🌐 ${fullMessage}`);
             // Show native alert as last resort
-            alert(fullMessage);
+            UI.notify(fullMessage);
         }
     }
 

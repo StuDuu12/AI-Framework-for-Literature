@@ -12,8 +12,8 @@ require_once __DIR__ . '/../config/helper_task.php';
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode([
-        'error' => 'Unauthorized',
-        'message' => 'Please log in'
+        'error' => 'Bạn chưa đăng nhập hoặc không có quyền.',
+        'message' => 'Vui lòng đăng nhập.'
     ]);
     exit;
 }
@@ -21,7 +21,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'Method Not Allowed']);
+    echo json_encode(['error' => 'Phương thức không được hỗ trợ.']);
     exit;
 }
 
@@ -30,7 +30,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    echo json_encode(['error' => 'Dữ liệu gửi lên không hợp lệ.']);
     exit;
 }
 
@@ -50,8 +50,8 @@ if (isset($_SESSION['user']['user_id'])) {
 if (!$user_id) {
     http_response_code(401);
     echo json_encode([
-        'error' => 'Unauthorized',
-        'message' => 'User information not found'
+        'error' => 'Bạn chưa đăng nhập hoặc không có quyền.',
+        'message' => 'Không tìm thấy thông tin người dùng.'
     ]);
     exit;
 }
@@ -61,8 +61,8 @@ if ($deliver_id > 0) {
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
         echo json_encode([
-            'error' => 'Forbidden',
-            'message' => 'You do not have permission to access this assignment'
+            'error' => 'Bạn không có quyền thực hiện thao tác này.',
+            'message' => 'Bạn không có quyền với bài giao này.'
         ]);
         exit;
     }
@@ -81,7 +81,7 @@ if ($deliver_id > 0) {
         $task_id = $deliverTaskId;
     } elseif ($task_id !== $deliverTaskId && getTopicIdOfTask($task_id) !== getTopicIdOfTask($deliverTaskId)) {
         http_response_code(403);
-        echo json_encode(['error' => 'Forbidden', 'message' => 'Task does not match this assignment']);
+        echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Nhiệm vụ không khớp với bài giao.']);
         exit;
     }
 }
@@ -89,7 +89,7 @@ if ($deliver_id > 0) {
 // Validate action
 if (!in_array($action, ['analyze', 'chat', 'slideshow', 'quiz'])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid action']);
+    echo json_encode(['error' => 'Thao tác không hợp lệ.']);
     exit;
 }
 
@@ -101,7 +101,7 @@ if ($task_id > 0) {
 
         if (!$taskData) {
             http_response_code(404);
-            echo json_encode(['error' => 'Task not found', 'message' => 'Task not found']);
+            echo json_encode(['error' => 'Không tìm thấy nhiệm vụ.', 'message' => 'Không tìm thấy nhiệm vụ.']);
             exit;
         }
 
@@ -109,7 +109,7 @@ if ($task_id > 0) {
         if ($user_role === 'student') {
             if (!checkTaskAssignedToStudent($task_id, $user_id)) {
                 http_response_code(403);
-                echo json_encode(['error' => 'Forbidden', 'message' => 'You do not have permission to access this task']);
+                echo json_encode(['error' => 'Bạn không có quyền thực hiện thao tác này.', 'message' => 'Bạn không có quyền truy cập nhiệm vụ này.']);
                 exit;
             }
         }
@@ -122,8 +122,8 @@ if ($task_id > 0) {
         if ($isPhaseStart && $action === 'chat') {
             http_response_code(403);
             echo json_encode([
-                'error' => 'Forbidden',
-                'message' => 'This phase does not allow additional questions',
+                'error' => 'Bạn không có quyền thực hiện thao tác này.',
+                'message' => 'Giai đoạn này không cho hỏi thêm AI.',
                 'phase_code' => $phaseCode
             ]);
             exit;
@@ -133,8 +133,8 @@ if ($task_id > 0) {
         if ($action === 'analyze' && !$taskData['AI']) {
             http_response_code(403);
             echo json_encode([
-                'error' => 'Forbidden',
-                'message' => 'This phase does not allow AI usage',
+                'error' => 'Bạn không có quyền thực hiện thao tác này.',
+                'message' => 'Giai đoạn này không cho dùng AI.',
                 'phase_code' => $phaseCode
             ]);
             exit;
@@ -143,7 +143,7 @@ if ($task_id > 0) {
     } catch (Exception $e) {
         error_log("Error validating task permissions: " . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['error' => 'Server error', 'message' => 'An error occurred while checking access permissions']);
+        echo json_encode(['error' => 'Lỗi máy chủ. Vui lòng thử lại.', 'message' => 'Có lỗi khi kiểm tra quyền truy cập.']);
         exit;
     }
 }
@@ -152,7 +152,7 @@ if ($task_id > 0) {
 $data = $input['data'] ?? '';
 if (empty($data)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing data', 'message' => 'Missing required data']);
+    echo json_encode(['error' => 'Thiếu dữ liệu.', 'message' => 'Thiếu dữ liệu bắt buộc.']);
     exit;
 }
 

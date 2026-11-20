@@ -10,7 +10,7 @@ require_once __DIR__ . '/../config/helper_analysis.php';
 $user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? 0;
 if (!$user_id) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit;
 }
 
@@ -21,12 +21,12 @@ if ($method === 'GET') {
     $deliver_id = intval($_GET['deliver_id'] ?? 0);
     if (!$task_id || !$deliver_id) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin.']);
         exit;
     }
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        echo json_encode(['success' => false, 'message' => 'Bạn không có quyền truy cập.']);
         exit;
     }
     try {
@@ -89,12 +89,12 @@ if ($method === 'POST') {
 
     if (!$task_id || !$deliver_id) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Missing parameters']);
+        echo json_encode(['success' => false, 'message' => 'Thiếu thông tin.']);
         exit;
     }
     if (!validateUserDeliverAccess($deliver_id, $user_id)) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        echo json_encode(['success' => false, 'message' => 'Bạn không có quyền truy cập.']);
         exit;
     }
 
@@ -113,7 +113,7 @@ if ($method === 'POST') {
             if (!empty($responseIds)) {
                 deleteResponsesAndRelated($responseIds);
             }
-            echo json_encode(['success' => true, 'message' => 'History and submission cleared']);
+            echo json_encode(['success' => true, 'message' => 'Đã xoá lịch sử và bài nộp.']);
             exit;
         }
 
@@ -131,7 +131,7 @@ if ($method === 'POST') {
                 );
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Final submission confirmed. Your teacher will see this version.',
+                    'message' => 'Đã chốt bài nộp. Thầy cô sẽ xem phiên bản này.',
                     'data' => $result,
                 ]);
             } catch (InvalidArgumentException $e) {
@@ -159,7 +159,7 @@ if ($method === 'POST') {
         $analysis_data = $input['analysis_data'] ?? null;
         if ($analysis_data === null) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'Missing analysis_data']);
+            echo json_encode(['success' => false, 'message' => 'Thiếu dữ liệu phân tích.']);
             exit;
         }
         $json = json_encode($analysis_data, JSON_UNESCAPED_UNICODE);
@@ -191,10 +191,10 @@ if ($method === 'POST') {
     } catch (PDOException $e) {
         error_log('analysis_history: ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'History not available. Run database/add_analysis_features.sql']);
+        echo json_encode(['success' => false, 'message' => 'Chưa cài bảng lịch sử. Hãy chạy database/add_analysis_features.sql.']);
     }
     exit;
 }
 
 http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ.']);

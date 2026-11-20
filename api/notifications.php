@@ -9,7 +9,7 @@ require_once __DIR__ . '/../config/helper_notifications.php';
 $user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? 0;
 if (!$user_id) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit;
 }
 
@@ -57,4 +57,4 @@ if ($method === 'POST') {
 }
 
 http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+echo json_encode(['success' => false, 'message' => 'Phương thức không được hỗ trợ.']);

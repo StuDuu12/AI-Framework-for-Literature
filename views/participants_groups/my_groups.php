@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -70,7 +70,7 @@
                     <h6><i class="bi bi-bug"></i> Debug Information</h6>
                     <p><strong>User ID:</strong> <?= $userId ?></p>
                     <p><strong>Class ID:</strong> <?= $classId ?? 'NULL' ?></p>
-                    <p><strong>Groups found:</strong> <?= count($myGroups) ?></p>
+                    <p><strong>Số nhóm tìm thấy:</strong> <?= count($myGroups) ?></p>
 
                     <details>
                         <summary>Session User Data</summary>
@@ -88,7 +88,7 @@
                         $allMemberships = $checkStmt->fetchAll(PDO::FETCH_ASSOC);
                         ?>
                         <details>
-                            <summary>All group memberships for this user (<?= count($allMemberships) ?> found)</summary>
+                            <summary>Các nhóm của người dùng này (<?= count($allMemberships) ?> nhóm)</summary>
                             <pre><?php print_r($allMemberships); ?></pre>
                         </details>
 
@@ -100,7 +100,7 @@
                             $classGroups = $classGroupStmt->fetchAll(PDO::FETCH_ASSOC);
                         ?>
                             <details>
-                                <summary>All groups in this class (<?= count($classGroups) ?> found)</summary>
+                                <summary>Tất cả nhóm trong lớp (<?= count($classGroups) ?> nhóm)</summary>
                                 <pre><?php print_r($classGroups); ?></pre>
                             </details>
                         <?php endif; ?>
@@ -112,7 +112,7 @@
 
                     <?php if (!empty($myGroups)): ?>
                         <details>
-                            <summary>Group details</summary>
+                            <summary>Chi tiết nhóm</summary>
                             <pre><?php print_r($myGroups); ?></pre>
                         </details>
                     <?php endif; ?>
@@ -123,8 +123,8 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body empty-state">
                         <i class="bi bi-people"></i>
-                        <h5 class="mt-3 mb-2" data-lang-key="not_in_any_group">You are not in any group yet</h5>
-                        <p class="text-muted mb-4" data-lang-key="teacher_will_add_you">Your teacher will add you to a group when needed.</p>
+                        <h5 class="mt-3 mb-2" data-lang-key="not_in_any_group">Bạn chưa ở nhóm nào</h5>
+                        <p class="text-muted mb-4" data-lang-key="teacher_will_add_you">Thầy cô sẽ thêm bạn vào nhóm khi cần.</p>
                     </div>
                 </div>
             <?php else: ?>
@@ -149,7 +149,7 @@
 
                                     <?php if (!empty($members)): ?>
                                         <div class="members-section">
-                                            <div class="members-label" data-lang-key="members">Members</div>
+                                            <div class="members-label" data-lang-key="members">Thành viên</div>
                                             <div class="avatar-stack">
                                                 <?php
                                                 $displayLimit = 5;
@@ -181,7 +181,7 @@
                                         <button class="btn btn-view-details"
                                             data-bs-toggle="modal"
                                             data-bs-target="#groupModal<?= $group['group_id'] ?>">
-                                            <i class="bi bi-eye me-2"></i><span data-lang-key="view_details">View Details</span>
+                                            <i class="bi bi-eye me-2"></i><span data-lang-key="view_details">Xem chi tiết</span>
                                         </button>
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@
                                                     <tr>
                                                         <th style="width: 60px;">#</th>
                                                         <th>Full Name</th>
-                                                        <th>Username</th>
+                                                        <th>Tên đăng nhập</th>
                                                         <th>Email</th>
                                                     </tr>
                                                 </thead>
@@ -238,7 +238,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                            <i class="bi bi-x-circle me-1"></i>Close
+                                            <i class="bi bi-x-circle me-1"></i>Đóng
                                         </button>
                                     </div>
                                 </div>

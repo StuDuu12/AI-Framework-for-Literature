@@ -1,9 +1,9 @@
 /* Fig. 10 — Algorithmic validation of the structural outline */
 
 .outline-validation {
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--lit-border-strong);
     border-radius: 12px;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    background: linear-gradient(180deg, var(--lit-surface-2) 0%, var(--lit-surface) 100%);
     margin-bottom: 1.5rem;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
@@ -16,20 +16,20 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f1f5f9;
+    border-bottom: 1px solid var(--lit-border);
+    background: var(--lit-surface-3);
 }
 
 .outline-validation__caption {
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 700;
-    color: #334155;
+    color: var(--lit-text);
     letter-spacing: 0.01em;
 }
 
 .outline-validation__caption span {
-    color: #6366f1;
+    color: var(--lit-primary-2);
 }
 
 .outline-validation__badge {
@@ -74,10 +74,10 @@
 
 .outline-validation__step {
     position: relative;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
     border-radius: 10px;
     padding: 0.65rem 0.55rem 0.55rem;
-    background: #fff;
+    background: var(--lit-surface);
     min-height: 5.5rem;
 }
 
@@ -91,8 +91,8 @@
     font-size: 0.7rem;
     font-weight: 700;
     margin-bottom: 0.35rem;
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--lit-surface-3);
+    color: var(--lit-text-secondary);
 }
 
 .outline-validation__step--pass .outline-validation__step-num {
@@ -124,7 +124,7 @@
     display: block;
     font-size: 0.72rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--lit-text);
     line-height: 1.25;
     margin-bottom: 0.2rem;
 }
@@ -132,12 +132,12 @@
 .outline-validation__step-detail {
     display: block;
     font-size: 0.65rem;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     line-height: 1.3;
 }
 
 .outline-validation__sections {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -148,8 +148,8 @@
     padding: 0.55rem 0.75rem;
     font-size: 0.78rem;
     font-weight: 600;
-    color: #475569;
-    background: #f8fafc;
+    color: var(--lit-text-secondary);
+    background: var(--lit-surface-2);
     user-select: none;
 }
 
@@ -160,7 +160,7 @@
 .outline-validation__sections summary::after {
     content: '▾';
     float: right;
-    color: #94a3b8;
+    color: var(--lit-text-muted);
 }
 
 .outline-validation__sections[open] summary::after {
@@ -176,14 +176,14 @@
 .outline-validation__table th,
 .outline-validation__table td {
     padding: 0.4rem 0.6rem;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--lit-border);
     text-align: left;
     vertical-align: top;
 }
 
 .outline-validation__table th {
-    background: #f8fafc;
-    color: #64748b;
+    background: var(--lit-surface-2);
+    color: var(--lit-text-secondary);
     font-weight: 600;
 }
 
@@ -199,16 +199,16 @@
 
 .outline-validation__status--pass { color: #16a34a; }
 .outline-validation__status--fail { color: #dc2626; }
-.outline-validation__status--skip { color: #94a3b8; }
+.outline-validation__status--skip { color: var(--lit-text-muted); }
 
 .outline-validation--loading .outline-validation__step--active {
     border-color: #a5b4fc;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 2px rgba(var(--lit-primary-rgb), 0.15);
 }
 
 .outline-validation__score {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     font-weight: 600;
 }
 

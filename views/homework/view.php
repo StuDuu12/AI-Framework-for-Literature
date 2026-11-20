@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -142,14 +142,14 @@
             <h1 data-lang-key="analysis_detail">Analysis Details</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Class</a></li>
+                    <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Lớp</a></li>
                     <?php if ($topic_id && $phase_id): ?>
-                        <li class="breadcrumb-item"><a href="/class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>" data-lang-key="tasks">Tasks</a></li>
+                        <li class="breadcrumb-item"><a href="/class/task?topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>" data-lang-key="tasks">Nhiệm vụ</a></li>
                     <?php endif; ?>
                     <?php if ($current_user_role === 'teacher'): ?>
-                        <li class="breadcrumb-item"><a href="/class/task/view?task_id=<?= $task_id ?>&phase_id=<?= $phase_id ?>&topic_id=<?= $topic_id ?>" data-lang-key="task_details">Task Details</a></li>
+                        <li class="breadcrumb-item"><a href="/class/task/view?task_id=<?= $task_id ?>&phase_id=<?= $phase_id ?>&topic_id=<?= $topic_id ?>" data-lang-key="task_details">Chi tiết nhiệm vụ</a></li>
                     <?php endif; ?>
-                    <li class="breadcrumb-item active" data-lang-key="analysis">Analysis</li>
+                    <li class="breadcrumb-item active" data-lang-key="analysis">Phân tích</li>
                 </ol>
             </nav>
         </div>
@@ -162,7 +162,7 @@
                         <div class="col-md-6">
                             <h5 class="card-title" data-lang-key="student_info">Student Information</h5>
                             <p><strong>Full Name:</strong> <?= htmlspecialchars($submission['fullname']) ?></p>
-                            <p><strong>Task:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
+                            <p><strong>Nhiệm vụ:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
                         </div>
                         <div class="col-md-6 text-end">
                             <p><strong>Submission Time:</strong><br><?= date('d/m/Y H:i', strtotime($submission['created_at'])) ?></p>
@@ -193,7 +193,7 @@
                 <!-- Title -->
                 <?php if (isset($analysisData['title'])): ?>
                     <div class="analysis-section">
-                        <h3>Title</h3>
+                        <h3>Tiêu đề</h3>
                         <h4 class="text-center"><?= htmlspecialchars($analysisData['title']) ?></h4>
                     </div>
                 <?php endif; ?>
@@ -201,7 +201,7 @@
                 <!-- Keywords -->
                 <?php if (isset($analysisData['keywords']) && is_array($analysisData['keywords'])): ?>
                     <div class="analysis-section">
-                        <h3>Keywords</h3>
+                        <h3>Từ khoá</h3>
                         <div>
                             <?php foreach ($analysisData['keywords'] as $keyword): ?>
                                 <span class="keyword-badge"><?= htmlspecialchars($keyword) ?></span>
@@ -218,14 +218,14 @@
                             <?php if (isset($analysisData['stats']['charCount'])): ?>
                                 <div class="col-md-4">
                                     <div class="stat-box">
-                                        <strong>Characters:</strong> <?= number_format($analysisData['stats']['charCount']) ?>
+                                        <strong>Số ký tự:</strong> <?= number_format($analysisData['stats']['charCount']) ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
                             <?php if (isset($analysisData['stats']['wordCount'])): ?>
                                 <div class="col-md-4">
                                     <div class="stat-box">
-                                        <strong>Words:</strong> <?= number_format($analysisData['stats']['wordCount']) ?>
+                                        <strong>Số từ:</strong> <?= number_format($analysisData['stats']['wordCount']) ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -299,13 +299,13 @@
                 <!-- Concluding Thoughts -->
                 <?php if (isset($analysisData['concludingThoughts'])): ?>
                     <div class="analysis-section">
-                        <h3>Conclusion</h3>
+                        <h3>Kết luận</h3>
                         <?php if (isset($analysisData['concludingThoughts']['lesson'])): ?>
-                            <h5>Lesson</h5>
+                            <h5>Bài học</h5>
                             <div class="content-text"><?= nl2br(htmlspecialchars($analysisData['concludingThoughts']['lesson'])) ?></div>
                         <?php endif; ?>
                         <?php if (isset($analysisData['concludingThoughts']['message'])): ?>
-                            <h5 class="mt-3">Message</h5>
+                            <h5 class="mt-3">Tin nhắn</h5>
                             <div class="content-text"><?= nl2br(htmlspecialchars($analysisData['concludingThoughts']['message'])) ?></div>
                         <?php endif; ?>
                     </div>
@@ -314,7 +314,7 @@
                 <!-- Intertextuality -->
                 <?php if (isset($analysisData['intertextuality'])): ?>
                     <div class="analysis-section">
-                        <h3>Intertextuality</h3>
+                        <h3>Liên văn bản</h3>
                         <?php foreach ($analysisData['intertextuality'] as $key => $value): ?>
                             <?php if ($value): ?>
                                 <h5><?= ucfirst(htmlspecialchars($key)) ?></h5>
@@ -326,7 +326,7 @@
 
             <?php else: ?>
                 <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle"></i> <span>No analysis data available.</span>
+                    <i class="bi bi-exclamation-triangle"></i> <span>Chưa có dữ liệu phân tích.</span>
                 </div>
             <?php endif; ?>
 
@@ -334,11 +334,11 @@
             <div class="text-center mt-4">
                 <?php if ($current_user_role === 'teacher' && $topic_id && $phase_id): ?>
                     <a href="/class/task/view?task_id=<?= $task_id ?>&phase_id=<?= $phase_id ?>&topic_id=<?= $topic_id ?>" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> <span>Go Back to List</span>
+                        <i class="bi bi-arrow-left"></i> <span>Quay lại danh sách</span>
                     </a>
                 <?php else: ?>
                     <a href="/class/my_tasks" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> <span>Go Back to My Tasks</span>
+                        <i class="bi bi-arrow-left"></i> <span>Quay lại nhiệm vụ của tôi</span>
                     </a>
                 <?php endif; ?>
             </div>

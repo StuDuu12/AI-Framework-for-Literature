@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -209,10 +209,10 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Learning Phases</a></li>
+                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks_label">Tasks</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="task_details">Detail</li>
+                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks_label">Nhiệm vụ</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="task_details">Chi tiết</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -235,14 +235,14 @@
                                         <?php if ($shouldLookBack && $dataTaskId != $taskId): ?>
                                             <br>
                                             <small class="badge bg-info">
-                                                <i class="bi bi-eye"></i> Viewing data from previous phase
+                                                <i class="bi bi-eye"></i> Đang xem dữ liệu của giai đoạn trước
                                             </small>
                                         <?php endif; ?>
                                     </p>
 
                                     <?php if (!empty($task['description'])): ?>
                                         <div class="mb-3">
-                                            <h6><i class="bi bi-file-text"></i> Description:</h6>
+                                            <h6><i class="bi bi-file-text"></i> Mô tả:</h6>
                                             <p><?= nl2br(htmlspecialchars($task['description'])) ?></p>
                                         </div>
                                     <?php endif; ?>
@@ -250,16 +250,16 @@
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
                                         <span>
                                             <i class="bi bi-person"></i>
-                                            Created by: <strong><?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?></strong>
+                                            Người tạo: <strong><?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?></strong>
                                         </span>
                                         <span>
                                             <i class="bi bi-calendar"></i>
-                                            Created date: <?= date('d/m/Y H:i', strtotime($task['created_at'])) ?>
+                                            Ngày tạo: <?= date('d/m/Y H:i', strtotime($task['created_at'])) ?>
                                         </span>
                                         <?php if ($task['content_creator']): ?>
                                             <span>
                                                 <i class="bi bi-pencil"></i>
-                                                Content: <strong><?= htmlspecialchars($task['content_creator_name'] ?? 'N/A') ?></strong>
+                                                Nội dung: <strong><?= htmlspecialchars($task['content_creator_name'] ?? 'N/A') ?></strong>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -283,12 +283,12 @@
                                     $commentCount = $commentCountStmt->fetchColumn();
                                     ?>
                                     <a href="/class/task/assign?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="btn btn-warning" title="Assign more">
+                                        class="btn btn-warning" title="Giao thêm">
                                         <i class="bi bi-bell"></i> <span>Assign More</span>
                                     </a>
                                     <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left"></i> <span>Back</span>
+                                        <i class="bi bi-arrow-left"></i> <span>Quay lại</span>
                                     </a>
                                 </div>
                             </div>
@@ -310,7 +310,7 @@
                     <div class="stat-card success">
                         <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
                         <div class="stat-number"><?= $completedCount ?></div>
-                        <div>Completed</div>
+                        <div>Đã hoàn thành</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-3">
@@ -352,14 +352,14 @@
                                         <div class="stat-card success">
                                             <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['completed_evaluations'] ?></div>
-                                            <div>Completed</div>
+                                            <div>Đã hoàn thành</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-6 mb-3">
                                         <div class="stat-card warning">
                                             <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['in_progress_evaluations'] ?></div>
-                                            <div>Evaluating</div>
+                                            <div>Đang chấm</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-6 mb-3">
@@ -420,8 +420,8 @@
                                     </div>
                                     <div class="d-flex justify-content-between text-muted small mt-2">
                                         <span><i class="bi bi-check-circle text-success"></i> <?= $peerEvalStats['completed_evaluations'] ?> completed</span>
-                                        <span><i class="bi bi-clock text-warning"></i> <?= $peerEvalStats['in_progress_evaluations'] ?> in progress</span>
-                                        <span><i class="bi bi-dash-circle text-secondary"></i> <?= $peerEvalStats['not_started_evaluations'] ?> not started</span>
+                                        <span><i class="bi bi-clock text-warning"></i> <?= $peerEvalStats['in_progress_evaluations'] ?> đang làm</span>
+                                        <span><i class="bi bi-dash-circle text-secondary"></i> <?= $peerEvalStats['not_started_evaluations'] ?> chưa bắt đầu</span>
                                     </div>
                                 </div>
                             </div>
@@ -452,8 +452,8 @@
                             </div>
                             <div class="d-flex justify-content-between text-muted small">
                                 <span><i class="bi bi-check-circle text-success"></i> <?= $completedCount ?> completed</span>
-                                <span><i class="bi bi-clock text-warning"></i> <?= $inProgressCount ?> in progress</span>
-                                <span><i class="bi bi-dash-circle text-secondary"></i> <?= $notStartedCount ?> not started</span>
+                                <span><i class="bi bi-clock text-warning"></i> <?= $inProgressCount ?> đang làm</span>
+                                <span><i class="bi bi-dash-circle text-secondary"></i> <?= $notStartedCount ?> chưa bắt đầu</span>
                             </div>
                         </div>
                     </div>
@@ -464,11 +464,11 @@
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-header d-flex align-items-center gap-2" style="background: #012970; color: white; border-radius: 0.5rem 0.5rem 0 0;">
+                        <div class="card-header d-flex align-items-center gap-2" style="background: var(--lit-heading); color: white; border-radius: 0.5rem 0.5rem 0 0;">
                             <i class="bi bi-graph-up-arrow fs-5"></i>
                             <h5 class="mb-0" style="color: white;"><span>Student Change Statistics</span></h5>
                             <?php if ($trackingStats && $trackingStats['total_with_tracking'] > 0): ?>
-                            <span class="badge bg-white text-purple ms-auto" style="color: #764ba2;">
+                            <span class="badge bg-white text-purple ms-auto" style="color: var(--lit-primary-2);">
                                 <?= $trackingStats['total_with_tracking'] ?> / <?= $totalAssignments ?> students with data
                             </span>
                             <?php endif; ?>
@@ -506,7 +506,7 @@
                                         }
                                     ?>
                                     <div class="p-3 rounded-3 text-center" style="background: #f6f7fb;">
-                                        <div class="fw-bold fs-3" style="color: #012970;"><?= $avgTimeLabel ?></div>
+                                        <div class="fw-bold fs-3" style="color: var(--lit-heading);"><?= $avgTimeLabel ?></div>
                                         <div class="small text-muted mt-1"><i class="bi bi-clock-history me-1"></i>Avg Work Duration</div>
                                     </div>
                                 </div>
@@ -527,23 +527,23 @@
                                 </div>
                                 <div class="progress" style="height: 22px; border-radius: 12px; overflow: hidden;">
                                     <?php if ($lowPct > 0): ?>
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $lowPct ?>%" title="Low change (<20%): <?= $trackingStats['low_change_count'] ?> students">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $lowPct ?>%" title="Sửa ít (<20%): <?= $trackingStats['low_change_count'] ?> học sinh">
                                         <?php if ($lowPct >= 8): ?><?= $trackingStats['low_change_count'] ?><?php endif; ?>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($medPct > 0): ?>
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: <?= $medPct ?>%" title="Medium change (20-50%): <?= $trackingStats['medium_change_count'] ?> students">
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: <?= $medPct ?>%" title="Sửa vừa (20–50%): <?= $trackingStats['medium_change_count'] ?> học sinh">
                                         <?php if ($medPct >= 8): ?><?= $trackingStats['medium_change_count'] ?><?php endif; ?>
                                     </div>
                                     <?php endif; ?>
                                     <?php if ($highPct > 0): ?>
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?= $highPct ?>%" title="High change (>=50%): <?= $trackingStats['high_change_count'] ?> students">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?= $highPct ?>%" title="Sửa nhiều (≥50%): <?= $trackingStats['high_change_count'] ?> học sinh">
                                         <?php if ($highPct >= 8): ?><?= $trackingStats['high_change_count'] ?><?php endif; ?>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 <div class="d-flex gap-3 mt-2 flex-wrap">
-                                    <span class="small"><span class="badge bg-success me-1"><?= $trackingStats['low_change_count'] ?></span> Low change (&lt;20%)</span>
+                                    <span class="small"><span class="badge bg-success me-1"><?= $trackingStats['low_change_count'] ?></span> Sửa ít (&lt;20%)</span>
                                     <span class="small"><span class="badge bg-warning me-1"><?= $trackingStats['medium_change_count'] ?></span> Medium (20-50%)</span>
                                     <span class="small"><span class="badge bg-danger me-1"><?= $trackingStats['high_change_count'] ?></span> High (&ge;50%)</span>
                                 </div>
@@ -560,12 +560,12 @@
                                         <table class="table table-sm table-hover align-middle" style="font-size: 0.875rem;">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th>Student</th>
+                                                    <th>Học sinh</th>
                                                     <th class="text-center">Change Rate</th>
                                                     <th class="text-center">Sections Edited</th>
-                                                    <th class="text-center">Copies</th>
+                                                    <th class="text-center">Lượt sao chép</th>
                                                     <th class="text-center">Work Time</th>
-                                                    <th class="text-center">Saves</th>
+                                                    <th class="text-center">Lượt lưu</th>
                                                     <th class="text-center">Last Updated</th>
                                                 </tr>
                                             </thead>
@@ -600,7 +600,7 @@
                             <?php else: ?>
                             <div class="alert alert-info mb-0" role="alert">
                                 <i class="bi bi-info-circle me-2"></i>
-                                <span>No user behavior tracking data available. Data will be displayed when students complete assignments with analysis sessions.</span>
+                                <span>Chưa có dữ liệu quá trình làm bài. Dữ liệu sẽ hiện khi học sinh làm bài có phiên phân tích.</span>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -618,9 +618,9 @@
                             <?php if (empty($assignments)): ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
-                                    <span>This task has not been assigned to anyone yet.</span>
+                                    <span>Nhiệm vụ này chưa được giao cho ai.</span>
                                     <a href="/class/task/assign?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                        class="alert-link">Assign now</a>
+                                        class="alert-link">Giao ngay</a>
                                 </div>
                             <?php else: ?>
                                 <!-- Filter Tabs -->
@@ -634,7 +634,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="completed-tab" data-bs-toggle="tab"
                                             data-bs-target="#completed" type="button" role="tab">
-                                            <i class="bi bi-check-circle text-success"></i> <span>Completed</span>
+                                            <i class="bi bi-check-circle text-success"></i> <span>Đã hoàn thành</span>
                                             (<?= $completedCount ?>)
                                         </button>
                                     </li>
@@ -689,11 +689,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Đóng"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Notification content
+                Nội dung thông báo
             </div>
         </div>
     </div>
@@ -707,22 +707,22 @@
                         <i class="bi bi-arrow-counterclockwise me-2"></i>
                         <span data-lang-key="reset_submission_title">Reset Submission</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-2" data-lang-key="reset_submission_confirm_intro">
-                        Are you sure you want to reset submissions for:
+                        Bạn chắc chắn muốn đặt lại bài nộp của:
                     </p>
                     <p class="fw-bold text-danger mb-3" id="resetTargetName"></p>
                     <div class="alert alert-warning mb-0">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         <span data-lang-key="reset_submission_warning">
-                            This will permanently delete all submitted work, comments, evaluations, and AI analysis across every phase in this topic. Assignments will be kept so the student can start again. This action cannot be undone.
+                            Thao tác này xoá vĩnh viễn mọi bài nộp, bình luận, đánh giá và phân tích AI ở tất cả giai đoạn của chủ đề. Việc giao bài được giữ lại để học sinh làm lại từ đầu. Không thể hoàn tác.
                         </span>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Huỷ</button>
                     <button type="button" class="btn btn-warning" id="confirmResetSubmissionBtn">
                         <i class="bi bi-arrow-counterclockwise"></i>
                         <span data-lang-key="reset_submission_confirm">Reset Submission</span>
@@ -782,7 +782,7 @@
                 const deliverId = this.dataset.deliverId;
                 const assignedTo = this.dataset.assignedTo;
 
-                if (!confirm('Unassign task from "' + assignedTo + '"?')) {
+                if (!await UI.confirm('Huỷ giao nhiệm vụ cho "' + assignedTo + '"?')) {
                     return;
                 }
 
@@ -800,7 +800,7 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        showToast('Task unassigned successfully', 'success');
+                        showToast('Đã bỏ giao nhiệm vụ.', 'success');
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -809,7 +809,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('Error unassigning task', 'error');
+                    showToast('Không bỏ giao được nhiệm vụ.', 'error');
                 }
             });
         });
@@ -879,7 +879,7 @@
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('Error resetting submissions', 'error');
+                    showToast('Không đặt lại được bài nộp.', 'error');
                 } finally {
                     confirmResetBtn.disabled = false;
                     confirmResetBtn.innerHTML = originalHtml;
@@ -1007,9 +1007,9 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                         <i class="bi bi-people"></i>
                                         <?= $assignment['students_total'] ?> members
                                         <?php if ($groupSubmission): ?>
-                                            - <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Submitted</span>
+                                            - <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Đã nộp</span>
                                         <?php else: ?>
-                                            - <span class="text-muted"><i class="bi bi-dash-circle"></i> Not submitted</span>
+                                            - <span class="text-muted"><i class="bi bi-dash-circle"></i> Chưa nộp</span>
                                         <?php endif; ?>
                                     </small>
                                 <?php else: ?>
@@ -1025,8 +1025,8 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                     <button type="button" class="btn btn-sm btn-outline-danger remove-assignment"
                         data-deliver-id="<?= $assignment['id_deliver'] ?>"
                         data-assigned-to="<?= htmlspecialchars($assignment['assigned_to_name']) ?>"
-                        title="Unassign">
-                        <i class="bi bi-trash"></i> <span>Unassign</span>
+                        title="Bỏ giao">
+                        <i class="bi bi-trash"></i> <span>Bỏ giao</span>
                     </button>
                 </div>
 
@@ -1039,10 +1039,10 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                             <table class="table table-sm mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Members</th>
-                                        <th>Status</th>
+                                        <th>Thành viên</th>
+                                        <th>Trạng thái</th>
                                         <th>Submission Time</th>
-                                        <th>Actions</th>
+                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1068,7 +1068,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                             $statusKey = 'not_submitted';
                                         }
                                     ?>
-                                        <tr style="border-bottom: 1px solid #dee2e6;">
+                                        <tr style="border-bottom: 1px solid var(--lit-border);">
                                             <td>
                                                 <i class="bi bi-person"></i>
                                                 <?= htmlspecialchars($student['fullname']) ?>
@@ -1087,11 +1087,11 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                             </td>
                                             <?php if ($rowCount === 1): ?>
                                                 <!-- Show comment button only on first row, spanning all rows -->
-                                                <td rowspan="<?= count($students) ?>" class="align-middle text-center" style="vertical-align: middle; background-color: #f8f9fa;">
+                                                <td rowspan="<?= count($students) ?>" class="align-middle text-center" style="vertical-align: middle; background-color: var(--lit-surface-2);">
                                                     <?php if ($groupSubmission): ?>
                                                         <div class="d-flex flex-column gap-2 align-items-center">
                                                             <a href="/class/homework/comment?task_id=<?= $taskId ?>&deliver_id=<?= $assignment['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                                class="btn btn-success btn-sm" title="General comment & evaluation for the whole group">
+                                                                class="btn btn-success btn-sm" title="Nhận xét và đánh giá chung cho cả nhóm">
                                                                 <i class="bi bi-chat-left-text"></i> <span>General Comment</span>
                                                             </a>
                                                             <?php renderResetSubmissionButton(
@@ -1103,7 +1103,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                                             ); ?>
                                                         </div>
                                                     <?php else: ?>
-                                                        <small class="text-muted">No submission yet</small>
+                                                        <small class="text-muted">Chưa nộp bài</small>
                                                     <?php endif; ?>
                                                 </td>
                                             <?php endif; ?>
@@ -1120,10 +1120,10 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                         <table class="table table-sm table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Students</th>
-                                    <th>Status</th>
+                                    <th>Học sinh</th>
+                                    <th>Trạng thái</th>
                                     <th>Submission Time</th>
-                                    <th>Actions</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1163,8 +1163,8 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                                 <div class="d-flex flex-wrap gap-1">
                                                     <?php if ($student['submission_id']): ?>
                                                         <a href="/class/homework/comment?task_id=<?= $taskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                            class="btn btn-sm btn-outline-success" title="Comment & Evaluate">
-                                                            <i class="bi bi-chat-left-text"></i> <span>Comment</span>
+                                                            class="btn btn-sm btn-outline-success" title="Bình luận và đánh giá">
+                                                            <i class="bi bi-chat-left-text"></i> <span>Bình luận</span>
                                                         </a>
                                                     <?php endif; ?>
                                                     <?php renderResetSubmissionButton(
@@ -1537,7 +1537,7 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
 
     if (empty($filteredStudents)): ?>
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> <span>No students in this status</span>
+            <i class="bi bi-info-circle"></i> <span>Không có học sinh ở trạng thái này</span>
         </div>
     <?php return;
     endif;
@@ -1547,11 +1547,11 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Students</th>
+                    <th>Học sinh</th>
                     <th>Assigned From</th>
-                    <th>Status</th>
+                    <th>Trạng thái</th>
                     <th>Submission Time</th>
-                    <th>Actions</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -1607,8 +1607,8 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
                                 <div class="d-flex flex-wrap gap-1">
                                     <?php if ($student['submission_id']): ?>
                                         <a href="/class/homework/comment?task_id=<?= $dataTaskId ?>&deliver_id=<?= $student['deliver_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                            class="btn btn-sm btn-outline-success" title="Comment & Evaluate">
-                                            <i class="bi bi-chat-left-text"></i> <span>Comment</span>
+                                            class="btn btn-sm btn-outline-success" title="Bình luận và đánh giá">
+                                            <i class="bi bi-chat-left-text"></i> <span>Bình luận</span>
                                         </a>
                                     <?php endif; ?>
                                     <?php renderResetSubmissionButton(
@@ -1646,8 +1646,8 @@ function renderResetSubmissionButton($type, $targetName, $userId = null, $groupI
         data-target-name="<?= htmlspecialchars($targetName) ?>"
         <?php if ($userId): ?>data-user-id="<?= (int) $userId ?>"<?php endif; ?>
         <?php if ($groupId): ?>data-group-id="<?= (int) $groupId ?>"<?php endif; ?>
-        title="Reset submission across all phases">
-        <i class="bi bi-arrow-counterclockwise"></i> <span data-lang-key="reset_submission_btn">Reset</span>
+        title="Đặt lại bài nộp ở mọi giai đoạn">
+        <i class="bi bi-arrow-counterclockwise"></i> <span data-lang-key="reset_submission_btn">Làm lại</span>
     </button>
     <?php
 }

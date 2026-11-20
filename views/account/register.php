@@ -1,12 +1,14 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../config/security.php';
 
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
     $role = $_SESSION['user']['role'] ?? '';
-    $dest = ($role === 'student') ? '/workspace' : '/dashboard';
+    $dest = ($role === 'student') ? '/today' : '/dashboard';
     header('Location: ' . URL_ROOT . $dest);
     exit;
 }
@@ -83,30 +85,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .register-card-wrap { width: 100%; max-width: 440px; }
         .register-card-wrap .card { border: none; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden; }
         .register-card-wrap .card-body { padding: 2.5rem 2rem; }
-        .register-brand { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; text-decoration: none; color: #012970; font-weight: 700; font-size: 1.1rem; }
+        .register-brand { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; text-decoration: none; color: var(--lit-heading); font-weight: 700; font-size: 1.1rem; }
         .register-brand img { width: 32px; height: auto; }
-        .register-title { font-size: 1.35rem; font-weight: 700; color: #012970; text-align: center; margin-bottom: 0.25rem; }
-        .register-sub { text-align: center; color: #6c757d; font-size: 0.85rem; margin-bottom: 1.5rem; }
+        .register-title { font-size: 1.35rem; font-weight: 700; color: var(--lit-heading); text-align: center; margin-bottom: 0.25rem; }
+        .register-sub { text-align: center; color: var(--lit-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; }
         .form-floating { margin-bottom: 0.75rem; }
         .form-floating .form-control { border-radius: 10px; border: 1.5px solid #e3e6f0; padding: 1rem 0.75rem 0.5rem; height: 48px; font-size: 0.9rem; }
-        .form-floating .form-control:focus { border-color: #4154f1; box-shadow: 0 0 0 3px rgba(65,84,241,0.1); }
-        .form-floating label { padding: 0.75rem 0.75rem 0; font-size: 0.8rem; color: #6c757d; }
-        .btn-register { background: #4154f1; border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; transition: background 0.2s; width: 100%; }
+        .form-floating .form-control:focus { border-color: var(--lit-primary); box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1); }
+        .form-floating label { padding: 0.75rem 0.75rem 0; font-size: 0.8rem; color: var(--lit-text-secondary); }
+        .btn-register { background: var(--lit-primary); border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; transition: background 0.2s; width: 100%; }
         .btn-register:hover { background: #3445d1; }
         .btn-register:disabled { opacity: 0.6; cursor: not-allowed; }
-        .register-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: #6c757d; }
-        .register-footer a { color: #4154f1; text-decoration: none; font-weight: 600; }
+        .register-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--lit-text-secondary); }
+        .register-footer a { color: var(--lit-primary); text-decoration: none; font-weight: 600; }
         .register-footer a:hover { text-decoration: underline; }
-        .strength-bar { height: 4px; border-radius: 2px; background: #e9ecef; margin-top: 0.3rem; overflow: hidden; }
+        .strength-bar { height: 4px; border-radius: 2px; background: var(--lit-surface-3); margin-top: 0.3rem; overflow: hidden; }
         .strength-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
         .password-wrapper { position: relative; }
-        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6c757d; cursor: pointer; padding: 4px; font-size: 1rem; z-index: 5; }
-        .password-toggle:hover { color: #4154f1; }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--lit-text-secondary); cursor: pointer; padding: 4px; font-size: 1rem; z-index: 5; }
+        .password-toggle:hover { color: var(--lit-primary); }
         .alert { border-radius: 10px; font-size: 0.85rem; padding: 0.75rem 1rem; }
-        .role-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; background: #f1f3f5; border-radius: 10px; padding: 4px; }
-        .role-tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 8px; border: none; background: transparent; font-weight: 600; font-size: 0.85rem; color: #6c757d; cursor: pointer; transition: all 0.2s; }
-        .role-tab.active { background: #fff; color: #4154f1; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .role-tab:hover:not(.active) { color: #012970; }
+        .role-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; background: var(--lit-surface-3); border-radius: 10px; padding: 4px; }
+        .role-tab { flex: 1; text-align: center; padding: 0.5rem; border-radius: 8px; border: none; background: transparent; font-weight: 600; font-size: 0.85rem; color: var(--lit-text-secondary); cursor: pointer; transition: all 0.2s; }
+        .role-tab.active { background: var(--lit-surface); color: var(--lit-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+        .role-tab:hover:not(.active) { color: var(--lit-heading); }
     </style>
 </head>
 
@@ -164,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-floating password-wrapper">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required minlength="6">
                             <label for="password">Mật khẩu *</label>
-                            <button type="button" class="password-toggle" onclick="togglePass('password', this)"><i class="bi bi-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePass('password', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu"><i class="bi bi-eye" aria-hidden="true"></i></button>
                         </div>
                         <div class="strength-bar"><div class="strength-bar-fill" id="strengthBar"></div></div>
                         <small class="text-muted d-block mb-2" id="strengthText"></small>
@@ -172,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-floating password-wrapper">
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Xác nhận mật khẩu" required minlength="6">
                             <label for="confirm_password">Xác nhận mật khẩu *</label>
-                            <button type="button" class="password-toggle" onclick="togglePass('confirm_password', this)"><i class="bi bi-eye"></i></button>
+                            <button type="button" class="password-toggle" onclick="togglePass('confirm_password', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu"><i class="bi bi-eye" aria-hidden="true"></i></button>
                         </div>
 
                         <button type="submit" class="btn btn-register mt-3" id="btnRegister">

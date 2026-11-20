@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -40,16 +40,21 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="phase_list_title">Learning Phase List</h1>
+            <h1<?= $isTeacher ? ' data-lang-key="phase_list_title"' : '' ?>><?= $isTeacher ? 'Danh sách giai đoạn' : 'Lộ trình chủ đề' ?></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
+                    <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp') ?></a></li>
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item active" data-lang-key="learning_phases">Learning Phases</li>
+                    <li class="breadcrumb-item active" data-lang-key="learning_phases">Giai đoạn học tập</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
 
+        <?php if (!$isTeacher): ?>
+        <section class="section">
+            <?php require __DIR__ . '/_student_timeline.php'; ?>
+        </section>
+        <?php else: ?>
         <section class="section dashboard">
             <div class="row">
                 <div class="col-lg-12">
@@ -59,7 +64,7 @@
                                 <h5 class="card-title"><?= htmlspecialchars($topic['topic_name']) ?></h5>
                                 <div class="d-flex gap-2">
                                     <a href="/class" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left"></i> <span data-lang-key="back_to_topics">Back to Topic List</span>
+                                        <i class="bi bi-arrow-left"></i> <span data-lang-key="back_to_topics">Quay lại danh sách chủ đề</span>
                                     </a>
                                     <?php if ($isTeacher): ?>
                                         <a href="<?= URL_ROOT ?>/class/phases/create?topic_id=<?= $topicId ?>"
@@ -72,7 +77,7 @@
 
                             <?php if (empty($phases)): ?>
                                 <div class="alert alert-info text-center">
-                                    <i class="bi bi-info-circle"></i> <span data-lang-key="no_phases">No learning phases yet</span>
+                                    <i class="bi bi-info-circle"></i> <span data-lang-key="no_phases">Chưa có giai đoạn nào</span>
                                 </div>
                             <?php else: ?>
                                 <dl class="row mb-0">
@@ -84,29 +89,29 @@
                                                     <div class="d-flex align-items-center gap-2">
                                                         <span class="badge bg-secondary"
                                                             style="font-size: 0.9rem; padding: 0.4rem 0.6rem;">
-                                                            <span data-lang-key="step">Step</span> <?= $phase['phase_number'] ?>
+                                                            <span data-lang-key="step">Bước</span> <?= $phase['phase_number'] ?>
                                                         </span>
                                                         <h5 class="mb-0"><?= htmlspecialchars($phase['phase_name']) ?></h5>
                                                         <?php if ($phase['flag_active']): ?>
                                                             <span class="badge bg-success">
-                                                                <i class="bi bi-lightning-fill"></i> <span data-lang-key="active_phase">Active</span>
+                                                                <i class="bi bi-lightning-fill"></i> <span data-lang-key="active_phase">Đang mở</span>
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="d-flex gap-2 align-items-center">
                                                         <a href="/class/task?topic_id=<?= intval($topic['topic_id']) ?>&phase_id=<?= $phase['phase_id'] ?>" class="btn btn-outline-primary btn-sm topic-link"
-                                                            data-topic-id="<?= intval($topic['topic_id']) ?>" title="View task list">
-                                                            <i class="bi bi-box-arrow-in-right"></i> <span data-lang-key="tasks_label">Tasks</span>
+                                                            data-topic-id="<?= intval($topic['topic_id']) ?>" title="Xem danh sách nhiệm vụ">
+                                                            <i class="bi bi-box-arrow-in-right"></i> <span data-lang-key="tasks_label">Nhiệm vụ</span>
                                                         </a>
                                                         <?php if ($isTeacher): ?>
                                                             <a href="<?= URL_ROOT ?>/class/phases/edit?phase_id=<?= $phase['phase_id'] ?>&topic_id=<?= $topicId ?>"
-                                                                class="btn btn-outline-secondary btn-sm" title="Edit">
+                                                                class="btn btn-outline-secondary btn-sm" title="Sửa">
                                                                 <i class="bi bi-pencil"></i>
                                                             </a>
                                                             <button class="btn btn-outline-danger btn-sm delete-phase-btn"
                                                                 data-phase-id="<?= $phase['phase_id'] ?>"
                                                                 data-phase-name="<?= htmlspecialchars($phase['phase_name']) ?>"
-                                                                title="Delete">
+                                                                title="Xoá">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         <?php endif; ?>
@@ -142,17 +147,17 @@
                                                     <!-- Feature icons -->
                                                     <div class="d-flex gap-2 align-items-center">
                                                         <?php if ($phase['AI']): ?>
-                                                            <span class="badge bg-primary" title="AI enabled">
+                                                            <span class="badge bg-primary" title="Có AI hỗ trợ">
                                                                 <i class="bi bi-robot"></i>
                                                             </span>
                                                         <?php endif; ?>
                                                         <?php if ($phase['Comment']): ?>
-                                                            <span class="badge bg-info" title="Comment enabled">
+                                                            <span class="badge bg-info" title="Được bình luận">
                                                                 <i class="bi bi-chat-dots"></i>
                                                             </span>
                                                         <?php endif; ?>
                                                         <?php if ($phase['Edit']): ?>
-                                                            <span class="badge bg-warning text-dark" title="Edit enabled">
+                                                            <span class="badge bg-warning text-dark" title="Được sửa bài">
                                                                 <i class="bi bi-pencil-square"></i>
                                                             </span>
                                                         <?php endif; ?>
@@ -173,6 +178,7 @@
                 </div>
             </div>
         </section>
+        <?php endif; ?>
 
     </main><!-- End #main -->
 
@@ -181,11 +187,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Đóng"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Notification content
+                Nội dung thông báo
             </div>
         </div>
     </div>
@@ -258,7 +264,7 @@
                     const phaseId = this.dataset.phaseId;
                     const phaseName = this.dataset.phaseName;
 
-                    if (!confirm(`Are you sure you want to delete phase "${phaseName}"?\n\nNote: All data related to this phase will be deleted.`)) {
+                    if (!await UI.confirm(`Xoá giai đoạn "${phaseName}"?\n\nToàn bộ dữ liệu của giai đoạn sẽ bị xoá.`)) {
                         return;
                     }
 
@@ -276,7 +282,7 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            showToast('Phase deleted successfully!', 'success');
+                            showToast('Đã xoá giai đoạn.', 'success');
                             setTimeout(() => {
                                 location.reload();
                             }, 1000);
@@ -285,7 +291,7 @@
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        showToast('An error occurred while deleting the phase', 'error');
+                        showToast('Không xoá được giai đoạn. Vui lòng thử lại.', 'error');
                     }
                 });
             });

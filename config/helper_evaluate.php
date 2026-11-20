@@ -867,3 +867,22 @@ function getInstructorReviewDashboardSummary(array $submissions): array
         'system_edit_avg' => $editCount > 0 ? round($editSum / $editCount, 1) : null,
     ];
 }
+
+/**
+ * Hiển thị nội dung bài nộp dạng markdown đơn giản (#, ##, ###, **đậm**, *nghiêng*) một cách an toàn:
+ * escape HTML trước rồi mới chuyển định dạng, nên nội dung học sinh không thể chèn script.
+ */
+if (!function_exists('renderSubmissionMarkdown')) {
+    function renderSubmissionMarkdown(?string $text): string
+    {
+        $html = htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8', false); // không escape lại thực thể đã có sẵn trong DB
+        $html = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $html);
+        $html = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $html);
+        $html = preg_replace('/^# (.+)$/m', '<h1>$1</h1>', $html);
+        $html = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html);
+        $html = preg_replace('/(?<![*\w])\*(?!\s)(.+?)(?<!\s)\*(?![*\w])/', '<em>$1</em>', $html);
+        // Xuống dòng, trừ ngay sau thẻ tiêu đề
+        $html = nl2br($html);
+        return preg_replace('~(</h[1-3]>)<br\s*/?>~', '$1', $html);
+    }
+}

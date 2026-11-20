@@ -16,7 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not logged in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
@@ -25,7 +25,7 @@ $user_role = $_SESSION['user']['role'];
 
 // Only teachers can manage criteria
 if ($user_role !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Only teachers can manage criteria']);
+    echo json_encode(['success' => false, 'message' => 'Chỉ giáo viên được quản lý tiêu chí.']);
     exit;
 }
 
@@ -58,7 +58,7 @@ if ($criteriaParam('tc_id') > 0) {
 foreach ($classIdsToCheck as $cid) {
     if ($cid <= 0 || !teacherCanAccessClassCriteria($cid, (int)$user_id)) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'You do not have permission to manage criteria of this class']);
+        echo json_encode(['success' => false, 'message' => 'Bạn không có quyền quản lý tiêu chí của lớp này.']);
         exit;
     }
 }
@@ -81,7 +81,7 @@ try {
             } else {
                 $class_id = isset($_GET['class_id']) ? intval($_GET['class_id']) : 0;
                 if ($class_id <= 0) {
-                    echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+                    echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
                     exit;
                 }
                 $result = getNhomTCWithCount($class_id, $user_id);
@@ -96,12 +96,12 @@ try {
             $description = trim($_POST['description'] ?? '');
 
             if ($class_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+                echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
                 exit;
             }
 
             if (empty($ten_nhom_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Criteria group name cannot be empty']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên bộ tiêu chí.']);
                 exit;
             }
 
@@ -116,12 +116,12 @@ try {
             $description = trim($_POST['description'] ?? '');
 
             if ($nhom_tc_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
             if (empty($ten_nhom_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Criteria group name cannot be empty']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên bộ tiêu chí.']);
                 exit;
             }
 
@@ -134,7 +134,7 @@ try {
             $nhom_tc_id = isset($jsonInput['nhom_tc_id']) ? intval($jsonInput['nhom_tc_id']) : (isset($_POST['nhom_tc_id']) ? intval($_POST['nhom_tc_id']) : 0);
 
             if ($nhom_tc_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
@@ -153,7 +153,7 @@ try {
                 $nhom_tc_id = intval($_GET['nhom_tc_id']);
                 $result = getTieuChiByNhomTC($nhom_tc_id);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Missing required parameter (tc_id or nhom_tc_id)']);
+                echo json_encode(['success' => false, 'message' => 'Thiếu thông tin tiêu chí.']);
                 exit;
             }
             echo json_encode($result);
@@ -168,12 +168,12 @@ try {
             $max_score = isset($_POST['max_score']) ? intval($_POST['max_score']) : 10;
 
             if ($nhom_tc_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid group ID']);
+                echo json_encode(['success' => false, 'message' => 'Nhóm không hợp lệ.']);
                 exit;
             }
 
             if (empty($name_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Criteria name cannot be empty']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên tiêu chí.']);
                 exit;
             }
 
@@ -190,12 +190,12 @@ try {
             $max_score = isset($_POST['max_score']) ? intval($_POST['max_score']) : 10;
 
             if ($tc_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid criteria ID']);
+                echo json_encode(['success' => false, 'message' => 'Tiêu chí không hợp lệ.']);
                 exit;
             }
 
             if (empty($name_tc)) {
-                echo json_encode(['success' => false, 'message' => 'Criteria name cannot be empty']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên tiêu chí.']);
                 exit;
             }
 
@@ -210,7 +210,7 @@ try {
             if ($tc_id <= 0) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Invalid criteria ID',
+                    'message' => 'Tiêu chí không hợp lệ.',
                     'debug' => [
                         'tc_id' => $tc_id,
                         'jsonInput' => $jsonInput,
@@ -225,10 +225,10 @@ try {
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
     error_log("Error in manage_criteria.php: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'An error occurred: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Có lỗi xảy ra: ' . client_error_message($e)]);
 }

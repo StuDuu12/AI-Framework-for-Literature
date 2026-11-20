@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../config/security.php';
@@ -79,22 +81,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $validToken) {
         .reset-card-wrap { width: 100%; max-width: 420px; }
         .reset-card-wrap .card { border: none; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
         .reset-card-wrap .card-body { padding: 2.5rem 2rem; }
-        .reset-brand { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; text-decoration: none; color: #012970; font-weight: 700; }
+        .reset-brand { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; text-decoration: none; color: var(--lit-heading); font-weight: 700; }
         .reset-brand img { width: 32px; }
-        .reset-title { font-size: 1.25rem; font-weight: 700; color: #012970; text-align: center; margin-bottom: 0.25rem; }
-        .reset-sub { text-align: center; color: #6c757d; font-size: 0.85rem; margin-bottom: 1.5rem; }
+        .reset-title { font-size: 1.25rem; font-weight: 700; color: var(--lit-heading); text-align: center; margin-bottom: 0.25rem; }
+        .reset-sub { text-align: center; color: var(--lit-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; }
         .form-floating { margin-bottom: 0.75rem; position: relative; }
         .form-floating .form-control { border-radius: 10px; border: 1.5px solid #e3e6f0; padding: 1rem 0.75rem 0.5rem; height: 48px; }
-        .form-floating .form-control:focus { border-color: #4154f1; box-shadow: 0 0 0 3px rgba(65,84,241,0.1); }
-        .form-floating label { padding: 0.75rem 0.75rem 0; font-size: 0.8rem; color: #6c757d; }
-        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6c757d; cursor: pointer; padding: 4px; font-size: 1rem; z-index: 5; }
-        .password-toggle:hover { color: #4154f1; }
-        .btn-reset { background: #4154f1; border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; width: 100%; }
+        .form-floating .form-control:focus { border-color: var(--lit-primary); box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1); }
+        .form-floating label { padding: 0.75rem 0.75rem 0; font-size: 0.8rem; color: var(--lit-text-secondary); }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--lit-text-secondary); cursor: pointer; padding: 4px; font-size: 1rem; z-index: 5; }
+        .password-toggle:hover { color: var(--lit-primary); }
+        .btn-reset { background: var(--lit-primary); border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; width: 100%; }
         .btn-reset:hover { background: #3445d1; }
-        .strength-bar { height: 4px; border-radius: 2px; background: #e9ecef; margin-top: 0.3rem; overflow: hidden; }
+        .strength-bar { height: 4px; border-radius: 2px; background: var(--lit-surface-3); margin-top: 0.3rem; overflow: hidden; }
         .strength-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
-        .reset-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: #6c757d; }
-        .reset-footer a { color: #4154f1; text-decoration: none; font-weight: 600; }
+        .reset-footer { text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--lit-text-secondary); }
+        .reset-footer a { color: var(--lit-primary); text-decoration: none; font-weight: 600; }
         .alert { border-radius: 10px; font-size: 0.85rem; padding: 0.75rem 1rem; }
         .invalid-token { text-align: center; padding: 2rem 0; }
         .invalid-token i { font-size: 3rem; color: #dc3545; opacity: 0.5; }
@@ -137,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $validToken) {
                             <div class="form-floating">
                                 <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Mật khẩu mới" required minlength="6">
                                 <label for="new_password">Mật khẩu mới</label>
-                                <button type="button" class="password-toggle" onclick="togglePass('new_password', this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" class="password-toggle" onclick="togglePass('new_password', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu"><i class="bi bi-eye" aria-hidden="true"></i></button>
                             </div>
                             <div class="strength-bar"><div class="strength-bar-fill" id="strengthBar"></div></div>
                             <small class="text-muted d-block mb-2" id="strengthText"></small>
@@ -145,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $validToken) {
                             <div class="form-floating">
                                 <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Xác nhận mật khẩu" required minlength="6">
                                 <label for="confirm_password">Xác nhận mật khẩu</label>
-                                <button type="button" class="password-toggle" onclick="togglePass('confirm_password', this)"><i class="bi bi-eye"></i></button>
+                                <button type="button" class="password-toggle" onclick="togglePass('confirm_password', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu"><i class="bi bi-eye" aria-hidden="true"></i></button>
                             </div>
 
                             <button type="submit" class="btn btn-reset mt-2">

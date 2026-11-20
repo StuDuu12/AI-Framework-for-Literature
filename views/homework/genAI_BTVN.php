@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -164,21 +164,24 @@
     ?>
 
     <main id="main" class="main">
-        <div class="pagetitle">
-            <h1><span>Bài tập về nhà — Phân tích AI</span><?php if ($taskTitle): ?> —
-                    <?= htmlspecialchars($taskTitle) ?><?php endif; ?>
-            </h1>
-            <nav>
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <?php if ($taskInfo && $topicId): ?>
-                        <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>"><?= htmlspecialchars($taskInfo['topic_name'] ?? 'Topic') ?></a></li>
-                        <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Tasks - Step <?= (int)($taskInfo['phase_number'] ?? 1) ?></a></li>
-                    <?php endif; ?>
-                    <li class="breadcrumb-item active">Literary Analysis</li>
-                </ol>
-            </nav>
-        </div><!-- End Page Title -->
+        <?php
+        $__ds = $pdo->prepare('SELECT status FROM deliver WHERE id_deliver = ?');
+        $__ds->execute([$deliver_id]);
+        $__btvnStatus = (int)$__ds->fetchColumn();
+        $wh = [
+            'task_id' => $taskId, 'topic_id' => $topicId ?: (int)($taskInfo['topic_id'] ?? 0),
+            'phase_id' => $phaseId ?: (int)($taskInfo['phase_id'] ?? 0), 'deliver_id' => $deliver_id,
+            'title' => $taskTitle ?: 'Bài tập về nhà',
+            'description' => $taskInfo['task_description'] ?? '',
+            'topic_name' => $taskInfo['topic_name'] ?? '',
+            'phase_name' => $taskInfo['phase_name'] ?? '',
+            'phase_number' => (int)($taskInfo['phase_number'] ?? 1),
+            'phase_code' => $taskInfo['phase_code'] ?? 'PHASE_BTVN',
+            'steps' => ['Nhập văn bản', 'AI phân tích', 'Sửa, thêm, sắp xếp ý', 'Lưu và sang bình luận'],
+            'step' => $__btvnStatus >= 2 ? 4 : ($hasExistingResponse ? 3 : 1),
+        ];
+        require __DIR__ . '/_work_header.php';
+        ?>
 
         <section class="section">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
@@ -186,41 +189,16 @@
                 <!-- Left Panel: Input -->
                 <div class="lg:col-span-4 h-full">
                     <div class="bg-white p-6 rounded-xl shadow-md sticky top-24">
-                        <?php if ($taskInfo): ?>
-                            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div class="flex items-start gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="text-blue-600 flex-shrink-0 mt-0.5">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                    </svg>
-                                    <div class="text-sm">
-                                        <p class="font-semibold text-blue-900">Assignment: <?= htmlspecialchars($taskTitle) ?>
-                                        </p>
-                                        <?php if (!empty($taskInfo['task_description'])): ?>
-                                            <p class="text-blue-700 mt-1"><?= htmlspecialchars($taskInfo['task_description']) ?>
-                                            </p>
-                                        <?php endif; ?>
-                                        <p class="text-blue-600 text-xs mt-1">
-                                            Phase: <?= htmlspecialchars($taskInfo['phase_name']) ?>
-                                            (<?= htmlspecialchars($taskInfo['m_phase_name']) ?>)
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        <h2 class="text-lg font-semibold mb-4 text-slate-800">💬 <span>Chat with AI</span></h2>
+                        <h2 class="text-lg font-semibold mb-4 text-slate-800">💬 <span>Làm việc với AI</span></h2>
 
                         <!-- Text Area for Analysis Content -->
                         <div id="analysis-input-section" class="mb-4">
                             <div class="flex items-center justify-between mb-2">
-                                <label for="text-input" class="block text-sm font-medium text-slate-700">Analysis content:</label>
+                                <label for="text-input" class="block text-sm font-medium text-slate-700">Văn bản cần phân tích</label>
                                 <!-- File Upload Icon -->
                                 <label for="file-upload"
                                     class="cursor-pointer text-indigo-600 hover:text-indigo-700 transition-colors"
-                                    title="Upload file">
+                                    title="Tải tệp .txt lên">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
@@ -247,7 +225,7 @@
                             </div>
                             <textarea id="text-input" rows="8"
                                 class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full text-sm border-slate-300 rounded-lg p-3 resize-none"
-                                placeholder="Paste text to analyze..."><?= htmlspecialchars($taskContent) ?></textarea>
+                                placeholder="Dán văn bản cần phân tích vào đây…"><?= htmlspecialchars($taskContent) ?></textarea>
                         </div>
 
                         <!-- Chat Messages Area (Hidden initially) -->
@@ -255,16 +233,16 @@
                             <div id="chat-messages"
                                 class="mb-4 space-y-3 max-h-[300px] overflow-y-auto border border-slate-200 rounded-lg p-3 bg-slate-50">
                                 <div class="text-center text-slate-400 text-sm py-4">
-                                    Ask questions for AI to answer...
+                                    Đặt câu hỏi để AI giải thích thêm về bài phân tích.
                                 </div>
                             </div>
 
                             <!-- Question Input -->
                             <div class="mb-4">
-                                <label for="question-input" class="block text-sm font-medium text-slate-700 mb-2">Your question:</label>
+                                <label for="question-input" class="block text-sm font-medium text-slate-700 mb-2">Câu hỏi của bạn</label>
                                 <textarea id="question-input" rows="4"
                                     class="shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full text-sm border-slate-300 rounded-lg p-3 resize-y"
-                                    placeholder="Example: Analyze the symbolism in more depth..."></textarea>
+                                    placeholder="Ví dụ: Phân tích sâu hơn ý nghĩa biểu tượng trong bài…"></textarea>
                             </div>
                         </div>
 
@@ -287,7 +265,7 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
-                                <span id="button-text">Analysis</span>
+                                <span id="button-text">Phân tích</span>
                             </button>
 
                             <!-- Reset Button (hidden initially, shown after analysis) -->
@@ -299,7 +277,7 @@
                                     <polyline points="1 4 1 10 7 10"></polyline>
                                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                                 </svg>
-                                <span>Retry</span>
+                                <span>Làm lại</span>
                             </button>
 
                             <!-- Chat Button (hidden initially, shown after analysis) -->
@@ -310,7 +288,7 @@
                                     stroke-linejoin="round" class="mr-2">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                                 </svg>
-                                <span id="chat-button-text">Ask AI</span>
+                                <span id="chat-button-text">Hỏi AI</span>
                             </button>
                         </div>
 
@@ -323,11 +301,10 @@
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
-                            <span>View Preview</span>
+                            <span>Xem trước chỉnh sửa</span>
                         </button>
 
                         <div class="flex flex-wrap items-center gap-3 mt-3">
-                            <div id="autosave-status" class="autosave-status"></div>
                             <button type="button" id="export-analysis-btn" class="hidden text-sm font-semibold text-indigo-600 border border-indigo-200 rounded-lg px-3 py-1.5 bg-white" data-lang-key="genai_export">Xuất bài phân tích</button>
                         </div>
 
@@ -338,7 +315,7 @@
                                     <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
                                     <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
                                 </svg>
-                                <span>Change Statistics</span>
+                                <span>Thống kê chỉnh sửa</span>
                             </h4>
                             <div id="stats-content" class="space-y-2 text-sm">
                                 <!-- Stats will be dynamically inserted here -->
@@ -364,25 +341,25 @@
                                 <path d="m13.5 10-2-2"></path>
                                 <path d="m11.5 8 2 2"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-slate-700">Analysis Result will appear here</h3>
-                            <p class="mt-1 text-sm">Upload or paste text to get started.</p>
+                            <h3 class="text-lg font-semibold text-slate-700">Kết quả phân tích sẽ hiện ở đây</h3>
+                            <p class="mt-1 text-sm">Dán văn bản hoặc tải tệp lên ở khung bên trái, rồi bấm “Phân tích”.</p>
                         </div>
 
                         <!-- Results with Tabs -->
                         <div id="results-tabs" class="genai-tabs hidden h-full flex flex-col">
                             <div class="genai-tabs__header">
-                                <nav class="genai-tabs__nav" aria-label="Tabs">
+                                <nav class="genai-tabs__nav" aria-label="Các thẻ kết quả">
                                     <button id="tab-analysis" type="button"
                                         class="genai-tabs__btn tab-button active" data-lang-key="detailed_analysis">
-                                        <i class="bi bi-journal-text"></i><span>Detailed Analysis</span>
+                                        <i class="bi bi-journal-text"></i><span>Phân tích chi tiết</span>
                                     </button>
                                     <button id="tab-slideshow" type="button" disabled
                                         class="hidden genai-tabs__btn tab-button" data-lang-key="slideshow">
-                                        <i class="bi bi-easel"></i><span>Slideshow</span>
+                                        <i class="bi bi-easel"></i><span>Trình chiếu</span>
                                     </button>
                                     <button id="tab-quiz" type="button" disabled
                                         class="hidden genai-tabs__btn tab-button" data-lang-key="quiz">
-                                        <i class="bi bi-patch-question"></i><span>Quiz</span>
+                                        <i class="bi bi-patch-question"></i><span>Câu hỏi ôn tập</span>
                                     </button>
                                 </nav>
                             </div>
@@ -467,7 +444,7 @@
             if (file) {
                 // Validate file type - only accept .txt files
                 if (!file.name.toLowerCase().endsWith('.txt')) {
-                    alert('Only text files (.txt) are accepted. Please select another file.');
+                    UI.warning('Chỉ chấp nhận tệp văn bản (.txt). Vui lòng chọn tệp khác.');
                     fileUpload.value = ''; // Reset file input
                     return;
                 }
@@ -482,7 +459,7 @@
                     textInput.value = event.target.result;
                 };
                 reader.onerror = () => {
-                    alert('Cannot read file. Please try again.');
+                    UI.error('Không đọc được tệp. Vui lòng thử lại.');
                     fileUpload.value = '';
                     fileInfo.classList.add('hidden');
                 };
@@ -502,13 +479,13 @@
         async function handleAnalysis() {
             // Check if user already has saved analysis data - prevent re-analysis
             if (currentResponseId && currentAnalysisData) {
-                alert('You already have a saved analysis for this task. Cannot re-analyze.');
+                UI.warning('Bạn đã lưu bài phân tích cho nhiệm vụ này nên không thể phân tích lại.');
                 return;
             }
 
             const textToAnalyze = textInput.value.trim();
             if (!textToAnalyze) {
-                alert('Please enter text or upload a file.');
+                UI.warning('Vui lòng nhập văn bản hoặc tải tệp lên.');
                 return;
             }
             setLoadingState(true, 'analyze');
@@ -557,7 +534,7 @@
 
             // Check if user already has saved analysis data
             if (currentResponseId && currentAnalysisData) {
-                // User has saved work - show "Go to Comment" button instead of "Reset"
+                // User has saved work - show "Sang phần bình luận" button instead of "Làm lại"
                 resetButton.classList.remove('hidden');
                 resetButton.removeAttribute('disabled');
                 resetButton.innerHTML = `
@@ -566,12 +543,12 @@
                         stroke-linejoin="round" class="mr-2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <span>Go to Comments</span>
+                    <span>Sang phần bình luận</span>
                 `;
                 resetButton.classList.remove('border-red-600', 'text-red-600', 'hover:bg-red-50', 'focus:ring-red-500');
                 resetButton.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50', 'focus:ring-blue-500');
             } else {
-                // No saved work yet - show normal "Reset" button
+                // No saved work yet - show normal "Làm lại" button
                 resetButton.classList.remove('hidden');
                 resetButton.removeAttribute('disabled'); // Enable reset button
             }
@@ -631,7 +608,7 @@
 
             } catch (error) {
                 console.error('Error during save and redirect:', error);
-                alert('Error occurred while saving and redirecting. Please try again.');
+                UI.error('Có lỗi khi lưu. Vui lòng thử lại.');
 
                 // Restore button
                 resetButton.disabled = false;
@@ -641,19 +618,19 @@
                         stroke-linejoin="round" class="mr-2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    <span>Go to Comments</span>
+                    <span>Sang phần bình luận</span>
                 `;
             }
         }
 
-        function handleReset() {
+        async function handleReset() {
             // Security check: prevent unauthorized reset
             if (!isAnalyzed) {
-                alert('Cannot perform this action. Please analyze the text first.');
+                UI.warning('Chưa thể thực hiện. Vui lòng phân tích văn bản trước.');
                 return;
             }
 
-            if (!confirm('Are you sure you want to retry? All analysis data will be lost.')) {
+            if (!await UI.confirm({ title: 'Làm lại từ đầu?', message: 'Toàn bộ dữ liệu phân tích sẽ bị xoá.', confirmText: 'Làm lại', danger: true })) {
                 return;
             }
 
@@ -691,7 +668,7 @@
             chatSection.classList.add('hidden');
 
             // Reset chat messages
-            chatMessages.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Ask questions for AI to answer...</div>`;
+            chatMessages.innerHTML = `<div class="text-center text-slate-400 text-sm py-4">Đặt câu hỏi để AI giải thích thêm về bài phân tích.</div>`;
 
             // Reset file upload
             fileUpload.value = '';
@@ -710,13 +687,13 @@
         async function handleChatSubmit() {
             // Security check: prevent unauthorized chat submission
             if (!isAnalyzed) {
-                alert('Cannot perform this action. Please analyze the text first.');
+                UI.warning('Chưa thể thực hiện. Vui lòng phân tích văn bản trước.');
                 return;
             }
 
             const userMessage = questionInput.value.trim();
             if (!userMessage) {
-                alert('Please enter a question.');
+                UI.warning('Vui lòng nhập câu hỏi.');
                 return;
             }
 
@@ -755,7 +732,7 @@
                 const result = await response.json();
                 if (result.error) throw new Error(result.error);
 
-                const responseText = result.answer || result.response || result.message || 'Your request has been processed.';
+                const responseText = result.answer || result.response || result.message || 'Đã xử lý yêu cầu.';
                 addChatMessage('assistant', responseText);
 
                 // Add model response to conversation history
@@ -769,7 +746,7 @@
 
             } catch (error) {
                 console.error("Error during chat:", error);
-                addChatMessage('system', 'An error occurred. Please try again.');
+                addChatMessage('system', 'Có lỗi xảy ra. Vui lòng thử lại.');
             }
 
             setLoadingState(false, 'chat');
@@ -832,7 +809,7 @@
                 const deliverId = urlParams.get('deliver_id');
 
                 if (!taskId || !deliverId) {
-                    alert('Incomplete information. Please access from the task link.');
+                    UI.warning('Thiếu thông tin. Vui lòng mở từ đường dẫn của nhiệm vụ.');
                     return;
                 }
 
@@ -849,7 +826,7 @@
                 });
 
                 if (sections.length === 0 && !title) {
-                    alert('No content to save.');
+                    UI.warning('Chưa có nội dung để lưu.');
                     return;
                 }
 
@@ -919,7 +896,7 @@
                     storeOriginalContent();
                     console.log('💾 Original content updated');
 
-                    // Update UI to show "Go to Comment" button if not already done
+                    // Update UI to show "Sang phần bình luận" button if not already done
                     if (isAnalyzed) {
                         switchToChatMode();
                     }
@@ -947,7 +924,7 @@
 
             } catch (error) {
                 console.error('Error saving analysis:', error);
-                alert('Error occurred while saving: ' + error.message);
+                UI.networkError(error, 'Không lưu được. Vui lòng kiểm tra kết nối và thử lại.');
 
                 // Restore button
                 const saveButton = document.getElementById('save-analysis-button');
@@ -958,7 +935,7 @@
                         <polyline points="17 21 17 13 7 13 7 21"></polyline>
                         <polyline points="7 3 7 8 15 8"></polyline>
                     </svg>
-                    Save Changes
+                    Lưu thay đổi
                 `;
 
                 // Return null to indicate failure
@@ -974,7 +951,7 @@
             const newSectionId = `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             const newSectionHTML = `<div class="sortable-section" draggable="true" data-section-id="${newSectionId}">
                 <div class="section-controls">
-                    <span class="drag-handle" title="Drag to reorder">
+                    <span class="drag-handle" title="Kéo để sắp xếp">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -982,7 +959,7 @@
                         </svg>
                         Drag
                     </span>
-                    <button class="delete-section-btn" onclick="deleteSection('${newSectionId}')" title="Delete this section">
+                    <button class="delete-section-btn" onclick="deleteSection('${newSectionId}')" title="Xoá phần này">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -991,7 +968,7 @@
                     </button>
                 </div>
                 <div class="mb-6">
-                    <textarea class="editable-content w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Enter new content...">New Title:\n\nContent of new section...</textarea>
+                    <textarea class="editable-content w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Nhập nội dung mới…">New Title:\n\nContent of new section...</textarea>
                 </div>
             </div>`;
 
@@ -1030,8 +1007,8 @@
         }
 
         // Delete a section
-        function deleteSection(sectionId) {
-            if (!confirm('Are you sure you want to delete this section?')) {
+        async function deleteSection(sectionId) {
+            if (!await UI.confirm('Xoá phần này?')) {
                 return;
             }
 
@@ -1187,7 +1164,7 @@
             const targetTab = e.target.closest('.genai-tabs__btn, .tab-button') || e.target;
             if (!targetTab || !tabs.includes(targetTab)) return;
             if ((targetTab === tabSlideshow || targetTab === tabQuiz) && !isAnalyzed) {
-                alert('Cannot perform this action. Please analyze the text first.');
+                UI.warning('Chưa thể thực hiện. Vui lòng phân tích văn bản trước.');
                 return;
             }
 
@@ -1197,7 +1174,7 @@
         async function handleGenerateSlideshow() {
             // Security check: Prevent unauthorized slideshow generation
             if (!isAnalyzed || !currentAnalysisData) {
-                alert('Cannot perform this action. Please analyze the text first.');
+                UI.warning('Chưa thể thực hiện. Vui lòng phân tích văn bản trước.');
                 return;
             }
 
@@ -1212,14 +1189,14 @@
             if (slideshowData) {
                 displaySlideshow(slideshowData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Cannot create slideshow. Please try again.</p>`;
+                container.innerHTML = `<p class="text-red-500">Không tạo được trình chiếu. Vui lòng thử lại.</p>`;
             }
         }
 
         async function handleGenerateQuiz() {
             // Security check: Prevent unauthorized quiz generation
             if (!isAnalyzed || !currentAnalysisData) {
-                alert('Cannot perform this action. Please analyze the text first.');
+                UI.warning('Chưa thể thực hiện. Vui lòng phân tích văn bản trước.');
                 return;
             }
 
@@ -1233,7 +1210,7 @@
                 currentAnalysisData.quiz = quizData.quiz; // Merge quiz data
                 displayQuiz(currentAnalysisData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Cannot create quiz. Please try again.</p>`;
+                container.innerHTML = `<p class="text-red-500">Không tạo được câu hỏi ôn tập. Vui lòng thử lại.</p>`;
             }
         }
 
@@ -1249,7 +1226,7 @@
                 } else {
                     loadingSpinner.classList.add('hidden');
                     analyzeButton.querySelector('#analyze-icon').classList.remove('hidden');
-                    buttonText.textContent = 'Analysis';
+                    buttonText.textContent = 'Phân tích';
                     analyzeButton.disabled = false;
                     chatButton.disabled = false;
                 }
@@ -1259,7 +1236,7 @@
                     chatButton.disabled = true;
                     analyzeButton.disabled = true;
                 } else {
-                    chatButtonText.textContent = 'Ask AI';
+                    chatButtonText.textContent = 'Hỏi AI';
                     chatButton.disabled = false;
                     analyzeButton.disabled = false;
                 }
@@ -1331,15 +1308,15 @@
         function setupGeneratorTabs() {
             contentSlideshow.innerHTML = `<div class="genai-panel-empty">
                 <div class="genai-panel-empty__icon"><i class="bi bi-easel"></i></div>
-                <h3>Create Slideshow</h3>
-                <p>Turn the analysis into a short slide presentation.</p>
-                <button id="generate-slideshow-button" type="button" class="genai-btn-primary"><i class="bi bi-play-circle"></i> Create Slideshow</button>
+                <h3>Tạo trình chiếu</h3>
+                <p>Biến bài phân tích thành vài trang trình chiếu ngắn.</p>
+                <button id="generate-slideshow-button" type="button" class="genai-btn-primary"><i class="bi bi-play-circle"></i> Tạo trình chiếu</button>
             </div>`;
             contentQuiz.innerHTML = `<div class="genai-panel-empty">
                 <div class="genai-panel-empty__icon"><i class="bi bi-patch-question"></i></div>
-                <h3>Create Quiz</h3>
-                <p>Generate practice questions from the analysis.</p>
-                <button id="generate-quiz-button" type="button" class="genai-btn-primary"><i class="bi bi-lightning"></i> Create Quiz</button>
+                <h3>Tạo câu hỏi ôn tập</h3>
+                <p>Tạo câu hỏi luyện tập từ bài phân tích.</p>
+                <button id="generate-quiz-button" type="button" class="genai-btn-primary"><i class="bi bi-lightning"></i> Tạo câu hỏi ôn tập</button>
             </div>`;
 
             document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
@@ -1377,7 +1354,7 @@
                 return result;
             } catch (error) {
                 console.error("Error during API call:", error);
-                alert('An error occurred communicating with the server. Please try again.');
+                UI.error('Không kết nối được máy chủ. Vui lòng thử lại.');
                 return null;
             }
         }
@@ -1466,7 +1443,7 @@
                 const id = sectionId || `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 return `<div class="sortable-section" draggable="true" data-section-id="${id}">
                     <div class="section-controls">
-                        <span class="drag-handle" title="Drag to reorder">
+                        <span class="drag-handle" title="Kéo để sắp xếp">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1474,7 +1451,7 @@
                             </svg>
                             Drag
                         </span>
-                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Delete this section">
+                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xoá phần này">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1512,8 +1489,8 @@
             // Save button at the top
             html += `<div class="mb-6 flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Analysis Result</h2>
-                    <p class="text-sm text-slate-600 mt-1">You can edit, add new, or reorder content</p>
+                    <h2 class="text-2xl font-bold text-slate-800">Kết quả phân tích</h2>
+                    <p class="text-sm text-slate-600 mt-1">Bạn có thể sửa, thêm mới hoặc kéo để sắp xếp lại các phần</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="add-section-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
@@ -1521,7 +1498,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add Section
+                        Thêm phần
                     </button>
                     <button id="save-analysis-button" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1529,7 +1506,7 @@
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                         </svg>
-                        Save Changes
+                        Lưu thay đổi
                     </button>
                 </div>
             </div>`;
@@ -1537,11 +1514,11 @@
             html += `<div id="sortable-container">`;
 
             html += createSortableSection(`<div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Title</label>
-                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(result.title || 'No Title')}">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Tiêu đề</label>
+                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(result.title || 'Chưa có tiêu đề')}">
             </div>`, 'title-section');
 
-            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Text Characteristics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Đặc điểm văn bản</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.characteristics) {
                 for (const [key, value] of Object.entries(result.characteristics)) {
                     const charSection = `<div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
@@ -1553,16 +1530,16 @@
             }
             html += `</div>`;
 
-            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Language Statistics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Thống kê ngôn ngữ</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.stats) {
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Characters</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('en-US')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Words</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('en-US')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Nhân vật</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('en-US')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('en-US')}</span></div>`;
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
             if (result.keywords && result.keywords.length > 0) {
-                html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Keywords</h2><div class="flex flex-wrap gap-2 mb-6">`;
+                html += `<h2 class="text-xl font-bold mt-6 mb-4 text-slate-800">Từ khoá</h2><div class="flex flex-wrap gap-2 mb-6">`;
                 result.keywords.forEach(keyword => {
                     html += `<span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full">${keyword}</span>`;
                 });
@@ -1789,7 +1766,7 @@
                     return ref.replace(/<i>(.*?)<\/i>/g, '<em>$1</em>'); // Use em for italics in prose context
                 }).join('<br>');
                 slides.push({
-                    heading: 'References',
+                    heading: 'Tài liệu tham khảo',
                     content: formattedReferences
                 });
             }
@@ -1806,8 +1783,8 @@
             const totalSlides = slides.length;
             contentSlideshow.innerHTML = `
                 <div class="mb-4">
-                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Presentation'}</h2>
-                    <p class="text-slate-600">Summary presentation of the analysis content.</p>
+                    <h2 class="text-2xl font-bold">${currentAnalysisData.title || 'Trình chiếu'}</h2>
+                    <p class="text-slate-600">Tóm tắt nội dung bài phân tích dưới dạng trình chiếu.</p>
                 </div>
                 <div id="slideshow-container" class="bg-white rounded-xl shadow-inner">${slideHTML}</div>
                 <div class="flex items-center justify-between mt-4">
@@ -1849,8 +1826,8 @@
             if (!result || !result.quiz) return;
             let quizHTML = `
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold">Quiz: ${result.title || 'Text'}</h2>
-                    <p class="text-slate-600">Test your knowledge of the work.</p>
+                    <h2 class="text-2xl font-bold">Quiz: ${result.title || 'Văn bản'}</h2>
+                    <p class="text-slate-600">Kiểm tra mức hiểu tác phẩm của bạn.</p>
                 </div>
                 <div id="quiz-form" class="space-y-6">`;
 
@@ -1865,7 +1842,7 @@
             });
 
             quizHTML += `</div><div class="mt-8">
-                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Submit</button>
+                <button id="submit-quiz" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Gửi</button>
                 <div id="quiz-results" class="mt-4 text-lg font-bold"></div>
             </div>`;
             contentQuiz.innerHTML = quizHTML;
@@ -1895,7 +1872,7 @@
                         }
                     }
                 });
-                resultsDiv.textContent = `Your score: ${score} / ${result.quiz.length}`;
+                resultsDiv.textContent = `Điểm của bạn: ${score} / ${result.quiz.length}`;
                 resultsDiv.style.color = score / result.quiz.length > 0.5 ? 'green' : 'red';
             });
         }
@@ -1964,7 +1941,7 @@
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        Loaded saved analysis results
+                        Đã tải kết quả phân tích đã lưu
                     `;
                     document.body.appendChild(notification);
                     setTimeout(() => notification.remove(), 3000);
@@ -1990,7 +1967,7 @@
                 const id = sectionId || `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 return `<div class="sortable-section" draggable="true" data-section-id="${id}">
                     <div class="section-controls">
-                        <span class="drag-handle" title="Drag to reorder">
+                        <span class="drag-handle" title="Kéo để sắp xếp">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -1998,7 +1975,7 @@
                             </svg>
                             Drag
                         </span>
-                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Delete this section">
+                        <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xoá phần này">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -2016,8 +1993,8 @@
             // Save button at the top
             html += `<div class="mb-6 flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Analysis Result</h2>
-                    <p class="text-sm text-slate-600 mt-1">You can edit, add new, or reorder content</p>
+                    <h2 class="text-2xl font-bold text-slate-800">Kết quả phân tích</h2>
+                    <p class="text-sm text-slate-600 mt-1">Bạn có thể sửa, thêm mới hoặc kéo để sắp xếp lại các phần</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="add-section-button" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
@@ -2025,7 +2002,7 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add Section
+                        Thêm phần
                     </button>
                     <button id="save-analysis-button" class="px-6 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2033,7 +2010,7 @@
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                         </svg>
-                        Save Changes
+                        Lưu thay đổi
                     </button>
                 </div>
             </div>`;
@@ -2042,8 +2019,8 @@
 
             // Title section
             html += createSortableSection(`<div class="mb-6">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Title</label>
-                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(title || 'No Title')}">
+                <label class="block text-sm font-medium text-slate-700 mb-2">Tiêu đề</label>
+                <input type="text" class="editable-title w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-2xl font-bold" value="${escapeHtml(title || 'Chưa có tiêu đề')}">
             </div>`, 'title-section');
 
             // Add all saved sections
@@ -2368,7 +2345,7 @@
             // Build statistics HTML
             let statsHTML = `
                 <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
-                    <span class="font-medium text-slate-700">Overall change rate:</span>
+                    <span class="font-medium text-slate-700">Tỉ lệ thay đổi:</span>
                     <div class="flex items-center gap-2">
                         <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
                             <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all" style="width: ${overallChange}%"></div>
@@ -2390,7 +2367,7 @@
             if (changedSections > 0) {
                 statsHTML += `
                     <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
-                        <span class="text-sm text-slate-600">Sections edited:</span>
+                        <span class="text-sm text-slate-600">Số phần đã sửa:</span>
                         <span class="text-sm font-semibold text-purple-600">${changedSections}/${currentSections.length} sections</span>
                     </div>
                 `;
@@ -2400,7 +2377,7 @@
             if (charDiff !== 0) {
                 statsHTML += `
                     <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
-                        <span class="text-sm text-slate-600">Character change:</span>
+                        <span class="text-sm text-slate-600">Số ký tự thay đổi:</span>
                         <span class="text-sm font-semibold ${charDiff > 0 ? 'text-green-600' : 'text-red-600'}">${charDiff > 0 ? '+' : ''}${charDiff} characters</span>
                     </div>
                 `;
@@ -2455,7 +2432,7 @@
                                 <line x1="15" y1="9" x2="9" y2="15"></line>
                                 <line x1="9" y1="9" x2="15" y2="15"></line>
                             </svg>
-                            Before Editing
+                            Trước khi sửa
                         </h3>
                         <div class="space-y-4">
                             ${originalContent.title !== currentTitle ? 
@@ -2485,7 +2462,7 @@
                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
                             </svg>
-                            After Editing
+                            Sau khi sửa
                         </h3>
                         <div class="space-y-4">
                             ${originalContent.title !== currentTitle ? 
@@ -2565,7 +2542,7 @@
                 <!-- Modal Footer -->
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm" onclick="closePreviewModal()">
-                        Close
+                        Đóng
                     </button>
                 </div>
             </div>

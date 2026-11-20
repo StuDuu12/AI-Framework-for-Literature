@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -7,7 +9,7 @@ header('Content-Type: application/json');
 
 $userId = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit();
 }
 
@@ -59,7 +61,7 @@ try {
             $note = trim($input['note'] ?? '');
 
             if (!$taskId) {
-                echo json_encode(['success' => false, 'message' => 'Missing task_id']);
+                echo json_encode(['success' => false, 'message' => 'Thiếu thông tin nhiệm vụ.']);
                 exit();
             }
 
@@ -116,7 +118,7 @@ try {
             $description = trim($input['description'] ?? '');
 
             if (!$name) {
-                echo json_encode(['success' => false, 'message' => 'Missing name']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên.']);
                 exit();
             }
 
@@ -162,7 +164,7 @@ try {
             $taskId = intval($input['task_id'] ?? 0);
 
             if (!$listId || !$taskId) {
-                echo json_encode(['success' => false, 'message' => 'Missing params']);
+                echo json_encode(['success' => false, 'message' => 'Thiếu thông tin.']);
                 exit();
             }
             if (!ownsReadingList($pdo, $listId, $userId) || !canSeeTask($pdo, $taskId, $userId)) {
@@ -206,11 +208,11 @@ try {
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log("reading_list error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi cơ sở dữ liệu. Vui lòng thử lại.']);
 }

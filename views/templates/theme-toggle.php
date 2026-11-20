@@ -1,52 +1,37 @@
-<!-- Dark Theme CSS is loaded via assets.php (dark.css) -->
-
-<!-- Theme Toggle Script -->
+<!-- Đổi giao diện sáng/tối. Class dark-theme đã được gắn sẵn lên <html> trong assets.php
+     và lên <body> trong header.php, nên ở đây chỉ cập nhật icon và xử lý nút bấm. -->
 <script>
-    // Initialize theme from PHP session
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentTheme = '<?php echo isset($_SESSION['theme']) ? $_SESSION['theme'] : 'light'; ?>';
-        if (currentTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            updateThemeIcon('dark');
-        } else {
-            updateThemeIcon('light');
-        }
-    });
+    function applyTheme(theme) {
+        var dark = theme === 'dark';
+        document.documentElement.classList.toggle('dark-theme', dark);
+        document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+        if (document.body) document.body.classList.toggle('dark-theme', dark);
+        updateThemeIcon(dark ? 'dark' : 'light');
+    }
 
     function toggleTheme() {
+        var next = document.documentElement.classList.contains('dark-theme') ? 'light' : 'dark';
+        applyTheme(next); // đổi ngay, không chờ server
         fetch('<?= URL_ROOT ?>/api/toggle_theme.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ theme: next })
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data && data.success && data.theme !== next) applyTheme(data.theme);
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (data.theme === 'dark') {
-                        document.body.classList.add('dark-theme');
-                        updateThemeIcon('dark');
-                    } else {
-                        document.body.classList.remove('dark-theme');
-                        updateThemeIcon('light');
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error toggling theme:', error);
-            });
+            .catch(function (err) { console.error('Không lưu được lựa chọn giao diện:', err); });
     }
 
     function updateThemeIcon(theme) {
-        const icon = document.getElementById('theme-icon');
-        if (icon) {
-            if (theme === 'dark') {
-                icon.className = 'bi bi-sun-fill';
-                icon.style.color = '#ffc107';
-            } else {
-                icon.className = 'bi bi-moon-fill';
-                icon.style.color = '#6c757d';
-            }
-        }
+        var icon = document.getElementById('theme-icon');
+        if (!icon) return;
+        icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        icon.style.color = theme === 'dark' ? 'var(--lit-accent)' : 'var(--lit-text-secondary)';
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        applyTheme(document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');
+    });
 </script>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -162,7 +162,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <li class="breadcrumb-item active" data-lang-key="menu_my_tasks">My Tasks</li>
+                    <li class="breadcrumb-item active" data-lang-key="menu_my_tasks">Nhiệm vụ của tôi</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -190,19 +190,19 @@
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'active' ? 'active' : '' ?>"
                                         href="?filter=active">
-                                        <span data-lang-key="ongoing">Ongoing</span>
+                                        <span data-lang-key="ongoing">Đang diễn ra</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'upcoming' ? 'active' : '' ?>"
                                         href="?filter=upcoming">
-                                        <span data-lang-key="upcoming">Upcoming</span>
+                                        <span data-lang-key="upcoming">Sắp tới</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'past' ? 'active' : '' ?>"
                                         href="?filter=past">
-                                        <span data-lang-key="ended">Ended</span>
+                                        <span data-lang-key="ended">Đã kết thúc</span>
                                     </a>
                                 </li>
                             </ul>
@@ -211,8 +211,8 @@
                             <?php if (empty($tasks)): ?>
                                 <div class="empty-state">
                                     <i class="bi bi-clipboard-x"></i>
-                                    <h5 data-lang-key="no_tasks_yet">No tasks yet</h5>
-                                    <p data-lang-key="no_tasks_assigned_in_class">You have not been assigned any tasks in this class.</p>
+                                    <h5 data-lang-key="no_tasks_yet">Chưa có nhiệm vụ</h5>
+                                    <p data-lang-key="no_tasks_assigned_in_class">Bạn chưa được giao nhiệm vụ nào trong lớp này.</p>
                                 </div>
                             <?php else: ?>
                                 <div class="row">
@@ -248,7 +248,7 @@
                                                         </div>
                                                         <div>
                                                             <span class="phase-badge">
-                                                                Step <?= $task['phase_number'] ?>: <?= htmlspecialchars($task['phase_name']) ?>
+                                                                Bước <?= $task['phase_number'] ?>: <?= htmlspecialchars($task['phase_name']) ?>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -256,7 +256,7 @@
                                                     <div class="task-meta mb-3">
                                                         <div>
                                                             <i class="bi bi-calendar-event"></i>
-                                                            <span>Start: <?= date('d/m/Y H:i', strtotime($task['start_time'])) ?></span>
+                                                            <span>Bắt đầu: <?= date('d/m/Y H:i', strtotime($task['start_time'])) ?></span>
                                                         </div>
                                                         <div>
                                                             <i class="bi bi-calendar-check"></i>
@@ -270,12 +270,12 @@
                                                         </div>
                                                         <a href="<?= URL_ROOT ?>/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $task['topic_id'] ?>&phase_id=<?= $task['phase_id'] ?>"
                                                             class="btn btn-sm btn-primary">
-                                                            <i class="bi bi-arrow-right-circle"></i> View Details
+                                                            <i class="bi bi-arrow-right-circle"></i> Xem chi tiết
                                                         </a>
                                                     </div>
 
                                                     <div class="text-muted small mt-2">
-                                                        <i class="bi bi-person"></i> Teacher: <?= htmlspecialchars($task['created_by_name'] ?? 'N/A') ?>
+                                                        <i class="bi bi-person"></i> Giáo viên: <?= htmlspecialchars($task['created_by_name'] ?? 'N/A') ?>
                                                     </div>
                                                 </div>
                                             </div>

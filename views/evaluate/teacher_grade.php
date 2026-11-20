@@ -68,218 +68,153 @@ if (!empty($evaluation['details'])) {
         $existingScores[$detail['tc_id']] = $detail['diem'];
     }
 }
+$gradesUrl = URL_ROOT . '/class/evaluate/teacher_grades?' . http_build_query(['task_id' => $taskId, 'topic_id' => $topicId, 'phase_id' => $phaseId]);
+$scale = $sMax ?: array_sum(array_map(fn($c) => (float)$c['max_score'], $criteria));
+$pct = fn($v) => $scale > 0 ? max(0, min(100, round($v * 100 / $scale, 1))) : 0;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/research-figures.css">
-    <title>Teacher Final Grade</title>
+    <title>Chấm điểm · <?= htmlspecialchars($responseInfo['response_author']) ?></title>
 </head>
 <body>
 <?php require_once __DIR__ . '/../templates/header.php'; require_once __DIR__ . '/../templates/sidebar.php'; ?>
 <main id="main" class="main">
     <div class="pagetitle">
-        <h1><i class="bi bi-award"></i> Teacher Final Grade</h1>
-        <nav>
+        <nav aria-label="Vị trí trang">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                <?php if ($topic): ?><li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= htmlspecialchars($topic['topic_name']) ?></a></li><?php endif; ?>
-                <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Learning Phases</a></li>
-                <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/evaluate/teacher_grades?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Final Grading</a></li>
-                <li class="breadcrumb-item active">Grade submission</li>
+                <?php if ($topic): ?><li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>"><?= htmlspecialchars($topic['topic_name']) ?></a></li><?php endif; ?>
+                <li class="breadcrumb-item"><a href="<?= htmlspecialchars($gradesUrl) ?>">Chấm điểm cuối</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($responseInfo['response_author']) ?></li>
             </ol>
         </nav>
+        <h1>Chấm điểm: <?= htmlspecialchars($responseInfo['response_author']) ?></h1>
     </div>
 
     <section class="section">
-        <section class="research-figure research-figure--instructor mb-3" id="fig18-instructor-detail" aria-label="Instructor review detail">
-            <div class="research-figure__body">
-                <div class="research-figure__metrics">
-                    <div class="research-figure__metric">
-                        <div class="research-figure__metric-value"><?= $peerAvg !== null ? number_format($peerAvg, 1) : '—' ?></div>
-                        <div class="research-figure__metric-label">Peer avg (S<sub>Peer</sub>)</div>
-                    </div>
-                    <div class="research-figure__metric">
-                        <div class="research-figure__metric-value"><?= $teacherScore !== null ? number_format($teacherScore, 1) : '—' ?></div>
-                        <div class="research-figure__metric-label">Teacher (S<sub>Teacher</sub>)</div>
-                    </div>
-                    <div class="research-figure__metric">
-                        <div class="research-figure__metric-value"><?= $deltaPeers !== null ? number_format($deltaPeers, 1) : '—' ?></div>
-                        <div class="research-figure__metric-label">Δ |S<sub>Peer</sub> − S<sub>Teacher</sub>|</div>
-                    </div>
-                    <div class="research-figure__metric">
-                        <div class="research-figure__metric-value"><?= is_array($systemEval) && $systemEval['outline_score'] !== null ? (int)$systemEval['outline_score'] . '%' : '—' ?></div>
-                        <div class="research-figure__metric-label">System outline score</div>
-                    </div>
-                    <div class="research-figure__metric">
-                        <div class="research-figure__metric-value"><?= is_array($systemEval) && $systemEval['avg_edit_change_percent'] !== null ? number_format((float)$systemEval['avg_edit_change_percent'], 1) . '%' : '—' ?></div>
-                        <div class="research-figure__metric-label">System revision change</div>
-                    </div>
+        <!-- Tổng quan điểm: bạn bè, giáo viên, hệ thống -->
+        <section class="ui-card p-4 mb-4" id="fig18-instructor-detail" aria-label="Tổng quan điểm">
+            <div class="grade-metrics">
+                <div class="grade-metric">
+                    <div class="grade-metric__value"><?= $peerAvg !== null ? number_format($peerAvg, 1) : '—' ?></div>
+                    <div class="grade-metric__label">TB bạn chấm <span class="text-muted">(S<sub>Peer</sub>)</span></div>
+                </div>
+                <div class="grade-metric">
+                    <div class="grade-metric__value"><?= $teacherScore !== null ? number_format($teacherScore, 1) : '—' ?></div>
+                    <div class="grade-metric__label">Điểm giáo viên <span class="text-muted">(S<sub>Teacher</sub>)</span></div>
+                </div>
+                <div class="grade-metric">
+                    <div class="grade-metric__value"><?= $deltaPeers !== null ? number_format($deltaPeers, 1) : '—' ?></div>
+                    <div class="grade-metric__label">Chênh lệch <span class="text-muted">(Δ)</span></div>
+                </div>
+                <div class="grade-metric">
+                    <div class="grade-metric__value"><?= is_array($systemEval) && $systemEval['outline_score'] !== null ? (int)$systemEval['outline_score'] . '%' : '—' ?></div>
+                    <div class="grade-metric__label">Dàn ý đạt chuẩn (hệ thống)</div>
+                </div>
+                <div class="grade-metric">
+                    <div class="grade-metric__value"><?= is_array($systemEval) && $systemEval['avg_edit_change_percent'] !== null ? number_format((float)$systemEval['avg_edit_change_percent'], 1) . '%' : '—' ?></div>
+                    <div class="grade-metric__label">Mức tự sửa bài</div>
                 </div>
             </div>
-        </section>
 
-        <div class="row g-3">
-            <div class="col-lg-5">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h6 class="card-title">Submission</h6>
-                        <p class="mb-1"><strong>Author:</strong> <?= htmlspecialchars($responseInfo['response_author']) ?></p>
-                        <p class="mb-0 text-muted small"><?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
-                        <?php foreach ($responseInfo['contents'] ?? [] as $content): ?>
-                            <div class="response-content markdown-content mt-2 small"><?= nl2br(htmlspecialchars($content['content'])) ?></div>
+            <?php if ($peerEvals && $scale > 0): ?>
+                <!-- Mức đồng thuận: vị trí từng điểm trên thang điểm -->
+                <div class="consensus-scale mt-4" aria-label="Phân bố điểm trên thang 0 – <?= htmlspecialchars((string)$scale) ?>">
+                    <div class="consensus-scale__track">
+                        <?php foreach ($peerEvals as $pe): $v = (float)$pe['total_score']; ?>
+                            <span class="consensus-scale__dot" style="left: <?= $pct($v) ?>%" title="<?= htmlspecialchars($pe['evaluator_name']) ?>: <?= number_format($v, 1) ?>"></span>
                         <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">Peer evaluations (S<sub>Peer</sub> &amp; S<sub>Acc</sub>)</h6>
-                        <?php if (empty($peerEvals)): ?>
-                            <p class="text-muted small mb-0">No peer evaluations yet.</p>
-                        <?php else: ?>
-                            <ul class="list-group list-group-flush">
-                            <?php foreach ($peerEvals as $pe):
-                                $sAcc = ($pe['accuracy_score'] !== null && $pe['accuracy_score'] !== '')
-                                    ? (float)$pe['accuracy_score'] : null;
-                                $delta = ($teacherScore !== null)
-                                    ? abs((float)$pe['total_score'] - $teacherScore) : null;
-                            ?>
-                                <li class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <span><?= htmlspecialchars($pe['evaluator_name']) ?></span>
-                                        <span class="text-end">
-                                            <strong><?= number_format((float)$pe['total_score'], 1) ?></strong>
-                                            <?php if ($sAcc !== null): ?>
-                                                <span class="badge bg-info text-dark ms-1">S<sub>Acc</sub> <?= number_format($sAcc, 1) ?></span>
-                                            <?php endif; ?>
-                                        </span>
-                                    </div>
-                                    <?php if ($delta !== null): ?>
-                                        <div class="small text-muted">Δ vs teacher: <?= number_format($delta, 1) ?></div>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                            </ul>
+                        <?php if ($peerAvg !== null): ?>
+                            <span class="consensus-scale__mark consensus-scale__mark--peer" style="left: <?= $pct($peerAvg) ?>%"><span>TB bạn <?= number_format($peerAvg, 1) ?></span></span>
+                        <?php endif; ?>
+                        <?php if ($teacherScore !== null): ?>
+                            <span class="consensus-scale__mark consensus-scale__mark--teacher" style="left: <?= $pct($teacherScore) ?>%"><span>GV <?= number_format($teacherScore, 1) ?></span></span>
                         <?php endif; ?>
                     </div>
+                    <div class="consensus-scale__axis"><span>0</span><span><?= htmlspecialchars((string)$scale) ?></span></div>
+                    <p class="small text-muted mb-0 mt-1">Mỗi chấm tròn là điểm của một bạn. Các chấm càng gần nhau, các bạn càng đồng thuận.</p>
                 </div>
-                <?php if (is_array($systemEval)): ?>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h6 class="card-title">System evaluation</h6>
-                        <ul class="list-unstyled small mb-0">
-                            <?php if ($systemEval['outline_score'] !== null): ?>
-                                <li>Outline validation: <strong><?= (int)$systemEval['outline_score'] ?>%</strong><?= !empty($systemEval['outline_passed']) ? ' (passed)' : '' ?></li>
-                            <?php endif; ?>
-                            <?php if ($systemEval['avg_edit_change_percent'] !== null): ?>
-                                <li>Revision change: <strong><?= number_format((float)$systemEval['avg_edit_change_percent'], 1) ?>%</strong></li>
-                            <?php endif; ?>
-                            <?php if ($systemEval['sections_edited'] !== null): ?>
-                                <li>Sections edited: <?= (int)$systemEval['sections_edited'] ?></li>
-                            <?php endif; ?>
-                            <?php if ($systemEval['total_copy_percent'] !== null): ?>
-                                <li>Copy ratio: <?= number_format((float)$systemEval['total_copy_percent'], 1) ?>%</li>
-                            <?php endif; ?>
-                            <?php if ($systemEval['session_duration_secs'] !== null): ?>
-                                <li>Session duration: <?= (int)$systemEval['session_duration_secs'] ?>s</li>
-                            <?php endif; ?>
-                        </ul>
+            <?php endif; ?>
+        </section>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <article class="ui-card p-4 mb-4" aria-label="Bài làm">
+                    <div class="d-flex justify-content-between align-items-baseline gap-2 mb-2">
+                        <h2 class="perform-label m-0">Bài làm</h2>
+                        <span class="small text-muted">Nộp lúc <?= date('H:i d/m/Y', strtotime($responseInfo['response_created_at'])) ?></span>
                     </div>
+                    <?php if (!empty($responseInfo['contents'])): ?>
+                        <?php foreach ($responseInfo['contents'] as $content): ?>
+                            <div class="submission-body"><?= renderSubmissionMarkdown($content['content']) ?></div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Bài này chưa có nội dung.</p>
+                    <?php endif; ?>
+                </article>
+
+                <div class="ui-card p-4 mb-4">
+                    <h2 class="perform-label">Bạn bè đã chấm (<?= count($peerEvals) ?>)</h2>
+                    <?php if (empty($peerEvals)): ?>
+                        <p class="text-muted small mb-0">Chưa có bạn nào chấm bài này.</p>
+                    <?php else: ?>
+                        <ul class="list-unstyled m-0">
+                        <?php foreach ($peerEvals as $i => $pe):
+                            $sAcc = ($pe['accuracy_score'] !== null && $pe['accuracy_score'] !== '') ? (float)$pe['accuracy_score'] : null;
+                            $delta = ($teacherScore !== null) ? abs((float)$pe['total_score'] - $teacherScore) : null;
+                        ?>
+                            <li class="d-flex justify-content-between align-items-center gap-2 py-2<?= $i ? ' border-top' : '' ?>">
+                                <span><?= htmlspecialchars($pe['evaluator_name']) ?>
+                                    <?php if ($delta !== null): ?><span class="small text-muted d-block">Lệch so với GV: <?= number_format($delta, 1) ?></span><?php endif; ?>
+                                </span>
+                                <span class="text-end text-nowrap">
+                                    <strong><?= number_format((float)$pe['total_score'], 1) ?></strong>
+                                    <?php if ($sAcc !== null): ?><span class="ui-badge ui-badge--primary ms-1" title="Độ chính xác khi chấm (S_Acc)">Chính xác <?= number_format($sAcc, 1) ?></span><?php endif; ?>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
                 </div>
+
+                <?php if (is_array($systemEval)): ?>
+                    <div class="ui-card p-4">
+                        <h2 class="perform-label">Dữ liệu hệ thống ghi nhận</h2>
+                        <dl class="perform-info">
+                            <?php if ($systemEval['outline_score'] !== null): ?><dt>Kiểm tra dàn ý</dt><dd><strong><?= (int)$systemEval['outline_score'] ?>%</strong><?= !empty($systemEval['outline_passed']) ? ' (đạt)' : '' ?></dd><?php endif; ?>
+                            <?php if ($systemEval['avg_edit_change_percent'] !== null): ?><dt>Mức tự sửa bài</dt><dd><?= number_format((float)$systemEval['avg_edit_change_percent'], 1) ?>%</dd><?php endif; ?>
+                            <?php if ($systemEval['sections_edited'] !== null): ?><dt>Số phần đã sửa</dt><dd><?= (int)$systemEval['sections_edited'] ?></dd><?php endif; ?>
+                            <?php if ($systemEval['total_copy_percent'] !== null): ?><dt>Tỉ lệ sao chép</dt><dd><?= number_format((float)$systemEval['total_copy_percent'], 1) ?>%</dd><?php endif; ?>
+                            <?php if ($systemEval['session_duration_secs'] !== null): $sec = (int)$systemEval['session_duration_secs']; ?><dt>Thời gian làm bài</dt><dd><?= $sec >= 60 ? floor($sec / 60) . ' phút ' . ($sec % 60) . ' giây' : $sec . ' giây' ?></dd><?php endif; ?>
+                        </dl>
+                    </div>
                 <?php endif; ?>
             </div>
-            <div class="col-lg-7">
-                <div class="card">
-                    <div class="card-body eval-compact">
-                        <h6 class="card-title">Official teacher score</h6>
-                        <form id="evaluationForm" method="POST" action="/api/evaluate/submit_evaluation.php">
-                            <input type="hidden" name="evaluate_id" value="<?= $evaluation['id_evaluate'] ?>">
-                            <input type="hidden" name="deliver_id" value="<?= $deliverId ?>">
-                            <input type="hidden" name="task_id" value="<?= $taskId ?>">
-                            <div class="accordion eval-criteria-accordion" id="criteriaAccordion">
-                            <?php foreach ($criteria as $i => $criterion):
-                                $tcId = $criterion['tc_id'];
-                                $cur = $existingScores[$tcId] ?? $criterion['min_score'];
-                                $min = (float)$criterion['min_score'];
-                                $max = (float)$criterion['max_score'];
-                                $step = ($max - $min) <= 4 ? 1 : 0.5;
-                            ?>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button <?= $i > 0 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#c<?= $tcId ?>">
-                                            <?= htmlspecialchars(criteriaLabel($criterion['name_tc'])) ?>
-                                            <span class="ms-auto me-2 badge bg-primary criterion-score-badge" data-tc="<?= $tcId ?>"><?= $cur ?></span>
-                                        </button>
-                                    </h2>
-                                    <div id="c<?= $tcId ?>" class="accordion-collapse collapse <?= $i === 0 ? 'show' : '' ?>" data-bs-parent="#criteriaAccordion">
-                                        <div class="accordion-body">
-                                            <?php if ($criterion['description']): ?><p class="small text-muted"><?= htmlspecialchars(criteriaLabel($criterion['description'])) ?></p><?php endif; ?>
-                                            <div class="score-chip-group" data-tc="<?= $tcId ?>">
-                                            <?php for ($s = $min; $s <= $max + 0.001; $s += $step): ?>
-                                                <button type="button" class="score-chip <?= abs($cur - $s) < 0.01 ? 'active' : '' ?>" data-value="<?= $s ?>"><?= $step >= 1 ? (int)$s : number_format($s, 1) ?></button>
-                                            <?php endfor; ?>
-                                            </div>
-                                            <input type="hidden" name="scores[<?= $tcId ?>]" class="score-input" data-tc="<?= $tcId ?>" value="<?= $cur ?>" <?= (int)$evaluation['status'] === 2 ? 'readonly' : '' ?>>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                            </div>
-                            <div class="total-score-display mt-3">
-                                <div>Total</div>
-                                <div id="totalScore"><?= $evaluation['total_score'] ?></div>
-                            </div>
-                            <?php if ((int)$evaluation['status'] !== 2): ?>
-                            <div class="d-flex gap-2 justify-content-end mt-3">
-                                <button type="submit" name="action" value="draft" class="btn btn-secondary btn-sm">Save draft</button>
-                                <button type="submit" name="action" value="submit" class="btn btn-primary btn-sm">Submit final grade</button>
-                            </div>
-                            <?php else: ?>
-                            <div class="alert alert-success mt-3 mb-0"><i class="bi bi-check-circle"></i> Final grade submitted.</div>
-                            <?php endif; ?>
-                        </form>
-                    </div>
+
+            <div class="col-lg-6">
+                <div class="ui-card p-4 eval-sticky">
+                    <h2 class="h5 mb-1">Điểm chính thức của giáo viên</h2>
+                    <p class="small text-muted mb-3">Điểm này là điểm cuối cùng học sinh nhận được.</p>
+                    <?php
+                    $rf = [
+                        'hidden' => ['deliver_id' => $deliverId, 'task_id' => $taskId],
+                        'submit_text' => 'Chốt điểm',
+                        'done_text' => 'Đã chốt điểm cho bài này.',
+                        'confirm' => ['title' => 'Chốt điểm?', 'message' => 'Sau khi chốt, học sinh sẽ thấy điểm này.'],
+                        'redirect' => $gradesUrl,
+                    ];
+                    require __DIR__ . '/_rubric_form.php';
+                    ?>
                 </div>
             </div>
         </div>
     </section>
 </main>
 <?php require_once __DIR__ . '/../templates/footer.php'; require_once __DIR__ . '/../templates/vendors.php'; ?>
-<script>
-document.querySelectorAll('.score-chip-group').forEach(group => {
-    const tc = group.dataset.tc;
-    const input = document.querySelector('.score-input[data-tc="' + tc + '"]');
-    const badge = document.querySelector('.criterion-score-badge[data-tc="' + tc + '"]');
-    group.querySelectorAll('.score-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            if (!input || input.readOnly) return;
-            group.querySelectorAll('.score-chip').forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            input.value = chip.dataset.value;
-            if (badge) badge.textContent = chip.dataset.value;
-            recalcTotal();
-        });
-    });
-});
-function recalcTotal() {
-    let t = 0;
-    document.querySelectorAll('.score-input').forEach(i => { t += parseFloat(i.value) || 0; });
-    const el = document.getElementById('totalScore');
-    if (el) el.textContent = t.toFixed(1);
-}
-const form = document.getElementById('evaluationForm');
-if (form) form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    fd.append('action', e.submitter.value);
-    const res = await fetch(form.action, { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.success) { if (window.Toast) Toast.success(data.message); else alert(data.message); location.reload(); }
-    else { if (window.Toast) Toast.error(data.message); else alert(data.message); }
-});
-</script>
 </body>
 </html>

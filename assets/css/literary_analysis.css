@@ -3,7 +3,7 @@
  */
 
 body.literary-bg {
-    background-color: #f6f9ff;
+    background-color: var(--lit-primary-subtle);
     background-image: url('/assets/img/vanhoc.jpg');
     background-position: center;
     background-size: cover;
@@ -49,7 +49,7 @@ body.literary-bg .genai-modal__panel {
     margin: 2rem auto;
     max-width: 72rem;
     width: calc(100% - 2rem);
-    background: #fff;
+    background: var(--lit-surface);
     border-radius: 12px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
@@ -100,17 +100,17 @@ body.literary-bg .pagetitle {
 }
 
 body.literary-bg .pagetitle h1 {
-    color: #012970 !important;
+    color: var(--lit-heading) !important;
     margin-bottom: 0.35rem;
 }
 
 body.literary-bg .breadcrumb-item,
 body.literary-bg .breadcrumb-item a {
-    color: #4154f1 !important;
+    color: var(--lit-primary) !important;
 }
 
 body.literary-bg .breadcrumb-item.active {
-    color: #012970 !important;
+    color: var(--lit-heading) !important;
 }
 
 body.literary-bg .alert-info {
@@ -151,19 +151,19 @@ body.dark-theme .genai-panel {
 
 .editable-text-block {
     position: relative;
-    border: 1px dashed #cbd5e1;
+    border: 1px dashed var(--lit-border-strong);
     border-radius: 8px;
     padding: 1rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .editable-text-block:hover {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--lit-primary-2);
+    box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1);
 }
 
 .editable-text-block.editing {
-    border-color: #6366f1;
+    border-color: var(--lit-primary-2);
     border-style: solid;
     background: #fefefe;
 }
@@ -227,37 +227,37 @@ body.dark-theme .editable-text-block.editing {
     align-items: center;
     justify-content: center;
     padding: 3rem;
-    color: #64748b;
+    color: var(--lit-text-secondary);
 }
 
 /* Prose / analysis content (literary_analysis.php) */
 body.literary-bg .prose-custom {
-    color: #374151;
+    color: var(--lit-text);
 }
 
 body.literary-bg .prose-custom h1 {
-    color: #111827;
+    color: var(--lit-text);
     font-weight: 700 !important;
 }
 
 body.literary-bg .prose-custom h2 {
-    color: #111827;
+    color: var(--lit-text);
     font-weight: 700 !important;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--lit-border);
     padding-bottom: 0.5rem;
     margin-top: 2rem;
     margin-bottom: 1rem;
 }
 
 body.literary-bg .prose-custom h3 {
-    color: #1f2937;
+    color: var(--lit-text);
     font-weight: 700 !important;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
 }
 
 body.literary-bg .prose-custom h4 {
-    color: #374151;
+    color: var(--lit-text);
     font-weight: 700 !important;
     margin-top: 1rem;
     margin-bottom: 0.5rem;
@@ -286,7 +286,7 @@ body.literary-bg .prose-custom li::before {
     position: absolute;
     left: 0;
     top: 0;
-    color: #4f46e5;
+    color: var(--lit-primary);
     font-weight: bold;
     display: inline-block;
     width: 1em;
@@ -313,7 +313,7 @@ body.literary-bg .analysis-point span::before {
     position: absolute;
     left: 0;
     top: 0.1em;
-    color: #4f46e5;
+    color: var(--lit-primary);
     font-weight: bold;
     display: inline-block;
     width: 1em;
@@ -321,23 +321,23 @@ body.literary-bg .analysis-point span::before {
 }
 
 body.literary-bg .prose-custom strong {
-    color: #1f2937;
+    color: var(--lit-text);
 }
 
 body.literary-bg .prose-custom i {
     font-style: italic;
-    color: #4338ca;
+    color: var(--lit-primary-hover);
 }
 
 body.literary-bg .prose-custom blockquote {
     margin-top: 0.5rem;
     padding-left: 1rem;
-    border-left: 4px solid #e5e7eb;
-    color: #4b5563;
+    border-left: 4px solid var(--lit-border);
+    color: var(--lit-text-secondary);
 }
 
 body.literary-bg .prose-custom pre {
-    background-color: #f3f4f6;
+    background-color: var(--lit-surface-3);
     padding: 1rem;
     border-radius: 0.5rem;
     white-space: pre-wrap;
@@ -364,7 +364,7 @@ body.literary-bg .genai-tabs {
 body.literary-bg .genai-tabs__header {
     flex-shrink: 0;
     padding: 1rem 1.25rem 0.85rem;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    background: linear-gradient(180deg, var(--lit-surface-2) 0%, var(--lit-surface) 100%);
     border-bottom: 1px solid #e8ecf4;
 }
 
@@ -376,7 +376,7 @@ body.literary-bg .genai-tabs__nav {
     padding: 0.3rem;
     background: #eef1f8;
     border-radius: 10px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
 }
 
 body.literary-bg .genai-tabs__btn,
@@ -388,7 +388,7 @@ body.literary-bg .tab-button {
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.25;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     background: transparent;
     border: none !important;
     border-radius: 8px;
@@ -405,15 +405,15 @@ body.literary-bg .genai-tabs__btn i {
 
 body.literary-bg .genai-tabs__btn:hover:not(:disabled):not(.active),
 body.literary-bg .tab-button:hover:not(:disabled):not(.active) {
-    color: #4154f1;
+    color: var(--lit-primary);
     background: rgba(255, 255, 255, 0.85);
 }
 
 body.literary-bg .genai-tabs__btn.active,
 body.literary-bg .tab-button.active {
-    color: #fff !important;
-    background: #4154f1 !important;
-    box-shadow: 0 2px 8px rgba(65, 84, 241, 0.32);
+    color: var(--lit-primary-contrast) !important;
+    background: var(--lit-primary) !important;
+    box-shadow: 0 2px 8px rgba(var(--lit-primary-rgb), 0.32);
     font-weight: 600;
 }
 
@@ -433,7 +433,7 @@ body.literary-bg .genai-tabs__body {
     min-height: 0;
     overflow: auto;
     padding: 1.5rem 1.75rem;
-    background: #fff;
+    background: var(--lit-surface);
 }
 
 body.literary-bg #placeholder.genai-placeholder,
@@ -451,7 +451,7 @@ body.literary-bg .genai-placeholder__icon {
     justify-content: center;
     border-radius: 16px;
     background: #f0f3ff;
-    color: #4154f1;
+    color: var(--lit-primary);
 }
 
 body.literary-bg .genai-panel-empty {
@@ -461,7 +461,7 @@ body.literary-bg .genai-panel-empty {
     margin: 2rem auto;
     border-radius: 12px;
     border: 1px dashed #c7d2fe;
-    background: linear-gradient(180deg, #fafbff 0%, #f8fafc 100%);
+    background: linear-gradient(180deg, #fafbff 0%, var(--lit-surface-2) 100%);
 }
 
 body.literary-bg .genai-panel-empty__icon {
@@ -469,8 +469,8 @@ body.literary-bg .genai-panel-empty__icon {
     height: 52px;
     margin: 0 auto 1rem;
     border-radius: 12px;
-    background: #eef2ff;
-    color: #4154f1;
+    background: var(--lit-primary-subtle);
+    color: var(--lit-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -480,13 +480,13 @@ body.literary-bg .genai-panel-empty__icon {
 body.literary-bg .genai-panel-empty h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--lit-text);
     margin-bottom: 0.5rem;
 }
 
 body.literary-bg .genai-panel-empty p {
     font-size: 0.875rem;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     margin-bottom: 1.25rem;
 }
 
@@ -497,11 +497,11 @@ body.literary-bg .genai-btn-primary {
     padding: 0.65rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #fff;
-    background: #4154f1;
+    color: var(--lit-primary-contrast);
+    background: var(--lit-primary);
     border: none;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(65, 84, 241, 0.25);
+    box-shadow: 0 2px 6px rgba(var(--lit-primary-rgb), 0.25);
     transition: background 0.15s ease, transform 0.1s ease;
 }
 
@@ -517,8 +517,8 @@ body.literary-bg .genai-btn-outline {
     padding: 0.65rem 1.1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #4154f1;
-    background: #fff;
+    color: var(--lit-primary);
+    background: var(--lit-surface);
     border: 1px solid #c7d2fe;
     border-radius: 8px;
     transition: background 0.15s ease, border-color 0.15s ease;
@@ -526,7 +526,7 @@ body.literary-bg .genai-btn-outline {
 
 body.literary-bg .genai-btn-outline:hover:not(:disabled) {
     background: #f0f3ff;
-    border-color: #4154f1;
+    border-color: var(--lit-primary);
 }
 
 body.literary-bg .genai-btn-danger {

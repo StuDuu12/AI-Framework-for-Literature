@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -21,8 +21,8 @@
             <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="menu_feedback">Góp ý & hỗ trợ</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Home</a></li>
-                    <li class="breadcrumb-item active">Responses</li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Bài làm</li>
                 </ol>
             </nav>
         </div>
@@ -33,28 +33,28 @@
                     <!-- Filter Card -->
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title" data-lang-key="filters">Filters</h5>
+                            <h5 class="card-title" data-lang-key="filters">Bộ lọc</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label" data-lang-key="reflect_type_label">Type responses</label>
+                                    <label for="filterType" class="form-label" data-lang-key="reflect_type_label">Kiểu bài làm</label>
                                     <select id="filterType" class="form-select">
                                         <option value="" data-lang-key="filter_all">All Types</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" data-lang-key="status">Status</label>
+                                    <label for="filterStatus" class="form-label" data-lang-key="status">Trạng thái</label>
                                     <select id="filterStatus" class="form-select">
                                         <option value="" data-lang-key="filter_all">All Statuses</option>
                                         <option value="0" data-lang-key="reflect_status_new">New</option>
                                         <option value="1" data-lang-key="reflect_status_progress">In Progress</option>
-                                        <option value="2" data-lang-key="reflect_status_resolved">Resolved</option>
-                                        <option value="3" data-lang-key="reflect_status_closed">Closed</option>
+                                        <option value="2" data-lang-key="reflect_status_resolved">Đã xử lý</option>
+                                        <option value="3" data-lang-key="reflect_status_closed">Đã đóng</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label" data-lang-key="search">Search</label>
+                                    <label for="searchInput" class="form-label" data-lang-key="search">Tìm kiếm</label>
                                     <input type="text" id="searchInput" class="form-control"
-                                        placeholder="Search by title..." data-lang-key="reflect_search_placeholder" data-lang-attr="placeholder">
+                                        placeholder="Tìm theo tiêu đề…" data-lang-key="reflect_search_placeholder" data-lang-attr="placeholder">
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                             <!-- Empty State -->
                             <div id="emptyState" class="empty-state" style="display: none;">
                                 <i class="bi bi-inbox"></i>
-                                <p>No tickets yet</p>
+                                <p>Chưa có yêu cầu hỗ trợ</p>
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
         </section>
 
         <!-- Create Ticket Button -->
-        <button class="btn-create-ticket" onclick="openCreateModal()" title="Create new ticket">
+        <button class="btn-create-ticket" onclick="openCreateModal()" title="Tạo yêu cầu hỗ trợ">
             <i class="bi bi-plus-lg"></i>
         </button>
     </main>
@@ -98,31 +98,31 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5>Create New Reflect</h5>
-                <button type="button" class="modal-close" onclick="closeCreateModal()" aria-label="Close">
+                <button type="button" class="modal-close" onclick="closeCreateModal()" aria-label="Đóng">
                     <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <form id="createTicketForm">
                     <div class="form-group">
-                        <label>Type Reflect <span class="required">*</span></label>
+                        <label for="createType">Type Reflect <span class="required">*</span></label>
                         <select id="createType" class="form-control" required>
                             <option value="">-- -- Select Type --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Title <span class="required">*</span></label>
-                        <input type="text" id="createTitle" class="form-control" placeholder="Enter title..." required>
+                        <label for="createTitle">Tiêu đề <span class="required">*</span></label>
+                        <input type="text" id="createTitle" class="form-control" placeholder="Nhập tiêu đề…" required>
                     </div>
                     <div class="form-group">
-                        <label>Content <span class="required">*</span></label>
-                        <textarea id="createContent" class="form-control" placeholder="Describe your issue in detail..."
+                        <label for="createContent">Nội dung <span class="required">*</span></label>
+                        <textarea id="createContent" class="form-control" placeholder="Mô tả chi tiết vấn đề của bạn…"
                             required></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Huỷ</button>
                 <button type="button" class="btn btn-primary" onclick="createTicket()">
                     <i class="bi bi-send"></i> <span>Create Reflect</span>
                 </button>
@@ -185,11 +185,11 @@
                     });
                 } else {
                     console.error('Types API error:', data.message || 'Unknown error');
-                    alert('Cannot load reflect type list: ' + (data.message || 'Unknown error'));
+                    UI.error('Không tải được danh sách loại góp ý: ' + (data.message || 'lỗi không xác định'));
                 }
             } catch (error) {
                 console.error('Error loading types:', error);
-                alert('Error connecting to server: ' + error.message);
+                UI.networkError(error);
             }
         }
 
@@ -229,7 +229,7 @@
             } catch (error) {
                 loading.style.display = 'none';
                 console.error('Error loading tickets:', error);
-                alert('Error loading ticket list: ' + error.message);
+                UI.networkError(error, 'Không tải được danh sách góp ý.');
             }
         }
 
@@ -299,7 +299,7 @@
         function getStatusLabel(status) {
             const labels = {
                 0: 'New',
-                1: 'In Progress',
+                1: 'Đang xử lý',
                 2: 'Resolved',
                 3: 'Closed'
             };
@@ -360,7 +360,7 @@
             const content = document.getElementById('createContent').value.trim();
 
             if (!typeId || !title || !content) {
-                alert('Please fill in all required information');
+                UI.warning('Vui lòng điền đủ các thông tin bắt buộc.');
                 return;
             }
 
@@ -379,14 +379,14 @@
                 const data = await response.json();
                 if (data.success) {
                     closeCreateModal();
-                    alert('Reflect created successfully!');
+                    UI.success('Đã gửi góp ý.');
                     loadTickets();
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                 }
             } catch (error) {
                 console.error('Error creating ticket:', error);
-                alert('Error creating ticket');
+                UI.error('Không gửi được góp ý.');
             }
         }
 

@@ -1,11 +1,11 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="menu_dashboard">Dashboard</title>
+    <title data-lang-key="menu_dashboard">Tổng quan</title>
 </head>
 
 <body>
@@ -16,11 +16,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="menu_dashboard">Dashboard</h1>
+            <h1 data-lang-key="menu_dashboard">Tổng quan</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/" data-lang-key="back_home">Home</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Dashboard</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/" data-lang-key="back_home">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Trang chủ</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->

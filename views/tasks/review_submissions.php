@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -164,13 +164,13 @@
             <h1 data-lang-key="view_student_analysis">View Student Analysis</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Class</a></li>
-                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Learning Phases</a></li>
+                    <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Lớp</a></li>
+                    <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Tasks</a></li>
+                            href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Nhiệm vụ</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/task/view?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="details">Details</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="view_analysis">View Analysis</li>
+                            href="/class/task/view?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="details">Chi tiết</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="view_analysis">Xem bài phân tích</li>
                 </ol>
             </nav>
         </div>
@@ -191,8 +191,8 @@
         ?>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <i class="bi bi-exclamation-triangle"></i>
-                <strong>Notice:</strong> There are <?= $debugCount ?> comments in the database but they are not displayed. This may be due to a query issue or data structure.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <strong>Lưu ý:</strong> Có <?= $debugCount ?> bình luận nhưng chưa hiển thị được. Vui lòng tải lại trang; nếu vẫn lỗi, hãy báo quản trị viên.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
             </div>
         <?php endif; ?>
 
@@ -236,14 +236,14 @@
                     <div class="stat-box warning">
                         <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
                         <h3 class="mt-2 mb-0"><?= $submissionsWithComments ?></h3>
-                        <p class="mb-0" data-lang-key="submissions_with_comments">Submissions with Comments</p>
+                        <p class="mb-0" data-lang-key="submissions_with_comments">Bài nộp có bình luận</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <div class="stat-box success">
                         <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
                         <h3 class="mt-2 mb-0"><?= $submissionsWithTeacherFeedback ?></h3>
-                        <p class="mb-0" data-lang-key="responded">Responded</p>
+                        <p class="mb-0" data-lang-key="responded">Đã phản hồi</p>
                     </div>
                 </div>
             </div>
@@ -266,7 +266,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#with-feedback"
                             type="button" role="tab">
-                            <i class="bi bi-check-circle text-success"></i> <span>Responded</span>
+                            <i class="bi bi-check-circle text-success"></i> <span>Đã phản hồi</span>
                             (<?= $submissionsWithTeacherFeedback ?>)
                         </button>
                     </li>
@@ -385,7 +385,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                                 <?php if ($submission['student_comments'] > 0): ?>
                                     <span class="comment-badge bg-info text-white">
                                         <i class="bi bi-person-circle"></i>
-                                        <?= $submission['student_comments'] ?> by student
+                                        <?= $submission['student_comments'] ?> theo học sinh
                                     </span>
                                 <?php endif; ?>
                                 <?php if ($submission['teacher_comments'] > 0): ?>
@@ -396,7 +396,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                                 <?php else: ?>
                                     <span class="comment-badge bg-warning text-dark">
                                         <i class="bi bi-exclamation-circle"></i>
-                                        Not responded
+                                        Chưa phản hồi
                                     </span>
                                 <?php endif; ?>
                             </div>

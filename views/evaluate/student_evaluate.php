@@ -92,7 +92,7 @@ if (!empty($evaluation['details'])) {
 // Now start HTML output
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -104,25 +104,25 @@ if (!empty($evaluation['details'])) {
         /* Main Layout */
         body {
             font-family: 'Open Sans', sans-serif;
-            background: #f5f7fa;
+            background: var(--lit-surface-3);
         }
 
         .main {
-            background: #f5f7fa;
+            background: var(--lit-surface-3);
         }
 
         /* Content Display Area */
         .content-display-container {
             position: relative;
             padding: 20px;
-            background: #ffffff;
+            background: var(--lit-surface);
             border-radius: 16px;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
         }
 
         /* Content Block Container - gắn ảnh và comment lại với nhau */
         .content-block-with-comments {
-            background: #ffffff;
+            background: var(--lit-surface);
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 40px;
@@ -140,7 +140,7 @@ if (!empty($evaluation['details'])) {
         .content-block-with-comments.selected {
             border: 3px solid #2196F3;
             box-shadow: 0 8px 40px rgba(33, 150, 243, 0.25);
-            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            background: linear-gradient(135deg, var(--lit-surface) 0%, #f8fbff 100%);
         }
 
         .content-image-wrapper {
@@ -173,11 +173,11 @@ if (!empty($evaluation['details'])) {
         /* Score Panel - Sticky at Top Right */
         .score-panel {
             position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--lit-primary) 0%, var(--lit-primary-2) 100%);
             border-radius: 20px;
             padding: 30px;
             color: white;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 40px rgba(var(--lit-primary-rgb), 0.3);
             margin-bottom: 30px;
             z-index: 100;
         }
@@ -272,7 +272,7 @@ if (!empty($evaluation['details'])) {
             font-weight: 700;
             border: 2px solid rgba(255, 255, 255, 0.5);
             background: rgba(255, 255, 255, 0.95);
-            color: #667eea;
+            color: var(--lit-primary);
             border-radius: 10px;
             padding: 8px;
             transition: all 0.3s ease;
@@ -393,7 +393,7 @@ if (!empty($evaluation['details'])) {
         }
 
         .modal-content-criteria {
-            background: white;
+            background: var(--lit-surface);
             border-radius: 24px;
             max-width: 800px;
             width: 100%;
@@ -416,7 +416,7 @@ if (!empty($evaluation['details'])) {
         }
 
         .modal-header-criteria {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--lit-primary) 0%, var(--lit-primary-2) 100%);
             color: white;
             padding: 30px;
             display: flex;
@@ -459,8 +459,8 @@ if (!empty($evaluation['details'])) {
         }
 
         .criteria-detail-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #e9ecef;
+            background: linear-gradient(135deg, var(--lit-surface-2) 0%, var(--lit-surface) 100%);
+            border: 2px solid var(--lit-border);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 20px;
@@ -468,8 +468,8 @@ if (!empty($evaluation['details'])) {
         }
 
         .criteria-detail-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            border-color: var(--lit-primary);
+            box-shadow: 0 4px 20px rgba(var(--lit-primary-rgb), 0.15);
             transform: translateY(-2px);
         }
 
@@ -485,7 +485,7 @@ if (!empty($evaluation['details'])) {
             flex: 1;
             font-size: 1.2rem;
             font-weight: 700;
-            color: #2c3e50;
+            color: var(--lit-text);
             line-height: 1.4;
         }
 
@@ -502,9 +502,9 @@ if (!empty($evaluation['details'])) {
             text-align: center;
             font-size: 1.5rem;
             font-weight: 800;
-            border: 3px solid #667eea;
-            background: white;
-            color: #667eea;
+            border: 3px solid var(--lit-primary);
+            background: var(--lit-surface);
+            color: var(--lit-primary);
             border-radius: 12px;
             padding: 12px;
             transition: all 0.3s ease;
@@ -512,25 +512,25 @@ if (!empty($evaluation['details'])) {
 
         .criteria-detail-score-input:focus {
             outline: none;
-            border-color: #764ba2;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+            border-color: var(--lit-primary-2);
+            box-shadow: 0 0 0 4px rgba(var(--lit-primary-rgb), 0.2);
             transform: scale(1.05);
         }
 
         .criteria-detail-range {
             font-size: 0.85rem;
-            color: #6c757d;
+            color: var(--lit-text-secondary);
             font-weight: 600;
         }
 
         .criteria-detail-description {
-            color: #495057;
+            color: var(--lit-text);
             line-height: 1.8;
             font-size: 0.95rem;
             padding: 16px;
-            background: rgba(102, 126, 234, 0.05);
+            background: rgba(var(--lit-primary-rgb), 0.05);
             border-radius: 12px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--lit-primary);
         }
 
         /* Comment Section - Using styles from comment.css */
@@ -538,7 +538,7 @@ if (!empty($evaluation['details'])) {
             margin-top: 16px;
             /* Khoảng cách nhỏ với ảnh để gắn liền */
             padding-top: 16px;
-            border-top: 2px solid #e9ecef;
+            border-top: 2px solid var(--lit-border);
             /* Đường kẻ phân cách ảnh và comment */
             animation: slideDown 0.3s ease;
         }
@@ -614,12 +614,12 @@ if (!empty($evaluation['details'])) {
         }
 
         .modal-body-criteria::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--lit-primary) 0%, var(--lit-primary-2) 100%);
             border-radius: 10px;
         }
 
         .modal-body-criteria::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: linear-gradient(135deg, var(--lit-primary-2) 0%, var(--lit-primary) 100%);
         }
 
         /* Responsive */
@@ -667,10 +667,10 @@ if (!empty($evaluation['details'])) {
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Learning Phases</a></li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
                             href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Evaluation List</a></li>
-                    <li class="breadcrumb-item active">Perform Evaluation</li>
+                    <li class="breadcrumb-item active">Thực hiện đánh giá</li>
                 </ol>
             </nav>
         </div>
@@ -683,18 +683,18 @@ if (!empty($evaluation['details'])) {
                         <i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Task Info</span>
                         <?php if ($deliverInfo['type'] === 'user'): ?>
                             <span class="info-badge badge-user">
-                                <i class="bi bi-person"></i> <span>Personal</span>
+                                <i class="bi bi-person"></i> <span>Cá nhân</span>
                             </span>
                         <?php else: ?>
                             <span class="info-badge badge-group">
-                                <i class="bi bi-people"></i> <span>Group</span>
+                                <i class="bi bi-people"></i> <span>Nhóm</span>
                             </span>
                         <?php endif; ?>
                     </h5>
                     <div class="row">
                         <div class="col-md-9">
-                            <p><strong>Task:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
-                            <p><strong>Respondent:</strong>
+                            <p><strong>Nhiệm vụ:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
+                            <p><strong>Người làm:</strong>
                                 <?= $isAnonymous ? '<span class="text-muted fst-italic">Ẩn danh</span>' : htmlspecialchars($responseInfo['response_author']) ?>
                             </p>
                             <p><strong>Submission Date:</strong>
@@ -703,15 +703,15 @@ if (!empty($evaluation['details'])) {
                         <div class="col-md-3 text-end">
                             <?php if ($evaluation['status'] == 0): ?>
                                 <span class="evaluation-status status-0">
-                                    <i class="bi bi-circle"></i> <span>Draft</span>
+                                    <i class="bi bi-circle"></i> <span>Bản nháp</span>
                                 </span>
                             <?php elseif ($evaluation['status'] == 1): ?>
                                 <span class="evaluation-status status-1">
-                                    <i class="bi bi-hourglass-split"></i> <span>Grading</span>
+                                    <i class="bi bi-hourglass-split"></i> <span>Đang chấm</span>
                                 </span>
                             <?php else: ?>
                                 <span class="evaluation-status status-2">
-                                    <i class="bi bi-check-circle"></i> <span>Completed</span>
+                                    <i class="bi bi-check-circle"></i> <span>Đã hoàn thành</span>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -727,21 +727,21 @@ if (!empty($evaluation['details'])) {
                         <div class="score-panel-header">
                             <div class="score-panel-title">
                                 <i class="bi bi-clipboard-check-fill"></i>
-                                <span>Evaluation</span>
+                                <span>Đánh giá</span>
                             </div>
                             <?php if ($evaluation['status'] == 0): ?>
                                 <span class="evaluation-status status-0">
-                                    <i class="bi bi-circle-fill"></i> Draft
+                                    <i class="bi bi-circle-fill"></i> Bản nháp
                                 </span>
                             <?php elseif ($evaluation['status'] == 1): ?>
                                 <span class="evaluation-status status-1"
                                     style="background: rgba(255,255,255,0.25); color: white;">
-                                    <i class="bi bi-hourglass-split"></i> Grading
+                                    <i class="bi bi-hourglass-split"></i> Đang chấm
                                 </span>
                             <?php else: ?>
                                 <span class="evaluation-status status-2"
                                     style="background: rgba(255,255,255,0.25); color: white;">
-                                    <i class="bi bi-check-circle-fill"></i> Complete
+                                    <i class="bi bi-check-circle-fill"></i> Hoàn thành
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -772,7 +772,7 @@ if (!empty($evaluation['details'])) {
                                                     <?= htmlspecialchars($criterion['name_tc']) ?>
                                                 </div>
                                                 <div class="criteria-quick-score">
-                                                    <input type="number" name="scores[<?= $criterion['tc_id'] ?>]"
+                                                    <input aria-label="Điểm" type="number" name="scores[<?= $criterion['tc_id'] ?>]"
                                                         class="score-input-compact score-input"
                                                         data-tc-id="<?= $criterion['tc_id'] ?>"
                                                         min="<?= $criterion['min_score'] ?>"
@@ -792,25 +792,25 @@ if (!empty($evaluation['details'])) {
                             <!-- Action Buttons -->
                             <div class="col-md-2">
                                 <button type="button" class="btn-detail mb-2" id="btnShowDetailCriteria">
-                                    <i class="bi bi-list-ul"></i> Details
+                                    <i class="bi bi-list-ul"></i> Chi tiết
                                 </button>
 
                                 <?php if ($evaluation['status'] != 2): ?>
                                     <div class="action-buttons-vertical">
                                         <button type="submit" form="evaluationForm" data-action="draft"
                                             class="btn-action btn-draft">
-                                            <i class="bi bi-save-fill"></i> <span>Save</span>
+                                            <i class="bi bi-save-fill"></i> <span>Lưu</span>
                                         </button>
                                         <button type="submit" form="evaluationForm" data-action="submit"
                                             class="btn-action btn-submit">
-                                            <i class="bi bi-send-fill"></i> <span>Complete</span>
+                                            <i class="bi bi-send-fill"></i> <span>Hoàn thành</span>
                                         </button>
                                     </div>
                                 <?php else: ?>
                                     <div
                                         style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; text-align: center;">
                                         <i class="bi bi-check-circle-fill" style="font-size: 1.5rem;"></i>
-                                        <p style="margin: 8px 0 0 0; font-weight: 600; font-size: 0.85rem;">Complete</p>
+                                        <p style="margin: 8px 0 0 0; font-weight: 600; font-size: 0.85rem;">Hoàn thành</p>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -820,8 +820,8 @@ if (!empty($evaluation['details'])) {
                     <!-- Content Display -->
                     <div class="card" style="border: none; box-shadow: none; background: transparent;">
                         <div class="card-body" style="padding: 0;">
-                            <h5 class="card-title mb-4" style="font-size: 1.5rem; font-weight: 700; color: #2c3e50;">
-                                <i class="bi bi-file-text-fill"></i> <span data-lang-key="response_to_evaluate">Submission to Evaluate</span>
+                            <h5 class="card-title mb-4" style="font-size: 1.5rem; font-weight: 700; color: var(--lit-text);">
+                                <i class="bi bi-file-text-fill"></i> <span data-lang-key="response_to_evaluate">Bài cần chấm</span>
                             </h5>
 
                             <?php if (!empty($responseInfo['contents'])): ?>
@@ -838,18 +838,18 @@ if (!empty($evaluation['details'])) {
                                             <div class="fb-comment-block" id="comment-section-<?= $content['content_id'] ?>"
                                                 style="display: none;">
                                                 <div class="fb-comments-list" id="comments-list-<?= $content['content_id'] ?>">
-                                                    <div class="text-center text-slate-400 text-sm py-2">No comments yet</div>
+                                                    <div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận</div>
                                                 </div>
 
                                                 <!-- Add Comment Input Area -->
                                                 <div class="fb-comment-input-area">
                                                     <img src="<?= htmlspecialchars($_SESSION['user']['avatar'] ?? 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg') ?>"
                                                         alt="Avatar">
-                                                    <textarea class="fb-comment-input"
+                                                    <textarea aria-label="Viết bình luận" class="fb-comment-input"
                                                         data-content-id="<?= $content['content_id'] ?>"
-                                                        placeholder="Write a comment..." rows="1"></textarea>
+                                                        placeholder="Viết bình luận…" rows="1"></textarea>
                                                     <button class="fb-comment-btn" data-content-id="<?= $content['content_id'] ?>">
-                                                        Send
+                                                        Gửi
                                                     </button>
                                                 </div>
                                             </div>
@@ -858,7 +858,7 @@ if (!empty($evaluation['details'])) {
                                 </div>
                             <?php else: ?>
                                 <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle"></i> No response content yet
+                                    <i class="bi bi-exclamation-triangle"></i> Chưa có nội dung bài làm
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -874,8 +874,8 @@ if (!empty($evaluation['details'])) {
                             <i class="bi bi-list-check"></i>
                             Details Evaluation Criteria
                         </div>
-                        <button class="modal-close" id="btnCloseModal">
-                            <i class="bi bi-x-lg"></i>
+                        <button class="modal-close" id="btnCloseModal" aria-label="Đóng" title="Đóng">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
                         </button>
                     </div>
                     <div class="modal-body-criteria">
@@ -883,11 +883,11 @@ if (!empty($evaluation['details'])) {
                             <div class="criteria-detail-card">
                                 <div class="criteria-detail-header">
                                     <div class="criteria-detail-name">
-                                        <i class="bi bi-check-square-fill" style="color: #667eea;"></i>
+                                        <i class="bi bi-check-square-fill" style="color: var(--lit-primary);"></i>
                                         <?= htmlspecialchars($criterion['name_tc']) ?>
                                     </div>
                                     <div class="criteria-detail-score-box">
-                                        <input type="number" class="criteria-detail-score-input score-input-modal"
+                                        <input type="number" aria-label="Điểm" class="criteria-detail-score-input score-input-modal"
                                             data-tc-id="<?= $criterion['tc_id'] ?>" min="<?= $criterion['min_score'] ?>"
                                             max="<?= $criterion['max_score'] ?>" step="0.5"
                                             value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
@@ -920,7 +920,7 @@ if (!empty($evaluation['details'])) {
         <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header bg-danger text-white">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong class="me-auto">Error</strong>
+                <strong class="me-auto">Lỗi</strong>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
             <div class="toast-body" id="errorToastMessage"></div>
@@ -1037,13 +1037,13 @@ if (!empty($evaluation['details'])) {
                 });
 
                 if (!isValid) {
-                    alert('Please enter valid scores for all criteria!');
+                    UI.warning('Vui lòng nhập điểm hợp lệ cho tất cả tiêu chí.');
                     return;
                 }
 
                 // Confirm before submit
                 if (action === 'submit') {
-                    if (!confirm('Are you sure you want to complete this evaluation? Once completed, you cannot edit it.')) {
+                    if (!await UI.confirm({ title: 'Hoàn thành đánh giá?', message: 'Sau khi hoàn thành, bạn sẽ không thể chỉnh sửa đánh giá này.', confirmText: 'Hoàn thành' })) {
                         return;
                     }
                 }
@@ -1061,7 +1061,7 @@ if (!empty($evaluation['details'])) {
                     const result = await response.json();
 
                     if (result.success) {
-                        alert(result.message);
+                        UI.notify(result.message);
                         if (action === 'submit') {
                             // Redirect back to evaluation list
                             window.location.href = '/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>';
@@ -1070,11 +1070,11 @@ if (!empty($evaluation['details'])) {
                             location.reload();
                         }
                     } else {
-                        alert('Error: ' + result.message);
+                        UI.error(result.message);
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('An error occurred while saving the evaluation!');
+                    UI.error('Có lỗi khi lưu đánh giá. Vui lòng thử lại.');
                 }
             });
         }
@@ -1386,7 +1386,7 @@ if (!empty($evaluation['details'])) {
                     const commentText = textarea.value.trim();
 
                     if (!commentText) {
-                        alert('Please enter comment content!');
+                        UI.warning('Vui lòng nhập nội dung bình luận.');
                         return;
                     }
 
@@ -1397,7 +1397,7 @@ if (!empty($evaluation['details'])) {
                         await addComment(contentId, commentText);
                         textarea.value = '';
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     } finally {
                         this.disabled = false;
                         this.innerHTML = '<i class="bi bi-send"></i> Send Comment';
@@ -1442,7 +1442,7 @@ if (!empty($evaluation['details'])) {
             const container = document.getElementById(`comments-list-${contentId}`);
 
             if (comments.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">No comments yet</div>';
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận</div>';
                 return;
             }
 
@@ -1478,13 +1478,13 @@ if (!empty($evaluation['details'])) {
                             <div class="fb-comment-actions">
                                 <span class="comment-time">${time}</span>
                                 ${canReply ? `<button class="reply-btn" data-comment-id="${comment.comment_id}">Replies</button>` : ''}
-                                ${comment.user_id == CURRENT_USER_ID ? `<button class="delete-btn" data-comment-id="${comment.comment_id}">Delete</button>` : ''}
+                                ${comment.user_id == CURRENT_USER_ID ? `<button class="delete-btn" data-comment-id="${comment.comment_id}">Xoá</button>` : ''}
                             </div>
                             ${canReply ? `
                             <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
                                 <div class="fb-comment-input-area">
                                     <img src="${USER_AVATAR}" alt="Avatar">
-                                    <textarea class="fb-comment-input" placeholder="Write a reply..." rows="1"></textarea>
+                                    <textarea class="fb-comment-input" placeholder="Viết trả lời…" rows="1"></textarea>
                                     <button class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Send</button>
                                 </div>
                             </div>
@@ -1548,7 +1548,7 @@ if (!empty($evaluation['details'])) {
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', async function() {
-                    if (!confirm('Are you sure you want to delete this comment?')) return;
+                    if (!await UI.confirm('Xoá bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
 
@@ -1569,10 +1569,10 @@ if (!empty($evaluation['details'])) {
                         if (result.success) {
                             await loadComments(contentId);
                         } else {
-                            alert('Error: ' + result.message);
+                            UI.error(result.message);
                         }
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     }
                 });
             });
@@ -1585,7 +1585,7 @@ if (!empty($evaluation['details'])) {
                     const replyText = textarea.value.trim();
 
                     if (!replyText) {
-                        alert('Please enter reply content!');
+                        UI.warning('Vui lòng nhập nội dung trả lời.');
                         return;
                     }
 
@@ -1597,7 +1597,7 @@ if (!empty($evaluation['details'])) {
                         textarea.value = '';
                         document.getElementById(`reply-form-${parentId}`).style.display = 'none';
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     } finally {
                         this.disabled = false;
                         this.textContent = 'Send';

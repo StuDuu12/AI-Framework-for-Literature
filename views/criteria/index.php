@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -27,7 +27,7 @@
             <h1><i class="bi bi-card-checklist"></i> <span data-lang-key="menu_manage_criteria">Manage Evaluation Criteria</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class">Home</a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class">Trang chủ</a></li>
                     <li class="breadcrumb-item active">Evaluation Criteria</li>
                 </ol>
             </nav>
@@ -50,7 +50,7 @@
                                 <!-- Groups will be loaded here -->
                                 <div class="text-center py-4">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                        <span class="visually-hidden">Đang tải…</span>
                                     </div>
                                 </div>
                             </div>
@@ -64,7 +64,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                                 <div>
-                                    <h5 class="card-title mb-0" id="criteriaTitle">Criteria</h5>
+                                    <h5 class="card-title mb-0" id="criteriaTitle">Tiêu chí</h5>
                                     <small class="text-muted" id="groupDescription"></small>
                                 </div>
                                 <button class="btn btn-success btn-sm" id="addCriteriaBtn"
@@ -78,7 +78,7 @@
                                 <div class="empty-state">
                                     <i class="bi bi-inbox"></i>
                                     <h5>No criteria</h5>
-                                    <p>Please select a criteria group on the left or create a new one</p>
+                                    <p>Chọn một bộ tiêu chí ở bên trái hoặc tạo bộ mới</p>
                                 </div>
                             </div>
                         </div>
@@ -102,19 +102,19 @@
                                 <label for="groupName" class="form-label">Group Name <span
                                         class="text-hasnger">*</span></label>
                                 <input type="text" class="form-control" id="groupName" name="ten_nhom_tc" required
-                                    placeholder="Example: Content evaluation">
+                                    placeholder="Ví dụ: Đánh giá nội dung">
                             </div>
                             <div class="mb-3">
-                                <label for="groupDescription" class="form-label">Description</label>
+                                <label for="groupDescription" class="form-label">Mô tả</label>
                                 <textarea class="form-control" id="groupDescription" name="description" rows="3"
-                                    placeholder="Detailed description of this criteria group"></textarea>
+                                    placeholder="Mô tả chi tiết bộ tiêu chí"></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                         <button type="button" class="btn btn-primary" onclick="saveGroup()">
-                            <i class="bi bi-check-circle"></i> <span>Save</span>
+                            <i class="bi bi-check-circle"></i> <span>Lưu</span>
                         </button>
                     </div>
                 </div>
@@ -138,13 +138,13 @@
                                 <label for="criteriaName" class="form-label">Criterion Name <span
                                         class="text-hasnger">*</span></label>
                                 <input type="text" class="form-control" id="criteriaName" name="name_tc" required
-                                    placeholder="Example: Accuracy of content">
+                                    placeholder="Ví dụ: Độ chính xác của nội dung">
                             </div>
 
                             <div class="mb-3">
-                                <label for="criteriaDescription" class="form-label">Description</label>
+                                <label for="criteriaDescription" class="form-label">Mô tả</label>
                                 <textarea class="form-control" id="criteriaDescription" name="description" rows="2"
-                                    placeholder="Detailed description of the criterion"></textarea>
+                                    placeholder="Mô tả chi tiết tiêu chí"></textarea>
                             </div>
 
                             <div class="row">
@@ -168,9 +168,9 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                         <button type="button" class="btn btn-success" onclick="saveCriteria()">
-                            <i class="bi bi-check-circle"></i> <span>Save</span>
+                            <i class="bi bi-check-circle"></i> <span>Lưu</span>
                         </button>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                     <div class="modal-body">
                         <p class="text-muted mb-3">
                             <i class="bi bi-info-circle"></i>
-                            Define performance levels for this criterion (e.g., Excellent, Good, Fair, Poor).
+                            Mô tả các mức đạt của tiêu chí này (ví dụ: Giỏi, Khá, Trung bình, Yếu).
                         </p>
                         <input type="hidden" id="rubricTcId">
                         <div id="rubricLevelsContainer">
@@ -199,7 +199,7 @@
                         </button>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                         <button type="button" class="btn btn-primary" onclick="saveRubricLevels()">
                             <i class="bi bi-save"></i> Save Levels
                         </button>
@@ -220,7 +220,7 @@
                     <span id="successToastMessage"></span>
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+                    aria-label="Đóng"></button>
             </div>
         </div>
 
@@ -232,7 +232,7 @@
                     <span id="errorToastMessage"></span>
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+                    aria-label="Đóng"></button>
             </div>
         </div>
     </div>
@@ -302,7 +302,7 @@
             container.innerHTML = `
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">Đang tải…</span>
                     </div>
                 </div>
             `;
@@ -344,7 +344,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="bi bi-folder-x"></i>
-                        <p class="mb-0">No criteria groups yet</p>
+                        <p class="mb-0">Chưa có bộ tiêu chí</p>
                         <small class="text-muted">Click "Add Group" to get started</small>
                     </div>
                 `;
@@ -421,8 +421,8 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="bi bi-list-check"></i>
-                        <h6>No criteria yet</h6>
-                        <p class="mb-0 text-muted">Click "Add Criterion" to add new criteria</p>
+                        <h6>Chưa có tiêu chí</h6>
+                        <p class="mb-0 text-muted">Click "Thêm tiêu chí" to add new criteria</p>
                     </div>
                 `;
                 return;
@@ -433,11 +433,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th width="30%">Criterion Name</th>
+                                <th width="30%">Tên tiêu chí</th>
                                 <th width="25%">Description</th>
-                                <th width="12%" class="text-center">Score Range</th>
-                                <th width="18%" class="text-center">Rubric Levels</th>
-                                <th width="15%" class="text-end">Actions</th>
+                                <th width="12%" class="text-center">Thang điểm</th>
+                                <th width="18%" class="text-center">Các mức đánh giá</th>
+                                <th width="15%" class="text-end">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -449,7 +449,7 @@
                                         <span class="badge badge-score bg-success">${item.min_score} - ${item.max_score}</span>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-info" onclick="editRubricLevels(${item.tc_id}, '${escapeHtml(tcLabel(item.name_tc)).replace(/'/g, "\\'")}', ${item.min_score}, ${item.max_score})" title="Edit rubric levels">
+                                        <button class="btn btn-sm btn-outline-info" onclick="editRubricLevels(${item.tc_id}, '${escapeHtml(tcLabel(item.name_tc)).replace(/'/g, "\\'")}', ${item.min_score}, ${item.max_score})" title="Sửa các mức đánh giá">
                                             <i class="bi bi-list-ol"></i> Levels
                                         </button>
                                     </td>
@@ -471,7 +471,7 @@
 
         // Show add group modal
         function showAddGroupModal() {
-            document.getElementById('groupModalTitle').textContent = 'Add Criteria Group';
+            document.getElementById('groupModalTitle').textContent = 'Thêm bộ tiêu chí';
             document.getElementById('groupForm').reset();
             document.getElementById('groupId').value = '';
             groupModal.show();
@@ -485,7 +485,7 @@
 
                 if (result.success && result.data) {
                     const group = result.data;
-                    document.getElementById('groupModalTitle').textContent = 'Edit Criteria Groups';
+                    document.getElementById('groupModalTitle').textContent = 'Sửa bộ tiêu chí';
                     document.getElementById('groupId').value = group.nhom_tc_id;
                     document.getElementById('groupName').value = group.ten_nhom_tc;
                     document.getElementById('groupDescription').value = group.description || '';
@@ -541,7 +541,7 @@
         async function deleteGroup(groupId) {
             const group = groupsCache.find(g => Number(g.nhom_tc_id) === Number(groupId));
             const groupName = group ? tcLabel(group.ten_nhom_tc) : 'this group';
-            if (!confirm(`Are you sure you want to delete the group "${groupName}"?\n\nNote: Must delete all criteria in the group before deleting the group.`)) {
+            if (!await UI.confirm(`Xoá nhóm tiêu chí "${groupName}"?\n\nLưu ý: cần xoá hết tiêu chí trong nhóm trước.`)) {
                 return;
             }
 
@@ -565,7 +565,7 @@
                         document.getElementById('criteriaList').innerHTML = `
                             <div class="empty-state">
                                 <i class="bi bi-inbox"></i>
-                                <p>Please select a criteria group</p>
+                                <p>Hãy chọn một bộ tiêu chí</p>
                             </div>
                         `;
                     }
@@ -586,7 +586,7 @@
                 return;
             }
 
-            document.getElementById('criteriaModalTitle').textContent = 'Add Criterion';
+            document.getElementById('criteriaModalTitle').textContent = 'Thêm tiêu chí';
             document.getElementById('criteriaForm').reset();
             document.getElementById('criteriaId').value = '';
             document.getElementById('criteriaGroupId').value = selectedGroupId;
@@ -603,7 +603,7 @@
 
                 if (result.success && result.data) {
                     const criteria = result.data;
-                    document.getElementById('criteriaModalTitle').textContent = 'Edit Criteria';
+                    document.getElementById('criteriaModalTitle').textContent = 'Sửa tiêu chí';
                     document.getElementById('criteriaId').value = criteria.tc_id;
                     document.getElementById('criteriaGroupId').value = criteria.nhom_tc_id;
                     document.getElementById('criteriaName').value = criteria.name_tc;
@@ -664,7 +664,7 @@
         async function deleteCriteria(criteriaId) {
             const item = criteriaCache.find(c => Number(c.tc_id) === Number(criteriaId));
             const criteriaName = item ? tcLabel(item.name_tc) : 'this criterion';
-            if (!confirm(`Are you sure you want to delete the criterion "${criteriaName}"?`)) {
+            if (!await UI.confirm(`Xoá tiêu chí "${criteriaName}"?`)) {
                 return;
             }
 
@@ -730,7 +730,7 @@
         async function editRubricLevels(tcId, name, minScore, maxScore) {
             currentRubricTcId = tcId;
             document.getElementById('rubricTcId').value = tcId;
-            document.getElementById('rubricLevelsTitle').textContent = 'Rubric Levels: ' + name;
+            document.getElementById('rubricLevelsTitle').textContent = 'Các mức đánh giá: ' + name;
 
             const container = document.getElementById('rubricLevelsContainer');
             container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading...</div>';
@@ -757,7 +757,7 @@
                     renderRubricLevels(defaults);
                 }
             } catch (e) {
-                container.innerHTML = '<div class="text-danger">Error loading levels</div>';
+                container.innerHTML = '<div class="text-danger">Không tải được các mức đánh giá</div>';
             }
         }
 
@@ -766,7 +766,7 @@
             container.innerHTML = levels.map((lvl, i) => `
                 <div class="row mb-2 rubric-level-row align-items-center">
                     <div class="col-md-3">
-                        <input type="text" class="form-control form-control-sm" placeholder="Level name"
+                        <input type="text" class="form-control form-control-sm" placeholder="Tên mức"
                             value="${escapeHtml(lvl.level_name || '')}" data-field="level_name">
                     </div>
                     <div class="col-md-2">
@@ -774,7 +774,7 @@
                             value="${lvl.score ?? 0}" data-field="score" min="0">
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control form-control-sm" placeholder="Description (optional)"
+                        <input type="text" class="form-control form-control-sm" placeholder="Mô tả (không bắt buộc)"
                             value="${escapeHtml(lvl.description || '')}" data-field="description">
                     </div>
                     <div class="col-md-1">
@@ -792,13 +792,13 @@
             row.className = 'row mb-2 rubric-level-row align-items-center';
             row.innerHTML = `
                 <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm" placeholder="Level name" data-field="level_name">
+                    <input type="text" class="form-control form-control-sm" placeholder="Tên mức" data-field="level_name">
                 </div>
                 <div class="col-md-2">
                     <input type="number" class="form-control form-control-sm" placeholder="Score" data-field="score" min="0" value="0">
                 </div>
                 <div class="col-md-6">
-                    <input type="text" class="form-control form-control-sm" placeholder="Description (optional)" data-field="description">
+                    <input type="text" class="form-control form-control-sm" placeholder="Mô tả (không bắt buộc)" data-field="description">
                 </div>
                 <div class="col-md-1">
                     <button class="btn btn-sm btn-outline-danger" onclick="this.closest('.rubric-level-row').remove()" title="Remove">
@@ -824,7 +824,7 @@
             });
 
             if (levels.length === 0) {
-                alert('Vui lòng thêm ít nhất 1 level');
+                UI.warning('Vui lòng thêm ít nhất 1 mức đánh giá.');
                 return;
             }
 
@@ -840,10 +840,10 @@
                     rubricLevelsModal.hide();
                     showSuccess('Đã lưu rubric levels');
                 } else {
-                    alert(data.message || 'Lỗi lưu');
+                    UI.error(data.message || 'Không lưu được.');
                 }
             } catch (e) {
-                alert('Lỗi kết nối');
+                UI.error('Lỗi kết nối máy chủ. Vui lòng thử lại.');
             }
         }
     </script>

@@ -34,7 +34,7 @@ function getAllNhomTC($class_id, $user_id)
     global $pdo;
 
     if (!teacherCanAccessClassCriteria((int) $class_id, (int) $user_id)) {
-        return ['success' => false, 'message' => 'You do not have permission to access this class'];
+        return ['success' => false, 'message' => 'Bạn không có quyền truy cập lớp này.'];
     }
 
     $stmt = $pdo->prepare("SELECT nhom_tc_id, class_id, ten_nhom_tc, description 
@@ -86,12 +86,12 @@ function createNhomTC($class_id, $ten_nhom_tc, $description, $user_id)
     global $pdo;
 
     if (!teacherCanAccessClassCriteria((int) $class_id, (int) $user_id)) {
-        return ['success' => false, 'message' => 'You do not have permission to create criteria groups for this class'];
+        return ['success' => false, 'message' => 'Bạn không có quyền tạo bộ tiêu chí cho lớp này.'];
     }
 
     // Validate input
     if (empty(trim($ten_nhom_tc))) {
-        return ['success' => false, 'message' => 'Criteria group name cannot be empty'];
+        return ['success' => false, 'message' => 'Vui lòng nhập tên bộ tiêu chí.'];
     }
 
     $stmt = $pdo->prepare("INSERT INTO nhom_tc (class_id, ten_nhom_tc, description) VALUES (:class_id, :ten_nhom_tc, :description)");
@@ -100,9 +100,9 @@ function createNhomTC($class_id, $ten_nhom_tc, $description, $user_id)
     $stmt->bindParam(':description', $description, PDO::PARAM_STR);
 
     if ($stmt->execute()) {
-        return ['success' => true, 'nhom_tc_id' => $pdo->lastInsertId(), 'message' => 'Criteria group created successfully'];
+        return ['success' => true, 'nhom_tc_id' => $pdo->lastInsertId(), 'message' => 'Đã tạo bộ tiêu chí.'];
     } else {
-        return ['success' => false, 'message' => 'Error creating criteria group'];
+        return ['success' => false, 'message' => 'Không tạo được bộ tiêu chí.'];
     }
 }
 
@@ -119,7 +119,7 @@ function updateNhomTC($nhom_tc_id, $ten_nhom_tc, $description)
 
     // Validate input
     if (empty(trim($ten_nhom_tc))) {
-        return ['success' => false, 'message' => 'Criteria group name cannot be empty'];
+        return ['success' => false, 'message' => 'Vui lòng nhập tên bộ tiêu chí.'];
     }
 
     $stmt = $pdo->prepare("UPDATE nhom_tc SET ten_nhom_tc = :ten_nhom_tc, description = :description WHERE nhom_tc_id = :nhom_tc_id");
@@ -129,12 +129,12 @@ function updateNhomTC($nhom_tc_id, $ten_nhom_tc, $description)
 
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'Criteria group updated successfully'];
+            return ['success' => true, 'message' => 'Đã cập nhật bộ tiêu chí.'];
         } else {
-            return ['success' => false, 'message' => 'Criteria group not found or no changes made'];
+            return ['success' => false, 'message' => 'Không tìm thấy bộ tiêu chí hoặc không có gì thay đổi.'];
         }
     } else {
-        return ['success' => false, 'message' => 'Error updating criteria group'];
+        return ['success' => false, 'message' => 'Không cập nhật được bộ tiêu chí.'];
     }
 }
 
@@ -163,12 +163,12 @@ function deleteNhomTC($nhom_tc_id)
 
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'Criteria group deleted successfully'];
+            return ['success' => true, 'message' => 'Đã xoá bộ tiêu chí.'];
         } else {
-return ['success' => false, 'message' => 'Criteria group not found'];
+return ['success' => false, 'message' => 'Không tìm thấy bộ tiêu chí.'];
         }
     } else {
-        return ['success' => false, 'message' => 'Error deleting criteria group'];
+        return ['success' => false, 'message' => 'Không xoá được bộ tiêu chí.'];
     }
 }
 
@@ -217,7 +217,7 @@ function getTieuChiById($tc_id)
     $criterion = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$criterion) {
-        return ['success' => false, 'message' => 'Criterion not found'];
+        return ['success' => false, 'message' => 'Không tìm thấy tiêu chí.'];
     }
 
     return ['success' => true, 'data' => $criterion];
@@ -238,20 +238,20 @@ function createTieuChi($nhom_tc_id, $name_tc, $description, $min_score, $max_sco
 
     // Validate input
     if (empty(trim($name_tc))) {
-        return ['success' => false, 'message' => 'Criterion name cannot be empty'];
+        return ['success' => false, 'message' => 'Vui lòng nhập tên tiêu chí.'];
     }
 
     // Validate scores
     if (!is_numeric($min_score) || !is_numeric($max_score)) {
-        return ['success' => false, 'message' => 'Min and max scores must be numbers'];
+        return ['success' => false, 'message' => 'Điểm thấp nhất và cao nhất phải là số.'];
     }
 
     if ($min_score < 0 || $max_score < 0) {
-        return ['success' => false, 'message' => 'Scores cannot be negative'];
+        return ['success' => false, 'message' => 'Điểm không được âm.'];
     }
 
     if ($min_score > $max_score) {
-        return ['success' => false, 'message' => 'Min score cannot be greater than max score'];
+        return ['success' => false, 'message' => 'Điểm thấp nhất không được lớn hơn điểm cao nhất.'];
     }
 
     // Check if group exists
@@ -260,7 +260,7 @@ function createTieuChi($nhom_tc_id, $name_tc, $description, $min_score, $max_sco
     $check_stmt->execute();
 
     if ($check_stmt->rowCount() === 0) {
-        return ['success' => false, 'message' => 'Criteria group does not exist'];
+        return ['success' => false, 'message' => 'Bộ tiêu chí không tồn tại.'];
     }
 
     $stmt = $pdo->prepare("INSERT INTO tieu_chi (nhom_tc_id, name_tc, description, min_score, max_score) VALUES (:nhom_tc_id, :name_tc, :description, :min_score, :max_score)");
@@ -271,9 +271,9 @@ function createTieuChi($nhom_tc_id, $name_tc, $description, $min_score, $max_sco
     $stmt->bindParam(':max_score', $max_score, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-        return ['success' => true, 'tc_id' => $pdo->lastInsertId(), 'message' => 'Criterion created successfully'];
+        return ['success' => true, 'tc_id' => $pdo->lastInsertId(), 'message' => 'Đã tạo tiêu chí.'];
     } else {
-        return ['success' => false, 'message' => 'Error creating criterion'];
+        return ['success' => false, 'message' => 'Không tạo được tiêu chí.'];
     }
 }
 
@@ -292,20 +292,20 @@ function updateTieuChi($tc_id, $name_tc, $description, $min_score, $max_score)
 
     // Validate input
     if (empty(trim($name_tc))) {
-        return ['success' => false, 'message' => 'Criterion name cannot be empty'];
+        return ['success' => false, 'message' => 'Vui lòng nhập tên tiêu chí.'];
     }
 
     // Validate scores
     if (!is_numeric($min_score) || !is_numeric($max_score)) {
-        return ['success' => false, 'message' => 'Min and max scores must be numbers'];
+        return ['success' => false, 'message' => 'Điểm thấp nhất và cao nhất phải là số.'];
     }
 
     if ($min_score < 0 || $max_score < 0) {
-        return ['success' => false, 'message' => 'Scores cannot be negative'];
+        return ['success' => false, 'message' => 'Điểm không được âm.'];
     }
 
     if ($min_score > $max_score) {
-        return ['success' => false, 'message' => 'Min score cannot be greater than max score'];
+        return ['success' => false, 'message' => 'Điểm thấp nhất không được lớn hơn điểm cao nhất.'];
     }
 
     $stmt = $pdo->prepare("UPDATE tieu_chi SET name_tc = :name_tc, description = :description, min_score = :min_score, max_score = :max_score WHERE tc_id = :tc_id");
@@ -317,12 +317,12 @@ function updateTieuChi($tc_id, $name_tc, $description, $min_score, $max_score)
 
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'Criterion updated successfully'];
+            return ['success' => true, 'message' => 'Đã cập nhật tiêu chí.'];
         } else {
-            return ['success' => false, 'message' => 'Criterion not found or no changes made'];
+            return ['success' => false, 'message' => 'Không tìm thấy tiêu chí hoặc không có gì thay đổi.'];
         }
     } else {
-        return ['success' => false, 'message' => 'Error updating criterion'];
+        return ['success' => false, 'message' => 'Không cập nhật được tiêu chí.'];
     }
 }
 
@@ -351,12 +351,12 @@ function deleteTieuChi($tc_id)
 
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'Criterion deleted successfully'];
+            return ['success' => true, 'message' => 'Đã xoá tiêu chí.'];
         } else {
-return ['success' => false, 'message' => 'Criterion not found'];
+return ['success' => false, 'message' => 'Không tìm thấy tiêu chí.'];
         }
     } else {
-        return ['success' => false, 'message' => 'Error deleting criterion'];
+        return ['success' => false, 'message' => 'Không xoá được tiêu chí.'];
     }
 }
 
@@ -371,7 +371,7 @@ function getNhomTCWithCount($class_id, $user_id)
     global $pdo;
 
     if (!teacherCanAccessClassCriteria((int) $class_id, (int) $user_id)) {
-        return ['success' => false, 'message' => 'You do not have permission to access this class'];
+        return ['success' => false, 'message' => 'Bạn không có quyền truy cập lớp này.'];
     }
 
     $stmt = $pdo->prepare("SELECT 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -55,7 +55,7 @@
                     <li class="breadcrumb-item"><a href="/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Learning
                             Phases</a></li>
-                    <li class="breadcrumb-item active">Tasks - Step <?= $phase['phase_number'] ?></li>
+                    <li class="breadcrumb-item active">Nhiệm vụ · Giai đoạn <?= $phase['phase_number'] ?></li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -72,14 +72,14 @@
                                 </h5>
                                 <a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>"
                                     class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> <span>Back</span>
+                                    <i class="bi bi-arrow-left"></i> <span>Quay lại</span>
                                 </a>
                             </div>
 
                             <?php if (empty($tasks)): ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
-                                    <span>No tasks assigned to you in this phase yet.</span>
+                                    <span>Bạn chưa được giao nhiệm vụ nào trong giai đoạn này.</span>
                                 </div>
                             <?php else: ?>
                                 <div class="list-group">
@@ -96,11 +96,11 @@
                                                         <!-- Delivery Type Badge -->
                                                         <?php if ($task['delivery_type'] == 'user'): ?>
                                                             <span class="badge bg-primary">
-                                                                <i class="bi bi-person"></i> <span>Personal</span>
+                                                                <i class="bi bi-person"></i> <span>Cá nhân</span>
                                                             </span>
                                                         <?php elseif ($task['delivery_type'] == 'group'): ?>
                                                             <span class="badge bg-info">
-                                                                <i class="bi bi-people"></i> <span>Group</span>: <?= htmlspecialchars($task['assigned_to_name'] ?? 'N/A') ?>
+                                                                <i class="bi bi-people"></i> <span>Nhóm</span>: <?= htmlspecialchars($task['assigned_to_name'] ?? 'N/A') ?>
                                                             </span>
                                                         <?php endif; ?>
 
@@ -108,7 +108,7 @@
                                                         <?php $status = (int) ($task['delivery_status'] ?? 0); ?>
                                                         <?php if ($status === 2): ?>
                                                             <span class="badge bg-success">
-                                                                <i class="bi bi-check-circle"></i> <span>Completed</span>
+                                                                <i class="bi bi-check-circle"></i> <span>Đã hoàn thành</span>
                                                             </span>
                                                         <?php elseif ($status === 1): ?>
                                                             <span class="badge bg-primary">
@@ -130,7 +130,7 @@
                                                     <div class="d-flex flex-wrap gap-3 align-items-center small text-muted">
                                                         <span>
                                                             <i class="bi bi-person-badge"></i>
-                                                            <span>Created by</span>:
+                                                            <span>Người tạo</span>:
                                                             <strong><?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?></strong>
                                                         </span>
                                                         <span>
@@ -160,7 +160,7 @@
                                                     <?php else: ?>
                                                         <a href="/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $task['id_deliver'] ?>"
                                                             class="btn btn-sm btn-success">
-                                                            <i class="bi bi-play-circle"></i> <span>Perform</span>
+                                                            <i class="bi bi-play-circle"></i> <span>Làm bài</span>
                                                         </a>
                                                     <?php endif; ?>
                                                 </div>

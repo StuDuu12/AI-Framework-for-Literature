@@ -1,9 +1,9 @@
 /* Research figure panels — Fig. 15, Fig. 18 (shared with outline-validation pattern) */
 
 .research-figure {
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--lit-border-strong);
     border-radius: 12px;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    background: linear-gradient(180deg, var(--lit-surface-2) 0%, var(--lit-surface) 100%);
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
@@ -15,15 +15,15 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f1f5f9;
+    border-bottom: 1px solid var(--lit-border);
+    background: var(--lit-surface-3);
 }
 
 .research-figure__caption {
     margin: 0;
     font-size: 0.8125rem;
     font-weight: 700;
-    color: #334155;
+    color: var(--lit-text);
     letter-spacing: 0.01em;
     line-height: 1.35;
 }
@@ -47,7 +47,7 @@
 
 .research-figure__badge--ready {
     color: #1e40af;
-    background: #dbeafe;
+    background: var(--lit-primary-subtle);
     border-color: #93c5fd;
 }
 
@@ -81,10 +81,10 @@
 }
 
 .research-figure__workflow-step {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
     border-radius: 10px;
     padding: 0.55rem 0.5rem;
-    background: #fff;
+    background: var(--lit-surface);
     text-align: center;
 }
 
@@ -108,8 +108,8 @@
     border-radius: 999px;
     font-size: 0.65rem;
     font-weight: 700;
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--lit-surface-3);
+    color: var(--lit-text-secondary);
     margin-bottom: 0.25rem;
 }
 
@@ -127,7 +127,7 @@
     display: block;
     font-size: 0.68rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--lit-text);
     line-height: 1.25;
 }
 
@@ -138,7 +138,7 @@
 .research-figure__tracker-title {
     font-size: 0.72rem;
     font-weight: 700;
-    color: #475569;
+    color: var(--lit-text-secondary);
     margin-bottom: 0.4rem;
 }
 
@@ -168,14 +168,14 @@
     margin-top: 0;
     padding: 0.75rem;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
+    border: 1px solid var(--lit-border);
+    background: var(--lit-surface);
 }
 
 .research-figure--revision .change-stats-panel h4 {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #475569;
+    color: var(--lit-text-secondary);
     margin-bottom: 0.5rem;
 }
 
@@ -193,31 +193,31 @@
 }
 
 .research-figure__metric {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
     border-radius: 10px;
     padding: 0.65rem 0.75rem;
-    background: #fff;
+    background: var(--lit-surface);
 }
 
 .research-figure__metric-value {
     font-size: 1.15rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--lit-text);
     line-height: 1.1;
 }
 
 .research-figure__metric-label {
     font-size: 0.68rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--lit-text-secondary);
     margin-top: 0.15rem;
 }
 
 .research-figure__table-wrap {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--lit-border);
     border-radius: 10px;
     overflow: hidden;
-    background: #fff;
+    background: var(--lit-surface);
 }
 
 .research-figure__table {
@@ -229,13 +229,13 @@
 .research-figure__table th,
 .research-figure__table td {
     padding: 0.55rem 0.65rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--lit-border);
     vertical-align: middle;
 }
 
 .research-figure__table th {
-    background: #f8fafc;
-    color: #64748b;
+    background: var(--lit-surface-2);
+    color: var(--lit-text-secondary);
     font-weight: 700;
     font-size: 0.72rem;
     text-transform: uppercase;

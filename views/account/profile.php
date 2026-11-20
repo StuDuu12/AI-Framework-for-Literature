@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -30,7 +32,7 @@ $roleLabel = match($profile['role']) {
 $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -41,7 +43,7 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
         .profile-page { max-width: 900px; margin: 0 auto; }
 
         .profile-hero {
-            background: linear-gradient(135deg, #4154f1 0%, #717ff5 100%);
+            background: linear-gradient(135deg, var(--lit-primary) 0%, #717ff5 100%);
             border-radius: 16px;
             padding: 2.5rem 2rem 6rem;
             color: #fff;
@@ -62,21 +64,21 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
             width: 96px;
             height: 96px;
             border-radius: 50%;
-            background: #fff;
+            background: var(--lit-surface);
             border: 4px solid #fff;
             box-shadow: 0 4px 20px rgba(0,0,0,0.12);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2.5rem;
-            color: #4154f1;
+            color: var(--lit-primary);
         }
 
         .profile-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
         @media (max-width: 768px) { .profile-cards { grid-template-columns: 1fr; } }
 
         .profile-card {
-            background: #fff;
+            background: var(--lit-surface);
             border: 1px solid #e3e6f0;
             border-radius: 12px;
             padding: 1.5rem;
@@ -85,7 +87,7 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
         .profile-card h5 {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #6c757d;
+            color: var(--lit-text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin: 0 0 1rem;
@@ -109,16 +111,16 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
             flex-shrink: 0;
             font-size: 1rem;
         }
-        .info-icon.bg-primary-subtle { background: rgba(65,84,241,0.1); color: #4154f1; }
+        .info-icon.bg-primary-subtle { background: rgba(var(--lit-primary-rgb), 0.1); color: var(--lit-primary); }
         .info-icon.bg-success-subtle { background: rgba(25,135,84,0.1); color: #198754; }
         .info-icon.bg-warning-subtle { background: rgba(255,193,7,0.15); color: #cc9a06; }
         .info-icon.bg-info-subtle    { background: rgba(13,202,240,0.12); color: #0aa2c0; }
         .info-icon.bg-danger-subtle  { background: rgba(220,53,69,0.1); color: #dc3545; }
-        .info-label { font-size: 0.78rem; color: #6c757d; }
-        .info-value { font-size: 0.92rem; color: #012970; font-weight: 500; }
+        .info-label { font-size: 0.78rem; color: var(--lit-text-secondary); }
+        .info-value { font-size: 0.92rem; color: var(--lit-heading); font-weight: 500; }
 
         .form-group { margin-bottom: 1rem; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; color: #012970; margin-bottom: 0.35rem; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--lit-heading); margin-bottom: 0.35rem; }
         .form-group .form-control {
             border-radius: 8px;
             border: 1.5px solid #e3e6f0;
@@ -127,8 +129,8 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-group .form-control:focus {
-            border-color: #4154f1;
-            box-shadow: 0 0 0 3px rgba(65,84,241,0.1);
+            border-color: var(--lit-primary);
+            box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1);
         }
 
         .password-toggle {
@@ -138,15 +140,15 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #6c757d;
+            color: var(--lit-text-secondary);
             cursor: pointer;
             padding: 4px;
             font-size: 1rem;
         }
-        .password-toggle:hover { color: #4154f1; }
+        .password-toggle:hover { color: var(--lit-primary); }
 
         .btn-save {
-            background: #4154f1;
+            background: var(--lit-primary);
             border: none;
             border-radius: 8px;
             padding: 0.6rem 1.5rem;
@@ -170,7 +172,7 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
         }
         .btn-danger-outline:hover { background: #dc3545; color: #fff; }
 
-        .strength-bar { height: 4px; border-radius: 2px; background: #e9ecef; margin-top: 0.35rem; overflow: hidden; }
+        .strength-bar { height: 4px; border-radius: 2px; background: var(--lit-surface-3); margin-top: 0.35rem; overflow: hidden; }
         .strength-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
 
         .alert-msg {
@@ -266,7 +268,7 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
                         </div>
                         <div class="form-group">
                             <label for="editEmail">Email</label>
-                            <input type="email" class="form-control" id="editEmail" value="<?= htmlspecialchars($profile['email']) ?>" placeholder="email@example.com">
+                            <input type="email" class="form-control" id="editEmail" value="<?= htmlspecialchars($profile['email']) ?>" placeholder="ten@truong.edu.vn">
                         </div>
                         <button type="submit" class="btn btn-save" id="btnUpdateInfo">
                             <i class="bi bi-check-lg me-1"></i> Lưu thay đổi
@@ -285,8 +287,8 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
                             <label for="currentPassword">Mật khẩu hiện tại</label>
                             <div style="position:relative;">
                                 <input type="password" class="form-control" id="currentPassword" required>
-                                <button type="button" class="password-toggle" onclick="togglePass('currentPassword', this)">
-                                    <i class="bi bi-eye"></i>
+                                <button type="button" class="password-toggle" onclick="togglePass('currentPassword', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -294,8 +296,8 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
                             <label for="newPassword">Mật khẩu mới</label>
                             <div style="position:relative;">
                                 <input type="password" class="form-control" id="newPassword" required minlength="6">
-                                <button type="button" class="password-toggle" onclick="togglePass('newPassword', this)">
-                                    <i class="bi bi-eye"></i>
+                                <button type="button" class="password-toggle" onclick="togglePass('newPassword', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
                                 </button>
                             </div>
                             <div class="strength-bar"><div class="strength-bar-fill" id="strengthBar"></div></div>
@@ -305,8 +307,8 @@ $joinedDate = date('d/m/Y', strtotime($profile['created_at']));
                             <label for="confirmPassword">Xác nhận mật khẩu mới</label>
                             <div style="position:relative;">
                                 <input type="password" class="form-control" id="confirmPassword" required minlength="6">
-                                <button type="button" class="password-toggle" onclick="togglePass('confirmPassword', this)">
-                                    <i class="bi bi-eye"></i>
+                                <button type="button" class="password-toggle" onclick="togglePass('confirmPassword', this)" aria-label="Hiện/ẩn mật khẩu" title="Hiện/ẩn mật khẩu">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>

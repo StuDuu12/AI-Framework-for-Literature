@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -140,7 +140,7 @@
             ?>
             <div class="progress-overview mb-4">
                 <div class="progress-overview__header d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0 fw-600" style="color:var(--app-heading,#012970)">
+                    <h6 class="mb-0 fw-600" style="color:var(--app-heading,var(--lit-heading))">
                         <i class="bi bi-bar-chart-line me-1"></i>
                         <span data-lang-key="progress_overview">Tiến độ học tập</span>
                     </h6>
@@ -167,7 +167,7 @@
                                     <tr>
                                         <td>
                                             <a href="/joinclass?id=<?= urlencode($pr['class_id']) ?>"
-                                               class="fw-600 text-decoration-none" style="color:var(--app-primary,#4154f1)">
+                                               class="fw-600 text-decoration-none" style="color:var(--app-primary,var(--lit-primary))">
                                                 <?= htmlspecialchars($pr['class_name']) ?>
                                             </a>
                                         </td>
@@ -218,7 +218,7 @@
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <div class="d-flex align-items-start gap-2 flex-grow-1">
                                             <?php if ($class['role'] === 'teacher'): ?>
-                                                <input class="form-check-input class-checkbox mt-1"
+                                                <input aria-label="Chọn" class="form-check-input class-checkbox mt-1"
                                                     type="checkbox"
                                                     data-class-id="<?php echo intval($class['class_id']); ?>"
                                                     data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>">
@@ -229,12 +229,12 @@
                                             <button class="btn btn-sm btn-outline-secondary edit-class-btn"
                                                 data-class-id="<?php echo intval($class['class_id']); ?>"
                                                 data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
-                                                title="Edit class name">
+                                                title="Sửa tên lớp">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                         <?php endif; ?>
                                     </div>
-                                    <p class="card-text"><span data-lang-key="role_label">Role:</span> <?php echo htmlspecialchars(ucfirst($class['role'])); ?></p>
+                                    <p class="card-text"><span data-lang-key="role_label">Vai trò:</span> <?php echo htmlspecialchars(ucfirst($class['role'])); ?></p>
                                     <a href="/joinclass?id=<?php echo urlencode($class['class_id']); ?>" class="btn btn-primary" data-lang-key="enter_class">Enter Class</a>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
                 </div>
             <?php else: ?>
                 <div class="alert alert-info" role="alert">
-                    <span data-lang-key="no_class_joined">You have not joined any classes yet.</span>
+                    <span data-lang-key="no_class_joined">Bạn chưa tham gia lớp nào.</span>
                 </div>
             <?php endif; ?>
         </section>
@@ -260,12 +260,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="newClassName" placeholder="Enter class name..." data-lang-key="enter_class_name">
+                        <label for="newClassName" class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="newClassName" placeholder="Nhập tên lớp…" data-lang-key="enter_class_name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Huỷ</button>
                     <button type="button" class="btn btn-primary" id="createClassBtn" data-lang-key="create_class">Create Class</button>
                 </div>
             </div>
@@ -283,13 +283,13 @@
                 <div class="modal-body">
                     <input type="hidden" id="editClassId">
                     <div class="mb-3">
-                        <label class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="editClassName" placeholder="Enter class name..." data-lang-key="enter_class_name">
+                        <label for="editClassName" class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editClassName" placeholder="Nhập tên lớp…" data-lang-key="enter_class_name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="updateClassBtn" data-lang-key="update">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Huỷ</button>
+                    <button type="button" class="btn btn-primary" id="updateClassBtn" data-lang-key="update">Cập nhật</button>
                 </div>
             </div>
         </div>
@@ -300,11 +300,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Đóng"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Notification content
+                Nội dung thông báo
             </div>
         </div>
     </div>
@@ -368,7 +368,7 @@
                     const className = document.getElementById('newClassName').value.trim();
 
                     if (!className) {
-                        showToast('Please enter a class name', 'warning');
+                        showToast('Vui lòng nhập tên lớp.', 'warning');
                         return;
                     }
 
@@ -385,21 +385,21 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                showToast('Class created successfully!', 'success');
+                                showToast('Đã tạo lớp.', 'success');
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1500);
                             } else {
                                 showToast(data.message || 'Could not create class', 'error');
                                 this.disabled = false;
-                                this.textContent = 'Create Class';
+                                this.textContent = 'Tạo lớp';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            showToast('An error occurred while creating the class', 'error');
+                            showToast('Không tạo được lớp. Vui lòng thử lại.', 'error');
                             this.disabled = false;
-                            this.textContent = 'Create Class';
+                            this.textContent = 'Tạo lớp';
                         });
                 });
             }
@@ -429,7 +429,7 @@
                     const className = document.getElementById('editClassName').value.trim();
 
                     if (!className) {
-                        showToast('Please enter a class name', 'warning');
+                        showToast('Vui lòng nhập tên lớp.', 'warning');
                         return;
                     }
 
@@ -447,7 +447,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                showToast('Class name updated successfully!', 'success');
+                                showToast('Đã đổi tên lớp.', 'success');
                                 setTimeout(() => {
                                     location.reload();
                                 }, 1500);
@@ -459,7 +459,7 @@
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            showToast('An error occurred while updating the class name', 'error');
+                            showToast('Không đổi được tên lớp. Vui lòng thử lại.', 'error');
                             this.disabled = false;
                             this.textContent = 'Update';
                         });
@@ -499,16 +499,16 @@
                     const classNames = Array.from(checkedBoxes).map(cb => cb.dataset.className);
 
                     if (classIds.length === 0) {
-                        showToast('Please select at least one class to delete!', 'warning');
+                        showToast('Hãy chọn ít nhất một lớp để xoá.', 'warning');
                         return;
                     }
 
                     const count = classIds.length;
                     const confirmMessage = count === 1 ?
-                        `Are you sure you want to delete the class "${classNames[0]}"?\n\nAll data related to this class will be deleted.` :
-                        `Are you sure you want to delete ${count} selected classes?\n\nAll data related to these classes will be deleted.`;
+                        `Xoá lớp "${classNames[0]}"?\n\nToàn bộ dữ liệu của lớp (chủ đề, nhiệm vụ, bài làm) sẽ bị xoá và không thể khôi phục.` :
+                        `Xoá ${count} lớp đã chọn?\n\nToàn bộ dữ liệu của các lớp này sẽ bị xoá và không thể khôi phục.`;
 
-                    if (!confirm(confirmMessage)) {
+                    if (!await UI.confirm(confirmMessage)) {
                         return;
                     }
 
@@ -543,10 +543,10 @@
                         }
 
                         if (successCount > 0) {
-                            showToast(`Successfully deleted ${successCount} class(es)!`, 'success');
+                            showToast(`Đã xoá ${successCount} lớp.`, 'success');
                         }
                         if (failCount > 0) {
-                            showToast(`Could not delete ${failCount} class(es)!`, 'error');
+                            showToast(`Không xoá được ${failCount} lớp.`, 'error');
                         }
 
                         setTimeout(() => {
@@ -555,7 +555,7 @@
 
                     } catch (error) {
                         console.error('Error:', error);
-                        showToast('An error occurred while deleting classes', 'error');
+                        showToast('Không xoá được lớp. Vui lòng thử lại.', 'error');
                         this.disabled = false;
                         this.innerHTML = '<i class="bi bi-trash"></i> Delete Selected (<span id="selectedClassCount">' + count + '</span>)';
                     }

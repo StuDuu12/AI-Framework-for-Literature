@@ -10,7 +10,7 @@ header('Content-Type: application/json');
 
 // Check if user is logged in
 if (!isset($_SESSION['user']['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Please log in.']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
@@ -24,7 +24,7 @@ $scores     = isset($_POST['scores'])      ? $_POST['scores']              : [];
 $action     = isset($_POST['action'])      ? $_POST['action']              : 'draft';
 
 if (!$evaluateId || !$deliverId || empty($scores)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid data.']);
+    echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ.']);
     exit;
 }
 
@@ -44,17 +44,17 @@ $checkStmt->execute([
 $evaluation = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$evaluation) {
-    echo json_encode(['success' => false, 'message' => 'Evaluation not found.']);
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy phiếu đánh giá.']);
     exit;
 }
 
 if ($evaluation['user_id'] != $userId) {
-    echo json_encode(['success' => false, 'message' => 'You do not have permission to edit this evaluation.']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền sửa phiếu đánh giá này.']);
     exit;
 }
 
 if ($evaluation['status'] == 2) {
-    echo json_encode(['success' => false, 'message' => 'Evaluation is completed and cannot be edited.']);
+    echo json_encode(['success' => false, 'message' => 'Đánh giá đã hoàn thành, không sửa được nữa.']);
     exit;
 }
 
@@ -73,7 +73,7 @@ $critStmt->execute([':evaluate_id' => $evaluateId]);
 $criteria = $critStmt->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($criteria) || !is_array($scores)) {
-    echo json_encode(['success' => false, 'message' => 'No evaluation criteria configured for this evaluation.']);
+    echo json_encode(['success' => false, 'message' => 'Phiếu đánh giá này chưa có tiêu chí.']);
     exit;
 }
 
@@ -83,7 +83,7 @@ foreach ($criteria as $criterion) {
     $tcId = (int)$criterion['tc_id'];
 
     if (!isset($scores[$tcId]) || !is_numeric($scores[$tcId])) {
-        echo json_encode(['success' => false, 'message' => 'Missing score for criterion: ' . $criterion['name_tc']]);
+        echo json_encode(['success' => false, 'message' => 'Chưa có điểm cho tiêu chí: ' . $criterion['name_tc']]);
         exit;
     }
 
@@ -137,8 +137,8 @@ if ($result) {
         }
     }
 
-    $message = ($status == 2) ? 'Evaluation submitted successfully!' : 'Draft saved successfully!';
+    $message = ($status == 2) ? 'Đã hoàn thành đánh giá.' : 'Đã lưu nháp.';
     echo json_encode(['success' => true, 'message' => $message]);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Error saving evaluation.']);
+    echo json_encode(['success' => false, 'message' => 'Không lưu được đánh giá.']);
 }

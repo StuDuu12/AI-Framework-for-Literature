@@ -3,7 +3,7 @@ $ticketId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $user = $_SESSION['user'];
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -26,9 +26,9 @@ $user = $_SESSION['user'];
             <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="reflect_detail">Details Responses</span></h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Home</a></li>
-                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>/reflect">Responses</a></li>
-                    <li class="breadcrumb-item active">Details</li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>/reflect">Bài làm</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
                 </ol>
             </nav>
         </div>
@@ -51,7 +51,7 @@ $user = $_SESSION['user'];
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="card-title mb-0">
-                                    <i class="bi bi-chat-dots"></i> <span>Responses</span>
+                                    <i class="bi bi-chat-dots"></i> <span>Bài làm</span>
                                     <span id="responseCount" class="badge bg-primary ms-2">0</span>
                                 </h5>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="collapseAllResponses()">
@@ -68,9 +68,9 @@ $user = $_SESSION['user'];
                             <h5 class="card-title"><i class="bi bi-reply"></i> <span>Add Response</span></h5>
                             <form id="responseForm" class="response-form">
                                 <div class="form-group">
-                                    <label>Response Content <span class="required">*</span></label>
+                                    <label for="responseContent">Response Content <span class="required">*</span></label>
                                     <textarea id="responseContent" class="form-control"
-                                        placeholder="Enter response content..." required></textarea>
+                                        placeholder="Nhập nội dung bài làm…" required></textarea>
                                 </div>
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-primary">
@@ -135,12 +135,12 @@ $user = $_SESSION['user'];
                     }
                 } else {
                     console.error('Ticket detail error:', data.message || 'Unknown error');
-                    alert('Error: ' + (data.message || 'Cannot load ticket details'));
+                    UI.error(data.message || 'Không tải được chi tiết góp ý.');
                     window.location.href = '<?php echo URL_ROOT; ?>/reflect';
                 }
             } catch (error) {
                 console.error('Error loading ticket:', error);
-                alert('Error loading ticket details: ' + error.message);
+                UI.networkError(error, 'Không tải được chi tiết góp ý.');
                 window.location.href = '<?php echo URL_ROOT; ?>/reflect';
             }
         }
@@ -153,7 +153,7 @@ $user = $_SESSION['user'];
             const statusOptions = canUpdate ? `
         <select class="status-select" onchange="updateStatus(this.value)">
             <option value="0" ${ticket.status == 0 ? 'selected' : ''}>New</option>
-            <option value="1" ${ticket.status == 1 ? 'selected' : ''}>In Progress</option>
+            <option value="1" ${ticket.status == 1 ? 'selected' : ''}>Đang xử lý</option>
             <option value="2" ${ticket.status == 2 ? 'selected' : ''}>Resolved</option>
             <option value="3" ${ticket.status == 3 ? 'selected' : ''}>Closed</option>
         </select>
@@ -161,7 +161,7 @@ $user = $_SESSION['user'];
 
             const deleteButton = canUpdate ? `
         <button class="btn btn-danger btn-sm" onclick="deleteTicket()">
-            <i class="bi bi-trash"></i> Delete ticket
+            <i class="bi bi-trash"></i> Xoá yêu cầu
         </button>
     ` : '';
 
@@ -212,7 +212,7 @@ $user = $_SESSION['user'];
         </div>
         <div class="ticket-detail-body">
             <div class="initial-content">
-                        <h6><i class="bi bi-file-text"></i> Initial Content</h6>
+                        <h6><i class="bi bi-file-text"></i> Nội dung ban đầu</h6>
                 <div class="response-content">${escapeHtml(data.responses[0].content)}</div>
             </div>
             
@@ -234,7 +234,7 @@ $user = $_SESSION['user'];
                 document.getElementById('responsesContainer').innerHTML = `
             <div class="empty-state">
                 <i class="bi bi-chat"></i>
-                <p>No responses yet</p>
+                <p>Chưa có phản hồi</p>
             </div>
         `;
                 return;
@@ -307,17 +307,17 @@ $user = $_SESSION['user'];
                     ` : ''}
                     ${canDelete ? `
                         <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteResponse(${response.id_reflect_detail}, ${hasReplies ? replies.length : 0})">
-                            <i class="bi bi-trash"></i> Delete
+                            <i class="bi bi-trash"></i> Xoá
                         </button>
                     ` : ''}
                 </div>
                 ${canReply ? `
                     <div id="reply-form-${response.id_reflect_detail}" class="reply-form">
                         <div class="form-group mb-2">
-                            <textarea id="reply-content-${response.id_reflect_detail}" class="form-control" rows="3" placeholder="Enter reply content..."></textarea>
+                            <textarea id="reply-content-${response.id_reflect_detail}" class="form-control" rows="3" placeholder="Nhập nội dung trả lời…"></textarea>
                         </div>
                         <div class="text-end">
-                            <button class="btn btn-sm btn-secondary me-2" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">Cancel</button>
+                            <button class="btn btn-sm btn-secondary me-2" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">Huỷ</button>
                             <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); submitReply(${response.id_reflect_detail})">
                                 <i class="bi bi-send"></i> Send
                             </button>
@@ -334,7 +334,7 @@ $user = $_SESSION['user'];
             const content = document.getElementById('responseContent').value.trim();
 
             if (!content) {
-                alert('Please enter response content');
+                UI.warning('Vui lòng nhập nội dung phản hồi.');
                 return;
             }
 
@@ -357,11 +357,11 @@ $user = $_SESSION['user'];
                     document.getElementById('responseContent').value = '';
                     loadTicketDetail(); // Reload to show new response
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                 }
             } catch (error) {
                 console.error('Error adding response:', error);
-                alert('Error adding response');
+                UI.error('Không thêm được phản hồi.');
             }
         }
 
@@ -429,7 +429,7 @@ $user = $_SESSION['user'];
             const content = document.getElementById(`reply-content-${parentDetailId}`).value.trim();
 
             if (!content) {
-                alert('Please enter reply content');
+                UI.warning('Vui lòng nhập nội dung trả lời.');
                 return;
             }
 
@@ -452,17 +452,17 @@ $user = $_SESSION['user'];
                 if (data.success) {
                     loadTicketDetail(); // Reload to show new reply
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                 }
             } catch (error) {
                 console.error('Error submitting reply:', error);
-                alert('Error submitting reply');
+                UI.error('Không gửi được trả lời.');
             }
         }
 
         // Update status
         async function updateStatus(newStatus) {
-            if (!confirm('Are you sure you want to change the status?')) {
+            if (!await UI.confirm('Đổi trạng thái góp ý này?')) {
                 loadTicketDetail(); // Reset dropdown
                 return;
             }
@@ -483,22 +483,22 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Status updated!');
+                    UI.success('Đã cập nhật trạng thái.');
                     loadTicketDetail();
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                     loadTicketDetail(); // Reset dropdown
                 }
             } catch (error) {
                 console.error('Error updating status:', error);
-                alert('Error updating status');
+                UI.error('Không cập nhật được trạng thái.');
                 loadTicketDetail();
             }
         }
 
         // Delete ticket
         async function deleteTicket() {
-            if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone!')) {
+            if (!await UI.confirm('Xoá góp ý này? Thao tác này không thể hoàn tác.')) {
                 return;
             }
 
@@ -517,24 +517,24 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Ticket deleted successfully!');
+                    UI.success('Đã xoá góp ý.');
                     window.location.href = '<?php echo URL_ROOT; ?>/reflect';
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                 }
             } catch (error) {
                 console.error('Error deleting ticket:', error);
-                alert('Error deleting ticket');
+                UI.error('Không xoá được góp ý.');
             }
         }
 
         // Delete response
         async function deleteResponse(detailId, replyCount) {
             const confirmMessage = replyCount > 0
-                ? `This response has ${replyCount} replies. Deleting will also remove all replies. Are you sure you want to delete?`
-                : 'Are you sure you want to delete this response? This action cannot be undone!';
+                ? `Phản hồi này có ${replyCount} trả lời. Xoá phản hồi sẽ xoá luôn các trả lời. Tiếp tục xoá?`
+                : 'Xoá phản hồi này? Thao tác này không thể hoàn tác.';
 
-            if (!confirm(confirmMessage)) {
+            if (!await UI.confirm(confirmMessage)) {
                 return;
             }
 
@@ -553,14 +553,14 @@ $user = $_SESSION['user'];
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Response deleted successfully!');
+                    UI.success('Đã xoá phản hồi.');
                     loadTicketDetail(); // Reload to refresh list
                 } else {
-                    alert('Error: ' + data.message);
+                    UI.error(data.message);
                 }
             } catch (error) {
                 console.error('Error deleting response:', error);
-                alert('Error deleting response');
+                UI.error('Không xoá được phản hồi.');
             }
         }
 
@@ -568,7 +568,7 @@ $user = $_SESSION['user'];
         function getStatusLabel(status) {
             const labels = {
                 0: 'New',
-                1: 'In Progress',
+                1: 'Đang xử lý',
                 2: 'Resolved',
                 3: 'Closed'
             };

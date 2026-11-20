@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -8,7 +10,7 @@ header('Content-Type: application/json');
 $userId = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 $userRole = $_SESSION['user']['role'] ?? $_SESSION['role'] ?? null;
 if (!$userId || $userRole !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'No access permission']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền truy cập.']);
     exit();
 }
 
@@ -106,5 +108,5 @@ try {
     ]);
 } catch (PDOException $e) {
     error_log("admin_analytics error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi cơ sở dữ liệu. Vui lòng thử lại.']);
 }

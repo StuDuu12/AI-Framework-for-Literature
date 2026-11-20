@@ -1,0 +1,253 @@
+/**
+ * ============================================================
+ * tokens.css — NGUỒN DUY NHẤT cho màu sắc, chữ, khoảng cách
+ * ============================================================
+ * Mọi file CSS và view chỉ dùng var(--lit-*), KHÔNG viết mã màu cứng.
+ * Chế độ tối chỉ đổi giá trị token (khối .dark-theme bên dưới),
+ * nên component nào dùng token sẽ tự đổi theo.
+ *
+ * Load order: bootstrap → tokens.css → app.css → glass.css → dark.css → ...
+ * ============================================================
+ */
+
+:root {
+    /* ---------- Chữ ---------- */
+    --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-reading: 'Literata', Georgia, 'Times New Roman', serif; /* đọc tác phẩm & bài viết dài */
+
+    /* ---------- Màu thương hiệu: xanh mực + vàng giấy cũ ---------- */
+    --lit-primary: #4154f1;
+    --lit-primary-rgb: 65, 84, 241;
+    --lit-primary-hover: #3243d6;          /* đậm hơn khi hover để giữ tương phản */
+    --lit-primary-2: #6372f5;              /* màu đi kèm trong gradient */
+    --lit-primary-subtle: #eef0fe;         /* nền nhạt: badge, ô được chọn */
+    --lit-primary-light: var(--lit-primary-subtle);
+    --lit-primary-contrast: #ffffff;       /* chữ trên nền primary */
+    --lit-gradient-primary: linear-gradient(135deg, var(--lit-primary) 0%, var(--lit-primary-2) 100%);
+
+    --lit-accent: #b7791f;                 /* vàng giấy cũ — điểm nhấn văn học */
+    --lit-accent-rgb: 183, 121, 31;
+    --lit-accent-subtle: #fbf3e2;
+
+    /* ---------- Màu ngữ nghĩa ---------- */
+    --lit-success: #059669;
+    --lit-success-rgb: 5, 150, 105;
+    --lit-success-subtle: #e7f7f1;
+    --lit-warning: #d97706;
+    --lit-warning-rgb: 217, 119, 6;
+    --lit-warning-subtle: #fdf4e3;
+    --lit-danger: #dc2626;
+    --lit-danger-rgb: 220, 38, 38;
+    --lit-danger-subtle: #fdecec;
+    --lit-info: #0284c7;
+    --lit-info-rgb: 2, 132, 199;
+    --lit-info-subtle: #e6f4fb;
+
+    /* ---------- Chữ (đều đạt WCAG AA trên nền surface) ---------- */
+    --lit-heading: #13205c;
+    --lit-text: #1e293b;
+    --lit-text-secondary: #475569;
+    --lit-text-muted: #64748b;
+
+    /* ---------- Bề mặt ---------- */
+    --lit-bg: #f6f7fb;
+    --lit-surface: #ffffff;
+    --lit-surface-2: #f8fafc;              /* nền phụ trong card, hàng xen kẽ */
+    --lit-surface-3: #eef2f7;              /* nền hover */
+    --lit-border: #e2e8f0;
+    --lit-border-strong: #cbd5e1;
+    --lit-overlay: rgba(15, 23, 42, 0.5);
+
+    /* ---------- Khoảng cách (thang 4px) ---------- */
+    --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+
+    /* ---------- Bo góc ---------- */
+    --lit-radius-sm: 8px;
+    --lit-radius-md: 12px;
+    --lit-radius-lg: 16px;
+    --lit-radius-xl: 24px;
+    --lit-radius-full: 9999px;
+
+    /* ---------- Đổ bóng ---------- */
+    --lit-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --lit-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --lit-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
+    --lit-shadow-xl: 0 24px 80px rgba(15, 23, 42, 0.16);
+    --lit-focus-ring: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.35);
+
+    /* ---------- Chuyển động ---------- */
+    --lit-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --lit-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --lit-duration-fast: 150ms;
+    --lit-duration-base: 250ms;
+    --lit-duration-slow: 400ms;
+
+    /* ---------- Ánh xạ sang Bootstrap 5.3 ---------- */
+    --bs-font-sans-serif: var(--font-body);
+    --bs-body-font-family: var(--font-body);
+    --bs-body-color: var(--lit-text);
+    --bs-body-bg: var(--lit-bg);
+    --bs-emphasis-color: var(--lit-text);
+    --bs-secondary-color: var(--lit-text-secondary);
+    --bs-tertiary-color: var(--lit-text-muted);
+    --bs-secondary-bg: var(--lit-surface-3);
+    --bs-tertiary-bg: var(--lit-surface-2);
+    --bs-border-color: var(--lit-border);
+    --bs-heading-color: var(--lit-heading);
+    --bs-link-color: var(--lit-primary);
+    --bs-link-color-rgb: var(--lit-primary-rgb);
+    --bs-link-hover-color: var(--lit-primary-hover);
+    --bs-primary: var(--lit-primary);
+    --bs-primary-rgb: var(--lit-primary-rgb);
+    --bs-primary-bg-subtle: var(--lit-primary-subtle);
+    --bs-primary-text-emphasis: var(--lit-primary-hover);
+    --bs-primary-border-subtle: rgba(var(--lit-primary-rgb), 0.3);
+    --bs-success: var(--lit-success);
+    --bs-success-rgb: var(--lit-success-rgb);
+    --bs-warning: var(--lit-warning);
+    --bs-warning-rgb: var(--lit-warning-rgb);
+    --bs-danger: var(--lit-danger);
+    --bs-danger-rgb: var(--lit-danger-rgb);
+    --bs-info: var(--lit-info);
+    --bs-info-rgb: var(--lit-info-rgb);
+    --bs-focus-ring-color: rgba(var(--lit-primary-rgb), 0.35);
+}
+
+/* ============================================================
+ * CHẾ ĐỘ TỐI — chỉ đổi token
+ * Class dark-theme được gắn lên <html> ngay khi tải trang (assets.php)
+ * và lên <body> (header.php) nên không bị nháy nền trắng.
+ * ============================================================ */
+html.dark-theme,
+body.dark-theme {
+    color-scheme: dark;
+
+    --lit-primary: #4dabf7;
+    --lit-primary-rgb: 77, 171, 247;
+    --lit-primary-hover: #74c0fc;
+    --lit-primary-2: #74c0fc;
+    --lit-primary-subtle: rgba(77, 171, 247, 0.15);
+    --lit-primary-contrast: #0a1929;       /* chữ tối trên nút xanh sáng để đạt tương phản */
+
+    --lit-accent: #ffd43b;
+    --lit-accent-rgb: 255, 212, 59;
+    --lit-accent-subtle: rgba(255, 212, 59, 0.14);
+
+    --lit-success: #51cf66;
+    --lit-success-rgb: 81, 207, 102;
+    --lit-success-subtle: rgba(81, 207, 102, 0.14);
+    --lit-warning: #ffd43b;
+    --lit-warning-rgb: 255, 212, 59;
+    --lit-warning-subtle: rgba(255, 212, 59, 0.14);
+    --lit-danger: #ff6b6b;
+    --lit-danger-rgb: 255, 107, 107;
+    --lit-danger-subtle: rgba(255, 107, 107, 0.14);
+    --lit-info: #4dabf7;
+    --lit-info-rgb: 77, 171, 247;
+    --lit-info-subtle: rgba(77, 171, 247, 0.14);
+
+    --lit-heading: #ffffff;
+    --lit-text: #f1f5f9;
+    --lit-text-secondary: #b0c4de;
+    --lit-text-muted: #8ba4c7;
+
+    --lit-bg: #0a1929;
+    --lit-surface: #132f4c;
+    --lit-surface-2: #0f2740;
+    --lit-surface-3: #1e4976;
+    --lit-border: #264966;
+    --lit-border-strong: #3d5a80;
+    --lit-overlay: rgba(0, 0, 0, 0.65);
+
+    --lit-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --lit-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --lit-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --lit-shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+ * Nút & tiện ích Bootstrap theo token
+ * ============================================================ */
+.btn-primary {
+    --bs-btn-color: var(--lit-primary-contrast);
+    --bs-btn-bg: var(--lit-primary);
+    --bs-btn-border-color: var(--lit-primary);
+    --bs-btn-hover-color: var(--lit-primary-contrast);
+    --bs-btn-hover-bg: var(--lit-primary-hover);
+    --bs-btn-hover-border-color: var(--lit-primary-hover);
+    --bs-btn-active-color: var(--lit-primary-contrast);
+    --bs-btn-active-bg: var(--lit-primary-hover);
+    --bs-btn-active-border-color: var(--lit-primary-hover);
+    --bs-btn-disabled-color: var(--lit-primary-contrast);
+    --bs-btn-disabled-bg: var(--lit-primary);
+    --bs-btn-disabled-border-color: var(--lit-primary);
+    --bs-btn-focus-shadow-rgb: var(--lit-primary-rgb);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--lit-primary);
+    --bs-btn-border-color: var(--lit-primary);
+    --bs-btn-hover-color: var(--lit-primary-contrast);
+    --bs-btn-hover-bg: var(--lit-primary);
+    --bs-btn-hover-border-color: var(--lit-primary);
+    --bs-btn-active-color: var(--lit-primary-contrast);
+    --bs-btn-active-bg: var(--lit-primary);
+    --bs-btn-active-border-color: var(--lit-primary);
+    --bs-btn-disabled-color: var(--lit-primary);
+    --bs-btn-disabled-border-color: var(--lit-primary);
+    --bs-btn-focus-shadow-rgb: var(--lit-primary-rgb);
+}
+.text-primary { color: var(--lit-primary) !important; }
+.bg-primary { background-color: var(--lit-primary) !important; }
+.border-primary { border-color: var(--lit-primary) !important; }
+.text-muted { color: var(--lit-text-muted) !important; }
+.text-secondary { color: var(--lit-text-secondary) !important; }
+.bg-light { background-color: var(--lit-surface-2) !important; }
+.bg-white { background-color: var(--lit-surface) !important; }
+.text-dark { color: var(--lit-text) !important; }
+/* Chữ tối trên nền vàng/xanh nhạt phải luôn tối, kể cả ở chế độ tối */
+.bg-warning.text-dark, .bg-warning .text-dark,
+.bg-info.text-dark, .bg-info .text-dark,
+.btn-warning.text-dark, .btn-light.text-dark { color: #1e293b !important; }
+
+/* Lớp tiện ích cho văn bản đọc dài (tác phẩm, bài phân tích) */
+.reading-text {
+    font-family: var(--font-reading);
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: var(--lit-text);
+    max-width: 72ch;
+}
+
+/* ============================================================
+ * Khả năng tiếp cận
+ * ============================================================ */
+:focus-visible {
+    outline: 2px solid var(--lit-primary);
+    outline-offset: 2px;
+}
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus {
+    box-shadow: var(--lit-focus-ring);
+}
+.visually-hidden-focusable:focus {
+    position: fixed !important;
+    top: 8px; left: 8px;
+    z-index: 100001;
+    padding: 8px 16px;
+    background: var(--lit-surface);
+    color: var(--lit-primary);
+    border-radius: var(--lit-radius-sm);
+    box-shadow: var(--lit-shadow-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

@@ -84,7 +84,7 @@ if (!function_exists('csrf_token')) {
         }
         http_response_code(403);
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token. Please reload the page.']);
+        echo json_encode(['success' => false, 'message' => 'Phiên làm việc đã hết hạn. Vui lòng tải lại trang.']);
         exit;
     }
 
@@ -100,7 +100,7 @@ if (!function_exists('csrf_token')) {
             // Endpoint gọi AI tốn chi phí nên chặt hơn.
             $aiEndpoints = ['call_api', 'analyze_task'];
             if (in_array($endpoint, $aiEndpoints, true)) {
-                rate_limit_enforce('ai', 20, 60);
+                rate_limit_enforce('ai', 20, 60, null, 'Bạn đã dùng hết lượt hỏi AI trong phút này');
             } else {
                 rate_limit_enforce($endpoint, 120, 60);
             }

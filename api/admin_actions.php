@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -9,7 +11,7 @@ header('Content-Type: application/json');
 $_adminId   = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 $_adminRole = $_SESSION['user']['role']    ?? $_SESSION['role']    ?? null;
 if (!$_adminId || $_adminRole !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'No access permission']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền truy cập.']);
     exit();
 }
 
@@ -23,14 +25,14 @@ try {
 
             // Không cho phép xóa chính mình
             if ($userId == $_adminId) {
-                echo json_encode(['success' => false, 'message' => 'Cannot delete your own account']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không thể tự xoá tài khoản của mình.']);
                 exit();
             }
 
             $stmt = $pdo->prepare("DELETE FROM users WHERE user_id = :id");
             $stmt->execute([':id' => $userId]);
 
-            echo json_encode(['success' => true, 'message' => 'User deleted successfully']);
+            echo json_encode(['success' => true, 'message' => 'Đã xoá người dùng.']);
             break;
 
         case 'import_users':
@@ -130,11 +132,11 @@ try {
                 ':id' => $feedbackId
             ]);
 
-            echo json_encode(['success' => true, 'message' => 'Response successful']);
+            echo json_encode(['success' => true, 'message' => 'Thành công.']);
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (PDOException $e) {

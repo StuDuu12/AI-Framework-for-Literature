@@ -1,6 +1,6 @@
 <!-- ======= Sidebar for students ======= -->
 
-<aside id="sidebar" class="sidebar glass">
+<aside id="sidebar" class="sidebar glass" aria-label="Menu chính">
 
     <?php
 
@@ -19,12 +19,19 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
+            <a class="nav-link <?= $current_page === '/today' ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/today">
+                <i class="bi bi-sun" aria-hidden="true"></i>
+                <span data-lang-key="menu_today">Hôm nay</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
 
             <a class="nav-link <?= strpos($current_page, '/workspace') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/workspace">
 
-                <i class="bi bi-house-door"></i>
+                <i class="bi bi-collection" aria-hidden="true"></i>
 
-                <span data-lang-key="menu_workspace">Workspace</span>
+                <span data-lang-key="menu_workspace">Thư viện tác phẩm</span>
 
             </a>
 
@@ -34,7 +41,7 @@
 
             <a class="nav-link <?= strpos($current_page, '/canon') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/canon">
 
-                <i class="bi bi-book"></i>
+                <i class="bi bi-book" aria-hidden="true"></i>
 
                 <span data-lang-key="menu_canon">Kho tri thức văn học</span>
 
@@ -46,7 +53,7 @@
 
             <a class="nav-link <?= strpos($current_page, '/dashboard') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/dashboard">
 
-                <i class="bi bi-grid"></i>
+                <i class="bi bi-grid" aria-hidden="true"></i>
 
                 <span data-lang-key="menu_classes">Danh sách lớp học</span>
 
@@ -59,7 +66,7 @@
 
             <a class="nav-link <?= $current_page === '/class' || $current_page === '/class/' ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/class">
 
-                <i class="bi bi-building"></i>
+                <i class="bi bi-building" aria-hidden="true"></i>
 
                 <span><span data-lang-key="menu_current_class">Lớp hiện tại:</span> <b class="sidebar-current-class-name"><?= htmlspecialchars($_SESSION['current_class_name'], ENT_QUOTES, 'UTF-8') ?></b></span>
 
@@ -79,7 +86,7 @@
 
             <a class="nav-link <?= strpos($current_page, '/class/my_tasks') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/class/my_tasks">
 
-                <i class="bi bi-list-task"></i>
+                <i class="bi bi-list-task" aria-hidden="true"></i>
 
                 <span data-lang-key="menu_my_tasks">Nhiệm vụ của tôi</span>
 
@@ -93,7 +100,7 @@
 
             <a class="nav-link <?= strpos($current_page, '/class/my_groups') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/class/my_groups">
 
-                <i class="bi bi-people"></i>
+                <i class="bi bi-people" aria-hidden="true"></i>
 
                 <span data-lang-key="menu_my_groups">Nhóm của tôi</span>
 
@@ -112,7 +119,7 @@
 
                 <a class="nav-link collapsed" href="<?= URL_ROOT ?>/class">
 
-                    <i class="bi bi-box-seam"></i>
+                    <i class="bi bi-box-seam" aria-hidden="true"></i>
 
                     <span data-lang-key="menu_topic_list">Danh sách chủ đề</span>
 
@@ -130,7 +137,7 @@
 
                 <a class="nav-link <?= strpos($current_page, '/class/phases') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $navTopicId ?>">
 
-                    <i class="bi bi-file-earmark-text"></i>
+                    <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
 
                     <span data-lang-key="menu_phase_list">Giai đoạn học tập</span>
 
@@ -146,7 +153,7 @@
 
                 <a class="nav-link <?= strpos($current_page, '/class/task') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/class/task?topic_id=<?= $navTopicId ?>&phase_id=<?= $navPhaseId ?>">
 
-                    <i class="bi bi-file-earmark-text"></i>
+                    <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
 
                     <span data-lang-key="menu_task_list">Nhiệm vụ giai đoạn</span>
 
@@ -158,19 +165,19 @@
 
         <?php endif; ?>
 
-        <li class="nav-heading">Thành tích</li>
+        <li class="nav-heading" data-lang-key="menu_heading_achievement">Thành tích</li>
 
         <li class="nav-item">
             <a class="nav-link <?= strpos($current_page, '/leaderboard') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/leaderboard">
-                <i class="bi bi-trophy"></i>
-                <span>Bảng xếp hạng</span>
+                <i class="bi bi-trophy" aria-hidden="true"></i>
+                <span data-lang-key="menu_leaderboard">Bảng xếp hạng</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link <?= strpos($current_page, '/reading-list') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/reading-list">
-                <i class="bi bi-bookmark-check"></i>
-                <span>Danh sách đọc</span>
+                <i class="bi bi-bookmark-check" aria-hidden="true"></i>
+                <span data-lang-key="menu_reading_list">Danh sách đọc</span>
             </a>
         </li>
 
@@ -180,7 +187,7 @@
 
             <a class="nav-link <?= strpos($current_page, '/reflect') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/reflect">
 
-                <i class="bi bi-chat-dots"></i>
+                <i class="bi bi-chat-dots" aria-hidden="true"></i>
 
                 <span data-lang-key="menu_feedback">Góp ý & hỗ trợ</span>
 
@@ -188,12 +195,12 @@
 
         </li>
 
-        <li class="nav-heading">Tài khoản</li>
+        <li class="nav-heading" data-lang-key="menu_heading_account">Tài khoản</li>
         
         <li class="nav-item">
             <a class="nav-link collapsed text-danger" href="<?= URL_ROOT ?>/logout">
-                <i class="bi bi-box-arrow-right text-danger"></i>
-                <span>Đăng xuất</span>
+                <i class="bi bi-box-arrow-right text-danger" aria-hidden="true"></i>
+                <span data-lang-key="logout">Đăng xuất</span>
             </a>
         </li>
 

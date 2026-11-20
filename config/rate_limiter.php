@@ -105,7 +105,11 @@ if (!function_exists('rate_limit_check')) {
         http_response_code(429);
         header('Content-Type: application/json; charset=utf-8');
         header('Retry-After: ' . $result['retry_after']);
-        echo json_encode(['success' => false, 'message' => $message, 'error' => $message]);
+        // Nói rõ khi nào thử lại được thay vì câu chung chung
+        $wait = max(1, (int)$result['retry_after']);
+        $waitText = $wait >= 60 ? (int)ceil($wait / 60) . ' phút' : $wait . ' giây';
+        $full = rtrim($message, '. ') . ' (thử lại sau ' . $waitText . ').';
+        echo json_encode(['success' => false, 'message' => $full, 'error' => $full, 'retry_after' => $wait], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }

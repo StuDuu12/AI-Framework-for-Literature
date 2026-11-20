@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -26,7 +26,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin">Admin</a></li>
-                    <li class="breadcrumb-item active">Analytics</li>
+                    <li class="breadcrumb-item active">Thống kê</li>
                 </ol>
             </nav>
         </div>
@@ -35,9 +35,9 @@
             <!-- Loading indicator -->
             <div id="loadingState" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">Đang tải…</span>
                 </div>
-                <p class="mt-2 text-muted">Loading analytics data...</p>
+                <p class="mt-2 text-muted">Đang tải số liệu…</p>
             </div>
 
             <div id="analyticsContent" style="display: none;">
@@ -213,7 +213,7 @@
                 const data = await resp.json();
 
                 if (!data.success) {
-                    alert(data.message || 'Error loading analytics');
+                    UI.error(data.message || 'Không tải được dữ liệu thống kê.');
                     return;
                 }
 
@@ -304,7 +304,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Lỗi tải dữ liệu analytics');
+                UI.error('Không tải được dữ liệu thống kê.');
             }
         });
 

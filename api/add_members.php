@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not logged in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 $user_id_request = $_SESSION['user']['user_id'];
@@ -25,14 +25,14 @@ $action = $_POST['action'] ?? '';
 $class_id = isset($_POST['class_id']) ? intval($_POST['class_id']) : 0;
 
 if ($class_id <= 0) {
-    echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+    echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
     exit;
 }
 
 // Check if user is teacher in this class
 $userRole = getRoleInClass($class_id, $user_id_request);
 if ($userRole !== 'teacher') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not a teacher in this class', 'role' => $userRole]);
+    echo json_encode(['success' => false, 'message' => 'Bạn không phải giáo viên của lớp này.', 'role' => $userRole]);
     exit;
 }
 
@@ -44,7 +44,7 @@ try {
             // Search users by keyword
             $keyword = $_POST['keyword'] ?? '';
             if (strlen($keyword) < 2) {
-                echo json_encode(['success' => false, 'message' => 'Keyword too short']);
+                echo json_encode(['success' => false, 'message' => 'Từ khoá quá ngắn.']);
                 exit;
             }
 
@@ -58,7 +58,7 @@ try {
             $roles = isset($_POST['roles']) && is_array($_POST['roles']) ? $_POST['roles'] : [];
 
             if (empty($user_ids)) {
-                echo json_encode(['success' => false, 'message' => 'No users selected']);
+                echo json_encode(['success' => false, 'message' => 'Chưa chọn người dùng nào.']);
                 exit;
             }
 
@@ -72,12 +72,12 @@ try {
             $role = $_POST['role'] ?? '';
 
             if ($user_id <= 0 || !in_array($role, ['student', 'teacher', 'admin'])) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
             $result = updateMemberRole($class_id, $user_id, $role);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Update successful' : 'Update failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã cập nhật.' : 'Cập nhật không thành công.']);
             break;
 
         case 'delete':
@@ -85,19 +85,19 @@ try {
             $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
 
             if ($user_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+                echo json_encode(['success' => false, 'message' => 'Người dùng không hợp lệ.']);
                 exit;
             }
 
             $result = removeClassMember($class_id, $user_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Delete successful' : 'Delete failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã xoá.' : 'Xoá không thành công.']);
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Lỗi: ' . client_error_message($e)]);
 }
 exit;

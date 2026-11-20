@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -102,14 +102,26 @@
     $display_response_id = null;
     $target_user_name = '';
 
+    // Giáo viên chỉ xem bài đã xác nhận nộp: kiểm tra TRƯỚC khi lấy response,
+    // vì getResponseFromDeliver có thể tự tạo response (ghi DB) vào bài của học sinh.
+    if ($current_user_role === 'teacher') {
+        $preDeliver = getDeliverDetails($deliver_id);
+        if (!$preDeliver || (int)($preDeliver['status'] ?? 0) < 2) {
+            $back = $_SERVER['HTTP_REFERER'] ?? '';
+            if (parse_url($back, PHP_URL_HOST) !== ($_SERVER['HTTP_HOST'] ?? '')) {
+                $back = URL_ROOT . '/class';
+            }
+            flash_redirect($back, 'warning', 'Học sinh này chưa xác nhận nộp bài cuối cùng.');
+        }
+    }
+
     // Get response from deliver (REQUIRED)
     // Pass current_user_id to auto-create response if needed
     $responseData = getResponseFromDeliver($deliver_id, $current_user_id);
 
     if (!$responseData) {
         // No response yet for this deliver - show empty state
-        echo "<script>alert('No submission for this deliver yet. Please complete your work first.'); window.location.href='/class/task?topic_id={$topic_id}&phase_id={$phase_id}';</script>";
-        exit;
+        flash_redirect(URL_ROOT . '/class/task?topic_id=' . (int)$topic_id . '&phase_id=' . (int)$phase_id, 'warning', 'Bài này chưa có nội dung nộp. Hãy hoàn thành phần làm bài trước.');
     }
 
     // Get deliver details to identify the owner
@@ -128,8 +140,11 @@
 
     // Teachers only see the student's confirmed final submission
     if ($current_user_role === 'teacher' && $deliver_status < 2) {
-        echo "<script>alert('This student has not confirmed a final submission yet.'); history.back();</script>";
-        exit;
+        $back = $_SERVER['HTTP_REFERER'] ?? '';
+        if (parse_url($back, PHP_URL_HOST) !== ($_SERVER['HTTP_HOST'] ?? '')) {
+            $back = URL_ROOT . '/class';
+        }
+        flash_redirect($back, 'warning', 'Học sinh này chưa xác nhận nộp bài cuối cùng.');
     }
 
     $response_id = $responseData['id_response'];
@@ -174,7 +189,7 @@
                     Deliver ID: <?= $deliver_id ?><br>
                     Response ID: <?= $response_id ?><br>
                     Display Response ID: <?= $display_response_id ?><br>
-                    Number of Content Blocks: <?= count($contentBlocks) ?><br>
+                    Số khối nội dung: <?= count($contentBlocks) ?><br>
                     <?php if (!empty($contentBlocks)): ?>
                         Content IDs: <?= implode(', ', array_column($contentBlocks, 'content_id')) ?>
                     <?php endif; ?>
@@ -187,7 +202,7 @@
                     <?php if ($target_user_id != $current_user_id): ?>
                         <p class="text-muted mb-0">
                             <i class="bi bi-person"></i>
-                            <span>Work by:</span> <strong><?= htmlspecialchars($target_user_name) ?></strong>
+                            <span>Tác phẩm của:</span> <strong><?= htmlspecialchars($target_user_name) ?></strong>
                         </p>
                     <?php endif; ?>
                 </div>
@@ -195,18 +210,18 @@
                     <div>
                         <a href="/class/task/view?task_id=<?= $back_task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
                             class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> <span>Go Back to List</span>
+                            <i class="bi bi-arrow-left"></i> <span>Quay lại danh sách</span>
                         </a>
                     </div>
                 <?php endif; ?>
             </div>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/class">Class</a></li>
+                    <li class="breadcrumb-item"><a href="/class">Lớp</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Analysis</a>
+                            href="/class/homework/genAI?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>">Phân tích</a>
                     </li>
-                    <li class="breadcrumb-item active">Comments</li>
+                    <li class="breadcrumb-item active">Bình luận</li>
                 </ol>
             </nav>
         </div>
@@ -221,7 +236,7 @@
                     <div class="np-icon"><i class="bi bi-diagram-3"></i></div>
                     <div>
                         <p class="np-title">Take Note</p>
-                        <p class="np-subtitle">Connect AI analysis with teacher's lecture</p>
+                        <p class="np-subtitle">Kết nối phân tích AI với bài giảng của thầy cô</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
@@ -235,11 +250,11 @@
                     <?php if ($current_user_role === 'student'): ?>
                     <!-- Write pane — Teacher's Insights (Student Only) -->
                     <div class="np-write">
-                        <p class="np-section-label"><i class="bi bi-mortarboard"></i> Take note from lecture</p>
-                        <textarea id="note-input" class="np-textarea"
-                            placeholder="Write down the deep analysis from the teacher that AI may have missed...&#10;&#10;For example:&#10;• Historical and cultural context added by the teacher&#10;• Subtle feelings that the algorithm did not capture&#10;• Connections between the work and real life&#10;• Extended questions from the discussion"></textarea>
+                        <p class="np-section-label"><i class="bi bi-mortarboard"></i> Ghi chép từ bài giảng</p>
+                        <textarea aria-label="Ghi chú" id="note-input" class="np-textarea"
+                            placeholder="Ghi lại những phân tích sâu của thầy cô mà AI có thể đã bỏ sót…&#10;&#10;Ví dụ:&#10;• Bối cảnh lịch sử, văn hoá thầy cô bổ sung&#10;• Những cảm xúc tinh tế mà máy chưa nắm được&#10;• Liên hệ giữa tác phẩm và đời sống&#10;• Câu hỏi mở rộng từ buổi thảo luận"></textarea>
                         <button id="save-note-btn" class="np-save-btn">
-                            <i class="bi bi-plus-circle"></i> Add note
+                            <i class="bi bi-plus-circle"></i> Thêm ghi chú
                         </button>
                         <span id="note-save-status" class="np-status"></span>
                         <p class="np-hint"><i class="bi bi-keyboard"></i> Ctrl + Enter to save</p>
@@ -257,7 +272,7 @@
                             <div class="np-note-footer">
                                 <span class="np-note-time"><i class="bi bi-clock"></i> <?= date('d/m H:i', strtotime($note['created_at'])) ?></span>
                                 <?php if ($current_user_role === 'student'): ?>
-                                <button class="np-delete-btn delete-note-btn" data-note-id="<?= $note['content_id'] ?>" title="Delete">
+                                <button class="np-delete-btn delete-note-btn" data-note-id="<?= $note['content_id'] ?>" title="Xoá">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                                 <?php endif; ?>
@@ -267,7 +282,7 @@
                         <?php if (empty($studentNotes)): ?>
                         <div id="notes-empty-state" class="np-empty">
                             <i class="bi bi-diagram-3 fs-2"></i>
-                            <span>Notes from the live lecture<br>will appear here</span>
+                            <span>Ghi chép từ bài giảng trực tiếp<br>sẽ hiện ở đây</span>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -291,18 +306,18 @@
         <?php if (!$allow_comment): ?>
             <div class="alert alert-warning">
                 <i class="bi bi-exclamation-triangle"></i>
-                <span>This phase does not allow comments.</span>
+                <span>Giai đoạn này không cho phép bình luận.</span>
             </div>
         <?php endif; ?>
 
         <?php if ($hasNoContent): ?>
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
-                <strong>The student has not submitted any content yet.</strong>
+                <strong>Học sinh chưa nộp nội dung nào.</strong>
                 <?php if ($current_user_role === 'teacher'): ?>
-                    <br>You can leave a general comment by adding a content block or wait for the student to submit their work.
+                    <br>Bạn có thể để lại nhận xét chung hoặc chờ học sinh nộp bài.
                 <?php else: ?>
-                    <br>Please complete your work before accessing this page.
+                    <br>Hãy hoàn thành bài làm trước khi vào trang này.
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -326,8 +341,8 @@
                         <div class="fb-comment-input-area">
                             <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg" alt="Avatar"
                                 class="fb-avatar">
-                            <textarea class="fb-comment-input" id="general-comment-input"
-                                placeholder="Write a general comment about the work..."></textarea>
+                            <textarea aria-label="Nhận xét chung" class="fb-comment-input" id="general-comment-input"
+                                placeholder="Viết nhận xét chung về bài…"></textarea>
                             <button class="fb-comment-btn" id="general-comment-btn">
                                 <i class="bi bi-send-fill"></i> <span>Send Comment</span>
                             </button>
@@ -341,13 +356,13 @@
                 <div>
                     <i class="bi bi-chat-dots"></i>
                     <strong>Comment View Mode</strong>
-                    <span id="comment-live-badge" class="comment-live-badge" title="Comments refresh automatically">
-                        <span class="comment-live-dot"></span> Live
+                    <span id="comment-live-badge" class="comment-live-badge" title="Bình luận tự cập nhật">
+                        <span class="comment-live-dot"></span> Trực tiếp
                     </span>
                 </div>
                 <div class="toggle-buttons">
                     <button class="toggle-btn active" data-view="individual">
-                        <i class="bi bi-file-earmark-text"></i> <span>View by Content</span>
+                        <i class="bi bi-file-earmark-text"></i> <span>Xem theo nội dung</span>
                     </button>
                     <button class="toggle-btn" data-view="all">
                         <i class="bi bi-list-ul"></i> <span>Show All</span>
@@ -359,8 +374,8 @@
         <section class="section view-mode-individual" id="comment-container">
             <?php if ($hasNoContent): ?>
                 <div class="text-center py-5">
-                    <i class="bi bi-file-earmark-x" style="font-size: 4rem; color: #6c757d;"></i>
-                    <p class="text-muted mt-3">No content to display</p>
+                    <i class="bi bi-file-earmark-x" style="font-size: 4rem; color: var(--lit-text-secondary);"></i>
+                    <p class="text-muted mt-3">Không có nội dung để hiển thị</p>
                 </div>
             <?php else: ?>
                 <div id="content-blocks-container">
@@ -376,16 +391,16 @@
                                 <div class="fb-comment-block" id="comment-block-<?= $block['content_id'] ?>">
                                     <!-- Comments List -->
                                     <div class="fb-comments-list" id="comments-list-<?= $block['content_id'] ?>">
-                                        <div class="text-center text-slate-400 text-sm py-2">Loading comments...</div>
+                                        <div class="text-center text-slate-400 text-sm py-2">Đang tải bình luận…</div>
                                     </div>
 
                                     <!-- Comment Input -->
                                     <div class="fb-comment-input-area">
                                         <img src="https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg"
                                             alt="Avatar">
-                                        <textarea class="fb-comment-input" placeholder="Write comments..."
+                                        <textarea aria-label="Viết bình luận" class="fb-comment-input" placeholder="Viết bình luận…"
                                             data-content-id="<?= $block['content_id'] ?>" rows="1"></textarea>
-                                        <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Send</button>
+                                        <button class="fb-comment-btn" data-content-id="<?= $block['content_id'] ?>">Gửi</button>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -818,7 +833,7 @@
                     const commentText = textarea.value.trim();
 
                     if (!commentText) {
-                        alert('Please enter a comment');
+                        UI.warning('Vui lòng nhập nội dung bình luận.');
                         return;
                     }
 
@@ -829,7 +844,7 @@
                         await addComment(contentId, commentText);
                         textarea.value = '';
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     } finally {
                         this.disabled = false;
                         this.textContent = 'Send';
@@ -855,7 +870,7 @@
                 const commentText = textarea.value.trim();
 
                 if (!commentText) {
-                    alert('Please enter comment content');
+                    UI.warning('Vui lòng nhập nội dung bình luận.');
                     return;
                 }
 
@@ -866,7 +881,7 @@
                     await addGeneralComment(commentText);
                     textarea.value = '';
                 } catch (error) {
-                    alert('Error: ' + error.message);
+                    UI.networkError(error);
                 } finally {
                     this.disabled = false;
                     this.innerHTML = '<i class="bi bi-send-fill"></i> Send Comment';
@@ -921,7 +936,7 @@
             // Delete buttons
             container.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', async function () {
-                    if (!confirm('Are you sure you want to delete this comment?')) return;
+                    if (!await UI.confirm('Xoá bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
 
@@ -942,10 +957,10 @@
                         if (result.success) {
                             await pollAllComments(true);
                         } else {
-                            alert('Error: ' + result.message);
+                            UI.error(result.message);
                         }
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     }
                 });
             });
@@ -959,7 +974,7 @@
                     const replyText = textarea.value.trim();
 
                     if (!replyText) {
-                        alert('Please enter a reply.');
+                        UI.warning('Vui lòng nhập nội dung trả lời.');
                         return;
                     }
 
@@ -971,7 +986,7 @@
                         textarea.value = '';
                         replyForm.style.display = 'none';
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     } finally {
                         this.disabled = false;
                         this.innerHTML = '<i class="bi bi-send-fill"></i> Send';
@@ -1042,7 +1057,7 @@
             const openReplyForms = getOpenReplyFormIds(container);
 
             if (comments.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">No comments yet</div>';
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận</div>';
             } else {
                 container.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
                 attachCommentEventListeners(contentId);
@@ -1066,7 +1081,7 @@
             const openReplyForms = getOpenReplyFormIds(container);
 
             if (comments.length === 0) {
-                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">No comments yet</div>';
+                container.innerHTML = '<div class="text-center text-slate-400 text-sm py-2">Chưa có bình luận</div>';
             } else {
                 container.innerHTML = comments.map((comment) => createCommentHTML(comment)).join('');
                 attachGeneralCommentEventListeners();
@@ -1103,13 +1118,13 @@
                             <div class="fb-comment-actions">
                                 <span class="comment-time">${time}</span>
                                 ${canReply ? `<button type="button" class="reply-btn" data-comment-id="${comment.comment_id}">Reply</button>` : ''}
-                                ${canDelete ? `<button type="button" class="delete-btn" data-comment-id="${comment.comment_id}">Delete</button>` : ''}
+                                ${canDelete ? `<button type="button" class="delete-btn" data-comment-id="${comment.comment_id}">Xoá</button>` : ''}
                             </div>
                             ${canReply ? `
                             <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
                                 <div class="fb-comment-input-area">
                                     <img src="${USER_AVATAR}" alt="Avatar">
-                                    <textarea class="fb-comment-input" placeholder="Write a reply..." rows="1"></textarea>
+                                    <textarea class="fb-comment-input" placeholder="Viết trả lời…" rows="1"></textarea>
                                     <button type="button" class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Send</button>
                                 </div>
                             </div>
@@ -1173,7 +1188,7 @@
 
             container.querySelectorAll('.delete-btn').forEach((btn) => {
                 btn.addEventListener('click', async function () {
-                    if (!confirm('Are you sure you want to delete this comment?')) return;
+                    if (!await UI.confirm('Xoá bình luận này?')) return;
 
                     const commentId = this.dataset.commentId;
                     try {
@@ -1189,10 +1204,10 @@
                         if (result.success) {
                             await pollAllComments(true);
                         } else {
-                            alert('Error: ' + result.message);
+                            UI.error(result.message);
                         }
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     }
                 });
             });
@@ -1205,7 +1220,7 @@
                     const replyText = textarea ? textarea.value.trim() : '';
 
                     if (!replyText) {
-                        alert('Please enter a reply.');
+                        UI.warning('Vui lòng nhập nội dung trả lời.');
                         return;
                     }
 
@@ -1218,7 +1233,7 @@
                         if (textarea) textarea.value = '';
                         if (replyForm) replyForm.style.display = 'none';
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        UI.networkError(error);
                     } finally {
                         this.disabled = false;
                         this.textContent = original;
@@ -1326,7 +1341,7 @@
                 list.innerHTML = `
                     <div id="notes-empty-state" class="np-empty">
                         <i class="bi bi-diagram-3 fs-2"></i>
-                        <span>Notes from the live lecture<br>will appear here</span>
+                        <span>Ghi chép từ bài giảng trực tiếp<br>will appear here</span>
                     </div>`;
                 return;
             }
@@ -1387,7 +1402,7 @@
         }
 
         async function deleteNote(noteId) {
-            if (!confirm('Delete this note?')) return;
+            if (!await UI.confirm('Xoá ghi chú này?')) return;
             try {
                 const response = await fetch('<?= URL_ROOT ?>/api/save_note.php', {
                     method: 'POST',
@@ -1401,10 +1416,10 @@
                 if (result.success) {
                     await pollNotes(true);
                 } else {
-                    alert(result.message || 'Could not delete note');
+                    UI.error(result.message || 'Không xoá được ghi chú.');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                UI.networkError(error);
             }
         }
 
@@ -1417,7 +1432,7 @@
             const saveNote = async () => {
                 const noteText = noteInput.value.trim();
                 if (!noteText) {
-                    if (statusEl) statusEl.textContent = 'Please enter note content.';
+                    if (statusEl) statusEl.textContent = 'Vui lòng nhập nội dung ghi chú.';
                     return;
                 }
 

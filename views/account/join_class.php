@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -20,13 +22,13 @@ $code = trim($_GET['code'] ?? '');
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <style>
         .join-page { max-width: 480px; margin: 2rem auto; }
-        .join-card { background: #fff; border: 1px solid #e3e6f0; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
-        .join-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(65,84,241,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 1.5rem; color: #4154f1; }
-        .join-title { font-size: 1.25rem; font-weight: 700; color: #012970; text-align: center; margin-bottom: 0.25rem; }
-        .join-sub { text-align: center; color: #6c757d; font-size: 0.85rem; margin-bottom: 1.5rem; }
+        .join-card { background: var(--lit-surface); border: 1px solid #e3e6f0; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .join-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(var(--lit-primary-rgb), 0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 1.5rem; color: var(--lit-primary); }
+        .join-title { font-size: 1.25rem; font-weight: 700; color: var(--lit-heading); text-align: center; margin-bottom: 0.25rem; }
+        .join-sub { text-align: center; color: var(--lit-text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem; }
         .code-input { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.35rem; text-align: center; text-transform: uppercase; border-radius: 12px; border: 2px solid #e3e6f0; padding: 0.75rem; width: 100%; }
-        .code-input:focus { border-color: #4154f1; box-shadow: 0 0 0 3px rgba(65,84,241,0.1); outline: none; }
-        .btn-join { background: #4154f1; border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; width: 100%; color: #fff; }
+        .code-input:focus { border-color: var(--lit-primary); box-shadow: 0 0 0 3px rgba(var(--lit-primary-rgb), 0.1); outline: none; }
+        .btn-join { background: var(--lit-primary); border: none; border-radius: 10px; padding: 0.65rem; font-weight: 600; font-size: 0.95rem; width: 100%; color: #fff; }
         .btn-join:hover { background: #3445d1; }
         .btn-join:disabled { opacity: 0.6; cursor: not-allowed; }
         .alert { border-radius: 10px; font-size: 0.85rem; }
@@ -54,7 +56,7 @@ $code = trim($_GET['code'] ?? '');
 
                 <div id="joinForm">
                     <div id="joinMsg" class="alert" style="display:none;"></div>
-                    <input type="text" class="code-input form-control mb-3" id="inviteCode"
+                    <input aria-label="Mã mời" type="text" class="code-input form-control mb-3" id="inviteCode"
                         placeholder="XXXX0000" maxlength="12"
                         value="<?= htmlspecialchars($code) ?>">
                     <button class="btn btn-join" id="btnJoin" onclick="joinClass()">

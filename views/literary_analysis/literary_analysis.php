@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -23,7 +23,7 @@
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <li class="breadcrumb-item active">Literary Analysis</li>
+                    <li class="breadcrumb-item active">Phân tích văn học</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -34,17 +34,17 @@
                 <!-- Left Panel: Input -->
                 <div class="lg:col-span-4 h-full">
                     <div class="bg-white p-6 rounded-xl shadow-md sticky top-24">
-                        <h2 class="text-lg font-semibold mb-4 text-slate-800">Enter text to analyze</h2>
+                        <h2 class="text-lg font-semibold mb-4 text-slate-800">Nhập văn bản cần phân tích</h2>
 
                         <!-- File Upload -->
                         <div class="mb-4">
-                            <label for="file-upload" class="block text-sm font-medium text-slate-700 mb-2">Upload file:</label>
+                            <label for="file-upload" class="block text-sm font-medium text-slate-700 mb-2">Tải tệp lên:</label>
                             <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 border border-dashed border-slate-300 p-4 flex justify-center items-center flex-col min-h-[150px]">
                                 <div id="upload-prompt" class="text-center">
                                     <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
-                                    <span class="mt-2 block text-sm">Click to upload</span>
+                                    <span class="mt-2 block text-sm">Bấm để tải lên</span>
                                     <p class="text-xs text-slate-500">DOCX, PDF, TXT</p>
                                 </div>
                                 <div id="file-info" class="hidden flex items-center justify-between w-full">
@@ -69,9 +69,9 @@
 
                         <!-- Text Area -->
                         <div>
-                            <label for="text-input" class="block text-sm font-medium text-slate-700">Paste text here:</label>
+                            <label for="text-input" class="block text-sm font-medium text-slate-700">Dán văn bản vào đây:</label>
                             <div class="mt-1">
-                                <textarea id="text-input" rows="10" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-slate-300 rounded-md" placeholder="Enter or paste text content, analysis..."></textarea>
+                                <textarea id="text-input" rows="10" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-slate-300 rounded-md" placeholder="Nhập hoặc dán văn bản, bài phân tích…"></textarea>
                             </div>
                         </div>
 
@@ -107,14 +107,14 @@
                                 <path d="m13.5 10-2-2"></path>
                                 <path d="m11.5 8 2 2"></path>
                             </svg>
-                            <h3 class="text-lg font-semibold text-slate-700">Analysis results will appear here</h3>
-                            <p class="mt-1 text-sm">Upload or paste text to get started.</p>
+                            <h3 class="text-lg font-semibold text-slate-700">Kết quả phân tích sẽ hiện ở đây</h3>
+                            <p class="mt-1 text-sm">Dán văn bản hoặc tải tệp lên để bắt đầu.</p>
                         </div>
 
                         <!-- Results with Tabs -->
                         <div id="results-tabs" class="genai-tabs hidden h-full flex flex-col">
                             <div class="genai-tabs__header">
-                                <nav class="genai-tabs__nav" aria-label="Tabs">
+                                <nav class="genai-tabs__nav" aria-label="Các thẻ">
                                     <button id="tab-analysis" type="button" class="genai-tabs__btn tab-button active" data-lang-key="detailed_analysis">
                                         <i class="bi bi-journal-text"></i><span>Detailed Analysis</span>
                                     </button>
@@ -196,7 +196,7 @@
         async function handleAnalysis() {
             const textToAnalyze = textInput.value.trim();
             if (!textToAnalyze) {
-                alert('Please enter text or upload a file.');
+                UI.warning('Vui lòng nhập văn bản hoặc tải tệp lên.');
                 return;
             }
             setLoadingState(true);
@@ -232,7 +232,7 @@
             if (slideshowData) {
                 displaySlideshow(slideshowData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Cannot generate slideshow. Please try again.</p>`;
+                container.innerHTML = `<p class="text-red-500">Không tạo được trình chiếu. Vui lòng thử lại.</p>`;
             }
         }
 
@@ -247,7 +247,7 @@
                 currentAnalysisData.quiz = quizData.quiz; // Merge quiz data
                 displayQuiz(currentAnalysisData);
             } else {
-                container.innerHTML = `<p class="text-red-500">Cannot generate questions. Please try again.</p>`;
+                container.innerHTML = `<p class="text-red-500">Không tạo được câu hỏi. Vui lòng thử lại.</p>`;
             }
         }
 
@@ -261,7 +261,7 @@
             } else {
                 loadingSpinner.classList.add('hidden');
                 analyzeButton.querySelector('#analyze-icon').classList.remove('hidden');
-                buttonText.textContent = 'Analyze Text';
+                buttonText.textContent = 'Phân tích';
                 analyzeButton.disabled = false;
             }
         }
@@ -281,14 +281,14 @@
 
         function setupGeneratorTabs() {
             contentSlideshow.innerHTML = `<div class="text-center p-8">
-                <h3 class="text-lg font-semibold text-slate-700 mb-4">Generate Slideshow</h3>
-                <p class="text-slate-500 mb-6">Click the button below to create a presentation based on analysis results.</p>
-                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Generate Slideshow</button>
+                <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo trình chiếu</h3>
+                <p class="text-slate-500 mb-6">Bấm nút bên dưới để tạo trình chiếu từ kết quả phân tích.</p>
+                <button id="generate-slideshow-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo trình chiếu</button>
             </div>`;
             contentQuiz.innerHTML = `<div class="text-center p-8">
-                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Generate Quiz</h3>
+                 <h3 class="text-lg font-semibold text-slate-700 mb-4">Tạo câu hỏi ôn tập</h3>
                 <p class="text-slate-500 mb-6">Click the button below to create a short quiz based on the text content.</p>
-                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Generate Questions</button>
+                <button id="generate-quiz-button" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700">Tạo câu hỏi</button>
             </div>`;
 
             document.getElementById('generate-slideshow-button').addEventListener('click', handleGenerateSlideshow);
@@ -321,7 +321,7 @@
                 return result;
             } catch (error) {
                 console.error("Error during API call:", error);
-                alert('An error occurred while communicating with the server. Please try again.');
+                UI.error('Không kết nối được máy chủ. Vui lòng thử lại.');
                 return null;
             }
         }
@@ -404,7 +404,7 @@
             };
 
 
-            html += `<h2>Text Characteristics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2>Đặc điểm văn bản</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.characteristics) {
                 for (const [key, value] of Object.entries(result.characteristics)) {
                     html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">${key}</strong><span class="text-indigo-700 font-semibold">${value}</span></div>`;
@@ -412,16 +412,16 @@
             }
             html += `</div>`;
 
-            html += `<h2>Language Statistics</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+            html += `<h2>Thống kê ngôn ngữ</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
             if (result.stats) {
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Character Count</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Word Count</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số ký tự</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
             if (result.keywords && result.keywords.length > 0) {
-                html += `<h2>Key Terms</h2><div class="flex flex-wrap gap-2 mb-6">`;
+                html += `<h2>Từ khoá</h2><div class="flex flex-wrap gap-2 mb-6">`;
                 result.keywords.forEach(keyword => {
                     html += `<span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1.5 rounded-full">${keyword}</span>`;
                 });
@@ -430,7 +430,7 @@
 
             // --- General Analysis Section ---
             if (result.generalAnalysis) {
-                html += `<h2>General Analysis</h2>`;
+                html += `<h2>Phân tích chung</h2>`;
                 const ga = result.generalAnalysis;
 
                 // Thematic Analysis within General Analysis
@@ -478,37 +478,37 @@
 
             // --- Genre-Specific Analysis ---
             if (result.storyAnalysis) {
-                html += `<h2>Story Analysis</h2>`;
+                html += `<h2>Phân tích truyện</h2>`;
                 const sa = result.storyAnalysis;
                 if (sa.character) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
                 if (sa.space) html += `<h3>Space</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
                 if (sa.time) html += `<h3>Time</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
                 if (sa.dialogue) html += `<h3>Dialogue & Internal Monologue</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
                 if (sa.narrator) html += `<h3>Narrator</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
-                if (sa.situation) html += `<h3>Story Situation</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
-                if (sa.prominentDetails) html += `<h3>Prominent Details</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
+                if (sa.situation) html += `<h3>Tình huống truyện</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
+                if (sa.prominentDetails) html += `<h3>Chi tiết tiêu biểu</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
             }
 
             if (result.dramaAnalysis) {
-                html += `<h2>Drama Analysis</h2>`;
+                html += `<h2>Phân tích kịch</h2>`;
                 const da = result.dramaAnalysis;
                 if (da.characters) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
                 if (da.conflict) html += `<h3>Conflict</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
-                if (da.action) html += `<h3>Actions</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
+                if (da.action) html += `<h3>Thao tác</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
                 if (da.structure) html += `<h3>Structure</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
                 if (da.dialogue) html += `<h3>Dialogue</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
             }
 
             if (result.poetryAnalysis) {
-                html += `<h2>Poetry Analysis</h2>`;
+                html += `<h2>Phân tích thơ</h2>`;
                 const pa = result.poetryAnalysis;
-                if (pa.rhyming) html += `<h3>Rhyming in Poetry</h3><p>${pa.rhyming.replace(/\*\*/g, '')}</p>`;
-                if (pa.emotionalFlow) html += `<h3>Emotional Flow</h3><p>${pa.emotionalFlow.replace(/\*\*/g, '')}</p>`;
-                if (pa.structure) html += `<h3>Poem Structure</h3><p>${pa.structure.replace(/\*\*/g, '')}</p>`;
-                if (pa.imagery) html += `<h3>Imagery in Poetry</h3><p>${pa.imagery.replace(/\*\*/g, '')}</p>`;
-                if (pa.rhythm) html += `<h3>Rhythm Analysis</h3><p>${pa.rhythm.replace(/\*\*/g, '').replace(/\n/g, '<br>')}</p>`;
+                if (pa.rhyming) html += `<h3>Vần</h3><p>${pa.rhyming.replace(/\*\*/g, '')}</p>`;
+                if (pa.emotionalFlow) html += `<h3>Mạch cảm xúc</h3><p>${pa.emotionalFlow.replace(/\*\*/g, '')}</p>`;
+                if (pa.structure) html += `<h3>Bố cục bài thơ</h3><p>${pa.structure.replace(/\*\*/g, '')}</p>`;
+                if (pa.imagery) html += `<h3>Hình ảnh thơ</h3><p>${pa.imagery.replace(/\*\*/g, '')}</p>`;
+                if (pa.rhythm) html += `<h3>Nhịp điệu</h3><p>${pa.rhythm.replace(/\*\*/g, '').replace(/\n/g, '<br>')}</p>`;
                 if (pa.spaceTimeOrganization) html += `<h3>Space & Time Organization</h3><p>${pa.spaceTimeOrganization.replace(/\*\*/g, '')}</p>`;
-                if (pa.rhetoricalDevices) html += `<h3>Rhetorical Devices</h3><p>${pa.rhetoricalDevices.replace(/\*\*/g, '')}</p>`;
+                if (pa.rhetoricalDevices) html += `<h3>Biện pháp tu từ</h3><p>${pa.rhetoricalDevices.replace(/\*\*/g, '')}</p>`;
             }
 
             // --- Concluding Sections ---
@@ -520,7 +520,7 @@
             }
 
             if (result.intertextuality) {
-                html += `<h2>Intertextuality Analysis</h2>`;
+                html += `<h2>Phân tích liên văn bản</h2>`;
                 const it = result.intertextuality;
                 if (it.initialAnalysis) {
                     html += `<p>${it.initialAnalysis.replace(/\*\*/g, '')}</p>`;

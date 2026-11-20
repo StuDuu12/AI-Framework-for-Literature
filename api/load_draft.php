@@ -9,7 +9,7 @@ require_once __DIR__ . '/../config/helper_task.php';
 $user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? 0;
 if (!$user_id) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit;
 }
 
@@ -18,13 +18,13 @@ $deliver_id = intval($_GET['deliver_id'] ?? 0);
 
 if (!$task_id || !$deliver_id) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing task_id or deliver_id']);
+    echo json_encode(['success' => false, 'message' => 'Thiếu thông tin nhiệm vụ hoặc bài giao.']);
     exit;
 }
 
 if (!validateUserDeliverAccess($deliver_id, $user_id)) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Access denied']);
+    echo json_encode(['success' => false, 'message' => 'Bạn không có quyền truy cập.']);
     exit;
 }
 

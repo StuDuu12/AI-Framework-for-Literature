@@ -1,6 +1,8 @@
 ﻿<!-- KHÔNG SỬ DỤNG TRANG NÀY, SỬ DỤNG TRANG TRONG THƯ MỤC /reflect -->
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -78,7 +80,7 @@ try {
 $pageTitle = "Manage Reflect";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -101,8 +103,8 @@ $pageTitle = "Manage Reflect";
             <h1 data-lang-key="manage_reflect_title">Manage Reflect</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="manage_reflect_title">Manage Reflect</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="manage_reflect_title">Quản lý góp ý</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -111,26 +113,26 @@ $pageTitle = "Manage Reflect";
             <!-- Filters and Search -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title" data-lang-key="filters">Filters</h5>
+                    <h5 class="card-title" data-lang-key="filters">Bộ lọc</h5>
                     <form method="GET" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select" onchange="this.form.submit()">
+                            <label class="form-label">Trạng thái</label>
+                            <select aria-label="Trạng thái" name="status" class="form-select" onchange="this.form.submit()">
                                 <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All</option>
-                                <option value="0" <?= $status === '0' ? 'selected' : '' ?>>Pending</option>
+                                <option value="0" <?= $status === '0' ? 'selected' : '' ?>>Đang chờ</option>
                                 <option value="1" <?= $status === '1' ? 'selected' : '' ?>>In Progress</option>
-                                <option value="2" <?= $status === '2' ? 'selected' : '' ?>>Completed</option>
+                                <option value="2" <?= $status === '2' ? 'selected' : '' ?>>Đã hoàn thành</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Search</label>
-                            <input type="text" name="search" class="form-control" placeholder="Title, sender..." value="<?= htmlspecialchars($search) ?>">
+                            <label class="form-label">Tìm kiếm</label>
+                            <input aria-label="Tiêu đề, người gửi" type="text" name="search" class="form-control" placeholder="Tiêu đề, người gửi…" value="<?= htmlspecialchars($search) ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">&nbsp;</label>
                             <div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> <span>Search</span>
+                                    <i class="bi bi-search"></i> <span>Tìm kiếm</span>
                                 </button>
                                 <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -144,19 +146,19 @@ $pageTitle = "Manage Reflect";
             <!-- Reflects Table -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Reflect List (<?= $total ?? 0 ?>)</h5>
+                    <h5 class="card-title">Danh sách góp ý (<?= $total ?? 0 ?>)</h5>
 
-                    <table class="table table-hover">
+                    <div class="table-responsive"><table class="table table-hover">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Title</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Sender</th>
-                                <th scope="col">Replies</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">Tiêu đề</th>
+                                <th scope="col">Loại</th>
+                                <th scope="col">Người gửi</th>
+                                <th scope="col">Phản hồi</th>
+                                <th scope="col">Trạng thái</th>
                                 <th scope="col">Created Date</th>
-                                <th scope="col">Actions</th>
+                                <th scope="col">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -199,7 +201,7 @@ $pageTitle = "Manage Reflect";
                                         <td><?= date('d/m/Y H:i', strtotime($reflect['created_at'])) ?></td>
                                         <td>
                                             <a href="<?= URL_ROOT ?>/views/admin/reflect_detail.php?id=<?= $reflect['id_reflect'] ?>"
-                                                class="btn btn-sm btn-primary" title="View Details">
+                                                class="btn btn-sm btn-primary" title="Xem chi tiết">
                                                 <i class="bi bi-eye"></i>
                                             </a>
                                         </td>
@@ -207,15 +209,15 @@ $pageTitle = "Manage Reflect";
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
-                    </table>
+                    </table></div>
 
                     <!-- Pagination -->
                     <?php if ($totalPages > 1): ?>
-                        <nav aria-label="Page navigation">
+                        <nav aria-label="Phân trang">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?status=<?= urlencode($status) ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
-                                        Previous
+                                        Trước
                                     </a>
                                 </li>
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -227,7 +229,7 @@ $pageTitle = "Manage Reflect";
                                 <?php endfor; ?>
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?status=<?= urlencode($status) ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
-                                        Next
+                                        Sau
                                     </a>
                                 </li>
                             </ul>

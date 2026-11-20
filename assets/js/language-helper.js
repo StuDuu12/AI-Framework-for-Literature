@@ -30,7 +30,7 @@
  *    element.textContent = text;
  * 
  * 6. Alerts/Toasts:
- *    alert(translate('error_message'));
+ *    UI.error(translate('error_message'));
  *    showToast(translate('saved_successfully'), 'success');
  */
 

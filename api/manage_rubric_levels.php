@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/db.php';
 
@@ -7,7 +9,7 @@ header('Content-Type: application/json');
 
 $userId = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit();
 }
 
@@ -55,7 +57,7 @@ try {
         case 'get_levels':
             $tcId = intval($_GET['tc_id'] ?? 0);
             if (!$tcId) {
-                echo json_encode(['success' => false, 'message' => 'Missing tc_id']);
+                echo json_encode(['success' => false, 'message' => 'Thiếu thông tin tiêu chí.']);
                 exit();
             }
             rubricRequireClass(rubricClassOfCriterion($pdo, $tcId), (int)$userId);
@@ -70,7 +72,7 @@ try {
             $levels = $input['levels'] ?? [];
 
             if (!$tcId) {
-                echo json_encode(['success' => false, 'message' => 'Missing tc_id']);
+                echo json_encode(['success' => false, 'message' => 'Thiếu thông tin tiêu chí.']);
                 exit();
             }
             rubricRequireClass(rubricClassOfCriterion($pdo, $tcId), (int)$userId);
@@ -212,11 +214,11 @@ try {
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log("rubric_levels error: " . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Database error']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi cơ sở dữ liệu. Vui lòng thử lại.']);
 }

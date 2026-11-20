@@ -131,200 +131,186 @@ $taskContent = '';
 if ($task['file_content']) {
     $taskContent = readTaskFileContent($task['file_content']);
 }
+
+// ---- Dữ liệu hiển thị ----
+$phaseCode = $phase['phase_code'];
+[$phaseLabel, $phaseIcon] = phaseTypeMeta($phaseCode, (int)$phase['phase_number']);
+$isTeacher = ($_SESSION['user']['role'] ?? '') === 'teacher';
+
+$deliverStatus = 0; $dueTs = null;
+if ($deliverId > 0) {
+    $st = $pdo->prepare("SELECT d.status, COALESCE(d.deadline, t.deadline, p.end_time) AS due
+                         FROM deliver d JOIN task t ON t.task_id = d.task_id JOIN phase p ON p.phase_id = t.phase_id
+                         WHERE d.id_deliver = ?");
+    $st->execute([$deliverId]);
+    if ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+        $deliverStatus = (int)$row['status'];
+        $dueTs = $row['due'] ? strtotime($row['due']) : null;
+    }
+}
+
+$q = fn(array $a) => http_build_query($a);
+$work = ['task_id' => $dataTaskId, 'topic_id' => $topicId, 'phase_id' => $dataPhaseId, 'deliver_id' => $deliverId];
+$self = ['task_id' => $taskId, 'topic_id' => $topicId, 'phase_id' => $phaseId];
+switch ($phaseCode) {
+    case 'PHASE_CHUABAI':
+    case 'PHASE_TAKENOTE':
+        $href = '/class/homework/comment?' . $q($work);
+        break;
+    case 'PHASE_BTVN':
+        $href = '/class/homework/analysis_chat?' . $q($work);
+        break;
+    case 'PHASE_DANHGIANGUOIHOC':
+        $href = ($isTeacher ? '/class/task/setting_evaluation?' : '/class/evaluate/list?') . $q($self);
+        break;
+    case 'PHASE_CHAMDIEM':
+        $href = $isTeacher ? URL_ROOT . '/class/evaluate/teacher_grades?' . $q($self)
+                           : URL_ROOT . '/class/task?' . $q(['topic_id' => $topicId, 'phase_id' => $phaseId]);
+        break;
+    case 'PHASE_START':
+    default:
+        $href = '/class/homework/analysis_start?' . $q($work);
+}
+
+// Giải thích ngắn: ở bước này học sinh sẽ làm gì
+$howTo = [
+    'PHASE_START' => ['Đọc văn bản được giao (hoặc dán văn bản của bạn).', 'Bấm “Phân tích” để AI gợi ý bài phân tích.', 'Đọc kỹ, sửa những chỗ chưa đúng và tự phản biện bằng bình luận.', 'Chốt phiên bản tốt nhất làm bài nộp.'],
+    'PHASE_BTVN' => ['Dán văn bản cần phân tích.', 'Nhờ AI phân tích và hỏi thêm khi cần.', 'Sửa, thêm hoặc kéo sắp xếp lại các ý.', 'Lưu bài rồi sang phần bình luận.'],
+    'PHASE_CHUABAI' => ['Mở lại bài đã làm ở giai đoạn trước.', 'Đọc bình luận của thầy cô và bạn bè.', 'Chữa bài và trả lời các bình luận.'],
+    'PHASE_TAKENOTE' => ['Mở bài làm.', 'Ghi chú những kiến thức rút ra ngay trên bài.'],
+    'PHASE_DANHGIANGUOIHOC' => ['Mở danh sách bài được phân công đánh giá.', 'Chấm từng tiêu chí và viết nhận xét cụ thể.', 'Gửi đánh giá trước hạn.'],
+    'PHASE_CHAMDIEM' => ['Thầy cô chấm điểm bài của bạn.', 'Theo dõi kết quả và nhận xét tại danh sách nhiệm vụ.'],
+][$phaseCode] ?? [];
+
+if ($phaseCode === 'PHASE_CHAMDIEM' && !$isTeacher) {
+    $cta = ['Xem danh sách nhiệm vụ', 'bi-list-check'];
+} elseif ($phaseCode === 'PHASE_DANHGIANGUOIHOC') {
+    $cta = [$isTeacher ? 'Thiết lập đánh giá' : 'Bắt đầu đánh giá', 'bi-people'];
+} elseif ($deliverStatus >= 2) {
+    $cta = ['Xem bài đã nộp', 'bi-eye'];
+} elseif ($deliverStatus === 1 || $hasSubmissionResponse) {
+    $cta = ['Tiếp tục làm bài', 'bi-play-fill'];
+} else {
+    $cta = ['Bắt đầu làm bài', 'bi-play-fill'];
+}
+
+$statusBadge = $deliverStatus >= 2 ? ['Đã nộp', 'success', 'bi-check2-circle']
+    : ($deliverStatus === 1 ? ['Đang làm', 'primary', 'bi-pencil'] : ['Chưa làm', 'warning', 'bi-circle']);
+$dueText = null; $dueTone = '';
+if ($dueTs) {
+    $left = $dueTs - time();
+    $dueText = $left < 0 ? 'Đã quá hạn (' . date('H:i d/m/Y', $dueTs) . ')'
+        : 'Hạn nộp ' . date('H:i d/m/Y', $dueTs) . ' · còn ' . ($left >= 86400 ? (int)floor($left / 86400) . ' ngày' : max(1, (int)ceil($left / 3600)) . ' giờ');
+    $dueTone = $left < 0 ? 'danger' : ($left < 86400 ? 'warning' : '');
+}
+$taskListUrl = URL_ROOT . '/class/task?' . htmlspecialchars($q(['topic_id' => $topicId, 'phase_id' => $phaseId]));
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title>Perform Task</title>
+    <title><?= htmlspecialchars($task['title']) ?> · Làm bài</title>
 </head>
 
 <body>
     <?php
     require_once __DIR__ . '/../templates/header.php';
     require_once __DIR__ . '/../templates/sidebar.php';
-    
-
     ?>
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="perform_task">Perform Task</h1>
-            <nav>
+            <nav aria-label="Vị trí trang">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Class', ENT_QUOTES, 'UTF-8') ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Learning
-                            Phases</a></li>
-                    <li class="breadcrumb-item"><a
-                            href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Tasks</a></li>
-                    <li class="breadcrumb-item active">Perform</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp học', ENT_QUOTES, 'UTF-8') ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= (int)$topicId ?>"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= $taskListUrl ?>">Giai đoạn <?= (int)$phase['phase_number'] ?>: <?= htmlspecialchars($phase['phase_name']) ?></a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($task['title']) ?></li>
                 </ol>
             </nav>
-        </div><!-- End Page Title -->
+            <h1><?= htmlspecialchars($task['title']) ?></h1>
+        </div>
 
         <section class="section">
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-lg-8">
-                    <!-- Task Info Card -->
-                    <div class="card task-card">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <i class="bi bi-clipboard-check text-primary"></i>
-                                <?= htmlspecialchars($task['title']) ?>
-                            </h5>
-                            <?php if ($phase['phase_number']): ?>
-                                <span class="phase-badge mb-3 d-inline-block">
-                                    <span data-lang-key="step">Step</span> <?= (int)$phase['phase_number'] ?>
-                                </span>
+                    <div class="ui-card p-4">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <span class="ui-badge ui-badge--accent"><i class="bi <?= htmlspecialchars($phaseIcon) ?>" aria-hidden="true"></i> <?= htmlspecialchars($phaseLabel) ?></span>
+                            <?php if (!$isTeacher && $deliverId > 0): ?>
+                                <span class="ui-badge ui-badge--<?= $statusBadge[1] ?>"><i class="bi <?= $statusBadge[2] ?>" aria-hidden="true"></i> <?= $statusBadge[0] ?></span>
                             <?php endif; ?>
-
-                            <?php if (!empty($task['description'])): ?>
-                                <div class="alert alert-info">
-                                    <h6><i class="bi bi-info-circle"></i> Description:</h6>
-                                    <p class="mb-0"><?= nl2br(htmlspecialchars($task['description'])) ?></p>
-                                </div>
+                            <?php if ($dueText): ?>
+                                <span class="ui-badge<?= $dueTone ? ' ui-badge--' . $dueTone : '' ?>"><i class="bi bi-calendar-event" aria-hidden="true"></i> <?= htmlspecialchars($dueText) ?></span>
                             <?php endif; ?>
-
-                            <?php if ($taskContent !== false && !empty($taskContent)): ?>
-                                <div class="mb-3">
-                                    <h6><i class="bi bi-file-text"></i> Task Content:</h6>
-                                    <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
-                                        <pre class="mb-0"
-                                            style="white-space: pre-wrap; word-wrap: break-word;"><?= htmlspecialchars($taskContent) ?></pre>
-                                    </div>
-                                    <?php if ($task['content_creator']): ?>
-                                        <small class="text-muted">
-                                            <i class="bi bi-pencil"></i>
-                                            Content created by: <?= htmlspecialchars($task['content_creator_name']) ?>
-                                        </small>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                            <?php
-                            $href = '';
-                            $phaseCode = $phase['phase_code'];
-                            switch ($phaseCode) {
-                                case 'PHASE_START':
-                                    $href = "/class/homework/analysis_start?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
-                                    break;
-                                case 'PHASE_CHUABAI':
-                                    $href = "/class/homework/comment?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
-                                    break;
-                                case 'PHASE_TAKENOTE':
-                                    $href = "/class/homework/comment?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
-                                    break;
-                                case 'PHASE_BTVN':
-                                    $href = "/class/homework/analysis_chat?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
-                                    break;
-                                case 'PHASE_DANHGIANGUOIHOC':
-                                    if (($_SESSION['user']['role'] ?? '') === 'teacher') {
-                                        $href = "/class/task/setting_evaluation?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
-                                    } else {
-                                        $href = "/class/evaluate/list?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
-                                    }
-                                    break;
-                                case 'PHASE_CHAMDIEM':
-                                    if (($_SESSION['user']['role'] ?? '') === 'teacher') {
-                                        $href = URL_ROOT . "/class/evaluate/teacher_grades?task_id=$taskId&topic_id=$topicId&phase_id=$phaseId";
-                                    } else {
-                                        $href = URL_ROOT . "/class/task?topic_id=$topicId&phase_id=$phaseId";
-                                    }
-                                    break;
-                                default:
-                                    $href = "/class/homework/analysis_start?task_id=$dataTaskId&topic_id=$topicId&phase_id=$dataPhaseId&deliver_id=$deliverId";
-                                    break;
-                            }
-                            ?>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <a class="btn btn-success" href="<?= $href ?>" id="startWorkingBtn">
-                                    <i class="bi bi-check-circle"></i> <span data-lang-key="start_working">Start Working</span>
-                                </a>
-                                <button class="btn btn-info" id="restoreCacheBtn" style="display: none;" data-task-id="<?= $dataTaskId ?>" data-deliver-id="<?= $deliverId ?>">
-                                    <i class="bi bi-clock-history"></i> <span data-lang-key="restore_work">Restore Previous Work</span>
-                                </button>
-                                <a href="<?= URL_ROOT ?>/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                    class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="back">Back</span>
-                                </a>
-                            </div>
                         </div>
+
+                        <?php if (!empty($task['description'])): ?>
+                            <h2 class="perform-label">Đề bài</h2>
+                            <p class="perform-desc"><?= nl2br(htmlspecialchars($task['description'])) ?></p>
+                        <?php endif; ?>
+
+                        <?php if ($howTo): ?>
+                            <h2 class="perform-label">Bạn sẽ làm gì</h2>
+                            <ol class="perform-howto">
+                                <?php foreach ($howTo as $line): ?><li><?= htmlspecialchars($line) ?></li><?php endforeach; ?>
+                            </ol>
+                        <?php endif; ?>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a class="btn btn-primary btn-lg px-4" href="<?= htmlspecialchars($href) ?>" id="startWorkingBtn">
+                                <i class="bi <?= $cta[1] ?>" aria-hidden="true"></i> <?= $cta[0] ?>
+                            </a>
+                            <button type="button" class="btn btn-outline-primary btn-lg" id="restoreCacheBtn" hidden data-task-id="<?= (int)$dataTaskId ?>" data-deliver-id="<?= (int)$deliverId ?>">
+                                <i class="bi bi-clock-history" aria-hidden="true"></i> <span>Khôi phục bản nháp</span>
+                            </button>
+                            <a href="<?= $taskListUrl ?>" class="btn btn-link btn-lg text-decoration-none">
+                                <i class="bi bi-arrow-left" aria-hidden="true"></i> Danh sách nhiệm vụ
+                            </a>
+                        </div>
+                        <?php if ($shouldLookBack): ?>
+                            <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i> Giai đoạn này làm tiếp trên bài của bạn ở giai đoạn trước.</p>
+                        <?php endif; ?>
                     </div>
+
+                    <?php if ($taskContent !== false && !empty($taskContent)): ?>
+                        <div class="ui-card p-4 mt-4">
+                            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                                <h2 class="h5 m-0"><i class="bi bi-book" aria-hidden="true"></i> Văn bản</h2>
+                                <?php if ($task['content_creator']): ?>
+                                    <small class="text-muted">Người soạn: <?= htmlspecialchars($task['content_creator_name']) ?></small>
+                                <?php endif; ?>
+                            </div>
+                            <div class="reading-text perform-text"><?= nl2br(htmlspecialchars($taskContent)) ?></div>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
-                <!-- Side Info Card -->
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Information</h5>
-
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Topic</h6>
-                                <p class="mb-0"><?= htmlspecialchars($topic['topic_name']) ?></p>
+                <aside class="col-lg-4" aria-label="Thông tin nhiệm vụ">
+                    <div class="ui-card p-4">
+                        <h2 class="perform-label">Thông tin</h2>
+                        <dl class="perform-info">
+                            <dt>Chủ đề</dt><dd><?= htmlspecialchars($topic['topic_name']) ?></dd>
+                            <dt>Giai đoạn</dt><dd><?= (int)$phase['phase_number'] ?>. <?= htmlspecialchars($phase['phase_name']) ?></dd>
+                            <dt>Giáo viên giao</dt><dd><?= htmlspecialchars($task['added_by_name'] ?? '—') ?></dd>
+                            <dt>Ngày giao</dt><dd><?= date('d/m/Y H:i', strtotime($task['created_at'])) ?></dd>
+                        </dl>
+                        <?php if ($phase['AI'] || $phase['Comment'] || $phase['Edit']): ?>
+                            <h2 class="perform-label mt-4">Trong giai đoạn này</h2>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php if ($phase['AI']): ?><span class="ui-badge ui-badge--primary"><i class="bi bi-robot" aria-hidden="true"></i> Có AI hỗ trợ</span><?php endif; ?>
+                                <?php if ($phase['Comment']): ?><span class="ui-badge ui-badge--success"><i class="bi bi-chat-dots" aria-hidden="true"></i> Được bình luận</span><?php endif; ?>
+                                <?php if ($phase['Edit']): ?><span class="ui-badge ui-badge--warning"><i class="bi bi-pencil-square" aria-hidden="true"></i> Được sửa bài</span><?php endif; ?>
                             </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Learning Phases</h6>
-                                <p class="mb-0">
-                                    <span class="badge bg-primary"><span>Step</span> <?= $phase['phase_number'] ?></span>
-                                    <?= htmlspecialchars($phase['phase_name']) ?>
-                                </p>
-                            </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Phase Type</h6>
-                                <p class="mb-0"><?= htmlspecialchars($phase['m_phase_name']) ?></p>
-                            </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Teacher in Charge</h6>
-                                <p class="mb-0">
-                                    <i class="bi bi-person-circle"></i>
-                                    <?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?>
-                                </p>
-                            </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-muted mb-2">Created Time</h6>
-                                <p class="mb-0">
-                                    <i class="bi bi-calendar"></i>
-                                    <?= date('d/m/Y H:i', strtotime($task['created_at'])) ?>
-                                </p>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
-
-                    <!-- Phase Features -->
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Phase Features</h5>
-                            <div class="d-flex flex-column gap-2">
-                                <?php if ($phase['AI']): ?>
-                                    <div class="badge bg-info">
-                                        <i class="bi bi-robot"></i> AI Support
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($phase['Comment']): ?>
-                                    <div class="badge bg-success">
-                                        <i class="bi bi-chat-dots"></i> Comment
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($phase['Edit']): ?>
-                                    <div class="badge bg-warning">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </aside>
             </div>
         </section>
-
-    </main><!-- End #main -->
+    </main>
 
     <?php
     require_once __DIR__ . '/../templates/footer.php';
@@ -332,49 +318,25 @@ if ($task['file_content']) {
     ?>
 
     <script>
-        // Cache Management System
-        document.addEventListener('DOMContentLoaded', function() {
+        // Hiện nút "Khôi phục bản nháp" nếu trình duyệt còn bản lưu tạm trong 7 ngày
+        document.addEventListener('DOMContentLoaded', function () {
             const restoreBtn = document.getElementById('restoreCacheBtn');
-            const startWorkingBtn = document.getElementById('startWorkingBtn');
-            
-            if (restoreBtn) {
-                const taskId = restoreBtn.dataset.taskId;
-                const deliverId = restoreBtn.dataset.deliverId;
-                const cacheKey = `task_cache_${taskId}_${deliverId}`;
-                
-                // Check if cache exists
-                const cachedData = localStorage.getItem(cacheKey);
-                
-                if (cachedData) {
-                    try {
-                        const cache = JSON.parse(cachedData);
-                        const cacheAge = Date.now() - cache.timestamp;
-                        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-                        
-                        if (cacheAge < maxAge) {
-                            // Show restore button
-                            restoreBtn.style.display = 'inline-block';
-                            
-                            // Add timestamp info
-                            const cacheDate = new Date(cache.timestamp);
-                            restoreBtn.title = `Saved work from: ${cacheDate.toLocaleString()}`;
-                        } else {
-                            // Cache too old, remove it
-                            localStorage.removeItem(cacheKey);
-                        }
-                    } catch (e) {
-                        console.error('Error parsing cache:', e);
-                        localStorage.removeItem(cacheKey);
-                    }
-                }
-                
-                // Handle restore click
-                restoreBtn.addEventListener('click', function() {
-                    const href = startWorkingBtn.href;
-                    // Redirect with restore flag
-                    window.location.href = href + '&restore_cache=1';
-                });
+            const startBtn = document.getElementById('startWorkingBtn');
+            if (!restoreBtn || !startBtn) return;
+            const key = `task_cache_${restoreBtn.dataset.taskId}_${restoreBtn.dataset.deliverId}`;
+            let cache = null;
+            try { cache = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { try { localStorage.removeItem(key); } catch (_) {} }
+            if (!cache || !cache.timestamp) return;
+            if (Date.now() - cache.timestamp > 7 * 24 * 60 * 60 * 1000) {
+                try { localStorage.removeItem(key); } catch (_) {}
+                return;
             }
+            const when = new Date(cache.timestamp).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+            restoreBtn.querySelector('span').textContent = 'Khôi phục bản nháp (' + when + ')';
+            restoreBtn.hidden = false;
+            restoreBtn.addEventListener('click', function () {
+                window.location.href = startBtn.href + (startBtn.href.includes('?') ? '&' : '?') + 'restore_cache=1';
+            });
         });
     </script>
 </body>

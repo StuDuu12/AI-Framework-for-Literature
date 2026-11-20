@@ -1,5 +1,7 @@
 ﻿<?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../config/db.php';
 
@@ -59,7 +61,7 @@ try {
 $pageTitle = "User Management";
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8">
@@ -82,8 +84,8 @@ $pageTitle = "User Management";
             <h1 data-lang-key="admin_user_management">User Management</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="admin_user_management">User Management</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="admin_user_management">Quản lý người dùng</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -92,26 +94,26 @@ $pageTitle = "User Management";
             <!-- Filters and Search -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title" data-lang-key="filters">Filters</h5>
+                    <h5 class="card-title" data-lang-key="filters">Bộ lọc</h5>
                     <form method="GET" class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Role</label>
-                            <select name="role" class="form-select" onchange="this.form.submit()">
+                            <label class="form-label">Vai trò</label>
+                            <select aria-label="Vai trò" name="role" class="form-select" onchange="this.form.submit()">
                                 <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>All</option>
                                 <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
-                                <option value="teacher" <?= $role === 'teacher' ? 'selected' : '' ?>>Teacher</option>
-                                <option value="student" <?= $role === 'student' ? 'selected' : '' ?>>Student</option>
+                                <option value="teacher" <?= $role === 'teacher' ? 'selected' : '' ?>>Giáo viên</option>
+                                <option value="student" <?= $role === 'student' ? 'selected' : '' ?>>Học sinh</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Search</label>
-                            <input type="text" name="search" class="form-control" placeholder="Name, username, email..." value="<?= htmlspecialchars($search) ?>">
+                            <label class="form-label">Tìm kiếm</label>
+                            <input aria-label="Tên, tên đăng nhập, email" type="text" name="search" class="form-control" placeholder="Tên, tên đăng nhập, email…" value="<?= htmlspecialchars($search) ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">&nbsp;</label>
                             <div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> <span>Search</span>
+                                    <i class="bi bi-search"></i> <span>Tìm kiếm</span>
                                 </button>
                                 <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
                                     <i class="bi bi-arrow-clockwise"></i>
@@ -142,17 +144,17 @@ $pageTitle = "User Management";
                                 <tr>
                                     <th>ID</th>
                                     <th>Full Name</th>
-                                    <th>Username</th>
+                                    <th>Tên đăng nhập</th>
                                     <th>Email</th>
-                                    <th>Role</th>
+                                    <th>Vai trò</th>
                                     <th>Created Date</th>
-                                    <th>Actions</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($users)): ?>
                                     <tr>
-                                        <td colspan="7" class="text-center">No data available</td>
+                                        <td colspan="7" class="text-center">Chưa có dữ liệu</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($users as $user): ?>
@@ -181,14 +183,14 @@ $pageTitle = "User Management";
                                             <td><?= date('d/m/Y H:i', strtotime($user['created_at'])) ?></td>
                                             <td>
                                                 <a href="<?= URL_ROOT ?>/views/admin/edit_user.php?id=<?= $user['user_id'] ?>"
-                                                    class="btn btn-sm btn-warning" title="Edit">
+                                                    class="btn btn-sm btn-warning" title="Sửa">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
                                                     <button class="btn btn-sm btn-danger delete-user"
                                                         data-id="<?= $user['user_id'] ?>"
                                                         data-name="<?= htmlspecialchars($user['fullname']) ?>"
-                                                        title="Delete">
+                                                        title="Xoá">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -202,11 +204,11 @@ $pageTitle = "User Management";
 
                     <!-- Pagination -->
                     <?php if ($totalPages > 1): ?>
-                        <nav aria-label="Page navigation">
+                        <nav aria-label="Phân trang">
                             <ul class="pagination justify-content-center">
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?role=<?= urlencode($role) ?>&search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>">
-                                        Previous
+                                        Trước
                                     </a>
                                 </li>
                                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -218,7 +220,7 @@ $pageTitle = "User Management";
                                 <?php endfor; ?>
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?role=<?= urlencode($role) ?>&search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>">
-                                        Next
+                                        Sau
                                     </a>
                                 </li>
                             </ul>
@@ -231,11 +233,11 @@ $pageTitle = "User Management";
 
     <script>
         document.querySelectorAll('.delete-user').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', async function() {
                 const userId = this.dataset.id;
                 const userName = this.dataset.name;
 
-                if (confirm(`Are you sure you want to delete the user "${userName}"?`)) {
+                if (await UI.confirm(`Xoá người dùng "${userName}"? Thao tác này không thể hoàn tác.`)) {
                     fetch('<?= URL_ROOT ?>/api/admin_actions.php', {
                             method: 'POST',
                             headers: {
@@ -249,15 +251,15 @@ $pageTitle = "User Management";
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert('User deleted successfully!');
+                                UI.success('Đã xoá người dùng.');
                                 location.reload();
                             } else {
-                                alert('Error: ' + (data.message || 'Could not delete user'));
+                                UI.error(data.message || 'Không xoá được người dùng.');
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred!');
+                            UI.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
                         });
                 }
             });

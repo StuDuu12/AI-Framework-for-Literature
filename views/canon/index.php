@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -50,8 +50,8 @@
             <h1 data-lang-key="canon_title">Literary Canon</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/workspace" data-lang-key="menu_workspace">Workspace</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="canon_breadcrumb">Knowledge Base</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/workspace" data-lang-key="menu_workspace">Thư viện tác phẩm</a></li>
+                    <li class="breadcrumb-item active" data-lang-key="canon_breadcrumb">Kho tri thức</li>
                 </ol>
             </nav>
         </div>
@@ -64,8 +64,8 @@
             <div class="canon-toolbar">
                 <form class="canon-toolbar__search" method="get" action="<?= $baseUrl ?>">
                     <i class="bi bi-search"></i>
-                    <input type="search" name="q" value="<?= htmlspecialchars($searchQ) ?>"
-                        placeholder="Search title, author..."
+                    <input aria-label="Tìm tên tác phẩm, tác giả" type="search" name="q" value="<?= htmlspecialchars($searchQ) ?>"
+                        placeholder="Tìm tên tác phẩm, tác giả…"
                         data-lang-key="canon_search_placeholder">
                     <?php if ($activeRegion): ?><input type="hidden" name="region" value="<?= htmlspecialchars($activeRegion) ?>"><?php endif; ?>
                     <?php if ($activeGenre): ?><input type="hidden" name="genre" value="<?= htmlspecialchars($activeGenre) ?>"><?php endif; ?>
@@ -76,26 +76,26 @@
                         data-lang-key="workspace_filter_all">All</a>
                     <a href="<?= canonFilterUrl($baseUrl, 'vietnam', '', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeRegion === 'vietnam' ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_vn">Vietnam</a>
+                        data-lang-key="workspace_filter_vn">Việt Nam</a>
                     <a href="<?= canonFilterUrl($baseUrl, 'international', '', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeRegion === 'international' ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_intl">World</a>
+                        data-lang-key="workspace_filter_intl">Thế giới</a>
                     <a href="<?= canonFilterUrl($baseUrl, $activeRegion, 'poem', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeGenre === 'poem' ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_poem">Poetry</a>
+                        data-lang-key="workspace_filter_poem">Thơ</a>
                     <a href="<?= canonFilterUrl($baseUrl, $activeRegion, 'story', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeGenre === 'story' ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_story">Stories</a>
+                        data-lang-key="workspace_filter_story">Truyện</a>
                     <a href="<?= canonFilterUrl($baseUrl, $activeRegion, 'novel', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeGenre === 'novel' ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_novel">Novels</a>
+                        data-lang-key="workspace_filter_novel">Tiểu thuyết</a>
                 </div>
             </div>
 
             <?php if (empty($works)): ?>
                 <div class="canon-empty">
                     <i class="bi bi-book display-4 d-block mb-2 text-muted"></i>
-                    <p data-lang-key="canon_no_results">No works match your search. Try another keyword.</p>
+                    <p data-lang-key="canon_no_results">Không có tác phẩm phù hợp. Thử từ khoá khác.</p>
                 </div>
             <?php else: ?>
                 <div class="canon-grid">

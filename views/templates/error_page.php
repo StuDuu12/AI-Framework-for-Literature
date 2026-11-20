@@ -30,7 +30,7 @@ $errorClass = $errorClass ?? 'error-page--404';
         <p class="error-page__message" data-lang-key="error_<?= htmlspecialchars($errorCode) ?>_message" data-lang-attr="html"><?= $errorMessage ?></p>
         <div class="error-page__actions">
             <a href="<?= URL_ROOT ?>/" class="error-page__btn error-page__btn--primary" data-lang-key="back_home">Về trang chủ</a>
-            <a href="<?= URL_ROOT ?>/dashboard" class="error-page__btn error-page__btn--secondary" data-lang-key="menu_dashboard">Dashboard</a>
+            <a href="<?= URL_ROOT ?>/dashboard" class="error-page__btn error-page__btn--secondary" data-lang-key="menu_dashboard">Tổng quan</a>
         </div>
         <p class="error-page__meta" data-lang-key="error_<?= htmlspecialchars($errorCode) ?>_code">Mã lỗi: <?= htmlspecialchars($errorCode) ?></p>
     </div>

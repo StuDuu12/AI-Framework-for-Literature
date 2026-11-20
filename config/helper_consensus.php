@@ -90,14 +90,14 @@ function validateConsensusCriterionScores(int $taskId, array $criterionScores): 
 {
     $criteria = getEvaluationCriteria($taskId);
     if (empty($criteria)) {
-        return ['valid' => false, 'total' => 0, 'message' => 'No evaluation criteria configured for this task.'];
+        return ['valid' => false, 'total' => 0, 'message' => 'Nhiệm vụ này chưa có tiêu chí đánh giá.'];
     }
 
     $total = 0.0;
     foreach ($criteria as $criterion) {
         $tcId = (int)$criterion['tc_id'];
         if (!array_key_exists($tcId, $criterionScores) && !array_key_exists((string)$tcId, $criterionScores)) {
-            return ['valid' => false, 'total' => 0, 'message' => 'Please score every criterion.'];
+            return ['valid' => false, 'total' => 0, 'message' => 'Hãy chấm đủ các tiêu chí.'];
         }
         $val = (float)($criterionScores[$tcId] ?? $criterionScores[(string)$tcId]);
         $min = (float)$criterion['min_score'];
@@ -219,10 +219,10 @@ function submitConsensusScore($consensusId, $userId, array $criterionScores, $co
 
     $consensus = getConsensusById($consensusId);
     if (!$consensus) {
-        return ['success' => false, 'message' => 'Consensus session not found.'];
+        return ['success' => false, 'message' => 'Không tìm thấy phiên chấm theo nhóm.'];
     }
     if (in_array($consensus['status'], ['agreed', 'timeout'], true)) {
-        return ['success' => false, 'message' => 'This evaluation is finalized; scores cannot be changed.'];
+        return ['success' => false, 'message' => 'Phiếu chấm đã chốt, không đổi được điểm.'];
     }
 
     $validation = validateConsensusCriterionScores($taskId, $criterionScores);
@@ -254,7 +254,7 @@ function submitConsensusScore($consensusId, $userId, array $criterionScores, $co
         if ($row) {
             if ($consensus['status'] === 'pending') {
                 $pdo->rollBack();
-                return ['success' => false, 'message' => 'You already submitted. Waiting for other group members.'];
+                return ['success' => false, 'message' => 'Bạn đã gửi điểm. Đang chờ các bạn khác trong nhóm.'];
             }
             $upd = $pdo->prepare("
                 UPDATE peer_review_individual_score
@@ -285,12 +285,12 @@ function submitConsensusScore($consensusId, $userId, array $criterionScores, $co
     } catch (PDOException $e) {
         $pdo->rollBack();
         error_log('submitConsensusScore ERROR: ' . $e->getMessage());
-        return ['success' => false, 'message' => 'Error saving scores.'];
+        return ['success' => false, 'message' => 'Không lưu được điểm.'];
     }
 
     $progress = evaluateConsensusProgress($consensusId);
 
-    return ['success' => true, 'message' => 'Your scores have been saved.', 'status' => $progress];
+    return ['success' => true, 'message' => 'Đã lưu điểm của bạn.', 'status' => $progress];
 }
 
 function getConsensusById($consensusId)

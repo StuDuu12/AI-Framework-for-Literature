@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
@@ -81,7 +81,7 @@
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Learning
                             Phases</a></li>
-                    <li class="breadcrumb-item active">Tasks - Step <?= $phase['phase_number'] ?></li>
+                    <li class="breadcrumb-item active">Nhiệm vụ · Giai đoạn <?= $phase['phase_number'] ?></li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -99,7 +99,7 @@
                                 <div class="d-flex gap-2">
                                     <a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>"
                                         class="btn btn-outline-secondary">
-                                        <i class="bi bi-arrow-left"></i> <span>Back</span>
+                                        <i class="bi bi-arrow-left"></i> <span>Quay lại</span>
                                     </a>
                                     <a href="<?= URL_ROOT ?>/class/task/create?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-primary">
@@ -111,7 +111,7 @@
                             <?php if (empty($tasks)): ?>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
-                                    <span>No tasks in this phase yet.</span>
+                                    <span>Giai đoạn này chưa có nhiệm vụ.</span>
                                 </div>
                             <?php else: ?>
                                 <div class="list-group">
@@ -133,7 +133,7 @@
                                                         class="d-flex flex-wrap gap-3 align-items-center small text-muted mb-2">
                                                         <span>
                                                             <i class="bi bi-person"></i>
-                                                            <span>Created by</span>:
+                                                            <span>Người tạo</span>:
                                                             <strong><?= htmlspecialchars($task['added_by_name'] ?? 'N/A') ?></strong>
                                                         </span>
                                                         <span>
@@ -162,12 +162,12 @@
                                                         <div class="task-stats mb-2">
                                                             <div class="stat-item stat-total">
                                                                 <i class="bi bi-people-fill"></i>
-                                                                <span><span>Assigned</span>:
+                                                                <span><span>Đã giao</span>:
                                                                     <strong><?= $task['assignment_stats']['total_assigned'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-completed">
                                                                 <i class="bi bi-check-circle-fill"></i>
-                                                                <span><span>Completed</span>:
+                                                                <span><span>Đã hoàn thành</span>:
                                                                     <strong><?= $task['assignment_stats']['completed'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-progress">
@@ -185,7 +185,7 @@
                                                         <?php if (!empty($task['assignment_stats']['types'])): ?>
                                                             <div class="d-flex flex-wrap gap-2 small">
                                                                 <span class="text-muted">
-                                                                    <i class="bi bi-tag-fill"></i> Assignment types:
+                                                                    <i class="bi bi-tag-fill"></i> Kiểu giao bài:
                                                                 </span>
                                                                 <?php foreach ($task['assignment_stats']['types'] as $typeInfo): ?>
                                                                     <?php
@@ -212,41 +212,41 @@
                                                     <?php else: ?>
                                                         <div class="alert alert-warning py-1 px-2 mb-0 small">
                                                             <i class="bi bi-exclamation-triangle"></i>
-                                                            <span>This task has not been assigned yet</span>
+                                                            <span>Nhiệm vụ này chưa được giao</span>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
 
                                                 <div class="btn-group ms-3" role="group">
                                                     <a href="/class/task/view?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                        class="btn btn-sm btn-outline-success" title="View">
+                                                        class="btn btn-sm btn-outline-success" title="Xem">
                                                         <i class="bi bi-eye"></i>
                                                     </a>
 
 
                                                     <?php if ($isPeerEvaluationPhase): ?>
                                                         <a href="/class/task/setting_evaluation?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                            class="btn btn-sm btn-outline-info" title="Configure peer evaluation">
+                                                            class="btn btn-sm btn-outline-info" title="Thiết lập đánh giá chéo">
                                                             <i class="bi bi-gear-fill"></i>
                                                         </a>
                                                     <?php elseif ($isGradingPhase): ?>
                                                         <a href="<?= URL_ROOT ?>/class/evaluate/teacher_grades?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                            class="btn btn-sm btn-outline-info" title="Grade submissions">
+                                                            class="btn btn-sm btn-outline-info" title="Chấm bài">
                                                             <i class="bi bi-award"></i>
                                                         </a>
                                                     <?php else: ?>
                                                         <a href="/class/task/assign?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                            class="btn btn-sm btn-outline-warning" title="Assign task">
+                                                            class="btn btn-sm btn-outline-warning" title="Giao nhiệm vụ">
                                                             <i class="bi bi-bell"></i>
                                                         </a>
                                                     <?php endif; ?>
                                                     <a href="/class/task/edit?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
-                                                        class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        class="btn btn-sm btn-outline-primary" title="Sửa">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
                                                     <button type="button" class="btn btn-sm btn-outline-danger delete-task"
                                                         data-task-id="<?= $task['task_id'] ?>"
-                                                        data-task-title="<?= htmlspecialchars($task['title']) ?>" title="Delete">
+                                                        data-task-title="<?= htmlspecialchars($task['title']) ?>" title="Xoá">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -268,11 +268,11 @@
         <div id="toastNotification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
                 <i class="bi me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Notification</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Đóng"></button>
             </div>
             <div class="toast-body" id="toastMessage">
-                Notification content
+                Nội dung thông báo
             </div>
         </div>
     </div>
@@ -345,7 +345,7 @@
                     const taskId = this.dataset.taskId;
                     const taskTitle = this.dataset.taskTitle;
 
-                    if (!confirm(`Are you sure you want to delete task "${taskTitle}"?`)) {
+                    if (!await UI.confirm(`Xoá nhiệm vụ "${taskTitle}"?`)) {
                         return;
                     }
 
@@ -363,7 +363,7 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            showToast('Task deleted successfully!', 'success');
+                            showToast('Đã xoá nhiệm vụ.', 'success');
                             setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
@@ -372,7 +372,7 @@
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        showToast('An error occurred while deleting the task', 'error');
+                        showToast('Không xoá được nhiệm vụ. Vui lòng thử lại.', 'error');
                     }
                 });
             });

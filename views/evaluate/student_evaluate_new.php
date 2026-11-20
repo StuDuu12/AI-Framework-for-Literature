@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../config/helper_breadcrumb.php';
 require_once __DIR__ . '/../../config/helper_phase.php';
 require_once __DIR__ . '/../../config/helper_task.php';
 require_once __DIR__ . '/../../config/helper_criteria_i18n.php';
+require_once __DIR__ . '/../../config/helper_class.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -24,7 +25,7 @@ $phaseId = isset($_GET['phase_id']) ? intval($_GET['phase_id']) : 0;
 $deliverId = isset($_GET['deliver_id']) ? intval($_GET['deliver_id']) : 0;
 
 if (!$taskId || !$deliverId) {
-    $_SESSION['error_message'] = 'Invalid parameters.';
+    $_SESSION['error_message'] = 'Đường dẫn không hợp lệ.';
     header("Location: /404");
     exit;
 }
@@ -32,7 +33,7 @@ if (!$taskId || !$deliverId) {
 // STEP 1: Check if user has access to this deliver
 $deliverInfo = checkDeliverAccess($userId, $deliverId);
 if (!$deliverInfo) {
-    $_SESSION['error_message'] = 'You do not have access to this evaluation assignment.';
+    $_SESSION['error_message'] = 'Bạn không được phân công chấm bài này.';
     header("Location: /dashboard");
     exit;
 }
@@ -46,7 +47,7 @@ if ($deliverInfo['type'] === 'group') {
 // Get task info
 $taskInfo = getTaskInfo($taskId);
 if (!$taskInfo) {
-    $_SESSION['error_message'] = 'Task information not found.';
+    $_SESSION['error_message'] = 'Không tìm thấy nhiệm vụ.';
     header("Location: /dashboard");
     exit;
 }
@@ -60,7 +61,7 @@ $isAnonymous = $anonRow ? (int)$anonRow['is_anonymous'] : 0;
 // Get response to evaluate
 $responseInfo = getResponseToEvaluate($deliverId);
 if (!$responseInfo) {
-    $_SESSION['error_message'] = 'Submission to evaluate not found.';
+    $_SESSION['error_message'] = 'Không tìm thấy bài cần chấm.';
     header("Location: /dashboard");
     exit;
 }
@@ -68,7 +69,7 @@ if (!$responseInfo) {
 // STEP 2: Get or create evaluation record for this user
 $evaluation = getOrCreateEvaluation($userId, $deliverId, $responseInfo['id_response']);
 if (!$evaluation) {
-    $_SESSION['error_message'] = 'Error initializing evaluation.';
+    $_SESSION['error_message'] = 'Không mở được phiếu chấm. Vui lòng thử lại.';
     header("Location: /dashboard");
     exit;
 }
@@ -78,7 +79,7 @@ $criteria = getEvaluationCriteria($taskId);
 $phaseInfo = getPhaseDetails($phaseId);
 $topicInfo = getTopicDetails($topicId);
 if (empty($criteria)) {
-    $_SESSION['error_message'] = 'No evaluation criteria set for this task yet.';
+    $_SESSION['error_message'] = 'Giáo viên chưa đặt tiêu chí chấm cho nhiệm vụ này.';
     header("Location: /dashboard");
     exit;
 }
@@ -92,15 +93,19 @@ if (!empty($evaluation['details'])) {
 }
 
 // Now start HTML output
+$evalStatus = (int)$evaluation['status'];
+$statusBadge = $evalStatus === 2 ? ['Đã hoàn thành', 'success', 'bi-check2-circle']
+    : ($evalStatus === 1 ? ['Đang chấm', 'primary', 'bi-hourglass-split'] : ['Bản nháp', 'warning', 'bi-pencil']);
+$listUrl = URL_ROOT . '/class/evaluate/list?' . http_build_query(['task_id' => $taskId, 'topic_id' => $topicId, 'phase_id' => $phaseId]);
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="peer_evaluation">Peer Evaluation - Literature System</title>
+    <title>Đánh giá chéo · <?= htmlspecialchars($taskInfo['title']) ?></title>
 </head>
 
 <body>
@@ -111,171 +116,59 @@ if (!empty($evaluation['details'])) {
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-star-fill"></i> <span data-lang-key="peer_evaluation">Peer Evaluation</span></h1>
-            <nav>
+            <nav aria-label="Vị trí trang">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
                     <?php if ($topicInfo): ?>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= htmlspecialchars($topicInfo['topic_name']) ?></a></li>
+                        <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>"><?= htmlspecialchars($topicInfo['topic_name']) ?></a></li>
                     <?php endif; ?>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Learning Phases</a></li>
-                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Tasks<?= $phaseInfo ? ' - Step ' . (int)$phaseInfo['phase_number'] : '' ?></a></li>
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Peer Evaluation</a></li>
-                    <li class="breadcrumb-item active">Score</li>
+                    <li class="breadcrumb-item"><a href="<?= breadcrumbPhaseTasksUrl($topicId, $phaseId) ?>">Giai đoạn <?= $phaseInfo ? (int)$phaseInfo['phase_number'] : '' ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= htmlspecialchars($listUrl) ?>">Đánh giá chéo</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chấm bài</li>
                 </ol>
             </nav>
+            <h1>Đánh giá chéo: <?= htmlspecialchars($taskInfo['title']) ?></h1>
         </div>
 
         <section class="section">
-            <!-- Task Info -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Task Info</span>
-                        <?php if ($deliverInfo['type'] === 'user'): ?>
-                            <span class="info-badge badge-user">
-                                <i class="bi bi-person"></i> <span>Personal</span>
-                            </span>
-                        <?php else: ?>
-                            <span class="info-badge badge-group">
-                                <i class="bi bi-people"></i> <span>Group</span>
-                            </span>
-                        <?php endif; ?>
-                    </h5>
-                    <div class="row">
-                        <div class="col-md-9">
-                            <p><strong>Task:</strong> <?= htmlspecialchars($taskInfo['title']) ?></p>
-                            <p><strong>Respondent:</strong>
-                                <?= $isAnonymous ? '<span class="text-muted fst-italic">Ẩn danh</span>' : htmlspecialchars($responseInfo['response_author']) ?>
-                            </p>
-                            <p><strong>Submission Date:</strong>
-                                <?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <?php if ($evaluation['status'] == 0): ?>
-                                <span class="evaluation-status status-0">
-                                    <i class="bi bi-circle"></i> <span>Draft</span>
-                                </span>
-                            <?php elseif ($evaluation['status'] == 1): ?>
-                                <span class="evaluation-status status-1">
-                                    <i class="bi bi-hourglass-split"></i> <span>Grading</span>
-                                </span>
-                            <?php else: ?>
-                                <span class="evaluation-status status-2">
-                                    <i class="bi bi-check-circle"></i> <span>Completed</span>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+            <div class="ui-card p-3 mb-4 d-flex flex-wrap align-items-center gap-2">
+                <span class="ui-badge ui-badge--<?= $statusBadge[1] ?>"><i class="bi <?= $statusBadge[2] ?>" aria-hidden="true"></i> <?= $statusBadge[0] ?></span>
+                <span class="ui-badge"><i class="bi <?= $deliverInfo['type'] === 'user' ? 'bi-person' : 'bi-people' ?>" aria-hidden="true"></i> <?= $deliverInfo['type'] === 'user' ? 'Bài cá nhân' : 'Bài nhóm' ?></span>
+                <span class="small text-muted ms-1">
+                    Người làm: <?= $isAnonymous ? '<em>ẩn danh</em>' : '<strong>' . htmlspecialchars($responseInfo['response_author']) . '</strong>' ?>
+                    · Nộp lúc <?= date('H:i d/m/Y', strtotime($responseInfo['response_created_at'])) ?>
+                </span>
+                <a class="btn btn-sm btn-link ms-auto text-decoration-none" href="<?= htmlspecialchars($listUrl) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Danh sách bài cần chấm</a>
             </div>
 
-            <div class="row g-3">
-                <!-- Left: Response Content -->
+            <div class="row g-4">
                 <div class="col-lg-7">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-file-text"></i> <span data-lang-key="response_to_evaluate">Submission to Evaluate</span></h5>
-
-                            <?php if (!empty($responseInfo['contents'])): ?>
-                                <?php foreach ($responseInfo['contents'] as $content): ?>
-                                    <div class="response-content markdown-content">
-                                        <?php
-                                        // Simple markdown to HTML conversion
-                                        $html = $content['content'];
-
-                                        // Headers
-                                        $html = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $html);
-                                        $html = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $html);
-                                        $html = preg_replace('/^# (.+)$/m', '<h1>$1</h1>', $html);
-
-                                        // Bold
-                                        $html = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html);
-
-                                        // Line breaks
-                                        $html = nl2br($html);
-
-                                        echo $html;
-                                        ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle"></i> <span>No response content yet</span>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    <article class="ui-card p-4" aria-label="Bài cần chấm">
+                        <h2 class="perform-label">Bài cần chấm</h2>
+                        <?php if (!empty($responseInfo['contents'])): ?>
+                            <?php foreach ($responseInfo['contents'] as $content): ?>
+                                <div class="submission-body"><?= renderSubmissionMarkdown($content['content']) ?></div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="ui-empty ui-empty--compact"><p class="mb-0">Bài này chưa có nội dung.</p></div>
+                        <?php endif; ?>
+                    </article>
                 </div>
 
-                <!-- Right: Evaluation Form (compact accordion) -->
                 <div class="col-lg-5">
-                    <div class="card eval-compact sticky-top" style="top: 80px;">
-                        <div class="card-body">
-                            <h6 class="card-title mb-2"><i class="bi bi-clipboard-check"></i> Score by criterion</h6>
-
-                            <form id="evaluationForm" method="POST" action="/api/evaluate/submit_evaluation.php">
-                                <input type="hidden" name="evaluate_id" value="<?= $evaluation['id_evaluate'] ?>">
-                                <input type="hidden" name="deliver_id" value="<?= $deliverId ?>">
-                                <input type="hidden" name="task_id" value="<?= $taskId ?>">
-                                <input type="hidden" name="topic_id" value="<?= $topicId ?>">
-                                <input type="hidden" name="phase_id" value="<?= $phaseId ?>">
-
-                                <div class="accordion eval-criteria-accordion" id="criteriaAccordion">
-                                <?php foreach ($criteria as $i => $criterion):
-                                    $tcId = $criterion['tc_id'];
-                                    $cur = isset($existingScores[$tcId]) && $existingScores[$tcId] !== null ? $existingScores[$tcId] : $criterion['min_score'];
-                                    $min = (float)$criterion['min_score'];
-                                    $max = (float)$criterion['max_score'];
-                                    $step = ($max - $min) <= 4 ? 1 : 0.5;
-                                ?>
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button <?= $i > 0 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#c<?= $tcId ?>">
-                                                <?= htmlspecialchars(criteriaLabel($criterion['name_tc'])) ?>
-                                                <span class="ms-auto me-2 badge bg-primary criterion-score-badge" data-tc="<?= $tcId ?>"><?= $cur ?></span>
-                                            </button>
-                                        </h2>
-                                        <div id="c<?= $tcId ?>" class="accordion-collapse collapse <?= $i === 0 ? 'show' : '' ?>" data-bs-parent="#criteriaAccordion">
-                                            <div class="accordion-body py-2">
-                                                <?php if ($criterion['description']): ?><p class="small text-muted mb-2"><?= htmlspecialchars(criteriaLabel($criterion['description'])) ?></p><?php endif; ?>
-                                                <?php if ($evaluation['status'] != 2): ?>
-                                                <div class="score-chip-group" data-tc="<?= $tcId ?>">
-                                                <?php for ($s = $min; $s <= $max + 0.001; $s += $step): ?>
-                                                    <button type="button" class="score-chip <?= abs((float)$cur - $s) < 0.01 ? 'active' : '' ?>" data-value="<?= $step >= 1 ? (int)$s : number_format($s, 1) ?>"><?= $step >= 1 ? (int)$s : number_format($s, 1) ?></button>
-                                                <?php endfor; ?>
-                                                </div>
-                                                <?php endif; ?>
-                                                <input type="hidden" name="scores[<?= $tcId ?>]" class="score-input" data-tc="<?= $tcId ?>" data-min="<?= $min ?>" data-max="<?= $max ?>" value="<?= $cur ?>" <?= $evaluation['status'] == 2 ? 'readonly' : '' ?>>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                                </div>
-
-                                <!-- Total Score Display -->
-                                <div class="total-score-display">
-                                    <div>Total Score</div>
-                                    <div id="totalScore"><?= $evaluation['total_score'] ?></div>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <?php if ($evaluation['status'] != 2): ?>
-                                    <div class="d-flex gap-2 justify-content-end">
-                                        <button type="submit" name="action" value="draft" class="btn btn-secondary">
-                                            <i class="bi bi-save"></i> <span>Save Draft</span>
-                                        </button>
-                                        <button type="submit" name="action" value="submit" class="btn btn-primary">
-                                            <i class="bi bi-send"></i> <span>Complete evaluation</span>
-                                        </button>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="alert alert-success">
-                                        <i class="bi bi-check-circle"></i> <span>You have completed this evaluation.</span>
-                                    </div>
-                                <?php endif; ?>
-                            </form>
-                        </div>
+                    <div class="ui-card p-4 eval-sticky">
+                        <h2 class="h5 mb-1">Chấm theo tiêu chí</h2>
+                        <p class="small text-muted mb-3">Đọc kỹ bài bên trái, chọn mức điểm phù hợp cho từng tiêu chí.</p>
+                        <?php
+                        $rf = [
+                            'hidden' => ['deliver_id' => $deliverId, 'task_id' => $taskId, 'topic_id' => $topicId, 'phase_id' => $phaseId],
+                            'submit_text' => 'Hoàn thành đánh giá',
+                            'done_text' => 'Bạn đã hoàn thành đánh giá này.',
+                            'confirm' => ['title' => 'Hoàn thành đánh giá?', 'message' => 'Sau khi hoàn thành, bạn sẽ không sửa được nữa.'],
+                            'redirect' => $listUrl,
+                        ];
+                        require __DIR__ . '/_rubric_form.php';
+                        ?>
                     </div>
                 </div>
             </div>
@@ -286,95 +179,6 @@ if (!empty($evaluation['details'])) {
     require_once __DIR__ . '/../templates/footer.php';
     require_once __DIR__ . '/../templates/vendors.php';
     ?>
-
-    <script>
-        document.querySelectorAll('.score-chip-group').forEach(group => {
-            const tc = group.dataset.tc;
-            const input = document.querySelector('.score-input[data-tc="' + tc + '"]');
-            const badge = document.querySelector('.criterion-score-badge[data-tc="' + tc + '"]');
-            group.querySelectorAll('.score-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    if (!input || input.readOnly) return;
-                    group.querySelectorAll('.score-chip').forEach(c => c.classList.remove('active'));
-                    chip.classList.add('active');
-                    input.value = chip.dataset.value;
-                    if (badge) badge.textContent = chip.dataset.value;
-                    recalcTotal();
-                });
-            });
-        });
-
-        function recalcTotal() {
-            let total = 0;
-            document.querySelectorAll('.score-input').forEach(inp => {
-                total += parseFloat(inp.value) || 0;
-            });
-            document.getElementById('totalScore').textContent = total.toFixed(1);
-        }
-
-        // Form submission
-        const form = document.getElementById('evaluationForm');
-        if (form) {
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                const action = e.submitter.value; // 'draft' or 'submit'
-
-                // Validate scores
-                let isValid = true;
-                document.querySelectorAll('.score-input').forEach(input => {
-                    const min = parseFloat(input.min);
-                    const max = parseFloat(input.max);
-                    const value = parseFloat(input.value);
-
-                    if (value < min || value > max) {
-                        isValid = false;
-                        input.classList.add('is-invalid');
-                    } else {
-                        input.classList.remove('is-invalid');
-                    }
-                });
-
-                if (!isValid) {
-                    alert('Please enter valid scores for all criteria!');
-                    return;
-                }
-
-                // Confirm before submit
-                if (action === 'submit') {
-                    if (!confirm('Are you sure you want to complete this evaluation? Once completed, you cannot edit it.')) {
-                        return;
-                    }
-                }
-
-                try {
-                    const response = await fetch(this.action, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        alert(result.message);
-                        if (action === 'submit') {
-                            // Redirect back to evaluation list
-                            window.location.href = '/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>';
-                        } else {
-                            // Reload to show updated status
-                            location.reload();
-                        }
-                    } else {
-                        alert('Error: ' + result.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An error occurred while saving the evaluation!');
-                }
-            });
-        }
-    </script>
 </body>
 
 </html>

@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 
 // Check login
 if (!is_login()) {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized - Not logged in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 $user_id_request = $_SESSION['user']['user_id'];
@@ -30,7 +30,7 @@ try {
             $class_name = trim($_POST['class_name'] ?? '');
 
             if (empty($class_name)) {
-                echo json_encode(['success' => false, 'message' => 'Class name is required']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập tên lớp.']);
                 exit;
             }
 
@@ -39,15 +39,15 @@ try {
             $globalRole = $_SESSION['user']['role'] ?? ($_SESSION['role'] ?? '');
             if (!in_array($globalRole, ['teacher', 'admin'], true)) {
                 http_response_code(403);
-                echo json_encode(['success' => false, 'message' => 'Only teachers can create classes']);
+                echo json_encode(['success' => false, 'message' => 'Chỉ giáo viên được tạo lớp.']);
                 exit;
             }
 
             $class_id = createClass($class_name, $user_id_request);
             if ($class_id) {
-                echo json_encode(['success' => true, 'class_id' => $class_id, 'message' => 'Class created successfully']);
+                echo json_encode(['success' => true, 'class_id' => $class_id, 'message' => 'Đã tạo lớp.']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Cannot create class']);
+                echo json_encode(['success' => false, 'message' => 'Không tạo được lớp.']);
             }
             break;
 
@@ -57,19 +57,19 @@ try {
             $class_name = trim($_POST['class_name'] ?? '');
 
             if ($class_id <= 0 || empty($class_name)) {
-                echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+                echo json_encode(['success' => false, 'message' => 'Thông tin gửi lên không hợp lệ.']);
                 exit;
             }
 
             // Check if user is teacher in this class
             $userRole = getRoleInClass($class_id, $user_id_request);
             if ($userRole !== 'teacher') {
-                echo json_encode(['success' => false, 'message' => 'Unauthorized - Not a teacher in this class']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không phải giáo viên của lớp này.']);
                 exit;
             }
 
             $result = updateClassName($class_id, $class_name);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Class name updated successfully' : 'Update failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã đổi tên lớp.' : 'Cập nhật không thành công.']);
             break;
 
         case 'delete_class':
@@ -77,26 +77,26 @@ try {
             $class_id = isset($_POST['class_id']) ? intval($_POST['class_id']) : 0;
 
             if ($class_id <= 0) {
-                echo json_encode(['success' => false, 'message' => 'Invalid class ID']);
+                echo json_encode(['success' => false, 'message' => 'Lớp không hợp lệ.']);
                 exit;
             }
 
             // Check if user is teacher in this class
             $userRole = getRoleInClass($class_id, $user_id_request);
             if ($userRole !== 'teacher') {
-                echo json_encode(['success' => false, 'message' => 'Unauthorized - Not a teacher in this class']);
+                echo json_encode(['success' => false, 'message' => 'Bạn không phải giáo viên của lớp này.']);
                 exit;
             }
 
             $result = deleteClass($class_id);
-            echo json_encode(['success' => $result, 'message' => $result ? 'Class deleted successfully' : 'Delete class failed']);
+            echo json_encode(['success' => $result, 'message' => $result ? 'Đã xoá lớp.' : 'Không xoá được lớp.']);
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
             break;
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . client_error_message($e)]);
+    echo json_encode(['success' => false, 'message' => 'Lỗi: ' . client_error_message($e)]);
 }
 exit;

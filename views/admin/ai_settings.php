@@ -25,7 +25,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
         <h1 data-lang-key="admin_ai_settings">Cấu hình AI</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Trang chủ</a></li>
                 <li class="breadcrumb-item active">AI Settings</li>
             </ol>
         </nav>
@@ -41,7 +41,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
                             API key / provider được cấu hình trong <code>config/env.local.php</code> (không lưu trên database).
                             Hiện tại: <strong><?= ($settings['provider'] ?? 'opencode') === 'opencode' ? 'OpenCode Zen — ' . htmlspecialchars($settings['model']) : 'Google Gemini' ?></strong>.
                             <?php if ($isOpenCode): ?>
-                                <br>Active endpoint: <code id="active-endpoint"><?= htmlspecialchars($settings['api_url'] ?? resolveOpenCodeApiUrl($pdo)) ?></code>
+                                <br>Endpoint đang dùng: <code id="active-endpoint"><?= htmlspecialchars($settings['api_url'] ?? resolveOpenCodeApiUrl($pdo)) ?></code>
                                 <br><span class="text-muted">Zen <strong>free</strong> models (<?= count($zenFreeModels) ?>) auto-use <code>zen/v1</code>. Go models use <code>zen/go/v1</code> (billing required).</span>
                             <?php endif; ?>
                             <?php if ($settings['api_key_configured']): ?>
@@ -57,7 +57,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
                                 <label class="form-check-label" for="ai_enabled">Bật AI cho toàn hệ thống</label>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">System prompt language (Gen AI)</label>
+                                <label for="system_prompt_lang" class="form-label">Ngôn ngữ prompt hệ thống (AI)</label>
                                 <select class="form-select" id="system_prompt_lang">
                                     <option value="vi" <?= ($settings['system_prompt_lang'] ?? 'vi') === 'vi' ? 'selected' : '' ?>>Tiếng Việt — phân tích văn học bằng tiếng Việt</option>
                                     <option value="en" <?= ($settings['system_prompt_lang'] ?? 'vi') === 'en' ? 'selected' : '' ?>>English — literary analysis in English</option>
@@ -65,7 +65,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
                                 <div class="form-text">Áp dụng cho phân tích chính, chat/refine, slideshow và quiz trong Gen AI.</div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Model</label>
+                                <label for="gemini_model" class="form-label">Model</label>
                                 <select class="form-select" id="gemini_model">
                                     <?php if ($isOpenCode): ?>
                                     <optgroup label="OpenCode Zen — Free (recommended)">
@@ -92,11 +92,11 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
                                 <div class="form-text" id="model-tier-hint"></div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Temperature (0–2): <span id="temp-val"><?= $settings['temperature'] ?></span></label>
+                                <label for="gemini_temperature" class="form-label">Temperature (0–2): <span id="temp-val"><?= $settings['temperature'] ?></span></label>
                                 <input type="range" class="form-range" id="gemini_temperature" min="0" max="2" step="0.1" value="<?= $settings['temperature'] ?>">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Max output tokens</label>
+                                <label for="gemini_max_tokens" class="form-label">Số token đầu ra tối đa</label>
                                 <input type="number" class="form-control" id="gemini_max_tokens" min="256" max="8192" value="<?= (int)$settings['max_tokens'] ?>">
                             </div>
                             <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu cấu hình</button>
@@ -135,13 +135,13 @@ function updateModelHint() {
     const opt = sel.options[sel.selectedIndex];
     const tier = opt ? opt.dataset.tier : '';
     if (tier === 'free') {
-        hint.textContent = 'Free tier — no Go subscription required.';
+        hint.textContent = 'Gói miễn phí — không cần đăng ký Go.';
         if (endpointEl) endpointEl.textContent = ZEN_V1;
     } else if (tier === 'go') {
-        hint.textContent = 'Go subscription + payment method required on opencode.ai.';
+        hint.textContent = 'Cần đăng ký Go và phương thức thanh toán trên opencode.ai.';
         if (endpointEl) endpointEl.textContent = ZEN_GO;
     } else if (tier === 'zen-paid') {
-        hint.textContent = 'Paid Zen credits on your OpenCode account.';
+        hint.textContent = 'Dùng credit Zen trả phí trong tài khoản OpenCode.';
         if (endpointEl) endpointEl.textContent = ZEN_V1;
     } else {
         hint.textContent = '';

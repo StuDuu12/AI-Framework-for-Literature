@@ -12,7 +12,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['user'])) {
     ob_end_clean();
-    echo json_encode(['success' => false, 'message' => 'Please log in']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập.']);
     exit;
 }
 
@@ -78,7 +78,7 @@ try {
         case 'search':
             if ($query === '') {
                 ob_end_clean();
-                echo json_encode(['success' => false, 'message' => 'Empty query']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng nhập từ khoá.']);
                 exit;
             }
 
@@ -97,10 +97,10 @@ try {
 
         default:
             ob_end_clean();
-            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            echo json_encode(['success' => false, 'message' => 'Thao tác không hợp lệ.']);
     }
 } catch (Exception $e) {
     ob_end_clean();
     error_log('literary_search.php: ' . $e->getMessage());
-    echo json_encode(['success' => false, 'message' => 'Search error']);
+    echo json_encode(['success' => false, 'message' => 'Không tìm được, vui lòng thử lại.']);
 }

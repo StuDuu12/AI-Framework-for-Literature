@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/db.php';
@@ -8,14 +10,14 @@ require_once __DIR__ . '/../config/helper_homework.php';
 // Auth check
 if (!isset($_SESSION['user']) && !isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Bạn chưa đăng nhập hoặc không có quyền.']);
     exit;
 }
 
 $user_id = $_SESSION['user']['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$user_id) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'User information not found']);
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy thông tin người dùng.']);
     exit;
 }
 
@@ -29,13 +31,13 @@ try {
             $response_id = intval($input['response_id'] ?? 0);
             $note_text   = trim($input['note_text'] ?? '');
 
-            if ($response_id <= 0) throw new Exception('Invalid response_id');
-            if (empty($note_text)) throw new Exception('Note content cannot be empty');
+            if ($response_id <= 0) throw new Exception('Bài làm không hợp lệ.');
+            if (empty($note_text)) throw new Exception('Vui lòng nhập nội dung ghi chú.');
 
             // Verify user owns this response
             $stmt = $pdo->prepare("SELECT id_response FROM response WHERE id_response = :id AND user_id = :uid");
             $stmt->execute([':id' => $response_id, ':uid' => $user_id]);
-            if (!$stmt->fetch()) throw new Exception('Access denied');
+            if (!$stmt->fetch()) throw new Exception('Bạn không có quyền truy cập.');
 
             // Get next order
             $orderStmt = $pdo->prepare("SELECT COALESCE(MAX(`order`), 0) + 1 FROM content WHERE response_id = :rid");
@@ -60,17 +62,17 @@ try {
             $noteStmt->execute([':id' => $content_id]);
             $note = $noteStmt->fetch(PDO::FETCH_ASSOC);
 
-            echo json_encode(['success' => true, 'note' => $note, 'message' => 'Note saved successfully']);
+            echo json_encode(['success' => true, 'note' => $note, 'message' => 'Đã lưu ghi chú.']);
             break;
 
         case 'load_notes':
             $response_id = intval($input['response_id'] ?? 0);
             if ($response_id <= 0) {
-                throw new Exception('Invalid response_id');
+                throw new Exception('Bài làm không hợp lệ.');
             }
 
             if (!canViewResponseNotes($response_id, (int)$user_id)) {
-                throw new Exception('Access denied');
+                throw new Exception('Bạn không có quyền truy cập.');
             }
 
             $notes = getNotesByResponse($response_id);
@@ -79,7 +81,7 @@ try {
 
         case 'delete_note':
             $content_id = intval($input['content_id'] ?? 0);
-            if ($content_id <= 0) throw new Exception('Invalid content_id');
+            if ($content_id <= 0) throw new Exception('Nội dung không hợp lệ.');
 
             // Verify ownership (must own the parent response and be a note)
             $stmt = $pdo->prepare("
@@ -88,16 +90,16 @@ try {
                 WHERE c.content_id = :cid AND r.user_id = :uid AND c.type_create = 'note'
             ");
             $stmt->execute([':cid' => $content_id, ':uid' => $user_id]);
-            if (!$stmt->fetch()) throw new Exception('Note not found or no permission to delete');
+            if (!$stmt->fetch()) throw new Exception('Không tìm thấy ghi chú hoặc bạn không có quyền xoá.');
 
             $delStmt = $pdo->prepare("DELETE FROM content WHERE content_id = :cid");
             $delStmt->execute([':cid' => $content_id]);
 
-            echo json_encode(['success' => true, 'message' => 'Note deleted successfully']);
+            echo json_encode(['success' => true, 'message' => 'Đã xoá ghi chú.']);
             break;
 
         default:
-            throw new Exception('Invalid action');
+            throw new Exception('Thao tác không hợp lệ.');
     }
 } catch (Exception $e) {
     http_response_code(400);
