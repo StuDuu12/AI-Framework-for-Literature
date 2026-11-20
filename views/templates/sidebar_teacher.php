@@ -92,6 +92,14 @@
                 <span data-lang-key="menu_feedback">Góp ý & hỗ trợ</span>
             </a>
         </li>
+
+        <li class="nav-heading">Tài khoản</li>
+        <li class="nav-item">
+            <a class="nav-link collapsed text-danger" href="<?= URL_ROOT ?>/logout">
+                <i class="bi bi-box-arrow-right text-danger"></i>
+                <span>Đăng xuất</span>
+            </a>
+        </li>
     </ul>
 
 </aside><!-- End Sidebar-->

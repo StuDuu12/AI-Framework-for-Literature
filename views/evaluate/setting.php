@@ -256,10 +256,15 @@
                         </div>
                         <div class="form-check form-switch">
                             <?php
-                            $stmtAnon = $pdo->prepare("SELECT is_anonymous FROM setting WHERE task_id = :task_id");
-                            $stmtAnon->execute([':task_id' => $task_id]);
-                            $anonRow = $stmtAnon->fetch(PDO::FETCH_ASSOC);
-                            $isAnonymous = $anonRow ? (int)$anonRow['is_anonymous'] : 0;
+                            $isAnonymous = 0;
+                            try {
+                                $stmtAnon = $pdo->prepare("SELECT is_anonymous FROM setting WHERE task_id = :task_id");
+                                $stmtAnon->execute([':task_id' => $task_id]);
+                                $anonRow = $stmtAnon->fetch(PDO::FETCH_ASSOC);
+                                $isAnonymous = $anonRow ? (int)$anonRow['is_anonymous'] : 0;
+                            } catch (PDOException $e) {
+                                $isAnonymous = 0;
+                            }
                             ?>
                             <input class="form-check-input" type="checkbox" id="anonymousToggle"
                                 <?= $isAnonymous ? 'checked' : '' ?>

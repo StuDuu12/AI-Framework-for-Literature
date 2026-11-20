@@ -159,7 +159,10 @@
             <h5><i class="bi bi-info-circle"></i> <?= htmlspecialchars($taskData['m_phase_name']) ?></h5>
             <p class="mb-0"><?= htmlspecialchars($taskData['task_description']) ?></p>
             <?php if ($isPhaseStart): ?>
-                <small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Note: This phase allows only 1 analysis, no follow-up questions allowed.</small>
+                <div class="mt-2 text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg p-2 text-sm flex items-center gap-2">
+                    <i class="bi bi-chat-left-quote-fill text-indigo-600"></i>
+                    <span><strong>Giai đoạn 1:</strong> Thực hiện tạo bài phân tích AI và tự phản biện (bằng tính năng bình luận).</span>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -270,6 +273,16 @@
                                 </svg>
                                 <span id="chat-button-text">Ask AI</span>
                             </button>
+
+                            <!-- Comment & Self-Critique Button -->
+                            <a id="comment-page-btn" href="/class/homework/comment?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>"
+                                class="genai-btn-outline genai-btn-success flex justify-center items-center <?= ($json_data) ? '' : 'hidden' ?>"
+                                style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.1rem; font-size: 0.875rem; font-weight: 600; color: #047857; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; text-decoration: none; transition: all 0.15s ease;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 2px;">
+                                    <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
+                                </svg>
+                                <span><?= $isPhaseStart ? 'Tự phản biện & Bình luận' : 'Go to Comments' ?></span>
+                            </a>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3 mt-3">
@@ -906,25 +919,10 @@
             resetButton.classList.remove('hidden');
             resetButton.removeAttribute('disabled'); // Enable reset button
 
-            // Show "Go to Comment" button
-            if (currentResponseId) {
-                const commentBtnHTML = `
-                    <a href="/class/homework/comment?task_id=<?= $task_id ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=<?= $deliver_id ?>" 
-                       class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition inline-flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
-                        </svg>
-                        Go to Comments
-                    </a>
-                `;
-
-                // Insert before reset button
-                if (!document.getElementById('go-comment-btn')) {
-                    const commentBtn = document.createElement('div');
-                    commentBtn.id = 'go-comment-btn';
-                    commentBtn.innerHTML = commentBtnHTML;
-                    resetButton.parentElement.insertBefore(commentBtn, resetButton);
-                }
+            // Show Comment / Self-Critique button
+            const commentPageBtn = document.getElementById('comment-page-btn');
+            if (commentPageBtn) {
+                commentPageBtn.classList.remove('hidden');
             }
 
             // Check if PHASE_START - disable chat functionality (UI only, backend validates)
@@ -2177,18 +2175,27 @@
             
             // Initialize tracking for this section
             behaviorTracker.initSection(sectionId, content);
+            const commentUrl = `/class/homework/comment?task_id=${TASK_ID}&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>&deliver_id=${DELIVER_ID}`;
             
             return `
                 <div class="content-text-wrapper" data-section="${sectionId}" data-original="${encodeURIComponent(content)}" style="background-color: ${bgColor};">
-                    <div class="section-header">
-                        <h3 class="section-title">${title}</h3>
-                        <button class="edit-btn" data-section="${sectionId}" onclick="toggleEditMode('${sectionId}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            Edit
-                        </button>
+                    <div class="section-header flex justify-between items-center mb-2">
+                        <h3 class="section-title text-base font-semibold">${title}</h3>
+                        <div class="flex items-center gap-2">
+                            <a href="${commentUrl}" class="px-3 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors inline-flex items-center gap-1" title="Bình luận & Tự phản biện phần này">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/>
+                                </svg>
+                                💬 Bình luận
+                            </a>
+                            <button class="edit-btn" data-section="${sectionId}" onclick="toggleEditMode('${sectionId}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                        </div>
                     </div>
                     <div class="text-content" id="content-${sectionId}">
                         <p>${formattedContent}</p>

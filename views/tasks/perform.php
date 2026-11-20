@@ -100,6 +100,14 @@ if ($deliverId > 0) {
     }
 }
 
+// Check if there is an existing submission response for this deliver
+$hasSubmissionResponse = false;
+if ($deliverId > 0) {
+    $stmtCheckResp = $pdo->prepare("SELECT response FROM deliver WHERE id_deliver = :deliver_id AND response IS NOT NULL");
+    $stmtCheckResp->execute([':deliver_id' => $deliverId]);
+    $hasSubmissionResponse = (bool)$stmtCheckResp->fetchColumn();
+}
+
 // Get task details
 $task = getTaskDetails($taskId);
 if (!$task) {

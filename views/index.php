@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php require_once __DIR__ . '/templates/assets.php'; ?>
+    <?php require_once './views/templates/assets.php'; ?>
     <title data-lang-key="class_list_title">Class List - Literature System</title>
 </head>
 
 <body>
     <?php
-    require_once __DIR__ . '/templates/header.php';
-    require_once __DIR__ . '/templates/sidebar.php';
+    require_once './views/templates/header.php';
+    require_once './views/templates/sidebar.php';
     
 
     ?>
@@ -73,42 +73,34 @@
                 $statTasks = (int)$stmt->fetchColumn();
             }
             ?>
-            <div class="row dashboard-stats g-3 mb-4" data-stagger>
-                <div class="col-lg-3 col-md-6">
-                    <div class="stat-card stat-card--dashboard stat-card--primary">
-                        <div class="stat-card__icon"><i class="bi bi-collection"></i></div>
-                        <div class="stat-card__content">
-                            <div class="stat-value"><?= $statClasses ?></div>
-                            <div class="stat-label" data-lang-key="stat_classes">Lớp học</div>
-                        </div>
+            <div class="row dashboard-stats mb-4" data-stagger>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon--primary"><i class="bi bi-collection"></i></div>
+                        <div class="stat-value"><?= $statClasses ?></div>
+                        <div class="stat-label" data-lang-key="stat_classes">Lớp học</div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="stat-card stat-card--dashboard stat-card--info">
-                        <div class="stat-card__icon"><i class="bi bi-list-task"></i></div>
-                        <div class="stat-card__content">
-                            <div class="stat-value"><?= $statTasks ?></div>
-                            <div class="stat-label" data-lang-key="<?= $userRole === 'student' ? 'stat_tasks_assigned' : 'stat_tasks_in_class' ?>"><?= $userRole === 'student' ? 'Nhiệm vụ được giao' : 'Nhiệm vụ trong lớp' ?></div>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon--info"><i class="bi bi-list-task"></i></div>
+                        <div class="stat-value"><?= $statTasks ?></div>
+                        <div class="stat-label" data-lang-key="<?= $userRole === 'student' ? 'stat_tasks_assigned' : 'stat_tasks_in_class' ?>"><?= $userRole === 'student' ? 'Nhiệm vụ được giao' : 'Nhiệm vụ trong lớp' ?></div>
                     </div>
                 </div>
                 <?php if ($userRole === 'student'): ?>
-                <div class="col-lg-3 col-md-6">
-                    <div class="stat-card stat-card--dashboard stat-card--success">
-                        <div class="stat-card__icon"><i class="bi bi-check-circle"></i></div>
-                        <div class="stat-card__content">
-                            <div class="stat-value"><?= $statDone ?></div>
-                            <div class="stat-label" data-lang-key="stat_completed">Đã nộp bài</div>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon--success"><i class="bi bi-check-circle"></i></div>
+                        <div class="stat-value"><?= $statDone ?></div>
+                        <div class="stat-label" data-lang-key="stat_completed">Đã nộp bài</div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="stat-card stat-card--dashboard stat-card--warning">
-                        <div class="stat-card__icon"><i class="bi bi-star"></i></div>
-                        <div class="stat-card__content">
-                            <div class="stat-value"><?= $statPendingEval ?></div>
-                            <div class="stat-label" data-lang-key="stat_evaluations">Chờ đánh giá</div>
-                        </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon--warning"><i class="bi bi-star"></i></div>
+                        <div class="stat-value"><?= $statPendingEval ?></div>
+                        <div class="stat-label" data-lang-key="stat_evaluations">Chờ đánh giá</div>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -211,81 +203,41 @@
             <?php endif; endif; ?>
 
             <?php
-            $stmt = $pdo->prepare("
-                SELECT cm.class_id, c.class_name, cm.role,
-                    (SELECT COUNT(*) FROM class_member cm2 WHERE cm2.class_id = cm.class_id) AS member_count,
-                    (SELECT COUNT(*) FROM topic t WHERE t.class_id = cm.class_id) AS topic_count
-                FROM class_member cm
-                LEFT JOIN class c ON c.class_id = cm.class_id
-                WHERE cm.user_id = :userid
-                ORDER BY c.class_name ASC
-            ");
+            $stmt = $pdo->prepare("SELECT cm.class_id, c.class_name, cm.role FROM `class_member` cm LEFT JOIN `class` c ON c.class_id = cm.class_id WHERE `user_id` = :userid");
             $stmt->bindParam(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
             $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if ($classes):
             $classIdx = 0;
             ?>
-                <div class="row class-grid g-4" data-stagger>
-                    <?php foreach ($classes as $class):
-                        $roleKey = $class['role'] ?? 'student';
-                        $roleBadgeClass = in_array($roleKey, ['teacher', 'admin', 'student'], true) ? $roleKey : 'student';
-                        $initial = mb_strtoupper(mb_substr($class['class_name'] ?? 'C', 0, 1, 'UTF-8'), 'UTF-8');
-                        $accentIdx = $classIdx % 6;
-                    ?>
-                        <div class="col-xl-4 col-lg-6">
-                            <article class="card h-100 class-card class-card--accent-<?= $accentIdx ?>"
-                                data-class-id="<?php echo intval($class['class_id']); ?>"
-                                data-index="<?php echo $classIdx; ?>">
-                                <div class="class-card__body">
-                                    <div class="class-card__top">
-                                        <div class="class-card__avatar" aria-hidden="true"><?= htmlspecialchars($initial) ?></div>
+                <div class="row" data-stagger>
+                    <?php foreach ($classes as $class): ?>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 class-card" data-class-id="<?php echo intval($class['class_id']); ?>" data-index="<?php echo $classIdx % 10; ?>">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-start gap-2 flex-grow-1">
+                                            <?php if ($class['role'] === 'teacher'): ?>
+                                                <input class="form-check-input class-checkbox mt-1"
+                                                    type="checkbox"
+                                                    data-class-id="<?php echo intval($class['class_id']); ?>"
+                                                    data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>">
+                                            <?php endif; ?>
+                                            <h5 class="card-title mb-0"><?php echo htmlspecialchars($class['class_name']); ?></h5>
+                                        </div>
                                         <?php if ($class['role'] === 'teacher'): ?>
-                                        <div class="class-card__tools">
-                                            <input class="form-check-input class-checkbox"
-                                                type="checkbox"
-                                                data-class-id="<?php echo intval($class['class_id']); ?>"
-                                                data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
-                                                aria-label="Select class">
-                                            <button type="button" class="btn btn-sm class-card__edit edit-class-btn"
+                                            <button class="btn btn-sm btn-outline-secondary edit-class-btn"
                                                 data-class-id="<?php echo intval($class['class_id']); ?>"
                                                 data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
                                                 title="Edit class name">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                        </div>
                                         <?php endif; ?>
                                     </div>
-
-                                    <div class="class-card__main">
-                                        <h3 class="class-card-title mb-2"><?php echo htmlspecialchars($class['class_name']); ?></h3>
-                                        <span class="class-card__role class-card__role--<?= $roleBadgeClass ?>">
-                                            <?php echo htmlspecialchars(ucfirst($class['role'])); ?>
-                                        </span>
-                                    </div>
-
-                                    <ul class="class-card__meta list-unstyled mb-0">
-                                        <li>
-                                            <i class="bi bi-people"></i>
-                                            <span class="class-stat-value" data-type="students"><?= (int)($class['member_count'] ?? 0) ?></span>
-                                            <span data-lang-key="members_label">Thành viên</span>
-                                        </li>
-                                        <li>
-                                            <i class="bi bi-journal-text"></i>
-                                            <span><?= (int)($class['topic_count'] ?? 0) ?></span>
-                                            <span data-lang-key="topics">Chủ đề</span>
-                                        </li>
-                                    </ul>
-
-                                    <div class="class-card__footer">
-                                        <a href="<?= URL_ROOT ?>/joinclass?id=<?php echo urlencode($class['class_id']); ?>"
-                                           class="btn btn-primary class-card__enter w-100">
-                                            <span data-lang-key="enter_class">Vào lớp</span>
-                                            <i class="bi bi-arrow-right"></i>
-                                        </a>
-                                    </div>
+                                    <p class="card-text"><span data-lang-key="role_label">Role:</span> <?php echo htmlspecialchars(ucfirst($class['role'])); ?></p>
+                                    <a href="/joinclass?id=<?php echo urlencode($class['class_id']); ?>" class="btn btn-primary" data-lang-key="enter_class">Enter Class</a>
                                 </div>
-                            </article>
+                            </div>
                         </div>
                     <?php $classIdx++; endforeach; ?>
                 </div>
@@ -358,8 +310,8 @@
     </div>
 
     <?php
-    require_once __DIR__ . '/templates/footer.php';
-    require_once __DIR__ . '/templates/vendors.php';
+    require_once 'views/templates/footer.php';
+    require_once 'views/templates/vendors.php';
     ?>
 
     <script>

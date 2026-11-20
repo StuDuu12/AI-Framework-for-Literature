@@ -200,19 +200,14 @@
                 return;
             }
 
-            var isClassGrid = container.classList.contains('class-grid');
-            var fromY = isClassGrid ? 28 : 18;
-            var fromScale = isClassGrid ? 0.96 : 1;
-
             if (HAS_GSAP) {
                 var inView = isInViewport(container);
                 var opts = {
                     opacity: 0,
-                    y: fromY,
-                    scale: fromScale,
-                    duration: isClassGrid ? (MOBILE ? 0.38 : 0.52) : (MOBILE ? 0.32 : 0.42),
-                    stagger: isClassGrid ? (MOBILE ? 0.07 : 0.1) : (MOBILE ? 0.04 : 0.06),
-                    ease: isClassGrid ? 'back.out(1.4)' : 'power3.out',
+                    y: 18,
+                    duration: MOBILE ? 0.32 : 0.42,
+                    stagger: MOBILE ? 0.04 : 0.06,
+                    ease: 'power3.out',
                     clearProps: 'transform,opacity',
                     onComplete: function () { finishStagger(container); }
                 };

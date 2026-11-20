@@ -145,9 +145,10 @@
     // Check if there are no content blocks
     $hasNoContent = empty($contentBlocks);
 
-    // Take Note — only in PHASE_TAKENOTE
+    // Take Note & Phase Start flags
     $phaseCode = $phaseInfo['phase_code'] ?? '';
     $isTakeNotePhase = ($phaseCode === 'PHASE_TAKENOTE');
+    $isPhaseStart = ($phaseCode === 'PHASE_START');
     $studentNotes = [];
     // Use $display_response_id to fetch the target student's notes, even if viewed by teacher
     $studentNotes = getNotesByResponse($display_response_id);
@@ -275,6 +276,16 @@
         </div>
         </div>
         <!-- ===== END PHASE 4: KNOWLEDGE BRIDGE ===== -->
+        <?php endif; ?>
+
+        <?php if ($isPhaseStart): ?>
+            <div class="alert alert-success d-flex align-items-center mb-4">
+                <i class="bi bi-chat-left-quote-fill me-3 fs-3 text-success"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">Giai đoạn 1: Tự phản biện & Bình luận bài phân tích AI</h5>
+                    <p class="mb-0">Đọc lại từng phần bài phân tích văn học do AI tạo ra và đưa ra nhận xét, tự phản biện trực tiếp bên dưới mỗi khối nội dung.</p>
+                </div>
+            </div>
         <?php endif; ?>
 
         <?php if (!$allow_comment): ?>

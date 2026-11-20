@@ -436,8 +436,8 @@ body.lit-anim-ready #main.page-enter {
 /* ============================================
  * SECTION 15: Dashboard cards & stat blocks
  * ============================================ */
-#main .card:not(.class-card),
-#main .stat-card:not(.stat-card--dashboard),
+#main .card,
+#main .stat-card,
 .assignment-card,
 .deliver-card {
     transition: transform var(--lit-duration-base) var(--lit-ease),
@@ -445,8 +445,8 @@ body.lit-anim-ready #main.page-enter {
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    #main .card:not(.class-card):hover,
-    #main .stat-card:not(.stat-card--dashboard):hover,
+    #main .card:hover,
+    #main .stat-card:hover,
     .assignment-card:hover,
     .deliver-card:hover {
         transform: translateY(-3px);
@@ -454,17 +454,8 @@ body.lit-anim-ready #main.page-enter {
     }
 }
 
-.dashboard-stats .stat-card--dashboard,
-.class-card {
+.dashboard-stats .stat-card {
     will-change: transform, opacity;
-}
-
-.class-grid > [class*="col"] {
-    display: flex;
-}
-
-.class-grid .class-card {
-    width: 100%;
 }
 
 .lit-table-row-enter {
@@ -568,8 +559,8 @@ body.login-page .logo {
         animation: none !important;
     }
 
-    #main .card:not(.class-card):hover,
-    #main .stat-card:not(.stat-card--dashboard):hover,
+    #main .card:hover,
+    #main .stat-card:hover,
     .assignment-card:hover,
     .deliver-card:hover,
     #sidebar-nav .nav-link:hover {

@@ -22,23 +22,19 @@
 <link href="<?= URL_ROOT ?>/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
 <!-- Consolidated App CSS (merged: style.css, typography, theme, pages, app-consistency) -->
-<?php $appCssVer = @filemtime(PATH_ROOT . '/assets/css/app.css') ?: time(); ?>
-<link href="<?= URL_ROOT ?>/assets/css/app.css?v=<?= $appCssVer ?>" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/app.css" rel="stylesheet">
 
 <!-- Glassmorphism Design Tokens -->
-<?php $glassCssVer = @filemtime(PATH_ROOT . '/assets/css/glass.css') ?: time(); ?>
-<link href="<?= URL_ROOT ?>/assets/css/glass.css?v=<?= $glassCssVer ?>" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/glass.css" rel="stylesheet">
 
 <!-- Dark Theme -->
-<?php $darkCssVer = @filemtime(PATH_ROOT . '/assets/css/dark.css') ?: time(); ?>
-<link href="<?= URL_ROOT ?>/assets/css/dark.css?v=<?= $darkCssVer ?>" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/dark.css" rel="stylesheet">
 
 <!-- Animation Utilities (GSAP + CSS fallback) -->
 <?php $animationsCssVer = @filemtime(PATH_ROOT . '/assets/css/animations.css') ?: time(); ?>
 <link href="<?= URL_ROOT ?>/assets/css/animations.css?v=<?= $animationsCssVer ?>" rel="stylesheet">
 
 <!-- Module-specific CSS (feature modules, NOT consolidated) -->
-<?php $modulesCssVer = @filemtime(PATH_ROOT . '/assets/css/modules.css') ?: time(); ?>
-<link href="<?= URL_ROOT ?>/assets/css/modules.css?v=<?= $modulesCssVer ?>" rel="stylesheet">
+<link href="<?= URL_ROOT ?>/assets/css/modules.css" rel="stylesheet">
 
 <?php require_once __DIR__ . '/theme-toggle.php'; ?>
