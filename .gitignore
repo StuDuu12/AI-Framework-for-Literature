@@ -24,3 +24,7 @@ Thumbs.db
 # Cấu trúc bảng để cài mới nằm ở database/schema.sql (không có dữ liệu).
 database/diemdanh_literature*.sql
 *.sql.bak
+
+# Tài liệu chứa thông tin đăng nhập / chi tiết bảo mật — chỉ giữ ở máy, KHÔNG commit
+docs/ADMIN_SETUP.md
+docs/ADMIN_README.md
