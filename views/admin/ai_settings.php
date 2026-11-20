@@ -26,7 +26,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Trang chủ</a></li>
-                <li class="breadcrumb-item active">AI Settings</li>
+                <li class="breadcrumb-item active">Cài đặt AI</li>
             </ol>
         </nav>
     </div>
@@ -36,13 +36,13 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">AI Provider: <?= htmlspecialchars(strtoupper($settings['provider'] ?? 'opencode')) ?></h5>
+                        <h5 class="card-title">Nhà cung cấp AI: <?= htmlspecialchars(strtoupper($settings['provider'] ?? 'opencode')) ?></h5>
                         <p class="text-muted small">
                             API key / provider được cấu hình trong <code>config/env.local.php</code> (không lưu trên database).
                             Hiện tại: <strong><?= ($settings['provider'] ?? 'opencode') === 'opencode' ? 'OpenCode Zen — ' . htmlspecialchars($settings['model']) : 'Google Gemini' ?></strong>.
                             <?php if ($isOpenCode): ?>
                                 <br>Endpoint đang dùng: <code id="active-endpoint"><?= htmlspecialchars($settings['api_url'] ?? resolveOpenCodeApiUrl($pdo)) ?></code>
-                                <br><span class="text-muted">Zen <strong>free</strong> models (<?= count($zenFreeModels) ?>) auto-use <code>zen/v1</code>. Go models use <code>zen/go/v1</code> (billing required).</span>
+                                <br><span class="text-muted">Zen <strong>miễn phí</strong> models (<?= count($zenFreeModels) ?>) auto-use <code>zen/v1</code>. Go models use <code>zen/go/v1</code> (billing required).</span>
                             <?php endif; ?>
                             <?php if ($settings['api_key_configured']): ?>
                                 <span class="text-success"><i class="bi bi-check-circle"></i> Đã cấu hình key</span>
@@ -60,7 +60,7 @@ $isOpenCode = ($settings['provider'] ?? 'opencode') === 'opencode';
                                 <label for="system_prompt_lang" class="form-label">Ngôn ngữ prompt hệ thống (AI)</label>
                                 <select class="form-select" id="system_prompt_lang">
                                     <option value="vi" <?= ($settings['system_prompt_lang'] ?? 'vi') === 'vi' ? 'selected' : '' ?>>Tiếng Việt — phân tích văn học bằng tiếng Việt</option>
-                                    <option value="en" <?= ($settings['system_prompt_lang'] ?? 'vi') === 'en' ? 'selected' : '' ?>>English — literary analysis in English</option>
+                                    <option value="en" <?= ($settings['system_prompt_lang'] ?? 'vi') === 'en' ? 'selected' : '' ?>>Tiếng Anh — phân tích văn học bằng tiếng Anh</option>
                                 </select>
                                 <div class="form-text">Áp dụng cho phân tích chính, chat/refine, slideshow và quiz trong Gen AI.</div>
                             </div>

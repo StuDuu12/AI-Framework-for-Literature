@@ -117,12 +117,12 @@ $pageTitle = "Edit Account";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="edit_account">Edit Account</h1>
+            <h1 data-lang-key="edit_account">Sửa tài khoản</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Trang chủ</a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users" data-lang-key="admin_user_management">Quản lý người dùng</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="edit_account">Edit Account</li>
+                    <li class="breadcrumb-item active" data-lang-key="edit_account">Sửa tài khoản</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -133,7 +133,7 @@ $pageTitle = "Edit Account";
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-pencil me-2"></i><span>Edit Account Information</span>
+                                <i class="bi bi-pencil me-2"></i><span>Sửa thông tin tài khoản</span>
                             </h5>
                             <?php if ($error): ?>
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -152,7 +152,7 @@ $pageTitle = "Edit Account";
                             <form method="POST" action="">
                                 <?= csrf_field() ?>
                                 <div class="mb-3">
-                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <label class="form-label">Họ tên <span class="text-danger">*</span></label>
                                     <input aria-label="Họ tên" type="text" name="fullname" class="form-control" required value="<?= htmlspecialchars($user['fullname']) ?>">
                                 </div>
 
@@ -168,7 +168,7 @@ $pageTitle = "Edit Account";
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">New Password</label>
+                                    <label class="form-label">Mật khẩu mới</label>
                                     <input aria-label="Mật khẩu" type="password" name="password" class="form-control">
                                     <small class="form-text text-muted">Để trống nếu không đổi</small>
                                 </div>
@@ -184,7 +184,7 @@ $pageTitle = "Edit Account";
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save me-1"></i> <span>Save Changes</span>
+                                        <i class="bi bi-save me-1"></i> <span>Lưu thay đổi</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
                                         <i class="bi bi-x-circle me-1"></i> <span>Huỷ</span>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="edit_phase">Edit Learning Phase</title>
+    <title data-lang-key="edit_phase">Sửa giai đoạn</title>
 </head>
 
 <body>
@@ -56,7 +56,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="edit_phase">Edit Learning Phase</h1>
+            <h1 data-lang-key="edit_phase">Sửa giai đoạn</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
@@ -72,7 +72,7 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Phase Information</h5>
+                            <h5 class="card-title">Thông tin giai đoạn</h5>
 
                             <form id="editPhaseForm">
                                 <input type="hidden" name="phase_id" value="<?= $phaseId ?>">
@@ -80,7 +80,7 @@
 
                                 <!-- Phase Order (Read-only) -->
                                 <div class="mb-3">
-                                    <label class="form-label">Phase Order <span class="text-danger">*</span></label>
+                                    <label class="form-label">Thứ tự giai đoạn <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" aria-label="Thứ tự giai đoạn" value="Bước <?= $phase['phase_number'] ?>"
                                         readonly>
                                     <div class="form-text">Không đổi được thứ tự giai đoạn</div>
@@ -88,7 +88,7 @@
 
                                 <!-- Phase Name -->
                                 <div class="mb-3">
-                                    <label for="phaseName" class="form-label">Phase Name <span class="text-danger">*</span></label>
+                                    <label for="phaseName" class="form-label">Tên giai đoạn <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="phaseName" name="phase_name"
                                         value="<?= htmlspecialchars($phase['phase_name']) ?>"
                                         placeholder="Nhập tên giai đoạn…" required>
@@ -96,7 +96,7 @@
 
                                 <!-- Main Phase Type (Modal Selection) -->
                                 <div class="mb-3">
-                                    <label for="selectedPhaseType" class="form-label">Phase Type <span class="text-danger">*</span></label>
+                                    <label for="selectedPhaseType" class="form-label">Loại giai đoạn <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="selectedPhaseType" readonly
                                             value="<?= htmlspecialchars($phase['m_phase_name']) ?>" required>
@@ -111,7 +111,7 @@
 
                                 <!-- Start Time -->
                                 <div class="mb-3">
-                                    <label for="startTime" class="form-label">Start Time <span
+                                    <label for="startTime" class="form-label">Thời gian bắt đầu <span
                                             class="text-danger">*</span></label>
                                     <input type="datetime-local" class="form-control" id="startTime" name="start_time"
                                         value="<?= date('Y-m-d\TH:i', strtotime($phase['start_time'])) ?>" required>
@@ -119,7 +119,7 @@
 
                                 <!-- End Time -->
                                 <div class="mb-3">
-                                    <label for="endTime" class="form-label">End Time <span
+                                    <label for="endTime" class="form-label">Thời gian kết thúc <span
                                             class="text-danger">*</span></label>
                                     <input type="datetime-local" class="form-control" id="endTime" name="end_time"
                                         value="<?= date('Y-m-d\TH:i', strtotime($phase['end_time'])) ?>" required>
@@ -186,7 +186,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Select Phase Type</h5>
+                    <h5 class="modal-title">Chọn loại giai đoạn</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -203,15 +203,15 @@
                                 <div class="d-flex gap-3 text-muted small">
                                     <span>
                                         <i class="bi bi-robot"></i> AI:
-                                        <?= $mp['AI'] ? '<span class="text-success">Yes</span>' : '<span class="text-danger">No</span>' ?>
+                                        <?= $mp['AI'] ? '<span class="text-success">Có</span>' : '<span class="text-danger">Không</span>' ?>
                                     </span>
                                     <span>
                                         <i class="bi bi-chat-dots"></i> Bình luận:
-                                        <?= $mp['Comment'] ? '<span class="text-success">Yes</span>' : '<span class="text-danger">No</span>' ?>
+                                        <?= $mp['Comment'] ? '<span class="text-success">Có</span>' : '<span class="text-danger">Không</span>' ?>
                                     </span>
                                     <span>
                                         <i class="bi bi-pencil-square"></i> Sửa:
-                                        <?= $mp['Edit'] ? '<span class="text-success">Yes</span>' : '<span class="text-danger">No</span>' ?>
+                                        <?= $mp['Edit'] ? '<span class="text-success">Có</span>' : '<span class="text-danger">Không</span>' ?>
                                     </span>
                                 </div>
                             </a>
@@ -262,7 +262,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -272,12 +272,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -341,15 +341,15 @@
                             window.location.href = '/class/phases?topic_id=<?= $topicId ?>';
                         }, 2000);
                     } else {
-                        showToast(data.message || 'Cannot update phase', 'error');
+                        showToast(data.message || 'Không cập nhật được giai đoạn.', 'error');
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Update';
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Cập nhật';
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     showToast('Không cập nhật được giai đoạn. Vui lòng thử lại.', 'error');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Update';
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Cập nhật';
                 }
             });
         })();

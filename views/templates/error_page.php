@@ -7,8 +7,8 @@ if (!defined('URL_ROOT')) {
     require_once __DIR__ . '/../../config/env.php';
 }
 $errorCode = $errorCode ?? '404';
-$errorTitle = $errorTitle ?? 'Page Not Found';
-$errorMessage = $errorMessage ?? 'The page you requested could not be found.';
+$errorTitle = $errorTitle ?? 'Không tìm thấy trang';
+$errorMessage = $errorMessage ?? 'Trang bạn tìm không tồn tại hoặc đã bị chuyển đi.';
 $errorIcon = $errorIcon ?? '🔍';
 $errorClass = $errorClass ?? 'error-page--404';
 ?>

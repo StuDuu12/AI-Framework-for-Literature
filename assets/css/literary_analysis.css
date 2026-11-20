@@ -89,7 +89,7 @@ body.literary-bg .genai-preview-grid {
 
 /* Title / breadcrumb: frosted strip so text never blends into artwork */
 body.literary-bg .pagetitle {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--lit-surface);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(227, 230, 240, 0.9);
@@ -114,7 +114,7 @@ body.literary-bg .breadcrumb-item.active {
 }
 
 body.literary-bg .alert-info {
-    background: rgba(255, 255, 255, 0.92) !important;
+    background: var(--lit-surface) !important;
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border-color: #b6d4fe !important;
@@ -128,7 +128,7 @@ body.literary-bg .alert-info small {
 }
 
 body.literary-bg #header {
-    background: rgba(255, 255, 255, 0.94) !important;
+    background: var(--lit-surface) !important;
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
 }
@@ -138,7 +138,7 @@ body.literary-bg #header {
 }
 
 .genai-panel {
-    background: rgba(255, 255, 255, 0.97);
+    background: var(--lit-surface);
     border-radius: 12px;
     border: 1px solid var(--app-border, #e3e6f0);
     box-shadow: 0 4px 24px rgba(1, 41, 112, 0.08);
@@ -165,7 +165,7 @@ body.dark-theme .genai-panel {
 .editable-text-block.editing {
     border-color: var(--lit-primary-2);
     border-style: solid;
-    background: #fefefe;
+    background: var(--lit-surface);
 }
 
 body.dark-theme .editable-text-block.editing {
@@ -406,7 +406,7 @@ body.literary-bg .genai-tabs__btn i {
 body.literary-bg .genai-tabs__btn:hover:not(:disabled):not(.active),
 body.literary-bg .tab-button:hover:not(:disabled):not(.active) {
     color: var(--lit-primary);
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--lit-surface);
 }
 
 body.literary-bg .genai-tabs__btn.active,
@@ -450,7 +450,7 @@ body.literary-bg .genai-placeholder__icon {
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    background: #f0f3ff;
+    background: var(--lit-primary-subtle);
     color: var(--lit-primary);
 }
 
@@ -461,7 +461,7 @@ body.literary-bg .genai-panel-empty {
     margin: 2rem auto;
     border-radius: 12px;
     border: 1px dashed #c7d2fe;
-    background: linear-gradient(180deg, #fafbff 0%, var(--lit-surface-2) 100%);
+    background: linear-gradient(180deg, var(--lit-surface) 0%, var(--lit-surface-2) 100%);
 }
 
 body.literary-bg .genai-panel-empty__icon {
@@ -525,7 +525,7 @@ body.literary-bg .genai-btn-outline {
 }
 
 body.literary-bg .genai-btn-outline:hover:not(:disabled) {
-    background: #f0f3ff;
+    background: var(--lit-primary-subtle);
     border-color: var(--lit-primary);
 }
 
@@ -535,7 +535,7 @@ body.literary-bg .genai-btn-danger {
 }
 
 body.literary-bg .genai-btn-danger:hover:not(:disabled) {
-    background: #fef2f2;
+    background: var(--lit-danger-subtle);
     border-color: #dc2626;
 }
 

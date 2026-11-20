@@ -75,7 +75,7 @@
     }
 
     // Get current phase name for display (from URL phase_id, not task's phase_id)
-    $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Unknown';
+    $currentPhaseName = $phaseInfo['m_phase_name'] ?? 'Không rõ';
 
     // Only override topic_id and phase_id if they weren't provided in URL
     if (!isset($_GET['topic_id']) || $_GET['topic_id'] <= 0) {
@@ -135,7 +135,7 @@
         $userStmt = $pdo->prepare("SELECT fullname FROM users WHERE user_id = :user_id");
         $userStmt->execute([':user_id' => $target_user_id]);
         $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
-        $target_user_name = $userData['fullname'] ?? 'Unknown';
+        $target_user_name = $userData['fullname'] ?? 'Không rõ';
     }
 
     // Teachers only see the student's confirmed final submission
@@ -235,12 +235,12 @@
                 <div class="np-header-left">
                     <div class="np-icon"><i class="bi bi-diagram-3"></i></div>
                     <div>
-                        <p class="np-title">Take Note</p>
+                        <p class="np-title">Ghi chép</p>
                         <p class="np-subtitle">Kết nối phân tích AI với bài giảng của thầy cô</p>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; position: relative; z-index: 1;">
-                    <span class="np-badge" id="notes-count-badge"><?= count($studentNotes) ?> notes</span>
+                    <span class="np-badge" id="notes-count-badge"><?= count($studentNotes) ?> ghi chú</span>
                 </div>
             </div>
 
@@ -257,13 +257,13 @@
                             <i class="bi bi-plus-circle"></i> Thêm ghi chú
                         </button>
                         <span id="note-save-status" class="np-status"></span>
-                        <p class="np-hint"><i class="bi bi-keyboard"></i> Ctrl + Enter to save</p>
+                        <p class="np-hint"><i class="bi bi-keyboard"></i> Ctrl + Enter để lưu</p>
                     </div>
                     <?php endif; ?>
 
                 <!-- Read pane — Bridge Journal -->
                 <div class="np-read">
-                    <p class="np-section-label"><i class="bi bi-link-45deg"></i> Bridge Journal <?= $current_user_role === 'teacher' ? '(Student\'s)' : '' ?></p>
+                    <p class="np-section-label"><i class="bi bi-link-45deg"></i> Nhật ký kết nối <?= $current_user_role === 'teacher' ? '(Student\'s)' : '' ?></p>
                     <div id="notes-list" class="np-items">
                         <?php foreach ($studentNotes as $i => $note): ?>
                         <div class="np-note-card" data-note-id="<?= $note['content_id'] ?>">
@@ -328,7 +328,7 @@
                 <div class="card-body">
                     <h5 class="card-title">
                         <i class="bi bi-chat-square-text-fill text-primary"></i>
-                        General Comment
+                        Nhận xét chung
                     </h5>
 
                     <!-- General Comments List -->
@@ -344,7 +344,7 @@
                             <textarea aria-label="Nhận xét chung" class="fb-comment-input" id="general-comment-input"
                                 placeholder="Viết nhận xét chung về bài…"></textarea>
                             <button class="fb-comment-btn" id="general-comment-btn">
-                                <i class="bi bi-send-fill"></i> <span>Send Comment</span>
+                                <i class="bi bi-send-fill"></i> <span>Gửi bình luận</span>
                             </button>
                         </div>
                     </div>
@@ -355,7 +355,7 @@
             <div class="comment-view-toggle">
                 <div>
                     <i class="bi bi-chat-dots"></i>
-                    <strong>Comment View Mode</strong>
+                    <strong>Chế độ xem bình luận</strong>
                     <span id="comment-live-badge" class="comment-live-badge" title="Bình luận tự cập nhật">
                         <span class="comment-live-dot"></span> Trực tiếp
                     </span>
@@ -365,7 +365,7 @@
                         <i class="bi bi-file-earmark-text"></i> <span>Xem theo nội dung</span>
                     </button>
                     <button class="toggle-btn" data-view="all">
-                        <i class="bi bi-list-ul"></i> <span>Show All</span>
+                        <i class="bi bi-list-ul"></i> <span>Hiện tất cả</span>
                     </button>
                 </div>
             </div>
@@ -427,7 +427,7 @@
         const ALLOW_COMMENT = <?= $allow_comment ? 'true' : 'false' ?>;
         const IS_TAKE_NOTE_PHASE = <?= $isTakeNotePhase ? 'true' : 'false' ?>;
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
-        const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
+        const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'Người dùng') ?>;
         const TARGET_USER_NAME = <?= json_encode($target_user_name) ?>;
 
         // Viewing context - if we're viewing from a different phase (e.g., Phase 2 viewing Phase 1 data)
@@ -847,7 +847,7 @@
                         UI.networkError(error);
                     } finally {
                         this.disabled = false;
-                        this.textContent = 'Send';
+                        this.textContent = 'Gửi';
                     }
                 });
             });
@@ -989,7 +989,7 @@
                         UI.networkError(error);
                     } finally {
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-send-fill"></i> Send';
+                        this.innerHTML = '<i class="bi bi-send-fill"></i> Gửi';
                     }
                 });
             });
@@ -1097,19 +1097,20 @@
             const time = new Date(comment.created_at).toLocaleString('vi-VN');
             const depth = comment.depth || 0;
             const canReply = depth < 2;
-            const roleLabel = comment.role_label || (comment.role === 'teacher' ? 'Teacher' : 'Student');
-            const roleClass = roleLabel === 'Teacher' ? 'label-teacher' : 'label-student';
-            const phaseLabel = comment.phase_label || comment.m_phase_name || CURRENT_PHASE_NAME || 'Unknown';
+            const isTeacherRole = comment.role === 'teacher' || comment.role_label === 'Teacher' || comment.role_label === 'Giáo viên';
+            const roleLabel = isTeacherRole ? 'Giáo viên' : 'Học sinh';
+            const roleClass = isTeacherRole ? 'label-teacher' : 'label-student';
+            const phaseLabel = comment.phase_label || comment.m_phase_name || CURRENT_PHASE_NAME || 'Không rõ';
             const canDelete = comment.user_id == CURRENT_USER_ID || CURRENT_USER_ROLE === 'teacher';
 
             let html = `
                 <div class="fb-comment-item" data-comment-id="${comment.comment_id}" data-depth="${depth}">
                     <div class="fb-comment-core">
-                        <img src="${avatar}" alt="${escapeHtml(comment.fullname || 'User')}">
+                        <img src="${avatar}" alt="${escapeHtml(comment.fullname || 'Người dùng')}">
                         <div style="flex-grow: 1;">
                             <div class="fb-comment-bubble">
                                 <div class="comment-author">
-                                    <span>${escapeHtml(comment.fullname || 'User')}</span>
+                                    <span>${escapeHtml(comment.fullname || 'Người dùng')}</span>
                                     <span class="comment-label ${roleClass}">${escapeHtml(roleLabel)}</span>
                                     <span class="comment-label label-phase">${escapeHtml(phaseLabel)}</span>
                                 </div>
@@ -1117,15 +1118,15 @@
                             </div>
                             <div class="fb-comment-actions">
                                 <span class="comment-time">${time}</span>
-                                ${canReply ? `<button type="button" class="reply-btn" data-comment-id="${comment.comment_id}">Reply</button>` : ''}
+                                ${canReply ? `<button type="button" class="reply-btn" data-comment-id="${comment.comment_id}">Trả lời</button>` : ''}
                                 ${canDelete ? `<button type="button" class="delete-btn" data-comment-id="${comment.comment_id}">Xoá</button>` : ''}
                             </div>
                             ${canReply ? `
                             <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
                                 <div class="fb-comment-input-area">
-                                    <img src="${USER_AVATAR}" alt="Avatar">
+                                    <img src="${USER_AVATAR}" alt="Ảnh đại diện">
                                     <textarea class="fb-comment-input" placeholder="Viết trả lời…" rows="1"></textarea>
-                                    <button type="button" class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Send</button>
+                                    <button type="button" class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Gửi</button>
                                 </div>
                             </div>
                             ` : ''}
@@ -1163,7 +1164,7 @@
 
                 const result = await response.json();
                 if (!result.success) {
-                    throw new Error(result.message || 'Could not send comment');
+                    throw new Error(result.message || 'Không gửi được bình luận. Vui lòng thử lại.');
                 }
 
                 await pollAllComments(true);
@@ -1341,7 +1342,7 @@
                 list.innerHTML = `
                     <div id="notes-empty-state" class="np-empty">
                         <i class="bi bi-diagram-3 fs-2"></i>
-                        <span>Ghi chép từ bài giảng trực tiếp<br>will appear here</span>
+                        <span>Ghi chép từ bài giảng trực tiếp<br>sẽ hiện ở đây</span>
                     </div>`;
                 return;
             }
@@ -1353,7 +1354,7 @@
                     <div class="np-note-footer">
                         <span class="np-note-time"><i class="bi bi-clock"></i> ${new Date(note.created_at).toLocaleString('vi-VN')}</span>
                         ${CURRENT_USER_ROLE === 'student' ? `
-                        <button type="button" class="np-delete-btn delete-note-btn" data-note-id="${note.content_id}" title="Delete">
+                        <button type="button" class="np-delete-btn delete-note-btn" data-note-id="${note.content_id}" title="Xoá">
                             <i class="bi bi-x-lg"></i>
                         </button>` : ''}
                     </div>
@@ -1437,7 +1438,7 @@
                 }
 
                 saveBtn.disabled = true;
-                if (statusEl) statusEl.textContent = 'Saving...';
+                if (statusEl) statusEl.textContent = 'Đang lưu…';
 
                 try {
                     const response = await fetch('<?= URL_ROOT ?>/api/save_note.php', {
@@ -1451,10 +1452,10 @@
                     });
                     const result = await response.json();
                     if (!result.success) {
-                        throw new Error(result.message || 'Could not save note');
+                        throw new Error(result.message || 'Không lưu được ghi chú.');
                     }
                     noteInput.value = '';
-                    if (statusEl) statusEl.textContent = 'Saved';
+                    if (statusEl) statusEl.textContent = 'Đã lưu';
                     await pollNotes(true);
                     setTimeout(() => {
                         if (statusEl) statusEl.textContent = '';

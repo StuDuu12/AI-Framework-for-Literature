@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link href="<?= URL_ROOT ?>/assets/css/literary-canon.css" rel="stylesheet">
-    <title data-lang-key="canon_title">Literary Canon — Knowledge Base</title>
+    <title data-lang-key="canon_title">Kho tác phẩm — Kho tri thức</title>
 </head>
 
 <body class="canon-page">
@@ -47,7 +47,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="canon_title">Literary Canon</h1>
+            <h1 data-lang-key="canon_title">Kho tác phẩm</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/workspace" data-lang-key="menu_workspace">Thư viện tác phẩm</a></li>
@@ -58,7 +58,7 @@
 
         <section class="section">
             <p class="text-muted mb-3" data-lang-key="canon_subtitle">
-                Explore <?= $totalCount ?> masterpieces from Vietnam and world literature — read full texts and learn about each author.
+                Khám phá <?= $totalCount ?> masterpieces from Vietnam and world literature — read full texts and learn about each author.
             </p>
 
             <div class="canon-toolbar">
@@ -73,7 +73,7 @@
                 <div class="canon-filters">
                     <a href="<?= canonFilterUrl($baseUrl, '', '', $searchQ) ?>"
                         class="canon-filter-chip <?= !$activeRegion && !$activeGenre ? 'is-active' : '' ?>"
-                        data-lang-key="workspace_filter_all">All</a>
+                        data-lang-key="workspace_filter_all">Tất cả</a>
                     <a href="<?= canonFilterUrl($baseUrl, 'vietnam', '', $searchQ) ?>"
                         class="canon-filter-chip <?= $activeRegion === 'vietnam' ? 'is-active' : '' ?>"
                         data-lang-key="workspace_filter_vn">Việt Nam</a>
@@ -108,7 +108,7 @@
                                     <div style="width:100%;height:100%;background:<?= htmlspecialchars($work['gradient']) ?>"></div>
                                 <?php endif; ?>
                                 <span class="canon-card__badge <?= ($work['region'] ?? '') === 'vietnam' ? 'canon-card__badge--vn' : 'canon-card__badge--intl' ?>">
-                                    <?= ($work['region'] ?? '') === 'vietnam' ? 'VN' : 'World' ?>
+                                    <?= ($work['region'] ?? '') === 'vietnam' ? 'Việt Nam' : 'Thế giới' ?>
                                 </span>
                             </div>
                             <div class="canon-card__body">

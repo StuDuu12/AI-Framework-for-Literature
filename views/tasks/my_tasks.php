@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="menu_my_tasks">My Tasks</title>
+    <title data-lang-key="menu_my_tasks">Nhiệm vụ của tôi</title>
 </head>
 
 <body>
@@ -113,22 +113,22 @@
         $endTime = strtotime($task['end_time']);
 
         if ($task['flag_active'] ?? false) {
-            return ['label' => 'Ongoing', 'class' => 'status-active'];
+            return ['label' => 'Đang diễn ra', 'class' => 'status-active'];
         }
 
         if ($now < $startTime) {
-            return ['label' => 'Upcoming', 'class' => 'status-pending'];
+            return ['label' => 'Sắp tới', 'class' => 'status-pending'];
         }
 
         if ($now > $endTime) {
-            return ['label' => 'Ended', 'class' => 'status-overdue'];
+            return ['label' => 'Đã kết thúc', 'class' => 'status-overdue'];
         }
 
         if ($now >= $startTime && $now <= $endTime) {
-            return ['label' => 'Ongoing', 'class' => 'status-active'];
+            return ['label' => 'Đang diễn ra', 'class' => 'status-active'];
         }
 
-        return ['label' => 'Not Started', 'class' => 'status-pending'];
+        return ['label' => 'Chưa bắt đầu', 'class' => 'status-pending'];
     }
 
     /**
@@ -138,15 +138,15 @@
     {
         switch ($type) {
             case 'user':
-                return '<i class="bi bi-person-fill"></i> Individual';
+                return '<i class="bi bi-person-fill"></i> Cá nhân';
             case 'group':
-                $label = '<i class="bi bi-people-fill"></i> Group';
+                $label = '<i class="bi bi-people-fill"></i> Nhóm';
                 if ($assignmentName) {
                     $label .= ': ' . htmlspecialchars($assignmentName);
                 }
                 return $label;
             case 'class':
-                return '<i class="bi bi-building"></i> Whole Class';
+                return '<i class="bi bi-building"></i> Cả lớp';
             default:
                 return $type;
         }
@@ -158,7 +158,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="menu_my_tasks">My Tasks</h1>
+            <h1 data-lang-key="menu_my_tasks">Nhiệm vụ của tôi</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
@@ -174,7 +174,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
                                 <h5 class=" mb-0">
-                                    <span data-lang-key="all_tasks">All Tasks</span>
+                                    <span data-lang-key="all_tasks">Tất cả nhiệm vụ</span>
                                     <span class="badge bg-primary rounded-pill"><?= $totalTasks ?></span>
                                 </h5>
                             </div>
@@ -184,7 +184,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link <?= $filter === 'all' ? 'active' : '' ?>"
                                         href="?filter=all">
-                                        <span data-lang-key="filter_all">All</span>
+                                        <span data-lang-key="filter_all">Tất cả</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -260,7 +260,7 @@
                                                         </div>
                                                         <div>
                                                             <i class="bi bi-calendar-check"></i>
-                                                            <span>End: <?= date('d/m/Y H:i', strtotime($task['end_time'])) ?></span>
+                                                            <span>Kết thúc: <?= date('d/m/Y H:i', strtotime($task['end_time'])) ?></span>
                                                         </div>
                                                     </div>
 

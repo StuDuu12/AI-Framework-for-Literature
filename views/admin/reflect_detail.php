@@ -115,7 +115,7 @@ $pageTitle = "Details Reflect";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="reflect_detail">Feedback Details</h1>
+            <h1 data-lang-key="reflect_detail">Chi tiết góp ý</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Trang chủ</a></li>
@@ -201,7 +201,7 @@ $pageTitle = "Details Reflect";
                                 <div class="card mt-4">
                                     <div class="card-body">
                                         <h6 class="card-title">
-                                            <i class="bi bi-pencil-square me-2"></i><span>Add Response</span>
+                                            <i class="bi bi-pencil-square me-2"></i><span>Thêm phản hồi</span>
                                         </h6>
                                         <form method="POST">
                                             <div class="mb-3">
@@ -210,7 +210,7 @@ $pageTitle = "Details Reflect";
                                             </div>
                                             <div class="d-grid">
                                                 <button type="submit" name="add_comment" class="btn btn-primary">
-                                                    <i class="bi bi-send me-2"></i><span>Send Response</span>
+                                                    <i class="bi bi-send me-2"></i><span>Gửi phản hồi</span>
                                                 </button>
                                             </div>
                                         </form>
@@ -243,7 +243,7 @@ $pageTitle = "Details Reflect";
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Reply Count</label>
+                                <label class="form-label text-muted">Số phản hồi</label>
                                 <div>
                                     <span class="badge bg-secondary">
                                         <i class="bi bi-chat-dots"></i> <?= count($replies) ?>
@@ -252,12 +252,12 @@ $pageTitle = "Details Reflect";
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Created Date</label>
+                                <label class="form-label text-muted">Ngày tạo</label>
                                 <div><?= date('d/m/Y H:i:s', strtotime($reflect['created_at'])) ?></div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Last Updated</label>
+                                <label class="form-label text-muted">Cập nhật lần cuối</label>
                                 <div><?= date('d/m/Y H:i:s', strtotime($reflect['updated_at'])) ?></div>
                             </div>
 
@@ -269,16 +269,16 @@ $pageTitle = "Details Reflect";
                                     <label class="form-label">Trạng thái</label>
                                     <select aria-label="Trạng thái" name="status" class="form-select">
                                         <option value="0" <?= $reflect['status'] == 0 ? 'selected' : '' ?>>Đang chờ</option>
-                                        <option value="1" <?= $reflect['status'] == 1 ? 'selected' : '' ?>>In Progress</option>
+                                        <option value="1" <?= $reflect['status'] == 1 ? 'selected' : '' ?>>Đang làm</option>
                                         <option value="2" <?= $reflect['status'] == 2 ? 'selected' : '' ?>>Đã hoàn thành</option>
                                     </select>
                                 </div>
                                 <div class="d-grid gap-2">
                                     <button type="submit" name="update_status" class="btn btn-primary">
-                                        <i class="bi bi-check-circle"></i> <span>Update Status</span>
+                                        <i class="bi bi-check-circle"></i> <span>Cập nhật trạng thái</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_reflect.php" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left"></i> <span>Go Back</span>
+                                        <i class="bi bi-arrow-left"></i> <span>Quay lại</span>
                                     </a>
                                 </div>
                             </form>

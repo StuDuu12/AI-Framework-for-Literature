@@ -83,12 +83,12 @@ $pageTitle = "Create Account";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="create_account">Create New Account</h1>
+            <h1 data-lang-key="create_account">Tạo tài khoản mới</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Trang chủ</a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin/users" data-lang-key="admin_user_management">Quản lý người dùng</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="create_account">Create Account</li>
+                    <li class="breadcrumb-item active" data-lang-key="create_account">Tạo tài khoản</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -99,7 +99,7 @@ $pageTitle = "Create Account";
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-person-plus me-2"></i><span>Account Information</span>
+                                <i class="bi bi-person-plus me-2"></i><span>Thông tin tài khoản</span>
                             </h5>
                             <?php if ($error): ?>
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -118,7 +118,7 @@ $pageTitle = "Create Account";
                             <form method="POST" action="">
                                 <?= csrf_field() ?>
                                 <div class="mb-3">
-                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <label class="form-label">Họ tên <span class="text-danger">*</span></label>
                                     <input aria-label="Họ tên" type="text" name="fullname" class="form-control" required value="<?= htmlspecialchars($_POST['fullname'] ?? '') ?>">
                                 </div>
 
@@ -136,7 +136,7 @@ $pageTitle = "Create Account";
                                 <div class="mb-3">
                                     <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                                     <input aria-label="Mật khẩu" type="password" name="password" class="form-control" required>
-                                    <small class="form-text text-muted">Minimum 6 characters</small>
+                                    <small class="form-text text-muted">Tối thiểu 6 ký tự</small>
                                 </div>
 
                                 <div class="mb-3">
@@ -150,7 +150,7 @@ $pageTitle = "Create Account";
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save me-1"></i> <span>Create Account</span>
+                                        <i class="bi bi-save me-1"></i> <span>Tạo tài khoản</span>
                                     </button>
                                     <a href="<?= URL_ROOT ?>/views/admin/manage_users.php" class="btn btn-secondary">
                                         <i class="bi bi-x-circle me-1"></i> <span>Huỷ</span>

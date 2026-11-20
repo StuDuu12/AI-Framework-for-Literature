@@ -60,7 +60,7 @@ if (!$responseInfo) {
 $evaluation = getOrCreateEvaluation($userId, $deliverId, $responseInfo['id_response']);
 if (!$evaluation) {
     // Get detailed error from session if available
-    $errorMsg = 'Error initializing evaluation.';
+    $errorMsg = 'Không mở được phiếu chấm. Vui lòng thử lại.';
 
     if (isset($_SESSION['last_db_error'])) {
         error_log("Evaluation init DB error - User: $userId, Deliver: $deliverId - " . $_SESSION['last_db_error']);
@@ -98,7 +98,7 @@ if (!empty($evaluation['details'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="peer_evaluation">Peer Evaluation - Literature System</title>
+    <title data-lang-key="peer_evaluation">Đánh giá chéo</title>
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/comment.css">
     <style>
         /* Main Layout */
@@ -663,13 +663,13 @@ if (!empty($evaluation['details'])) {
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-star-fill"></i> <span data-lang-key="peer_evaluation">Peer Evaluation</span></h1>
+            <h1><i class="bi bi-star-fill"></i> <span data-lang-key="peer_evaluation">Đánh giá chéo</span></h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
                     <li class="breadcrumb-item"><a href="<?= breadcrumbTopicPhasesUrl($topicId) ?>">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
-                            href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Evaluation List</a></li>
+                            href="/class/evaluate/list?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>">Danh sách đánh giá</a></li>
                     <li class="breadcrumb-item active">Thực hiện đánh giá</li>
                 </ol>
             </nav>
@@ -680,7 +680,7 @@ if (!empty($evaluation['details'])) {
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Task Info</span>
+                        <i class="bi bi-info-circle"></i> <span data-lang-key="task_info_label">Thông tin nhiệm vụ</span>
                         <?php if ($deliverInfo['type'] === 'user'): ?>
                             <span class="info-badge badge-user">
                                 <i class="bi bi-person"></i> <span>Cá nhân</span>
@@ -697,7 +697,7 @@ if (!empty($evaluation['details'])) {
                             <p><strong>Người làm:</strong>
                                 <?= $isAnonymous ? '<span class="text-muted fst-italic">Ẩn danh</span>' : htmlspecialchars($responseInfo['response_author']) ?>
                             </p>
-                            <p><strong>Submission Date:</strong>
+                            <p><strong>Ngày nộp:</strong>
                                 <?= date('d/m/Y H:i', strtotime($responseInfo['response_created_at'])) ?></p>
                         </div>
                         <div class="col-md-3 text-end">
@@ -750,7 +750,7 @@ if (!empty($evaluation['details'])) {
                             <!-- Total Score Badge -->
                             <div class="col-md-2">
                                 <div class="total-score-badge">
-                                    <div class="total-score-label">Total Score</div>
+                                    <div class="total-score-label">Tổng điểm</div>
                                     <div class="total-score-value" id="totalScoreDisplay">
                                         <?= $evaluation['total_score'] ?></div>
                                 </div>
@@ -872,7 +872,7 @@ if (!empty($evaluation['details'])) {
                     <div class="modal-header-criteria">
                         <div class="modal-title-criteria">
                             <i class="bi bi-list-check"></i>
-                            Details Evaluation Criteria
+                            Chi tiết tiêu chí đánh giá
                         </div>
                         <button class="modal-close" id="btnCloseModal" aria-label="Đóng" title="Đóng">
                             <i class="bi bi-x-lg" aria-hidden="true"></i>
@@ -893,7 +893,7 @@ if (!empty($evaluation['details'])) {
                                             value="<?= isset($existingScores[$criterion['tc_id']]) && $existingScores[$criterion['tc_id']] !== null ? $existingScores[$criterion['tc_id']] : $criterion['min_score'] ?>"
                                             <?= $evaluation['status'] == 2 ? 'readonly' : '' ?>>
                                         <div class="criteria-detail-range">
-                                            <?= $criterion['min_score'] ?> - <?= $criterion['max_score'] ?> points
+                                            <?= $criterion['min_score'] ?> - <?= $criterion['max_score'] ?> điểm
                                         </div>
                                     </div>
                                 </div>
@@ -1087,7 +1087,7 @@ if (!empty($evaluation['details'])) {
         const CURRENT_USER_ID = <?= $userId ?>;
         const CURRENT_USER_ROLE = <?= json_encode($_SESSION['user']['role']) ?>;
         const USER_AVATAR = 'https://i.pinimg.com/564x/92/26/5c/92265c40c8e428122e0b32adc1994594.jpg';
-        const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'User') ?>;
+        const USER_NAME = <?= json_encode($_SESSION['user']['fullname'] ?? 'Người dùng') ?>;
 
         // Content blocks data from PHP
         const contentBlocksData = <?= json_encode($responseInfo['contents']) ?>;
@@ -1458,9 +1458,10 @@ if (!empty($evaluation['details'])) {
             const canReply = depth < 2; // Max 3 levels (0, 1, 2)
 
             // Labels
-            const roleLabel = comment.role_label || 'Students';
-            const roleClass = (comment.role_label === 'Teacher') ? 'label-teacher' : 'label-student';
-            const phaseLabel = comment.m_phase_name || 'Unknown';
+            const isTeacherRole = comment.role === 'teacher' || comment.role_label === 'Teacher' || comment.role_label === 'Giáo viên';
+            const roleLabel = isTeacherRole ? 'Giáo viên' : 'Học sinh';
+            const roleClass = isTeacherRole ? 'label-teacher' : 'label-student';
+            const phaseLabel = comment.m_phase_name || 'Không rõ';
 
             let html = `
                 <div class="fb-comment-item" data-comment-id="${comment.comment_id}" data-depth="${depth}">
@@ -1477,15 +1478,15 @@ if (!empty($evaluation['details'])) {
                             </div>
                             <div class="fb-comment-actions">
                                 <span class="comment-time">${time}</span>
-                                ${canReply ? `<button class="reply-btn" data-comment-id="${comment.comment_id}">Replies</button>` : ''}
+                                ${canReply ? `<button class="reply-btn" data-comment-id="${comment.comment_id}">Phản hồi</button>` : ''}
                                 ${comment.user_id == CURRENT_USER_ID ? `<button class="delete-btn" data-comment-id="${comment.comment_id}">Xoá</button>` : ''}
                             </div>
                             ${canReply ? `
                             <div class="fb-reply-form" id="reply-form-${comment.comment_id}" style="display:none;">
                                 <div class="fb-comment-input-area">
-                                    <img src="${USER_AVATAR}" alt="Avatar">
+                                    <img src="${USER_AVATAR}" alt="Ảnh đại diện">
                                     <textarea class="fb-comment-input" placeholder="Viết trả lời…" rows="1"></textarea>
-                                    <button class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Send</button>
+                                    <button class="fb-comment-btn submit-reply-btn" data-parent-id="${comment.comment_id}">Gửi</button>
                                 </div>
                             </div>
                             ` : ''}
@@ -1600,7 +1601,7 @@ if (!empty($evaluation['details'])) {
                         UI.networkError(error);
                     } finally {
                         this.disabled = false;
-                        this.textContent = 'Send';
+                        this.textContent = 'Gửi';
                     }
                 });
             });

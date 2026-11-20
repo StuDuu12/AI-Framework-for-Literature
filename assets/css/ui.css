@@ -245,7 +245,7 @@ a.ui-task:hover, .ui-task:focus-within { border-color: rgba(var(--lit-primary-rg
     gap: var(--sp-2) var(--sp-4);
 }
 .work-header__meta { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
-.work-header__live { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); min-height: 28px; }
+.work-header__live { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
 .work-header__desc {
     margin: var(--sp-3) 0 0;
     color: var(--lit-text-secondary);
@@ -402,7 +402,9 @@ a.ui-task:hover, .ui-task:focus-within { border-color: rgba(var(--lit-primary-rg
     position: sticky; bottom: 0; z-index: 5;
     display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--sp-2);
     margin-top: var(--sp-4); padding: var(--sp-3) 0;
-    background: linear-gradient(to top, var(--lit-surface) 75%, transparent);
+    background: var(--lit-surface);
+    border-top: 1px solid var(--lit-border);
+    box-shadow: 0 -8px 16px -12px rgba(15, 23, 42, 0.25);
 }
 .rubric-actions__hint { margin-right: auto; font-size: .8125rem; color: var(--lit-text-muted); }
 .rubric-done { margin-top: var(--sp-4); }
@@ -412,7 +414,7 @@ a.ui-task:hover, .ui-task:focus-within { border-color: rgba(var(--lit-primary-rg
 .submission-body h1, .submission-body h2, .submission-body h3 { font-family: var(--font-heading); color: var(--lit-heading); margin: 1.2em 0 .5em; }
 .submission-body h1 { font-size: 1.5rem; } .submission-body h2 { font-size: 1.25rem; } .submission-body h3 { font-size: 1.1rem; }
 .submission-body + .submission-body { border-top: 1px dashed var(--lit-border); margin-top: var(--sp-4); padding-top: var(--sp-4); }
-.eval-sticky { position: sticky; top: 80px; }
+.eval-sticky { position: relative; }
 @media (max-width: 991.98px) { .eval-sticky { position: static; } }
 
 /* Tổng quan điểm & mức đồng thuận (teacher_grade.php, consensus) */
@@ -443,3 +445,51 @@ a.ui-task:hover, .ui-task:focus-within { border-color: rgba(var(--lit-primary-rg
 .consensus-scale__mark--teacher span { color: var(--lit-accent); top: calc(100% + 2px); bottom: auto; }
 .consensus-scale__axis { display: flex; justify-content: space-between; font-size: .75rem; color: var(--lit-text-muted); margin-top: 20px; }
 .consensus-scale__dot.is-me { background: var(--lit-accent); z-index: 1; }
+
+/* ============================================================
+ * Trang tổng quan: ô thống kê và thẻ lớp (views/index.php)
+ * ============================================================ */
+.dash-stat {
+    display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: var(--sp-4);
+    align-items: center; height: 100%;
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--lit-surface); border: 1px solid var(--lit-border); border-radius: var(--lit-radius-md);
+    box-shadow: var(--lit-shadow-sm); color: var(--lit-text);
+}
+.dash-stat .stat-icon {
+    grid-row: 1 / span 2; width: 48px; height: 48px; margin: 0;
+    display: grid; place-items: center; border-radius: var(--lit-radius-md); font-size: 1.375rem;
+    background: var(--lit-primary-subtle); color: var(--lit-primary);
+}
+.dash-stat .stat-icon--info { background: var(--lit-info-subtle); color: var(--lit-info); }
+.dash-stat .stat-icon--success { background: var(--lit-success-subtle); color: var(--lit-success); }
+.dash-stat .stat-icon--warning { background: var(--lit-warning-subtle); color: var(--lit-warning); }
+.dash-stat .stat-value { font-size: 1.625rem; font-weight: 800; line-height: 1.1; color: var(--lit-heading); }
+.dash-stat .stat-label { font-size: .875rem; color: var(--lit-text-secondary); }
+
+.class-tile {
+    position: relative; display: flex; flex-direction: column; gap: var(--sp-3);
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--lit-surface); border: 1px solid var(--lit-border); border-radius: var(--lit-radius-lg);
+    box-shadow: var(--lit-shadow-sm);
+    transition: border-color var(--lit-duration-fast) var(--lit-ease), box-shadow var(--lit-duration-fast) var(--lit-ease), transform var(--lit-duration-fast) var(--lit-ease);
+}
+.class-tile:hover, .class-tile:focus-within { border-color: rgba(var(--lit-primary-rgb), .5); box-shadow: var(--lit-shadow-md); transform: translateY(-2px); }
+.class-tile__head { display: flex; align-items: flex-start; gap: var(--sp-3); }
+.class-tile__icon {
+    flex: 0 0 auto; width: 44px; height: 44px; display: grid; place-items: center;
+    border-radius: var(--lit-radius-md); background: var(--lit-gradient-primary); color: var(--lit-primary-contrast);
+    font-family: var(--font-heading); font-weight: 700; font-size: 1.25rem;
+}
+.class-tile__title { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.class-tile__title h3 { margin: 0; font-size: 1.125rem; font-weight: 700; line-height: 1.3; }
+.class-tile__title h3 a { color: var(--lit-heading); text-decoration: none; }
+.class-tile__title h3 a:focus-visible { outline: none; }
+.class-tile:has(h3 a:focus-visible) { outline: 2px solid var(--lit-primary); outline-offset: 2px; }
+.class-tile__tools { position: relative; z-index: 2; display: flex; align-items: center; gap: var(--sp-2); }
+.class-tile__tools .form-check-input { margin: 0; width: 1.125rem; height: 1.125rem; cursor: pointer; }
+.class-tile__meta { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: .875rem; color: var(--lit-text-secondary); }
+.class-tile__meta i { color: var(--lit-text-muted); margin-right: 2px; }
+.class-tile__foot { margin-top: auto; padding-top: var(--sp-3); border-top: 1px solid var(--lit-border); font-weight: 600; font-size: .9375rem; color: var(--lit-primary); }
+.class-tile__foot .bi { transition: transform var(--lit-duration-fast) var(--lit-ease); }
+.class-tile:hover .class-tile__foot .bi { transform: translateX(4px); }

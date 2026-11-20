@@ -8,7 +8,7 @@ $user = $_SESSION['user'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang-key="reflect_detail">Details Responses</title>
+    <title data-lang-key="reflect_detail">Chi tiết bài làm</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
@@ -23,7 +23,7 @@ $user = $_SESSION['user'];
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="reflect_detail">Details Responses</span></h1>
+            <h1><i class="bi bi-ticket-detailed"></i> <span data-lang-key="reflect_detail">Chi tiết bài làm</span></h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?php echo URL_ROOT; ?>">Trang chủ</a></li>
@@ -55,7 +55,7 @@ $user = $_SESSION['user'];
                                     <span id="responseCount" class="badge bg-primary ms-2">0</span>
                                 </h5>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="collapseAllResponses()">
-                                    <i class="bi bi-arrows-collapse"></i> Collapse All
+                                    <i class="bi bi-arrows-collapse"></i> Thu gọn tất cả
                                 </button>
                             </div>
                             <div id="responsesContainer"></div>
@@ -65,16 +65,16 @@ $user = $_SESSION['user'];
                     <!-- Add Response Card -->
                     <div class="card" id="responseFormCard" style="display: none;">
                         <div class="card-body">
-                            <h5 class="card-title"><i class="bi bi-reply"></i> <span>Add Response</span></h5>
+                            <h5 class="card-title"><i class="bi bi-reply"></i> <span>Thêm phản hồi</span></h5>
                             <form id="responseForm" class="response-form">
                                 <div class="form-group">
-                                    <label for="responseContent">Response Content <span class="required">*</span></label>
+                                    <label for="responseContent">Nội dung bài làm <span class="required">*</span></label>
                                     <textarea id="responseContent" class="form-control"
                                         placeholder="Nhập nội dung bài làm…" required></textarea>
                                 </div>
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-send"></i> <span>Send Response</span>
+                                        <i class="bi bi-send"></i> <span>Gửi phản hồi</span>
                                     </button>
                                 </div>
                             </form>
@@ -134,7 +134,7 @@ $user = $_SESSION['user'];
                         document.getElementById('responseFormCard').style.display = 'block';
                     }
                 } else {
-                    console.error('Ticket detail error:', data.message || 'Unknown error');
+                    console.error('Ticket detail error:', data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
                     UI.error(data.message || 'Không tải được chi tiết góp ý.');
                     window.location.href = '<?php echo URL_ROOT; ?>/reflect';
                 }
@@ -152,10 +152,10 @@ $user = $_SESSION['user'];
 
             const statusOptions = canUpdate ? `
         <select class="status-select" onchange="updateStatus(this.value)">
-            <option value="0" ${ticket.status == 0 ? 'selected' : ''}>New</option>
+            <option value="0" ${ticket.status == 0 ? 'selected' : ''}>Mới</option>
             <option value="1" ${ticket.status == 1 ? 'selected' : ''}>Đang xử lý</option>
-            <option value="2" ${ticket.status == 2 ? 'selected' : ''}>Resolved</option>
-            <option value="3" ${ticket.status == 3 ? 'selected' : ''}>Closed</option>
+            <option value="2" ${ticket.status == 2 ? 'selected' : ''}>Đã xử lý</option>
+            <option value="3" ${ticket.status == 3 ? 'selected' : ''}>Đã đóng</option>
         </select>
     ` : `<span class="ticket-status-badge ${getStatusBadgeClass(ticket.status)}">${getStatusLabel(ticket.status)}</span>`;
 
@@ -177,12 +177,12 @@ $user = $_SESSION['user'];
                 <div class="header-left">
                     <div class="info-row">
                         <i class="bi bi-tag-fill"></i>
-                        <span class="info-label">Type:</span>
+                        <span class="info-label">Loại:</span>
                         <span class="type-badge">${escapeHtml(ticket.type_name)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-person-fill"></i>
-                        <span class="info-label">Creator:</span>
+                        <span class="info-label">Người tạo:</span>
                         <span class="info-value">${escapeHtml(ticket.creator_name)}</span>
                     </div>
                     <div class="info-row">
@@ -194,17 +194,17 @@ $user = $_SESSION['user'];
                 <div class="header-right">
                     <div class="info-row">
                         <i class="bi bi-clock-fill"></i>
-                        <span class="info-label">Created:</span>
+                        <span class="info-label">Tạo lúc:</span>
                         <span class="info-value">${formatDateTime(ticket.created_at)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-arrow-clockwise"></i>
-                        <span class="info-label">Updated:</span>
+                        <span class="info-label">Cập nhật:</span>
                         <span class="info-value">${formatDateTime(ticket.updated_at)}</span>
                     </div>
                     <div class="info-row">
                         <i class="bi bi-info-circle-fill"></i>
-                        <span class="info-label">Status:</span>
+                        <span class="info-label">Trạng thái:</span>
                         ${statusOptions}
                     </div>
                 </div>
@@ -302,7 +302,7 @@ $user = $_SESSION['user'];
                 <div class="response-actions">
                     ${canReply ? `
                         <button class="btn btn-sm btn-outline-primary btn-reply" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">
-                            <i class="bi bi-reply"></i> Replies
+                            <i class="bi bi-reply"></i> Phản hồi
                         </button>
                     ` : ''}
                     ${canDelete ? `
@@ -319,7 +319,7 @@ $user = $_SESSION['user'];
                         <div class="text-end">
                             <button class="btn btn-sm btn-secondary me-2" onclick="event.stopPropagation(); toggleReplyForm(${response.id_reflect_detail})">Huỷ</button>
                             <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); submitReply(${response.id_reflect_detail})">
-                                <i class="bi bi-send"></i> Send
+                                <i class="bi bi-send"></i> Gửi
                             </button>
                         </div>
                     </div>
@@ -567,12 +567,12 @@ $user = $_SESSION['user'];
         // Helper functions
         function getStatusLabel(status) {
             const labels = {
-                0: 'New',
+                0: 'Mới',
                 1: 'Đang xử lý',
-                2: 'Resolved',
-                3: 'Closed'
+                2: 'Đã xử lý',
+                3: 'Đã đóng'
             };
-            return labels[status] || 'Unknown';
+            return labels[status] || 'Không rõ';
         }
 
         function getStatusBadgeClass(status) {
@@ -587,9 +587,9 @@ $user = $_SESSION['user'];
 
         function getRoleLabel(role) {
             const labels = {
-                admin: 'Administrator',
-                teacher: 'Teacher',
-                student: 'Students'
+                admin: 'Quản trị viên',
+                teacher: 'Giáo viên',
+                student: 'Học sinh'
             };
             return labels[role] || role;
         }

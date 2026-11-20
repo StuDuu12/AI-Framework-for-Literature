@@ -582,14 +582,14 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Saving...</span>
+                    <span>Đang lưu…</span>
                 `;
 
                 // Save current analysis first
                 const saveResult = await handleSaveAnalysis();
 
                 if (!saveResult || !saveResult.success) {
-                    throw new Error('Cannot save data');
+                    throw new Error('Không lưu được dữ liệu.');
                 }
 
                 // Get URL parameters
@@ -839,7 +839,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Saving...
+                    Đang lưu…
                 `;
 
                 // Prepare AI history data
@@ -867,7 +867,7 @@
                 const result = await response.json();
 
                 if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Save failed');
+                    throw new Error(result.message || 'Lưu không thành công.');
                 }
 
                 // Store response_id for future reference
@@ -957,14 +957,14 @@
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
-                        Drag
+                        Kéo
                     </span>
                     <button class="delete-section-btn" onclick="deleteSection('${newSectionId}')" title="Xoá phần này">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        Delete
+                        Xoá
                     </button>
                 </div>
                 <div class="mb-6">
@@ -1449,14 +1449,14 @@
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
-                            Drag
+                            Kéo
                         </span>
                         <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xoá phần này">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            Delete
+                            Xoá
                         </button>
                     </div>
                     ${content}
@@ -1534,7 +1534,7 @@
             if (result.stats) {
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Nhân vật</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('en-US')}</span></div>`;
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('en-US')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ xuất hiện nhiều</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
@@ -1673,7 +1673,7 @@
                     html += createSortableSection(`<div class="mb-6">${createEditableTextarea(combinedText, 3)}</div>`, 'it-initial');
                 }
                 if (it.comparativeText) {
-                    html += `<h3 class="text-lg font-semibold mb-3 text-slate-700">Comparison with similar work: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
+                    html += `<h3 class="text-lg font-semibold mb-3 text-slate-700">So sánh với tác phẩm tương tự: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
                 }
                 if (it.comparison) {
                     if (it.comparison.similarities) {
@@ -1973,14 +1973,14 @@
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
-                            Drag
+                            Kéo
                         </span>
                         <button class="delete-section-btn" onclick="deleteSection('${id}')" title="Xoá phần này">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; vertical-align: middle;">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
-                            Delete
+                            Xoá
                         </button>
                     </div>
                     ${content}
@@ -2358,7 +2358,7 @@
             if (titleChange > 0) {
                 statsHTML += `
                     <div class="flex items-center justify-between p-2 bg-white rounded border border-blue-100">
-                        <span class="text-sm text-slate-600">Title:</span>
+                        <span class="text-sm text-slate-600">Tiêu đề:</span>
                         <span class="text-sm font-semibold text-blue-600">${titleChange}%</span>
                     </div>
                 `;
@@ -2524,7 +2524,7 @@
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
                             </svg>
-                            View Before Changes
+                            Xem bản trước khi sửa
                         </h3>
                         <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" onclick="closePreviewModal()">
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

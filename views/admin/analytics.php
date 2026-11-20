@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title>Admin Analytics Dashboard</title>
+    <title>Thống kê hệ thống</title>
     <style>
         .stat-card { transition: transform 0.2s; }
         .stat-card:hover { transform: translateY(-2px); }
@@ -22,7 +22,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-graph-up"></i> Analytics Dashboard</h1>
+            <h1><i class="bi bi-graph-up"></i> Thống kê</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/admin">Admin</a></li>
@@ -260,7 +260,7 @@
                 new Chart(document.getElementById('userChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Học viên', 'Giáo viên', 'Admin'],
+                        labels: ['Học viên', 'Giáo viên', 'Quản trị'],
                         datasets: [{
                             data: [s.users.students, s.users.teachers, s.users.admins],
                             backgroundColor: ['#36a2eb', '#ffce56', '#ff6384'],

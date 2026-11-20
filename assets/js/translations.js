@@ -303,7 +303,7 @@ const translations = {
 
         // ===== Phase Pages =====
         'phase_list_title': 'Danh sách các pha (bước) học tập',
-        'learning_phases': 'Pha học tập',
+        'learning_phases': 'Giai đoạn học tập',
         'back_to_topics': 'Quay lại danh sách chủ đề',
         'create_new_phase': 'Tạo pha mới',
         'no_phases': 'Chưa có pha học tập nào',

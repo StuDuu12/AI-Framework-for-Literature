@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="task_list_title">Task List</title>
+    <title data-lang-key="task_list_title">Danh sách nhiệm vụ</title>
 </head>
 
 <body>
@@ -74,10 +74,10 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="task_list_title">Task List</h1>
+            <h1 data-lang-key="task_list_title">Danh sách nhiệm vụ</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Class', ENT_QUOTES, 'UTF-8') ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp học', ENT_QUOTES, 'UTF-8') ?></a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($topic['topic_name']) ?></a></li>
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class/phases?topic_id=<?= $topicId ?>">Learning
                             Phases</a></li>
@@ -103,7 +103,7 @@
                                     </a>
                                     <a href="<?= URL_ROOT ?>/class/task/create?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-primary">
-                                        <i class="bi bi-plus-circle"></i> <span>Create Task</span>
+                                        <i class="bi bi-plus-circle"></i> <span>Tạo nhiệm vụ</span>
                                     </a>
                                 </div>
                             </div>
@@ -142,7 +142,7 @@
                                                         </span>
                                                         <?php if ($task['file_content']): ?>
                                                             <span class="badge bg-success">
-                                                                <i class="bi bi-file-earmark-text"></i> <span>Has Content</span>
+                                                                <i class="bi bi-file-earmark-text"></i> <span>Có nội dung</span>
                                                             </span>
                                                         <?php endif; ?>
                                                         <?php if (!empty($task['deadline'])):
@@ -172,12 +172,12 @@
                                                             </div>
                                                             <div class="stat-item stat-progress">
                                                                 <i class="bi bi-hourglass-split"></i>
-                                                                <span><span>In Progress</span>:
+                                                                <span><span>Đang làm</span>:
                                                                     <strong><?= $task['assignment_stats']['in_progress'] ?></strong></span>
                                                             </div>
                                                             <div class="stat-item stat-pending">
                                                                 <i class="bi bi-clock-fill"></i>
-                                                                <span><span>Not Started</span>:
+                                                                <span><span>Chưa bắt đầu</span>:
                                                                     <strong><?= $task['assignment_stats']['not_started'] ?></strong></span>
                                                             </div>
                                                         </div>
@@ -193,11 +193,11 @@
                                                                     $typeColor = 'secondary';
                                                                     switch ($typeInfo['type']) {
                                                                         case 'user':
-                                                                            $typeLabel = 'Individual';
+                                                                            $typeLabel = 'Cá nhân';
                                                                             $typeColor = 'info';
                                                                             break;
                                                                         case 'group':
-                                                                            $typeLabel = 'Group';
+                                                                            $typeLabel = 'Nhóm';
                                                                             $typeColor = 'warning';
                                                                             break;
                                                                     }
@@ -311,7 +311,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -321,12 +321,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -368,7 +368,7 @@
                                 window.location.reload();
                             }, 1500);
                         } else {
-                            showToast(data.message || 'Cannot delete task', 'error');
+                            showToast(data.message || 'Không xoá được nhiệm vụ.', 'error');
                         }
                     } catch (error) {
                         console.error('Error:', error);

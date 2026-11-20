@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="assign_task">Assign Task - Literature System</title>
+    <title data-lang-key="assign_task">Giao nhiệm vụ</title>
 </head>
 
 <body>
@@ -80,7 +80,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="assign_task">Assign Task</h1>
+            <h1 data-lang-key="assign_task">Giao nhiệm vụ</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
@@ -88,7 +88,7 @@
                     <li class="breadcrumb-item"><a href="/class/phases?topic_id=<?= $topicId ?>" data-lang-key="learning_phases">Giai đoạn học tập</a></li>
                     <li class="breadcrumb-item"><a
                             href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>" data-lang-key="tasks">Nhiệm vụ</a></li>
-                    <li class="breadcrumb-item active" data-lang-key="assign_task">Assign Task</li>
+                    <li class="breadcrumb-item active" data-lang-key="assign_task">Giao nhiệm vụ</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -106,7 +106,7 @@
                                 </a>
                             </div>
                             <h5 class="card-title">
-                                <i class="bi bi-bell"></i> Assign Task: <?= htmlspecialchars($task['title']) ?>
+                                <i class="bi bi-bell"></i> Giao nhiệm vụ: <?= htmlspecialchars($task['title']) ?>
                             </h5>
 
                             <form id="assignTaskForm">
@@ -116,7 +116,7 @@
 
                                 <!-- Assignment Type Selection -->
                                 <div class="mb-4">
-                                    <label for="assignTypeGroup" class="form-label">Assignment Type <span
+                                    <label for="assignTypeGroup" class="form-label">Kiểu giao bài <span
                                             class="text-danger">*</span></label>
                                     <div class="btn-group w-100" role="group">
                                         <input type="radio" class="btn-check" name="assign_type" id="assignTypeGroup"
@@ -135,7 +135,7 @@
 
                                 <!-- Group Assignment -->
                                 <div id="assignGroupArea">
-                                    <label class="form-label">Select Group</label>
+                                    <label class="form-label">Chọn nhóm</label>
                                     <?php if (empty($classGroups)): ?>
                                         <div class="alert alert-warning">
                                             <i class="bi bi-exclamation-triangle"></i>
@@ -155,7 +155,7 @@
                                                             <div class="flex-grow-1">
                                                                 <i class="bi bi-diagram-3"></i>
                                                                 <strong><?= htmlspecialchars($group['group_name']) ?></strong>
-                                                                <span class="badge bg-secondary ms-2"><?= $group['member_count'] ?> members</span>
+                                                                <span class="badge bg-secondary ms-2"><?= $group['member_count'] ?> thành viên</span>
                                                             </div>
                                                         </label>
 
@@ -196,7 +196,7 @@
                                 <!-- Individual Assignment -->
                                 <div id="assignIndividualArea" style="display: none;">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="form-label mb-0">Select Student</label>
+                                        <label class="form-label mb-0">Chọn học sinh</label>
                                         <?php if (!empty($classStudents)): ?>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="selectAllStudents">
@@ -237,7 +237,7 @@
                                 <!-- Buttons -->
                                 <div class="d-flex gap-2 mt-4">
                                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                                        <i class="bi bi-check-circle"></i> <span data-lang-key="assign_task">Assign Task</span>
+                                        <i class="bi bi-check-circle"></i> <span data-lang-key="assign_task">Giao nhiệm vụ</span>
                                     </button>
                                     <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
@@ -281,7 +281,7 @@
                                                     <div>
                                                         <?php if ($assignment['type'] == 'class'): ?>
                                                             <i class="bi bi-people-fill text-primary"></i>
-                                                            <strong>Whole Class:</strong>
+                                                            <strong>Cả lớp:</strong>
                                                         <?php elseif ($assignment['type'] == 'group'): ?>
                                                             <i class="bi bi-diagram-3-fill text-success"></i>
                                                             <strong>Nhóm:</strong>
@@ -304,7 +304,7 @@
                     <!-- Task Info -->
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Task Information</h5>
+                            <h5 class="card-title">Thông tin nhiệm vụ</h5>
                             <p><strong>Tiêu đề:</strong> <?= htmlspecialchars($task['title'] ?? '') ?></p>
                             <p><strong>Giai đoạn:</strong> Bước <?= htmlspecialchars($phase['phase_number'] ?? '') ?> -
                                 <?= htmlspecialchars($phase['phase_name'] ?? '') ?></p>
@@ -355,7 +355,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -365,12 +365,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -645,7 +645,7 @@
                             window.location.reload();
                         }, 1500);
                     } else {
-                        showToast(data.message || 'Cannot assign task', 'error');
+                        showToast(data.message || 'Không giao được nhiệm vụ.', 'error');
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Assign Task';
                     }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="view_student_analysis">View Student Analysis - Literature System</title>
+    <title data-lang-key="view_student_analysis">Xem bài phân tích của học sinh</title>
 </head>
 
 <body>
@@ -161,7 +161,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="view_student_analysis">View Student Analysis</h1>
+            <h1 data-lang-key="view_student_analysis">Xem bài phân tích của học sinh</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Lớp</a></li>
@@ -209,13 +209,13 @@
                                         <?= htmlspecialchars($task['title']) ?>
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        <i class="bi bi-layers"></i> Phase: Step <?= $phase['phase_number'] ?> -
+                                        <i class="bi bi-layers"></i> Giai đoạn <?= $phase['phase_number'] ?> -
                                         <?= htmlspecialchars($phase['phase_name']) ?>
                                     </p>
                                 </div>
                                 <a href="/class/task/view?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                     class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="go_back">Go Back</span>
+                                    <i class="bi bi-arrow-left"></i> <span data-lang-key="go_back">Quay lại</span>
                                 </a>
                             </div>
                         </div>
@@ -229,7 +229,7 @@
                     <div class="stat-box primary">
                         <i class="bi bi-file-earmark-text" style="font-size: 2rem;"></i>
                         <h3 class="mt-2 mb-0"><?= $totalSubmissions ?></h3>
-                        <p class="mb-0" data-lang-key="total_submissions">Total Submissions</p>
+                        <p class="mb-0" data-lang-key="total_submissions">Tổng số bài nộp</p>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
@@ -254,13 +254,13 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-submissions"
                             type="button" role="tab">
-                            <i class="bi bi-list"></i> <span data-lang-key="all">All</span> (<?= $totalSubmissions ?>)
+                            <i class="bi bi-list"></i> <span data-lang-key="all">Tất cả</span> (<?= $totalSubmissions ?>)
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="with-comments-tab" data-bs-toggle="tab"
                             data-bs-target="#with-comments" type="button" role="tab">
-                            <i class="bi bi-chat-dots text-primary"></i> <span data-lang-key="has_comments">Has Comments</span> (<?= $submissionsWithComments ?>)
+                            <i class="bi bi-chat-dots text-primary"></i> <span data-lang-key="has_comments">Có bình luận</span> (<?= $submissionsWithComments ?>)
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -273,7 +273,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="no-feedback-tab" data-bs-toggle="tab" data-bs-target="#no-feedback"
                             type="button" role="tab">
-                            <i class="bi bi-clock text-warning"></i> <span>Not Responded</span>
+                            <i class="bi bi-clock text-warning"></i> <span>Chưa phản hồi</span>
                             (<?= $totalSubmissions - $submissionsWithTeacherFeedback ?>)
                         </button>
                     </li>
@@ -336,7 +336,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
 {
     if (empty($submissions)): ?>
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> <span>No submissions</span>
+            <i class="bi bi-info-circle"></i> <span>Chưa có bài nộp</span>
         </div>
     <?php return;
     endif;
@@ -374,12 +374,12 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                             <div class="d-flex gap-2 flex-wrap">
                                 <span class="comment-badge bg-light text-dark border">
                                     <i class="bi bi-file-text"></i>
-                                    <?= $submission['content_blocks'] ?> content
+                                    <?= $submission['content_blocks'] ?> nội dung
                                 </span>
                                 <?php if ($submission['total_comments'] > 0): ?>
                                     <span class="comment-badge bg-primary text-white">
                                         <i class="bi bi-chat-dots"></i>
-                                        <?= $submission['total_comments'] ?> comments
+                                        <?= $submission['total_comments'] ?> bình luận
                                     </span>
                                 <?php endif; ?>
                                 <?php if ($submission['student_comments'] > 0): ?>
@@ -391,7 +391,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                                 <?php if ($submission['teacher_comments'] > 0): ?>
                                     <span class="comment-badge bg-success text-white">
                                         <i class="bi bi-check-circle"></i>
-                                        <?= $submission['teacher_comments'] ?> feedback
+                                        <?= $submission['teacher_comments'] ?> phản hồi
                                     </span>
                                 <?php else: ?>
                                     <span class="comment-badge bg-warning text-dark">
@@ -405,7 +405,7 @@ function renderSubmissionsList($submissions, $taskId, $topicId, $phaseId)
                         <div class="d-grid gap-2">
                             <a href="/class/homework/comment?task_id=<?= $submission['task_id'] ?>&deliver_id=<?= $submission['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&viewing_from_task=<?= $taskId ?>"
                                 class="btn btn-primary btn-sm">
-                                <i class="bi bi-eye"></i> <span>View & Respond</span>
+                                <i class="bi bi-eye"></i> <span>Xem và phản hồi</span>
                             </a>
                         </div>
                     </div>

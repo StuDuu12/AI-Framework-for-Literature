@@ -276,7 +276,7 @@
 
 .delete-section-btn {
     padding: 4px 8px;
-    background: #fee2e2;
+    background: var(--lit-danger-subtle);
     border: 1px solid #fca5a5;
     border-radius: 4px;
     font-size: 12px;
@@ -286,7 +286,7 @@
 }
 
 .delete-section-btn:hover {
-    background: #fecaca;
+    background: var(--lit-danger-subtle);
     border-color: #f87171;
 }
 

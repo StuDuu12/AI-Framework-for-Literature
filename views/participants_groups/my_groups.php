@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="my_groups_title">My Groups - Literature System</title>
+    <title data-lang-key="my_groups_title">Nhóm của tôi</title>
 </head>
 
 <body>
@@ -54,22 +54,22 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="my_groups_title">My Groups</h1>
+            <h1 data-lang-key="my_groups_title">Nhóm của tôi</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Class') ?></a></li>
-                    <li class="breadcrumb-item active" data-lang-key="my_groups_title">My Groups</li>
+                    <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp học') ?></a></li>
+                    <li class="breadcrumb-item active" data-lang-key="my_groups_title">Nhóm của tôi</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
 
         <section class="section dashboard my-groups-page">
             <!-- Debug Info -->
-            <?php if (isset($_GET['debug'])): ?>
+            <?php if (isset($_GET['debug']) && ($_SESSION['user']['role'] ?? '') === 'admin'): ?>
                 <div class="alert alert-info">
                     <h6><i class="bi bi-bug"></i> Debug Information</h6>
                     <p><strong>User ID:</strong> <?= $userId ?></p>
-                    <p><strong>Class ID:</strong> <?= $classId ?? 'NULL' ?></p>
+                    <p><strong>Mã lớp:</strong> <?= $classId ?? 'NULL' ?></p>
                     <p><strong>Số nhóm tìm thấy:</strong> <?= count($myGroups) ?></p>
 
                     <details>
@@ -142,7 +142,7 @@
                                                 <?= htmlspecialchars($group['group_name']) ?>
                                             </h5>
                                             <span class="member-badge">
-                                                <?= count($members) ?> members
+                                                <?= count($members) ?> thành viên
                                             </span>
                                         </div>
                                     </div>
@@ -201,14 +201,14 @@
                                     </div>
                                     <div class="modal-body">
                                         <h6 class="mb-3 text-muted">
-                                            <i class="bi bi-list-ul me-2"></i>Member List (<?= count($members) ?>)
+                                            <i class="bi bi-list-ul me-2"></i>Danh sách thành viên (<?= count($members) ?>)
                                         </h6>
                                         <div class="table-responsive">
                                             <table class="table table-hover align-middle">
                                                 <thead>
                                                     <tr>
                                                         <th style="width: 60px;">#</th>
-                                                        <th>Full Name</th>
+                                                        <th>Họ tên</th>
                                                         <th>Tên đăng nhập</th>
                                                         <th>Email</th>
                                                     </tr>
@@ -225,7 +225,7 @@
                                                             <td>
                                                                 <?= htmlspecialchars($member['fullname']) ?>
                                                                 <?php if ($member['user_id'] == $userId): ?>
-                                                                    <span class="badge bg-success ms-2">You</span>
+                                                                    <span class="badge bg-success ms-2">Bạn</span>
                                                                 <?php endif; ?>
                                                             </td>
                                                             <td class="text-muted"><?= htmlspecialchars($member['username']) ?></td>

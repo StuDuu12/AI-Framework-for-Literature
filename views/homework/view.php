@@ -124,7 +124,7 @@
     }
 
     ?>
-    <title data-lang-key="analysis_detail">Analysis Details - Literature System</title>
+    <title data-lang-key="analysis_detail">Chi tiết phân tích</title>
 </head>
 
 <body>
@@ -139,7 +139,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="analysis_detail">Analysis Details</h1>
+            <h1 data-lang-key="analysis_detail">Chi tiết phân tích</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class" data-lang-key="class">Lớp</a></li>
@@ -160,19 +160,19 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h5 class="card-title" data-lang-key="student_info">Student Information</h5>
-                            <p><strong>Full Name:</strong> <?= htmlspecialchars($submission['fullname']) ?></p>
+                            <h5 class="card-title" data-lang-key="student_info">Thông tin học sinh</h5>
+                            <p><strong>Họ tên:</strong> <?= htmlspecialchars($submission['fullname']) ?></p>
                             <p><strong>Nhiệm vụ:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
                         </div>
                         <div class="col-md-6 text-end">
-                            <p><strong>Submission Time:</strong><br><?= date('d/m/Y H:i', strtotime($submission['created_at'])) ?></p>
+                            <p><strong>Thời gian nộp:</strong><br><?= date('d/m/Y H:i', strtotime($submission['created_at'])) ?></p>
                             <?php if ($submission['deliver_type'] === 'group'): ?>
                                 <span class="badge bg-info">
-                                    <i class="bi bi-people"></i> <span data-lang-key="group_work">Group Work</span>
+                                    <i class="bi bi-people"></i> <span data-lang-key="group_work">Bài nhóm</span>
                                 </span>
                             <?php else: ?>
                                 <span class="badge bg-primary">
-                                    <i class="bi bi-person"></i> <span data-lang-key="individual_work">Individual Work</span>
+                                    <i class="bi bi-person"></i> <span data-lang-key="individual_work">Bài cá nhân</span>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -182,7 +182,7 @@
                         <div class="mt-3">
                             <a href="/class/homework/comment?task_id=<?= $task_id ?>&deliver_id=<?= $submission['id_deliver'] ?>&topic_id=<?= $topic_id ?>&phase_id=<?= $phase_id ?>"
                                 class="btn btn-primary">
-                                <i class="bi bi-chat-left-text"></i> <span data-lang-key="comment_and_evaluate">Comments & Evaluation</span>
+                                <i class="bi bi-chat-left-text"></i> <span data-lang-key="comment_and_evaluate">Bình luận và đánh giá</span>
                             </a>
                         </div>
                     <?php endif; ?>
@@ -213,7 +213,7 @@
                 <!-- Statistics -->
                 <?php if (isset($analysisData['stats'])): ?>
                     <div class="analysis-section">
-                        <h3>Text Statistics</h3>
+                        <h3>Thống kê văn bản</h3>
                         <div class="row">
                             <?php if (isset($analysisData['stats']['charCount'])): ?>
                                 <div class="col-md-4">
@@ -236,17 +236,17 @@
                 <!-- General Analysis -->
                 <?php if (isset($analysisData['generalAnalysis'])): ?>
                     <div class="analysis-section">
-                        <h3>General Analysis</h3>
+                        <h3>Phân tích chung</h3>
 
                         <?php if (isset($analysisData['generalAnalysis']['thematicAnalysis'])): ?>
-                            <h5>Thematic Analysis</h5>
+                            <h5>Phân tích chủ đề</h5>
                             <div class="content-text">
                                 <?= nl2br(htmlspecialchars($analysisData['generalAnalysis']['thematicAnalysis'])) ?>
                             </div>
                         <?php endif; ?>
 
                         <?php if (isset($analysisData['generalAnalysis']['linguisticInsights'])): ?>
-                            <h5 class="mt-3">Linguistic Features</h5>
+                            <h5 class="mt-3">Đặc điểm ngôn ngữ</h5>
                             <?php foreach ($analysisData['generalAnalysis']['linguisticInsights'] as $key => $value): ?>
                                 <div class="mt-2">
                                     <strong><?= ucfirst(htmlspecialchars($key)) ?>:</strong>
@@ -260,7 +260,7 @@
                 <!-- Story Analysis -->
                 <?php if (isset($analysisData['storyAnalysis'])): ?>
                     <div class="analysis-section">
-                        <h3>Story Analysis</h3>
+                        <h3>Phân tích truyện</h3>
                         <?php foreach ($analysisData['storyAnalysis'] as $key => $value): ?>
                             <?php if ($value): ?>
                                 <h5><?= ucfirst(htmlspecialchars($key)) ?></h5>
@@ -273,7 +273,7 @@
                 <!-- Drama Analysis -->
                 <?php if (isset($analysisData['dramaAnalysis'])): ?>
                     <div class="analysis-section">
-                        <h3>Drama Analysis</h3>
+                        <h3>Phân tích kịch</h3>
                         <?php foreach ($analysisData['dramaAnalysis'] as $key => $value): ?>
                             <?php if ($value): ?>
                                 <h5><?= ucfirst(htmlspecialchars($key)) ?></h5>
@@ -286,7 +286,7 @@
                 <!-- Poetry Analysis -->
                 <?php if (isset($analysisData['poetryAnalysis'])): ?>
                     <div class="analysis-section">
-                        <h3>Poetry Analysis</h3>
+                        <h3>Phân tích thơ</h3>
                         <?php foreach ($analysisData['poetryAnalysis'] as $key => $value): ?>
                             <?php if ($value): ?>
                                 <h5><?= ucfirst(htmlspecialchars($key)) ?></h5>

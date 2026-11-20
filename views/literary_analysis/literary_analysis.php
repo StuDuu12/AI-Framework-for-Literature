@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title>Literary Analysis</title>
+    <title>Phân tích văn học</title>
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/literary_analysis.css">
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/genai-layout.css">
 </head>
@@ -19,7 +19,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="literary_analysis_toolkit">Literary Analysis Toolkit</h1>
+            <h1 data-lang-key="literary_analysis_toolkit">Bộ công cụ phân tích văn học</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
@@ -64,7 +64,7 @@
                             <div class="absolute inset-0 flex items-center">
                                 <div class="w-full border-t border-slate-300"></div>
                             </div>
-                            <div class="relative flex justify-center"><span class="bg-white px-2 text-sm text-slate-500">or</span></div>
+                            <div class="relative flex justify-center"><span class="bg-white px-2 text-sm text-slate-500">hoặc</span></div>
                         </div>
 
                         <!-- Text Area -->
@@ -89,7 +89,7 @@
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <span id="button-text">Analyze Text</span>
+                                <span id="button-text">Phân tích</span>
                             </button>
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                             <div class="genai-tabs__header">
                                 <nav class="genai-tabs__nav" aria-label="Các thẻ">
                                     <button id="tab-analysis" type="button" class="genai-tabs__btn tab-button active" data-lang-key="detailed_analysis">
-                                        <i class="bi bi-journal-text"></i><span>Detailed Analysis</span>
+                                        <i class="bi bi-journal-text"></i><span>Phân tích chi tiết</span>
                                     </button>
                                 </nav>
                             </div>
@@ -386,7 +386,7 @@
         // --- Display Functions ---
         function displayAnalysis(result) {
             if (!result) return;
-            let html = `<h1>${result.title || 'No title'}</h1>`;
+            let html = `<h1>${result.title || 'Chưa có tiêu đề'}</h1>`;
 
             const formatDetailedAnalysis = (text) => {
                 if (!text) return '';
@@ -416,7 +416,7 @@
             if (result.stats) {
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số ký tự</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Số từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ xuất hiện nhiều</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
@@ -448,13 +448,13 @@
 
                 // Linguistic Insights within General Analysis
                 if (ga.linguisticInsights) {
-                    html += `<h3>Language & Symbolism</h3>`;
+                    html += `<h3>Ngôn ngữ và biểu tượng</h3>`;
                     const insights = ga.linguisticInsights;
 
                     // Mô-típ: Chuyển array thành văn bản liền mạch
                     if (insights.motifs?.length > 0) {
                         const motifsText = insights.motifs.map(item => item.replace(/\*\*/g, '')).join(', ');
-                        html += `<p><strong>Recurring Motifs:</strong> ${motifsText}.</p>`;
+                        html += `<p><strong>Mô-típ lặp lại:</strong> ${motifsText}.</p>`;
                     }
 
                     // Biểu tượng: Chuyển array thành văn bản liền mạch
@@ -465,7 +465,7 @@
 
                     // Time: Đoạn văn
                     if (insights.temporalElements) {
-                        html += `<p><strong>Temporal Elements:</strong> ${insights.temporalElements.replace(/\*\*/g, '')}</p>`;
+                        html += `<p><strong>Yếu tố thời gian:</strong> ${insights.temporalElements.replace(/\*\*/g, '')}</p>`;
                     }
 
                     // Thiên nhiên: Đoạn văn
@@ -480,11 +480,11 @@
             if (result.storyAnalysis) {
                 html += `<h2>Phân tích truyện</h2>`;
                 const sa = result.storyAnalysis;
-                if (sa.character) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
-                if (sa.space) html += `<h3>Space</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
-                if (sa.time) html += `<h3>Time</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
-                if (sa.dialogue) html += `<h3>Dialogue & Internal Monologue</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
-                if (sa.narrator) html += `<h3>Narrator</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
+                if (sa.character) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(sa.character)}</div>`;
+                if (sa.space) html += `<h3>Không gian</h3><div>${formatDetailedAnalysis(sa.space)}</div>`;
+                if (sa.time) html += `<h3>Thời gian</h3><div>${formatDetailedAnalysis(sa.time)}</div>`;
+                if (sa.dialogue) html += `<h3>Đối thoại và độc thoại nội tâm</h3><div>${formatDetailedAnalysis(sa.dialogue)}</div>`; // Combined dialogue/monologue
+                if (sa.narrator) html += `<h3>Người kể chuyện</h3><div>${formatDetailedAnalysis(sa.narrator)}</div>`;
                 if (sa.situation) html += `<h3>Tình huống truyện</h3><div>${formatDetailedAnalysis(sa.situation)}</div>`;
                 if (sa.prominentDetails) html += `<h3>Chi tiết tiêu biểu</h3><div>${formatDetailedAnalysis(sa.prominentDetails)}</div>`;
             }
@@ -492,11 +492,11 @@
             if (result.dramaAnalysis) {
                 html += `<h2>Phân tích kịch</h2>`;
                 const da = result.dramaAnalysis;
-                if (da.characters) html += `<h3>Characters</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
-                if (da.conflict) html += `<h3>Conflict</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
+                if (da.characters) html += `<h3>Nhân vật</h3><div>${formatDetailedAnalysis(da.characters)}</div>`;
+                if (da.conflict) html += `<h3>Xung đột</h3><div>${formatDetailedAnalysis(da.conflict)}</div>`;
                 if (da.action) html += `<h3>Thao tác</h3><div>${formatDetailedAnalysis(da.action)}</div>`;
-                if (da.structure) html += `<h3>Structure</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
-                if (da.dialogue) html += `<h3>Dialogue</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
+                if (da.structure) html += `<h3>Kết cấu</h3><div>${formatDetailedAnalysis(da.structure)}</div>`;
+                if (da.dialogue) html += `<h3>Lời thoại</h3><div>${formatDetailedAnalysis(da.dialogue)}</div>`;
             }
 
             if (result.poetryAnalysis) {
@@ -507,16 +507,16 @@
                 if (pa.structure) html += `<h3>Bố cục bài thơ</h3><p>${pa.structure.replace(/\*\*/g, '')}</p>`;
                 if (pa.imagery) html += `<h3>Hình ảnh thơ</h3><p>${pa.imagery.replace(/\*\*/g, '')}</p>`;
                 if (pa.rhythm) html += `<h3>Nhịp điệu</h3><p>${pa.rhythm.replace(/\*\*/g, '').replace(/\n/g, '<br>')}</p>`;
-                if (pa.spaceTimeOrganization) html += `<h3>Space & Time Organization</h3><p>${pa.spaceTimeOrganization.replace(/\*\*/g, '')}</p>`;
+                if (pa.spaceTimeOrganization) html += `<h3>Tổ chức không gian, thời gian</h3><p>${pa.spaceTimeOrganization.replace(/\*\*/g, '')}</p>`;
                 if (pa.rhetoricalDevices) html += `<h3>Biện pháp tu từ</h3><p>${pa.rhetoricalDevices.replace(/\*\*/g, '')}</p>`;
             }
 
             // --- Concluding Sections ---
             if (result.concludingThoughts) {
-                html += `<h2>Lessons & Messages</h2>`;
+                html += `<h2>Bài học và thông điệp</h2>`;
                 const ct = result.concludingThoughts;
-                if (ct.lesson) html += `<h3>Lesson</h3><p>${ct.lesson.replace(/\*\*/g, '')}</p>`;
-                if (ct.message) html += `<h3>Message</h3><p>${ct.message.replace(/\*\*/g, '')}</p>`;
+                if (ct.lesson) html += `<h3>Bài học</h3><p>${ct.lesson.replace(/\*\*/g, '')}</p>`;
+                if (ct.message) html += `<h3>Thông điệp</h3><p>${ct.message.replace(/\*\*/g, '')}</p>`;
             }
 
             if (result.intertextuality) {
@@ -526,12 +526,12 @@
                     html += `<p>${it.initialAnalysis.replace(/\*\*/g, '')}</p>`;
                 }
                 if (it.comparativeText) {
-                    html += `<h3>Comparison with similar work: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
+                    html += `<h3>So sánh với tác phẩm tương tự: <em>${it.comparativeText.title}</em> - ${it.comparativeText.author}</h3>`;
                 }
                 if (it.comparison) {
-                    if (it.comparison.similarities) html += `<h4>Similarities</h4><p>${it.comparison.similarities.replace(/\*\*/g, '')}</p>`;
-                    if (it.comparison.differences) html += `<h4>Differences/Changes</h4><p>${it.comparison.differences.replace(/\*\*/g, '')}</p>`;
-                    if (it.comparison.effects) html += `<h4>Effects</h4><p>${it.comparison.effects.replace(/\*\*/g, '')}</p>`;
+                    if (it.comparison.similarities) html += `<h4>Điểm giống</h4><p>${it.comparison.similarities.replace(/\*\*/g, '')}</p>`;
+                    if (it.comparison.differences) html += `<h4>Khác biệt / thay đổi</h4><p>${it.comparison.differences.replace(/\*\*/g, '')}</p>`;
+                    if (it.comparison.effects) html += `<h4>Hiệu quả</h4><p>${it.comparison.effects.replace(/\*\*/g, '')}</p>`;
                 }
             }
 

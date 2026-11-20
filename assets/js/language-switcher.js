@@ -207,6 +207,11 @@ class LanguageSwitcher {
             element.innerHTML = translation;
             return;
         }
+        // Thuộc tính bất kỳ (aria-label, alt, value...): chỉ đổi thuộc tính, không đụng nội dung/icon bên trong
+        if (attrTarget) {
+            element.setAttribute(attrTarget, translation);
+            return;
+        }
 
         if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
             if (element.hasAttribute('placeholder') || attrTarget === 'placeholder') {

@@ -1184,7 +1184,7 @@
         }
 
         // --- UI Logic ---
-        function setLoadingState(isLoading, mode = 'analyze', label = 'Analyzing...') {
+        function setLoadingState(isLoading, mode = 'analyze', label = 'Đang phân tích…') {
             if (mode === 'analyze') {
                 if (isLoading) {
                     loadingSpinner.classList.remove('hidden');
@@ -2182,7 +2182,7 @@
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
-                                Edit
+                                Sửa
                             </button>
                         </div>
                     </div>
@@ -2231,7 +2231,7 @@
                 const timerEl = document.createElement('div');
                 timerEl.id = `timer-${sectionId}`;
                 timerEl.className = 'text-xs text-slate-500 flex items-center gap-1 mt-1 pt-1 border-t border-slate-100';
-                timerEl.innerHTML = `<span>⏱</span><span id="timer-display-${sectionId}">0:00</span><span class="text-slate-400"> Editing...</span>`;
+                timerEl.innerHTML = `<span>⏱</span><span id="timer-display-${sectionId}">0:00</span><span class="text-slate-400"> Đang sửa...</span>`;
                 editActionsDiv.prepend(timerEl);
                 let elapsed = 0;
                 editTimers[sectionId] = setInterval(() => {
@@ -2302,7 +2302,7 @@
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
-                Edit
+                Sửa
             `;
             wrapper.classList.remove('editing');
         }
@@ -2348,7 +2348,7 @@
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
-                Edit
+                Sửa
             `;
             wrapper.classList.remove('editing');
 
@@ -2461,7 +2461,7 @@
             if (result.stats) {
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Nhân vật</strong><span class="text-indigo-700 font-semibold">${result.stats.charCount.toLocaleString('vi-VN')}</span></div>`;
                 html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ</strong><span class="text-indigo-700 font-semibold">${result.stats.wordCount.toLocaleString('vi-VN')}</span></div>`;
-                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Top Words (frequency)</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
+                html += `<div class="bg-slate-100 p-3 rounded-lg"><strong class="block text-sm text-slate-600">Từ xuất hiện nhiều</strong><span class="text-indigo-700 font-semibold">${result.stats.topWords.map(w => w[0]).join(', ')}</span></div>`;
             }
             html += `</div>`;
 
@@ -2500,7 +2500,7 @@
 
             if (result.concludingThoughts) {
                 const content = formatConclusionForImage(result.concludingThoughts);
-                html += `<h2>Lessons & Messages</h2>`;
+                html += `<h2>Bài học và thông điệp</h2>`;
                 html += createEditableTextBlock('conclusion', 'Lessons & Messages', content, '#dcfce7');
             }
 
@@ -2788,7 +2788,7 @@
                 'drama': 'Phân tích kịch',
                 'poetry': 'Phân tích thơ',
                 'conclusion': 'Lessons & Messages',
-                'intertextuality': 'Intertextuality'
+                'intertextuality': 'Liên văn bản'
             };
 
             let beforeHTML = '';
@@ -3048,7 +3048,7 @@
             const restoreBtn = document.getElementById('history-restore-btn');
 
             const confirmedTag = entry.isConfirmed
-                ? ' <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold">FINAL</span>'
+                ? ' <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold">BÀI NỘP</span>'
                 : '';
 
             title.innerHTML = `
@@ -3056,7 +3056,7 @@
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                Analysis History — <span class="text-indigo-600">${escapeHtml(entry.label)}</span>${confirmedTag}
+                Lịch sử phân tích — <span class="text-indigo-600">${escapeHtml(entry.label)}</span>${confirmedTag}
             `;
 
             if (confirmBtn) {
@@ -3074,7 +3074,7 @@
                 { key: 'dramaAnalysis', label: 'Phân tích kịch' },
                 { key: 'poetryAnalysis', label: 'Phân tích thơ' },
                 { key: 'concludingThoughts', label: 'Lesson & Message' },
-                { key: 'intertextuality', label: 'Intertextuality' }
+                { key: 'intertextuality', label: 'Liên văn bản' }
             ];
 
             let html = '';
@@ -3349,7 +3349,7 @@
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
-                            Review Analysis
+                            Xem lại bài phân tích
                         </h3>
                         <button type="button" class="text-gray-400 hover:text-gray-500" onclick="closeHistoryModal()">
                             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

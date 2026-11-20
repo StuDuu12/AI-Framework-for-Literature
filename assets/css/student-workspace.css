@@ -56,6 +56,10 @@
     align-items: stretch;
 }
 
+.workspace-left-col,
+.poster-gallery-panel { min-width: 0; }
+.poster-gallery-panel img { max-width: 100%; height: auto; }
+
 .workspace-left-col {
     display: flex;
     flex-direction: column;
@@ -65,7 +69,7 @@
 
 @media (max-width: 991.98px) {
     .workspace-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -691,7 +695,7 @@
     z-index: 1;
     margin: 0;
     padding: 0.85rem 1rem 0.85rem 2.5rem;
-    background: rgba(255, 255, 255, 0.88);
+    background: color-mix(in srgb, var(--lit-surface) 88%, transparent);
     border-radius: 0.85rem;
     border: 1px solid rgba(var(--lit-primary-rgb), 0.1);
 }
@@ -741,7 +745,7 @@
 }
 
 .workspace-discover__card {
-    background: rgba(255, 255, 255, 0.92);
+    background: color-mix(in srgb, var(--lit-surface) 92%, transparent);
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 0.85rem;
     padding: 0.85rem;

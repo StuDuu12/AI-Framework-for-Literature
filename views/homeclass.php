@@ -22,7 +22,7 @@
         echo '<section class="section"><div class="alert alert-warning m-3">';
         echo '<i class="bi bi-exclamation-triangle me-2"></i>';
         echo '<span data-lang-key="select_class_first">Please select a class from the Class List first.</span> ';
-        echo '<a href="' . URL_ROOT . '/dashboard" class="alert-link" data-lang-key="class_list_title">Class List</a>';
+        echo '<a href="' . URL_ROOT . '/dashboard" class="alert-link" data-lang-key="class_list_title">Danh sách lớp</a>';
         echo '</div></section></main>';
         require_once __DIR__ . '/templates/footer.php';
         require_once __DIR__ . '/templates/vendors.php';
@@ -37,7 +37,7 @@
             <h1 data-lang-key="topics_page_title">Chủ đề</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item active"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Class', ENT_QUOTES, 'UTF-8') ?></li>
+                    <li class="breadcrumb-item active"><?= htmlspecialchars($_SESSION['current_class_name'] ?? 'Lớp học', ENT_QUOTES, 'UTF-8') ?></li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -54,11 +54,11 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title" data-lang-key="topic_list">Topic List</h5>
+                                <h5 class="card-title" data-lang-key="topic_list">Danh sách chủ đề</h5>
                                 <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                                     <button class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#createTopicModal">
-                                        <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_topic">Create New Topic</span>
+                                        <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_topic">Tạo chủ đề mới</span>
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -96,7 +96,7 @@
                                                     class="btn btn-primary btn-sm topic-link"
                                                     data-topic-id="<?= intval($topic['topic_id']) ?>"
                                                     title="Nhập chủ đề">
-                                                    <i class="bi bi-box-arrow-in-right"></i> <span data-lang-key="enter_topic">Enter Topic</span>
+                                                    <i class="bi bi-box-arrow-in-right"></i> <span data-lang-key="enter_topic">Vào chủ đề</span>
                                                 </a>
                                                 <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                                                     <button class="btn btn-outline-secondary btn-sm edit-topic-btn"
@@ -128,18 +128,18 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create New Topic</h5>
+                        <h5 class="modal-title">Tạo chủ đề mới</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="newTopicName" class="form-label">Topic Name</label>
+                            <label for="newTopicName" class="form-label">Tên chủ đề</label>
                             <input type="text" class="form-control" id="newTopicName" placeholder="Nhập tên chủ đề…">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-                        <button type="button" class="btn btn-primary" id="createTopicBtn">Create Topic</button>
+                        <button type="button" class="btn btn-primary" id="createTopicBtn">Tạo chủ đề</button>
                     </div>
                 </div>
             </div>
@@ -150,13 +150,13 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit Topic</h5>
+                        <h5 class="modal-title">Sửa chủ đề</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="editTopicId">
                         <div class="mb-3">
-                            <label for="editTopicName" class="form-label">Topic Name</label>
+                            <label for="editTopicName" class="form-label">Tên chủ đề</label>
                             <input type="text" class="form-control" id="editTopicName" placeholder="Nhập tên chủ đề…">
                         </div>
                     </div>
@@ -276,7 +276,7 @@
                     UI.error('Có lỗi khi cập nhật chủ đề.');
                 } finally {
                     btn.disabled = false;
-                    btn.textContent = 'Update';
+                    btn.textContent = 'Cập nhật';
                 }
             });
 

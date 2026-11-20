@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="manage_groups">Manage Groups - Literature System</title>
+    <title data-lang-key="manage_groups">Quản lý nhóm</title>
 </head>
 
 <body>
@@ -30,11 +30,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="manage_groups">Manage Groups</h1>
+            <h1 data-lang-key="manage_groups">Quản lý nhóm</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <li class="breadcrumb-item active" data-lang-key="manage_groups">Manage Groups</li>
+                    <li class="breadcrumb-item active" data-lang-key="manage_groups">Quản lý nhóm</li>
                 </ol>
             </nav>
         </div>
@@ -46,18 +46,18 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title" data-lang-key="group_list">Group List</h5>
+                                <h5 class="card-title" data-lang-key="group_list">Danh sách nhóm</h5>
                                 <div class="d-flex gap-2">
                                     <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                                         <button type="button"
                                             id="deleteSelectedGroupsBtn"
                                             class="btn btn-sm btn-danger"
                                             style="display: none;">
-                                            <i class="bi bi-trash"></i> <span data-lang-key="delete_selected">Delete Selected</span> (<span id="selectedGroupCount">0</span>)
+                                            <i class="bi bi-trash"></i> <span data-lang-key="delete_selected">Xoá mục đã chọn</span> (<span id="selectedGroupCount">0</span>)
                                         </button>
                                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                             data-bs-target="#createGroupModal">
-                                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_group">Create Group</span>
+                                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_group">Tạo nhóm</span>
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -84,7 +84,7 @@
                                                     data-group-id="<?= intval($group['group_id']) ?>"
                                                     data-group-name="<?= htmlspecialchars($group['group_name']) ?>">
                                                     <strong><?= htmlspecialchars($group['group_name']) ?></strong>
-                                                    <br><small class="text-muted"><?= intval($group['member_count']) ?> members</small>
+                                                    <br><small class="text-muted"><?= intval($group['member_count']) ?> thành viên</small>
                                                 </div>
                                                 <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                                                     <button class="btn btn-sm btn-outline-secondary edit-group-btn"
@@ -110,7 +110,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <h5 class="card-title mb-0" id="groupDetailsTitle" data-lang-key="group_details">Group Details</h5>
+                                    <h5 class="card-title mb-0" id="groupDetailsTitle" data-lang-key="group_details">Chi tiết nhóm</h5>
                                     <small class="text-muted" id="groupDetailsMemberCount"></small>
                                 </div>
                                 <div class="d-flex gap-2">
@@ -119,10 +119,10 @@
                                             id="deleteSelectedMembersBtn"
                                             class="btn btn-sm btn-danger"
                                             style="display: none;">
-                                            <i class="bi bi-trash"></i> Delete Selected (<span id="selectedMemberCount">0</span>)
+                                            <i class="bi bi-trash"></i> Xoá mục đã chọn (<span id="selectedMemberCount">0</span>)
                                         </button>
                                         <button class="btn btn-primary btn-sm" id="addMemberToGroupBtn">
-                                            <i class="bi bi-person-plus"></i> <span data-lang-key="add_member">Add Member</span>
+                                            <i class="bi bi-person-plus"></i> <span data-lang-key="add_member">Thêm thành viên</span>
                                         </button>
                                     <?php endif; ?>
                                 </div>
@@ -138,7 +138,7 @@
                                                 </th>
                                             <?php endif; ?>
                                             <th>#</th>
-                                            <th>Full Name</th>
+                                            <th>Họ tên</th>
                                             <th>Tên đăng nhập</th>
                                             <th>Email</th>
                                             <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
@@ -167,18 +167,18 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create New Group</h5>
+                        <h5 class="modal-title">Tạo nhóm mới</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="newGroupName" class="form-label">Group Name</label>
+                            <label for="newGroupName" class="form-label">Tên nhóm</label>
                             <input type="text" class="form-control" id="newGroupName" placeholder="Nhập tên nhóm…">
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-                        <button type="button" class="btn btn-primary" id="createGroupBtn">Create Group</button>
+                        <button type="button" class="btn btn-primary" id="createGroupBtn">Tạo nhóm</button>
                     </div>
                 </div>
             </div>
@@ -189,13 +189,13 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit Group</h5>
+                        <h5 class="modal-title">Sửa nhóm</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="editGroupId">
                         <div class="mb-3">
-                            <label for="editGroupName" class="form-label">Group Name</label>
+                            <label for="editGroupName" class="form-label">Tên nhóm</label>
                             <input type="text" class="form-control" id="editGroupName" placeholder="Nhập tên nhóm…">
                         </div>
                     </div>
@@ -217,10 +217,10 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="searchMemberInput" class="form-label">Search Members</label>
+                            <label for="searchMemberInput" class="form-label">Tìm thành viên</label>
                             <input type="text" class="form-control" id="searchMemberInput"
                                 placeholder="Nhập tên, tên đăng nhập hoặc email…">
-                            <small class="text-muted">Enter at least 2 characters to search</small>
+                            <small class="text-muted">Nhập ít nhất 2 ký tự để tìm</small>
                         </div>
 
                         <div id="searchMemberResults" style="max-height: 400px; overflow: auto;">
@@ -234,7 +234,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="button" class="btn btn-primary" id="addSelectedMembersBtn" disabled>Add Selected</button>
+                        <button type="button" class="btn btn-primary" id="addSelectedMembersBtn" disabled>Thêm người đã chọn</button>
                     </div>
                 </div>
             </div>
@@ -479,7 +479,7 @@
                         console.error('Error:', error);
                         UI.error('Có lỗi khi xoá nhóm.');
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-trash"></i> Delete Selected (<span id="selectedGroupCount">' + count + '</span>)';
+                        this.innerHTML = '<i class="bi bi-trash"></i> Xoá mục đã chọn (<span id="selectedGroupCount">' + count + '</span>)';
                     }
                 });
             }
@@ -532,14 +532,14 @@
                             } else {
                                 UI.error(data.message);
                                 this.disabled = false;
-                                this.textContent = 'Update';
+                                this.textContent = 'Cập nhật';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
                             UI.error('Không cập nhật được nhóm.');
                             this.disabled = false;
-                            this.textContent = 'Update';
+                            this.textContent = 'Cập nhật';
                         });
                 });
             }
@@ -636,7 +636,7 @@
                         console.error('Error:', error);
                         UI.error('Có lỗi khi xoá thành viên.');
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-trash"></i> Delete Selected (<span id="selectedMemberCount">' + count + '</span>)';
+                        this.innerHTML = '<i class="bi bi-trash"></i> Xoá mục đã chọn (<span id="selectedMemberCount">' + count + '</span>)';
                     }
                 });
             }
@@ -714,11 +714,11 @@
                     clearTimeout(searchTimeout);
 
                     if (keyword.length < 2) {
-                        document.getElementById('searchMemberResults').innerHTML = '<p class="text-muted text-center">Enter at least 2 characters to search</p>';
+                        document.getElementById('searchMemberResults').innerHTML = '<p class="text-muted text-center">Nhập ít nhất 2 ký tự để tìm</p>';
                         return;
                     }
 
-                    document.getElementById('searchMemberResults').innerHTML = '<p class="text-muted text-center"><span class="spinner-border spinner-border-sm"></span> Searching...</p>';
+                    document.getElementById('searchMemberResults').innerHTML = '<p class="text-muted text-center"><span class="spinner-border spinner-border-sm"></span> Đang tìm…</p>';
 
                     searchTimeout = setTimeout(() => {
                         fetch('/api/manage_groups.php', {
@@ -750,7 +750,7 @@
                                                     data-username="${escapeHtml(user.username)}"
                                                     data-email="${escapeHtml(user.email)}"
                                                     ${isSelected ? 'disabled' : ''}>
-                                                ${isSelected ? 'Selected' : 'Select'}
+                                                ${isSelected ? 'Đã chọn' : 'Chọn'}
                                             </button>
                                         </div>
                                     </div>
@@ -787,7 +787,7 @@
 
                 updateSelectedMembersList();
                 btn.disabled = true;
-                btn.textContent = 'Selected';
+                btn.textContent = 'Đã chọn';
                 btn.classList.replace('btn-primary', 'btn-secondary');
             }
 
@@ -825,7 +825,7 @@
                 const btn = document.querySelector(`.select-member-btn[data-user-id="${userId}"]`);
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = 'Select';
+                    btn.textContent = 'Chọn';
                     btn.classList.replace('btn-secondary', 'btn-primary');
                 }
             };

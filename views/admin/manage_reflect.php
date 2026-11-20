@@ -100,7 +100,7 @@ $pageTitle = "Manage Reflect";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="manage_reflect_title">Manage Reflect</h1>
+            <h1 data-lang-key="manage_reflect_title">Quản lý góp ý</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/views/admin/dashboard.php" data-lang-key="menu_dashboard">Trang chủ</a></li>
@@ -118,9 +118,9 @@ $pageTitle = "Manage Reflect";
                         <div class="col-md-3">
                             <label class="form-label">Trạng thái</label>
                             <select aria-label="Trạng thái" name="status" class="form-select" onchange="this.form.submit()">
-                                <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All</option>
+                                <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>Tất cả</option>
                                 <option value="0" <?= $status === '0' ? 'selected' : '' ?>>Đang chờ</option>
-                                <option value="1" <?= $status === '1' ? 'selected' : '' ?>>In Progress</option>
+                                <option value="1" <?= $status === '1' ? 'selected' : '' ?>>Đang làm</option>
                                 <option value="2" <?= $status === '2' ? 'selected' : '' ?>>Đã hoàn thành</option>
                             </select>
                         </div>
@@ -157,14 +157,14 @@ $pageTitle = "Manage Reflect";
                                 <th scope="col">Người gửi</th>
                                 <th scope="col">Phản hồi</th>
                                 <th scope="col">Trạng thái</th>
-                                <th scope="col">Created Date</th>
+                                <th scope="col">Ngày tạo</th>
                                 <th scope="col">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($reflects)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center">No data</td>
+                                    <td colspan="8" class="text-center">Chưa có dữ liệu</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($reflects as $reflect): ?>
@@ -190,10 +190,10 @@ $pageTitle = "Manage Reflect";
                                                 default => 'secondary'
                                             };
                                             $statusText = match ((int)$reflect['status']) {
-                                                0 => 'Pending',
-                                                1 => 'In Progress',
-                                                2 => 'Completed',
-                                                default => 'Unknown'
+                                                0 => 'Đang chờ',
+                                                1 => 'Đang xử lý',
+                                                2 => 'Đã xử lý',
+                                                default => 'Không rõ'
                                             };
                                             ?>
                                             <span class="badge bg-<?= $statusClass ?>"><?= $statusText ?></span>

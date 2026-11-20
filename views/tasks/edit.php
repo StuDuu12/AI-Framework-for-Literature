@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="edit_task">Edit Task - Literature System</title>
+    <title data-lang-key="edit_task">Sửa nhiệm vụ</title>
 </head>
 
 <body>
@@ -76,7 +76,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="edit_task">Edit Task</h1>
+            <h1 data-lang-key="edit_task">Sửa nhiệm vụ</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
@@ -94,7 +94,7 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title" data-lang-key="task_info">Task Information</h5>
+                            <h5 class="card-title" data-lang-key="task_info">Thông tin nhiệm vụ</h5>
 
                             <form id="editTaskForm" enctype="multipart/form-data">
                                 <input type="hidden" name="task_id" value="<?= $taskId ?>">
@@ -103,7 +103,7 @@
 
                                 <!-- Task Title -->
                                 <div class="mb-3">
-                                    <label for="taskTitle" class="form-label">Task Title <span
+                                    <label for="taskTitle" class="form-label">Tên nhiệm vụ <span
                                             class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="taskTitle" name="title"
                                         value="<?= htmlspecialchars($task['title']) ?>"
@@ -141,12 +141,12 @@
                                         <?php if (empty($sourceTasks)): ?>
                                             <div class="alert alert-warning" role="alert">
                                                 <i class="bi bi-exclamation-triangle"></i>
-                                                Chưa có nhiệm vụ nào từ <strong>Gợi ý mở đầu</strong> or <strong>Bài tập về nhà</strong>
+                                                Chưa có nhiệm vụ nào từ <strong>Gợi ý mở đầu</strong> hoặc <strong>Bài tập về nhà</strong>
                                                 giai đoạn để đánh giá.
                                             </div>
                                         <?php else: ?>
                                             <select aria-label="Nhiệm vụ cần đánh giá" class="form-select" name="source_task_id" id="sourceTaskSelect" required>
-                                                <option value="">-- Select task to evaluate --</option>
+                                                <option value="">-- Chọn nhiệm vụ cần đánh giá --</option>
                                                 <?php foreach ($sourceTasks as $sourceTask): ?>
                                                     <option value="<?= $sourceTask['task_id'] ?>"
                                                         data-description="<?= htmlspecialchars($sourceTask['description']) ?>"
@@ -158,7 +158,7 @@
                                             </select>
                                             <div class="form-text">
                                                 <i class="bi bi-info-circle"></i>
-                                                Chọn một nhiệm vụ từ <strong>Gợi ý mở đầu</strong> or <strong>Bài tập về nhà</strong>
+                                                Chọn một nhiệm vụ từ <strong>Gợi ý mở đầu</strong> hoặc <strong>Bài tập về nhà</strong>
                                             </div>
 
                                             <!-- Preview selected task -->
@@ -177,14 +177,14 @@
                                     <!-- Existing Content Display -->
                                     <?php if ($task['file_content']): ?>
                                         <div class="mb-3">
-                                            <label class="form-label">Current Content</label>
+                                            <label class="form-label">Nội dung hiện tại</label>
                                             <div class="alert alert-info">
                                                 <i class="bi bi-file-earmark-text"></i>
-                                                Content exists
+                                                Đã có nội dung
                                                 <?php if ($task['content_creator']): ?>
-                                                    (Created by <?= htmlspecialchars($task['content_creator_name']) ?>)
+                                                    (người soạn: <?= htmlspecialchars($task['content_creator_name']) ?>)
                                                 <?php else: ?>
-                                                    (From uploaded file)
+                                                    (từ tệp đã tải lên)
                                                 <?php endif; ?>
                                             </div>
                                             <?php if ($existingContent !== false): ?>
@@ -197,12 +197,12 @@
 
                                     <!-- Keep or Replace Content -->
                                     <div class="mb-3">
-                                        <label for="replaceContent" class="form-label">Task Content</label>
+                                        <label for="replaceContent" class="form-label">Nội dung nhiệm vụ</label>
                                         <div class="form-check form-switch mb-3">
                                             <input class="form-check-input" type="checkbox" id="replaceContent"
                                                 name="keep_old_file" value="no">
                                             <label class="form-check-label" for="replaceContent">
-                                                <?= $task['file_content'] ? 'Change current content' : 'Add new content' ?>
+                                                <?= $task['file_content'] ? 'Thay nội dung hiện tại' : 'Thêm nội dung mới' ?>
                                             </label>
                                         </div>
 
@@ -322,7 +322,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -332,12 +332,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -486,15 +486,15 @@
                             window.location.href = '/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>';
                         }, 1500);
                     } else {
-                        showToast(data.message || 'Cannot update task', 'error');
+                        showToast(data.message || 'Không cập nhật được nhiệm vụ.', 'error');
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Update';
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Cập nhật';
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     showToast('Không cập nhật được nhiệm vụ. Vui lòng thử lại.', 'error');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Update';
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Cập nhật';
                 }
             });
         })();

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once './views/templates/assets.php'; ?>
-    <title data-lang-key="class_list_title">Class List - Literature System</title>
+    <title data-lang-key="class_list_title">Danh sách lớp</title>
 </head>
 
 <body>
@@ -19,17 +19,17 @@
     <main id="main" class="main">
         <div class="pagetitle">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 data-lang-key="class_list_title">Class List</h1>
+                <h1 data-lang-key="class_list_title">Danh sách lớp</h1>
                 <div class="d-flex gap-2">
                     <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                         <button type="button"
                             id="deleteSelectedClassesBtn"
                             class="btn btn-sm btn-danger"
                             style="display: none;">
-                            <i class="bi bi-trash"></i> <span data-lang-key="delete_selected">Delete Selected</span> (<span id="selectedClassCount">0</span>)
+                            <i class="bi bi-trash"></i> <span data-lang-key="delete_selected">Xoá mục đã chọn</span> (<span id="selectedClassCount">0</span>)
                         </button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createClassModal">
-                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_class">Create New Class</span>
+                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_class">Tạo lớp mới</span>
                         </button>
                     <?php endif; ?>
                 </div>
@@ -75,14 +75,14 @@
             ?>
             <div class="row dashboard-stats mb-4" data-stagger>
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stat-card">
+                    <div class="dash-stat">
                         <div class="stat-icon stat-icon--primary"><i class="bi bi-collection"></i></div>
                         <div class="stat-value"><?= $statClasses ?></div>
                         <div class="stat-label" data-lang-key="stat_classes">Lớp học</div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stat-card">
+                    <div class="dash-stat">
                         <div class="stat-icon stat-icon--info"><i class="bi bi-list-task"></i></div>
                         <div class="stat-value"><?= $statTasks ?></div>
                         <div class="stat-label" data-lang-key="<?= $userRole === 'student' ? 'stat_tasks_assigned' : 'stat_tasks_in_class' ?>"><?= $userRole === 'student' ? 'Nhiệm vụ được giao' : 'Nhiệm vụ trong lớp' ?></div>
@@ -90,14 +90,14 @@
                 </div>
                 <?php if ($userRole === 'student'): ?>
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stat-card">
+                    <div class="dash-stat">
                         <div class="stat-icon stat-icon--success"><i class="bi bi-check-circle"></i></div>
                         <div class="stat-value"><?= $statDone ?></div>
                         <div class="stat-label" data-lang-key="stat_completed">Đã nộp bài</div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stat-card">
+                    <div class="dash-stat">
                         <div class="stat-icon stat-icon--warning"><i class="bi bi-star"></i></div>
                         <div class="stat-value"><?= $statPendingEval ?></div>
                         <div class="stat-label" data-lang-key="stat_evaluations">Chờ đánh giá</div>
@@ -203,43 +203,58 @@
             <?php endif; endif; ?>
 
             <?php
-            $stmt = $pdo->prepare("SELECT cm.class_id, c.class_name, cm.role FROM `class_member` cm LEFT JOIN `class` c ON c.class_id = cm.class_id WHERE `user_id` = :userid");
+            $stmt = $pdo->prepare("
+                SELECT cm.class_id, c.class_name, cm.role,
+                       (SELECT COUNT(*) FROM class_member s WHERE s.class_id = cm.class_id AND s.role = 'student') AS student_count,
+                       (SELECT COUNT(*) FROM topic tp WHERE tp.class_id = cm.class_id) AS topic_count
+                FROM `class_member` cm
+                LEFT JOIN `class` c ON c.class_id = cm.class_id
+                WHERE cm.`user_id` = :userid
+                ORDER BY c.class_name");
             $stmt->bindParam(':userid', $userid, PDO::PARAM_INT);
             $stmt->execute();
             $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $roleLabels = ['teacher' => ['Giáo viên', 'role_teacher', 'ui-badge--primary'], 'student' => ['Học sinh', 'role_student', 'ui-badge--success'], 'admin' => ['Quản trị', 'role_admin', 'ui-badge--accent']];
             if ($classes):
-            $classIdx = 0;
             ?>
-                <div class="row" data-stagger>
-                    <?php foreach ($classes as $class): ?>
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card h-100 class-card" data-class-id="<?php echo intval($class['class_id']); ?>" data-index="<?php echo $classIdx % 10; ?>">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div class="d-flex align-items-start gap-2 flex-grow-1">
-                                            <?php if ($class['role'] === 'teacher'): ?>
-                                                <input aria-label="Chọn" class="form-check-input class-checkbox mt-1"
-                                                    type="checkbox"
-                                                    data-class-id="<?php echo intval($class['class_id']); ?>"
-                                                    data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>">
-                                            <?php endif; ?>
-                                            <h5 class="card-title mb-0"><?php echo htmlspecialchars($class['class_name']); ?></h5>
-                                        </div>
-                                        <?php if ($class['role'] === 'teacher'): ?>
-                                            <button class="btn btn-sm btn-outline-secondary edit-class-btn"
-                                                data-class-id="<?php echo intval($class['class_id']); ?>"
-                                                data-class-name="<?php echo htmlspecialchars($class['class_name']); ?>"
-                                                title="Sửa tên lớp">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                        <?php endif; ?>
+                <div class="ui-section__head mb-3">
+                    <h2 class="ui-section__title m-0"><i class="bi bi-collection text-primary" aria-hidden="true"></i> Lớp của tôi</h2>
+                </div>
+                <div class="row g-3" data-stagger>
+                    <?php foreach ($classes as $class):
+                        $cid = (int)$class['class_id'];
+                        [$roleText, $roleKey, $roleTone] = $roleLabels[$class['role']] ?? [ucfirst((string)$class['role']), '', ''];
+                        $isTeacher = $class['role'] === 'teacher';
+                    ?>
+                        <div class="col-xl-4 col-md-6">
+                            <article class="class-tile h-100" data-class-id="<?= $cid ?>">
+                                <div class="class-tile__head">
+                                    <span class="class-tile__icon" aria-hidden="true"><?= htmlspecialchars(mb_strtoupper(mb_substr(trim((string)$class['class_name']), 0, 1))) ?></span>
+                                    <div class="class-tile__title">
+                                        <h3><a href="/joinclass?id=<?= $cid ?>" class="stretched-link"><?= htmlspecialchars($class['class_name']) ?></a></h3>
+                                        <span class="ui-badge <?= $roleTone ?>"<?= $roleKey ? ' data-lang-key="' . $roleKey . '"' : '' ?>><?= htmlspecialchars($roleText) ?></span>
                                     </div>
-                                    <p class="card-text"><span data-lang-key="role_label">Vai trò:</span> <?php echo htmlspecialchars(ucfirst($class['role'])); ?></p>
-                                    <a href="/joinclass?id=<?php echo urlencode($class['class_id']); ?>" class="btn btn-primary" data-lang-key="enter_class">Enter Class</a>
+                                    <?php if ($isTeacher): ?>
+                                        <div class="class-tile__tools">
+                                            <input aria-label="Chọn lớp <?= htmlspecialchars($class['class_name']) ?>" class="form-check-input class-checkbox"
+                                                type="checkbox" data-class-id="<?= $cid ?>" data-class-name="<?= htmlspecialchars($class['class_name']) ?>">
+                                            <button type="button" class="btn btn-sm btn-light edit-class-btn" data-class-id="<?= $cid ?>"
+                                                data-class-name="<?= htmlspecialchars($class['class_name']) ?>" title="Đổi tên lớp" aria-label="Đổi tên lớp">
+                                                <i class="bi bi-pencil" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
-                            </div>
+                                <ul class="class-tile__meta">
+                                    <li><i class="bi bi-people" aria-hidden="true"></i> <?= (int)$class['student_count'] ?> học sinh</li>
+                                    <li><i class="bi bi-journal-bookmark" aria-hidden="true"></i> <?= (int)$class['topic_count'] ?> chủ đề</li>
+                                </ul>
+                                <div class="class-tile__foot">
+                                    <span data-lang-key="enter_class">Vào lớp</span> <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                </div>
+                            </article>
                         </div>
-                    <?php $classIdx++; endforeach; ?>
+                    <?php endforeach; ?>
                 </div>
             <?php else: ?>
                 <div class="alert alert-info" role="alert">
@@ -255,18 +270,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" data-lang-key="create_new_class">Create New Class</h5>
+                    <h5 class="modal-title" data-lang-key="create_new_class">Tạo lớp mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="newClassName" class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <label for="newClassName" class="form-label" data-lang-key="class_name_label">Tên lớp <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="newClassName" placeholder="Nhập tên lớp…" data-lang-key="enter_class_name">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Huỷ</button>
-                    <button type="button" class="btn btn-primary" id="createClassBtn" data-lang-key="create_class">Create Class</button>
+                    <button type="button" class="btn btn-primary" id="createClassBtn" data-lang-key="create_class">Tạo lớp</button>
                 </div>
             </div>
         </div>
@@ -277,13 +292,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" data-lang-key="edit_class_name">Edit Class Name</h5>
+                    <h5 class="modal-title" data-lang-key="edit_class_name">Đổi tên lớp</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="editClassId">
                     <div class="mb-3">
-                        <label for="editClassName" class="form-label" data-lang-key="class_name_label">Class Name <span class="text-danger">*</span></label>
+                        <label for="editClassName" class="form-label" data-lang-key="class_name_label">Tên lớp <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="editClassName" placeholder="Nhập tên lớp…" data-lang-key="enter_class_name">
                     </div>
                 </div>
@@ -333,7 +348,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -343,12 +358,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -390,7 +405,7 @@
                                     location.reload();
                                 }, 1500);
                             } else {
-                                showToast(data.message || 'Could not create class', 'error');
+                                showToast(data.message || 'Không tạo được lớp.', 'error');
                                 this.disabled = false;
                                 this.textContent = 'Tạo lớp';
                             }
@@ -452,16 +467,16 @@
                                     location.reload();
                                 }, 1500);
                             } else {
-                                showToast(data.message || 'Could not update class name', 'error');
+                                showToast(data.message || 'Không đổi được tên lớp.', 'error');
                                 this.disabled = false;
-                                this.textContent = 'Update';
+                                this.textContent = 'Cập nhật';
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
                             showToast('Không đổi được tên lớp. Vui lòng thử lại.', 'error');
                             this.disabled = false;
-                            this.textContent = 'Update';
+                            this.textContent = 'Cập nhật';
                         });
                 });
             }
@@ -557,7 +572,7 @@
                         console.error('Error:', error);
                         showToast('Không xoá được lớp. Vui lòng thử lại.', 'error');
                         this.disabled = false;
-                        this.innerHTML = '<i class="bi bi-trash"></i> Delete Selected (<span id="selectedClassCount">' + count + '</span>)';
+                        this.innerHTML = '<i class="bi bi-trash"></i> Xoá mục đã chọn (<span id="selectedClassCount">' + count + '</span>)';
                     }
                 });
             }

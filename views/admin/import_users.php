@@ -21,7 +21,7 @@ if ($role !== 'admin') {
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Import Users - Literature System</title>
+    <title>Nhập người dùng</title>
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <style>
         .import-page { max-width: 720px; margin: 0 auto; }
@@ -61,7 +61,7 @@ if ($role !== 'admin') {
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-file-earmark-spreadsheet me-2"></i>Import Users</h1>
+            <h1><i class="bi bi-file-earmark-spreadsheet me-2"></i>Nhập người dùng</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard">Trang quản trị</a></li>
@@ -195,7 +195,7 @@ if ($role !== 'admin') {
                         ' tài khoản không có mật khẩu trong file đã được cấp mật khẩu ngẫu nhiên. ' +
                         '<strong>Danh sách chỉ hiển thị một lần</strong> — hãy tải về ngay.' +
                         ' <button type="button" class="btn btn-sm btn-warning ms-2" onclick="downloadGenerated()"><i class="bi bi-download me-1"></i>Tải CSV</button></div>';
-                    html += '<div class="result-card"><table class="table table-sm mb-0"><thead><tr><th>Họ tên</th><th>Username</th><th>Mật khẩu</th></tr></thead><tbody>' +
+                    html += '<div class="result-card"><table class="table table-sm mb-0"><thead><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Mật khẩu</th></tr></thead><tbody>' +
                         data.generated.map(g => '<tr><td>' + escapeHtml(g.fullname) + '</td><td>' + escapeHtml(g.username) + '</td><td><code>' + escapeHtml(g.password) + '</code></td></tr>').join('') +
                         '</tbody></table></div>';
                 }

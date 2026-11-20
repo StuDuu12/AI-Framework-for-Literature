@@ -182,7 +182,8 @@ $pct = fn($v) => $scale > 0 ? max(0, min(100, round($v * 100 / $scale, 1))) : 0;
                     <?php endif; ?>
                 </div>
 
-                <?php if (is_array($systemEval)): ?>
+                <?php $sysHasData = is_array($systemEval) && array_filter(array_intersect_key($systemEval, array_flip(['outline_score', 'avg_edit_change_percent', 'sections_edited', 'total_copy_percent', 'session_duration_secs'])), fn($v) => $v !== null); ?>
+                <?php if ($sysHasData): ?>
                     <div class="ui-card p-4">
                         <h2 class="perform-label">Dữ liệu hệ thống ghi nhận</h2>
                         <dl class="perform-info">

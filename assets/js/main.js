@@ -308,7 +308,16 @@
   const datatables = select('.datatable', true)
   datatables.forEach(datatable => {
     new simpleDatatables.DataTable(datatable, {
-      perPageSelect: [5, 10, 15, ["All", -1]],
+      perPageSelect: [5, 10, 15, ["Tất cả", -1]],
+      labels: {
+        placeholder: "Tìm trong bảng…",
+        searchTitle: "Tìm trong bảng",
+        perPage: "dòng mỗi trang",
+        pageTitle: "Trang {page}",
+        noRows: "Không có dữ liệu",
+        noResults: "Không có kết quả phù hợp",
+        info: "Hiển thị {start}–{end} trên {rows} dòng"
+      },
       columns: [{
           select: 2,
           sortSequence: ["desc", "asc"]

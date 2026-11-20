@@ -51,13 +51,13 @@
 
 .outline-validation__badge--fail {
     color: #991b1b;
-    background: #fee2e2;
+    background: var(--lit-danger-subtle);
     border-color: #fca5a5;
 }
 
 .outline-validation__badge--pending {
     color: #92400e;
-    background: #fef3c7;
+    background: var(--lit-warning-subtle);
     border-color: #fcd34d;
 }
 

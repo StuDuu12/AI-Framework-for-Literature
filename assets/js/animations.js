@@ -316,18 +316,20 @@
             var rows = tbody.querySelectorAll('tr');
             if (!rows.length || rows.length > 40) return;
 
-            if (HAS_GSAP && HAS_ST) {
+            // Chỉ làm hiệu ứng cho bảng đang hiện trong màn hình lúc tải.
+            // Không dùng ScrollTrigger: bảng trong tab/khối thu gọn có thể không bao giờ kích hoạt
+            // và các dòng bị kẹt ở opacity 0 (người dùng thấy bảng trống).
+            var rect = tbody.getBoundingClientRect();
+            var inView = rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0;
+            if (!inView) return;
+            if (HAS_GSAP) {
                 gsap.from(rows, {
                     opacity: 0,
                     x: -8,
                     duration: 0.28,
                     stagger: 0.025,
                     ease: 'power2.out',
-                    scrollTrigger: {
-                        trigger: tbody,
-                        start: 'top 92%',
-                        toggleActions: 'play none none none'
-                    }
+                    clearProps: 'opacity,transform'
                 });
             } else {
                 Array.prototype.forEach.call(rows, function (row, i) {

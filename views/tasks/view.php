@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="task_detail_assigned">Task Detail</title>
+    <title data-lang-key="task_detail_assigned">Chi tiết nhiệm vụ</title>
 </head>
 
 <body>
@@ -204,7 +204,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="task_detail_assigned">Assigned Task Details</h1>
+            <h1 data-lang-key="task_detail_assigned">Chi tiết nhiệm vụ đã giao</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
@@ -223,14 +223,14 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                                 <div class="flex-grow-1">
                                     <h5 class="card-title mb-1">
                                         <i class="bi bi-clipboard-check text-primary"></i>
                                         <?= htmlspecialchars($task['title']) ?>
                                     </h5>
                                     <p class="text-muted mb-3">
-                                        <i class="bi bi-layers"></i> Phase: Step <?= $phase['phase_number'] ?> -
+                                        <i class="bi bi-layers"></i> Giai đoạn <?= $phase['phase_number'] ?> -
                                         <?= htmlspecialchars($phase['phase_name']) ?>
                                         <?php if ($shouldLookBack && $dataTaskId != $taskId): ?>
                                             <br>
@@ -265,7 +265,7 @@
                                     </div>
                                 </div>
 
-                                <div class="btn-group" role="group">
+                                <div class="btn-group flex-shrink-0" role="group">
                                     <?php
                                     // Get count of submissions with comments (for badge)
                                     $commentCountStmt = $pdo->prepare("
@@ -284,7 +284,7 @@
                                     ?>
                                     <a href="/class/task/assign?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-warning" title="Giao thêm">
-                                        <i class="bi bi-bell"></i> <span>Assign More</span>
+                                        <i class="bi bi-bell"></i> <span>Giao thêm</span>
                                     </a>
                                     <a href="/class/task?topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                         class="btn btn-secondary">
@@ -299,32 +299,32 @@
 
             <!-- Statistics Row -->
             <div class="row mb-4">
-                <div class="col-md-3 col-sm-6 mb-3">
+                <div class="col-6 col-md-3 mb-3">
                     <div class="stat-card info">
                         <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
                         <div class="stat-number"><?= $totalAssignments ?></div>
-                        <div>Total Assigned</div>
+                        <div>Tổng số đã giao</div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-3">
+                <div class="col-6 col-md-3 mb-3">
                     <div class="stat-card success">
                         <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
                         <div class="stat-number"><?= $completedCount ?></div>
                         <div>Đã hoàn thành</div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-3">
+                <div class="col-6 col-md-3 mb-3">
                     <div class="stat-card warning">
                         <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
                         <div class="stat-number"><?= $inProgressCount ?></div>
-                        <div>In Progress</div>
+                        <div>Đang làm</div>
                     </div>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-3">
+                <div class="col-6 col-md-3 mb-3">
                     <div class="stat-card">
                         <i class="bi bi-dash-circle-fill" style="font-size: 2rem;"></i>
                         <div class="stat-number"><?= $notStartedCount ?></div>
-                        <div>Not Started</div>
+                        <div>Chưa bắt đầu</div>
                     </div>
                 </div>
             </div>
@@ -336,37 +336,37 @@
                         <div class="card border-primary">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="mb-0">
-                                    <i class="bi bi-star-fill"></i> <span>Peer Evaluation Statistics</span>
+                                    <i class="bi bi-star-fill"></i> <span>Thống kê đánh giá chéo</span>
                                 </h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="col-6 col-md-3 mb-3">
                                         <div class="stat-card info">
                                             <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['total_evaluations_assigned'] ?></div>
-                                            <div>Total Evaluations</div>
+                                            <div>Tổng số đánh giá</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="col-6 col-md-3 mb-3">
                                         <div class="stat-card success">
                                             <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['completed_evaluations'] ?></div>
                                             <div>Đã hoàn thành</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="col-6 col-md-3 mb-3">
                                         <div class="stat-card warning">
                                             <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['in_progress_evaluations'] ?></div>
                                             <div>Đang chấm</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="col-6 col-md-3 mb-3">
                                         <div class="stat-card">
                                             <i class="bi bi-dash-circle-fill" style="font-size: 2rem;"></i>
                                             <div class="stat-number"><?= $peerEvalStats['not_started_evaluations'] ?></div>
-                                            <div>Not Started</div>
+                                            <div>Chưa bắt đầu</div>
                                         </div>
                                     </div>
                                 </div>
@@ -375,7 +375,7 @@
                                     <div class="col-md-6">
                                         <div class="card bg-light">
                                             <div class="card-body text-center">
-                                                <h6 class="text-muted mb-2">Submissions Reviewed</h6>
+                                                <h6 class="text-muted mb-2">Bài đã xem</h6>
                                                 <div class="display-6 text-primary">
                                                     <i class="bi bi-file-earmark-text-fill"></i>
                                                     <?= $peerEvalStats['total_responses_being_reviewed'] ?>
@@ -386,7 +386,7 @@
                                     <div class="col-md-6">
                                         <div class="card bg-light">
                                             <div class="card-body text-center">
-                                                <h6 class="text-muted mb-2">Average Score</h6>
+                                                <h6 class="text-muted mb-2">Điểm trung bình</h6>
                                                 <div class="display-6 text-success">
                                                     <i class="bi bi-graph-up-arrow"></i>
                                                     <?= $peerEvalStats['average_score'] ? number_format($peerEvalStats['average_score'], 1) : 'N/A' ?>
@@ -403,7 +403,7 @@
                                     : 0;
                                 ?>
                                 <div class="mt-4">
-                                    <h6 class="mb-2">Peer Evaluation Completion Progress</h6>
+                                    <h6 class="mb-2">Tiến độ đánh giá chéo</h6>
                                     <div class="d-flex align-items-center">
                                         <div class="flex-grow-1">
                                             <div class="progress" style="height: 30px;">
@@ -419,7 +419,7 @@
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-between text-muted small mt-2">
-                                        <span><i class="bi bi-check-circle text-success"></i> <?= $peerEvalStats['completed_evaluations'] ?> completed</span>
+                                        <span><i class="bi bi-check-circle text-success"></i> <?= $peerEvalStats['completed_evaluations'] ?> đã hoàn thành</span>
                                         <span><i class="bi bi-clock text-warning"></i> <?= $peerEvalStats['in_progress_evaluations'] ?> đang làm</span>
                                         <span><i class="bi bi-dash-circle text-secondary"></i> <?= $peerEvalStats['not_started_evaluations'] ?> chưa bắt đầu</span>
                                     </div>
@@ -435,7 +435,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title" data-lang-key="completion_progress_title">Completion Progress</h5>
+                            <h5 class="card-title" data-lang-key="completion_progress_title">Tiến độ hoàn thành</h5>
                             <div class="d-flex align-items-center mb-3">
                                 <div class="flex-grow-1">
                                     <div class="progress" style="height: 30px;">
@@ -451,7 +451,7 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between text-muted small">
-                                <span><i class="bi bi-check-circle text-success"></i> <?= $completedCount ?> completed</span>
+                                <span><i class="bi bi-check-circle text-success"></i> <?= $completedCount ?> đã hoàn thành</span>
                                 <span><i class="bi bi-clock text-warning"></i> <?= $inProgressCount ?> đang làm</span>
                                 <span><i class="bi bi-dash-circle text-secondary"></i> <?= $notStartedCount ?> chưa bắt đầu</span>
                             </div>
@@ -466,35 +466,35 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-header d-flex align-items-center gap-2" style="background: var(--lit-heading); color: white; border-radius: 0.5rem 0.5rem 0 0;">
                             <i class="bi bi-graph-up-arrow fs-5"></i>
-                            <h5 class="mb-0" style="color: white;"><span>Student Change Statistics</span></h5>
+                            <h5 class="mb-0" style="color: white;"><span>Thống kê mức sửa bài của học sinh</span></h5>
                             <?php if ($trackingStats && $trackingStats['total_with_tracking'] > 0): ?>
                             <span class="badge bg-white text-purple ms-auto" style="color: var(--lit-primary-2);">
-                                <?= $trackingStats['total_with_tracking'] ?> / <?= $totalAssignments ?> students with data
+                                <?= $trackingStats['total_with_tracking'] ?> / <?= $totalAssignments ?> học sinh có dữ liệu
                             </span>
                             <?php endif; ?>
                         </div>
                         <div class="card-body pt-4">
                             <!-- Summary stat mini-cards - Always show -->
                             <div class="row g-3 mb-4">
-                                <div class="col-md-3 col-sm-6">
+                                <div class="col-6 col-md-3">
                                     <div class="p-3 rounded-3 text-center" style="background: #eef0fd;">
                                         <div class="fw-bold fs-3" style="color: #2c3e87;"><?= ($trackingStats && $trackingStats['total_with_tracking'] > 0) ? ($trackingStats['avg_change_percent'] ?? 0) : 0 ?>%</div>
-                                        <div class="small text-muted mt-1"><i class="bi bi-pencil-square me-1"></i>Avg Change Rate</div>
+                                        <div class="small text-muted mt-1"><i class="bi bi-pencil-square me-1"></i>Tỉ lệ sửa TB</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 col-sm-6">
+                                <div class="col-6 col-md-3">
                                     <div class="p-3 rounded-3 text-center" style="background: #e6f4ea;">
                                         <div class="fw-bold fs-3" style="color: #059669;"><?= ($trackingStats && $trackingStats['total_with_tracking'] > 0) ? ($trackingStats['avg_sections_edited'] ?? 0) : 0 ?></div>
-                                        <div class="small text-muted mt-1"><i class="bi bi-layout-text-sidebar me-1"></i>Avg Sections Edited</div>
+                                        <div class="small text-muted mt-1"><i class="bi bi-layout-text-sidebar me-1"></i>Số phần sửa TB</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 col-sm-6">
+                                <div class="col-6 col-md-3">
                                     <div class="p-3 rounded-3 text-center" style="background: #fff4e5;">
                                         <div class="fw-bold fs-3" style="color: #d97706;"><?= ($trackingStats && $trackingStats['total_with_tracking'] > 0) ? intval($trackingStats['total_copy_events'] ?? 0) : 0 ?></div>
-                                        <div class="small text-muted mt-1"><i class="bi bi-clipboard me-1"></i>Total Copy Events</div>
+                                        <div class="small text-muted mt-1"><i class="bi bi-clipboard me-1"></i>Tổng số lần sao chép</div>
                                     </div>
                                 </div>
-                                <div class="col-md-3 col-sm-6">
+                                <div class="col-6 col-md-3">
                                     <?php
                                         if ($trackingStats && $trackingStats['total_with_tracking'] > 0) {
                                             $avgSecs = intval($trackingStats['avg_session_duration_secs'] ?? 0);
@@ -507,7 +507,7 @@
                                     ?>
                                     <div class="p-3 rounded-3 text-center" style="background: #f6f7fb;">
                                         <div class="fw-bold fs-3" style="color: var(--lit-heading);"><?= $avgTimeLabel ?></div>
-                                        <div class="small text-muted mt-1"><i class="bi bi-clock-history me-1"></i>Avg Work Duration</div>
+                                        <div class="small text-muted mt-1"><i class="bi bi-clock-history me-1"></i>Thời gian làm TB</div>
                                     </div>
                                 </div>
                             </div>
@@ -522,8 +522,8 @@
                             ?>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-semibold small">Change Level Distribution</span>
-                                    <span class="small text-muted"><?= $total ?> students</span>
+                                    <span class="fw-semibold small">Phân bố mức sửa bài</span>
+                                    <span class="small text-muted"><?= $total ?> học sinh</span>
                                 </div>
                                 <div class="progress" style="height: 22px; border-radius: 12px; overflow: hidden;">
                                     <?php if ($lowPct > 0): ?>
@@ -544,8 +544,8 @@
                                 </div>
                                 <div class="d-flex gap-3 mt-2 flex-wrap">
                                     <span class="small"><span class="badge bg-success me-1"><?= $trackingStats['low_change_count'] ?></span> Sửa ít (&lt;20%)</span>
-                                    <span class="small"><span class="badge bg-warning me-1"><?= $trackingStats['medium_change_count'] ?></span> Medium (20-50%)</span>
-                                    <span class="small"><span class="badge bg-danger me-1"><?= $trackingStats['high_change_count'] ?></span> High (&ge;50%)</span>
+                                    <span class="small"><span class="badge bg-warning me-1"><?= $trackingStats['medium_change_count'] ?></span> Sửa vừa (20–50%)</span>
+                                    <span class="small"><span class="badge bg-danger me-1"><?= $trackingStats['high_change_count'] ?></span> Sửa nhiều (&ge;50%)</span>
                                 </div>
                             </div>
 
@@ -553,7 +553,7 @@
                             <?php if (!empty($studentTrackingList)): ?>
                             <div class="mt-3">
                                 <button class="btn btn-sm btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#trackingDetailTable">
-                                    <i class="bi bi-table me-1"></i> <span>View Student Details</span>
+                                    <i class="bi bi-table me-1"></i> <span>Xem chi tiết học sinh</span>
                                 </button>
                                 <div class="collapse" id="trackingDetailTable">
                                     <div class="table-responsive mt-2">
@@ -561,12 +561,12 @@
                                             <thead class="table-light">
                                                 <tr>
                                                     <th>Học sinh</th>
-                                                    <th class="text-center">Change Rate</th>
-                                                    <th class="text-center">Sections Edited</th>
+                                                    <th class="text-center">Tỉ lệ sửa</th>
+                                                    <th class="text-center">Số phần đã sửa</th>
                                                     <th class="text-center">Lượt sao chép</th>
-                                                    <th class="text-center">Work Time</th>
+                                                    <th class="text-center">Thời gian làm bài</th>
                                                     <th class="text-center">Lượt lưu</th>
-                                                    <th class="text-center">Last Updated</th>
+                                                    <th class="text-center">Cập nhật lần cuối</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -613,7 +613,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title"><span data-lang-key="assigned_list_title">Assigned List</span> (<?= $totalAssignments ?>)</h5>
+                            <h5 class="card-title"><span data-lang-key="assigned_list_title">Danh sách đã giao</span> (<?= $totalAssignments ?>)</h5>
 
                             <?php if (empty($assignments)): ?>
                                 <div class="alert alert-info">
@@ -628,7 +628,7 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link active" id="all-tab" data-bs-toggle="tab"
                                             data-bs-target="#all" type="button" role="tab">
-                                            <i class="bi bi-list"></i> <span>All</span> (<?= $totalAssignments ?>)
+                                            <i class="bi bi-list"></i> <span>Tất cả</span> (<?= $totalAssignments ?>)
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
@@ -641,13 +641,13 @@
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="progress-tab" data-bs-toggle="tab"
                                             data-bs-target="#progress" type="button" role="tab">
-                                            <i class="bi bi-clock text-warning"></i> <span>In Progress</span> (<?= $inProgressCount ?>)
+                                            <i class="bi bi-clock text-warning"></i> <span>Đang làm</span> (<?= $inProgressCount ?>)
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
                                         <button class="nav-link" id="notstarted-tab" data-bs-toggle="tab"
                                             data-bs-target="#notstarted" type="button" role="tab">
-                                            <i class="bi bi-dash-circle text-secondary"></i> <span>Not Started</span>
+                                            <i class="bi bi-dash-circle text-secondary"></i> <span>Chưa bắt đầu</span>
                                             (<?= $notStartedCount ?>)
                                         </button>
                                     </li>
@@ -705,7 +705,7 @@
                 <div class="modal-header bg-warning text-dark">
                     <h5 class="modal-title" id="resetSubmissionModalLabel">
                         <i class="bi bi-arrow-counterclockwise me-2"></i>
-                        <span data-lang-key="reset_submission_title">Reset Submission</span>
+                        <span data-lang-key="reset_submission_title">Đặt lại bài nộp</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
@@ -725,7 +725,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="cancel">Huỷ</button>
                     <button type="button" class="btn btn-warning" id="confirmResetSubmissionBtn">
                         <i class="bi bi-arrow-counterclockwise"></i>
-                        <span data-lang-key="reset_submission_confirm">Reset Submission</span>
+                        <span data-lang-key="reset_submission_confirm">Đặt lại bài nộp</span>
                     </button>
                 </div>
             </div>
@@ -753,7 +753,7 @@
                 case 'success':
                     toastHeader.classList.add('bg-success', 'text-white');
                     toastIcon.classList.add('bi-check-circle-fill');
-                    toastTitle.textContent = 'Success';
+                    toastTitle.textContent = 'Thành công';
                     break;
                 case 'error':
                     toastHeader.classList.add('bg-danger', 'text-white');
@@ -763,7 +763,7 @@
                 case 'warning':
                     toastHeader.classList.add('bg-warning', 'text-dark');
                     toastIcon.classList.add('bi-exclamation-triangle-fill');
-                    toastTitle.textContent = 'Warning';
+                    toastTitle.textContent = 'Lưu ý';
                     break;
             }
 
@@ -805,7 +805,7 @@
                             window.location.reload();
                         }, 1500);
                     } else {
-                        showToast(data.message || 'Failed to unassign task', 'error');
+                        showToast(data.message || 'Không bỏ giao được nhiệm vụ.', 'error');
                     }
                 } catch (error) {
                     console.error('Error:', error);
@@ -870,12 +870,12 @@
                         if (resetModal) {
                             resetModal.hide();
                         }
-                        showToast(data.message || 'Submissions reset successfully', 'success');
+                        showToast(data.message || 'Đã đặt lại bài nộp.', 'success');
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                        showToast(data.message || 'Failed to reset submissions', 'error');
+                        showToast(data.message || 'Không đặt lại được bài nộp.', 'error');
                     }
                 } catch (error) {
                     console.error('Error:', error);
@@ -906,7 +906,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
 
     if (empty($assignments)): ?>
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> <span>No results</span>
+            <i class="bi bi-info-circle"></i> <span>Không có kết quả</span>
         </div>
     <?php return;
     endif;
@@ -917,18 +917,18 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
             <?php
             // Determine assignment type
             $typeIcon = 'person-fill';
-            $typeText = 'Individual';
+            $typeText = 'Cá nhân';
             $typeKey = 'personal';
             $typeBadge = 'info';
 
             if ($assignment['assign_type'] == 1) {
                 $typeIcon = 'people-fill';
-                $typeText = 'Whole Class';
+                $typeText = 'Cả lớp';
                 $typeKey = 'whole_class';
                 $typeBadge = 'primary';
             } elseif ($assignment['assign_type'] == 2) {
                 $typeIcon = 'diagram-3-fill';
-                $typeText = 'Group';
+                $typeText = 'Nhóm';
                 $typeKey = 'group';
                 $typeBadge = 'success';
             }
@@ -963,7 +963,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
 
             <div class="list-group-item">
                 <!-- DEBUG INFO -->
-                <?php if (isset($_GET['debug']) && $_GET['debug'] == '1'): ?>
+                <?php if (isset($_GET['debug']) && $_GET['debug'] == '1' && ($_SESSION['user']['role'] ?? '') === 'admin'): ?>
                     <div class="alert alert-warning alert-sm mb-2">
                         <small>
                             <strong>DEBUG:</strong>
@@ -972,8 +972,8 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                             Value: <?= $assignment['value'] ?> |
                             Task ID: <?= $assignment['task_id'] ?> |
                             DataTaskId: <?= $dataTaskId ?> |
-                            Is Group: <?= $isGroupAssignment ? 'Yes' : 'No' ?> |
-                            Has Group Submission: <?= $groupSubmission ? 'Yes (ID: ' . $groupSubmission['id_response'] . ')' : 'No' ?> |
+                            Is Group: <?= $isGroupAssignment ? 'Có' : 'Không' ?> |
+                            Has Group Submission: <?= $groupSubmission ? 'Có (ID: ' . $groupSubmission['id_response'] . ')' : 'No' ?> |
                             Students Count: <?= count($students) ?>
                             <?php if (!empty($students)): ?>
                                 <br><strong>Students Debug:</strong>
@@ -1005,7 +1005,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                 <?php if ($isGroupAssignment): ?>
                                     <small>
                                         <i class="bi bi-people"></i>
-                                        <?= $assignment['students_total'] ?> members
+                                        <?= $assignment['students_total'] ?> thành viên
                                         <?php if ($groupSubmission): ?>
                                             - <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Đã nộp</span>
                                         <?php else: ?>
@@ -1016,7 +1016,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                     <small>
                                         <i class="bi bi-people"></i>
                                         <span class="text-success fw-bold"><?= $assignment['students_completed'] ?></span>
-                                        /<?= $assignment['students_total'] ?> students submitted
+                                        /<?= $assignment['students_total'] ?> học sinh đã nộp
                                     </small>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -1041,7 +1041,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                     <tr>
                                         <th>Thành viên</th>
                                         <th>Trạng thái</th>
-                                        <th>Submission Time</th>
+                                        <th>Thời gian nộp</th>
                                         <th>Thao tác</th>
                                     </tr>
                                 </thead>
@@ -1059,12 +1059,12 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                         if ($groupStatus === 'submitted') {
                                             $statusBadge = 'success';
                                             $statusIcon = 'check-circle-fill';
-                                            $statusText = 'Submitted';
+                                            $statusText = 'Đã nộp';
                                             $statusKey = 'submitted';
                                         } else {
                                             $statusBadge = 'secondary';
                                             $statusIcon = 'dash-circle';
-                                            $statusText = 'Not submitted';
+                                            $statusText = 'Chưa nộp';
                                             $statusKey = 'not_submitted';
                                         }
                                     ?>
@@ -1092,11 +1092,11 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                                         <div class="d-flex flex-column gap-2 align-items-center">
                                                             <a href="/class/homework/comment?task_id=<?= $taskId ?>&deliver_id=<?= $assignment['id_deliver'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>"
                                                                 class="btn btn-success btn-sm" title="Nhận xét và đánh giá chung cho cả nhóm">
-                                                                <i class="bi bi-chat-left-text"></i> <span>General Comment</span>
+                                                                <i class="bi bi-chat-left-text"></i> <span>Nhận xét chung</span>
                                                             </a>
                                                             <?php renderResetSubmissionButton(
                                                                 'group',
-                                                                $assignment['assigned_to_name'] ?? 'Group',
+                                                                $assignment['assigned_to_name'] ?? 'Nhóm',
                                                                 null,
                                                                 (int) $assignment['value'],
                                                                 true
@@ -1122,7 +1122,7 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                 <tr>
                                     <th>Học sinh</th>
                                     <th>Trạng thái</th>
-                                    <th>Submission Time</th>
+                                    <th>Thời gian nộp</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -1131,13 +1131,13 @@ function renderAssignmentsList($assignments, $dataTaskId = null)
                                     <?php
                                     $statusBadge = 'secondary';
                                     $statusIcon = 'dash-circle';
-                                    $statusText = 'Not submitted';
+                                    $statusText = 'Chưa nộp';
                                     $statusKey = 'not_submitted';
 
                                     if ($student['submitted_at']) {
                                         $statusBadge = 'success';
                                         $statusIcon = 'check-circle-fill';
-                                        $statusText = 'Submitted';
+                                        $statusText = 'Đã nộp';
                                         $statusKey = 'submitted';
                                     }
                                     ?>
@@ -1548,9 +1548,9 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
             <thead>
                 <tr>
                     <th>Học sinh</th>
-                    <th>Assigned From</th>
+                    <th>Giao từ</th>
                     <th>Trạng thái</th>
-                    <th>Submission Time</th>
+                    <th>Thời gian nộp</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
@@ -1559,7 +1559,7 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
                     <?php
                     $statusBadge = 'secondary';
                     $statusIcon = 'dash-circle';
-                    $statusText = 'Not submitted';
+                    $statusText = 'Chưa nộp';
                     $statusKey = 'not_submitted';
                     $typeIcon = 'person-fill';
                     $typeBadge = 'info';
@@ -1567,7 +1567,7 @@ function renderStudentsByStatus($dataTaskId, $assignments, $status)
                     if ($student['submitted_at']) {
                         $statusBadge = 'success';
                         $statusIcon = 'check-circle-fill';
-                        $statusText = 'Submitted';
+                        $statusText = 'Đã nộp';
                         $statusKey = 'submitted';
                     }
 

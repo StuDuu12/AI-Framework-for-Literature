@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link href="<?= URL_ROOT ?>/assets/css/literary-canon.css" rel="stylesheet">
-    <title><?= htmlspecialchars($pageTitle ?? 'Work') ?> — Literary Canon</title>
+    <title><?= htmlspecialchars($pageTitle ?? 'Tác phẩm') ?> — Kho tác phẩm</title>
 </head>
 
 <body class="canon-page canon-detail-page">

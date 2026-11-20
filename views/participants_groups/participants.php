@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="class_member_list">Class Members - Literature System</title>
+    <title data-lang-key="class_member_list">Thành viên lớp</title>
 </head>
 
 <body>
@@ -20,11 +20,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="class_member_list">Class Members</h1>
+            <h1 data-lang-key="class_member_list">Thành viên lớp</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
-                    <li class="breadcrumb-item active" data-lang-key="class_member_list">Class Members</li>
+                    <li class="breadcrumb-item active" data-lang-key="class_member_list">Thành viên lớp</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -36,7 +36,7 @@
                         <h5 class="card-title" data-lang-key="members">Thành viên</h5>
                         <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'teacher'): ?>
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
-                                <i class="bi bi-person-plus"></i> <span data-lang-key="add_member">Add Member</span>
+                                <i class="bi bi-person-plus"></i> <span data-lang-key="add_member">Thêm thành viên</span>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -45,7 +45,7 @@
                     // determine class id
                     $classId = getCurrentClassId();
                     if (!$classId) {
-                        echo '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Please select a class from <a href="' . URL_ROOT . '/dashboard">Class List</a> first.</div>';
+                        echo '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Hãy chọn một lớp trong <a href="' . URL_ROOT . '/dashboard">Danh sách lớp</a> trước.</div>';
                         $members = [];
                     } else {
                         $members = getClassMembers($classId);
@@ -57,7 +57,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Full Name</th>
+                                    <th>Họ tên</th>
                                     <th>Tên đăng nhập</th>
                                     <th>Email</th>
                                     <th>Vai trò</th>
@@ -82,7 +82,7 @@
                                                 </select>
                                             <?php else: ?>
                                                 <span class="badge bg-<?= $m['role'] === 'teacher' ? 'info' : 'secondary' ?>">
-                                                    <?= $m['role'] === 'teacher' ? 'Teacher' : 'Student' ?>
+                                                    <?= $m['role'] === 'teacher' ? 'Giáo viên' : 'Học sinh' ?>
                                                 </span>
                                             <?php endif; ?>
                                         </td>
@@ -113,10 +113,10 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="memberSearch" class="form-label">Search User</label>
+                                <label for="memberSearch" class="form-label">Tìm người dùng</label>
                                 <input id="memberSearch" class="form-control"
                                     placeholder="Nhập tên, tên đăng nhập hoặc email để tìm…">
-                                <small class="text-muted">Enter at least 2 characters to search</small>
+                                <small class="text-muted">Nhập ít nhất 2 ký tự để tìm</small>
                             </div>
 
                             <div id="searchResults" style="max-height:400px; overflow:auto;">
@@ -130,7 +130,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-lang-key="close">Đóng</button>
-                            <button type="button" class="btn btn-primary" id="addSelectedBtn" disabled data-lang-key="add_selected">Add Selected</button>
+                            <button type="button" class="btn btn-primary" id="addSelectedBtn" disabled data-lang-key="add_selected">Thêm người đã chọn</button>
                         </div>
                     </div>
                 </div>
@@ -289,11 +289,11 @@
                     clearTimeout(searchTimeout);
 
                     if (keyword.length < 2) {
-                        searchResults.innerHTML = '<p class="text-muted text-center">Enter at least 2 characters to search</p>';
+                        searchResults.innerHTML = '<p class="text-muted text-center">Nhập ít nhất 2 ký tự để tìm</p>';
                         return;
                     }
 
-                    searchResults.innerHTML = '<p class="text-muted text-center"><span class="spinner-border spinner-border-sm"></span> Searching...</p>';
+                    searchResults.innerHTML = '<p class="text-muted text-center"><span class="spinner-border spinner-border-sm"></span> Đang tìm…</p>';
 
                     searchTimeout = setTimeout(() => {
                         fetch('/api/add_members.php', {
@@ -329,8 +329,8 @@
                                             </div>
                                             <div class="d-flex gap-2 align-items-center">
                                                 <select class="form-select form-select-sm" id="role-${user.user_id}" style="width: 120px;" ${isSelected ? 'disabled' : ''}>
-                                                    <option value="student">Student</option>
-                                                    <option value="teacher">Teacher</option>
+                                                    <option value="student">Học sinh</option>
+                                                    <option value="teacher">Giáo viên</option>
                                                 </select>
                                                 <button class="btn btn-sm btn-${isSelected ? 'secondary' : 'primary'} add-user-btn" 
                                                         data-user-id="${user.user_id}" 
@@ -338,7 +338,7 @@
                                                         data-username="${escapeHtml(user.username)}"
                                                         data-email="${escapeHtml(user.email)}"
                                                         ${isSelected ? 'disabled' : ''}>
-                                                    ${isSelected ? 'Selected' : 'Select'}
+                                                    ${isSelected ? 'Đã chọn' : 'Chọn'}
                                                 </button>
                                             </div>
                                         </div>
@@ -380,7 +380,7 @@
 
                 updateSelectedList();
                 btn.disabled = true;
-                btn.textContent = 'Selected';
+                btn.textContent = 'Đã chọn';
                 btn.classList.replace('btn-primary', 'btn-secondary');
                 if (roleSelect) roleSelect.disabled = true;
             }
@@ -416,7 +416,7 @@
                 const btn = document.querySelector(`.add-user-btn[data-user-id="${userId}"]`);
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = 'Select';
+                    btn.textContent = 'Chọn';
                     btn.classList.replace('btn-secondary', 'btn-primary');
                     const roleSelect = document.getElementById(`role-${userId}`);
                     if (roleSelect) roleSelect.disabled = false;

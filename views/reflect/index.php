@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang-key="manage_reflect_title">Manage Reflect - Literature System</title>
+    <title data-lang-key="manage_reflect_title">Quản lý góp ý</title>
 
     <?php include_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?php echo URL_ROOT; ?>/assets/css/reflect.css">
@@ -38,15 +38,15 @@
                                 <div class="col-md-4">
                                     <label for="filterType" class="form-label" data-lang-key="reflect_type_label">Kiểu bài làm</label>
                                     <select id="filterType" class="form-select">
-                                        <option value="" data-lang-key="filter_all">All Types</option>
+                                        <option value="" data-lang-key="filter_all">Mọi loại</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="filterStatus" class="form-label" data-lang-key="status">Trạng thái</label>
                                     <select id="filterStatus" class="form-select">
-                                        <option value="" data-lang-key="filter_all">All Statuses</option>
-                                        <option value="0" data-lang-key="reflect_status_new">New</option>
-                                        <option value="1" data-lang-key="reflect_status_progress">In Progress</option>
+                                        <option value="" data-lang-key="filter_all">Mọi trạng thái</option>
+                                        <option value="0" data-lang-key="reflect_status_new">Mới</option>
+                                        <option value="1" data-lang-key="reflect_status_progress">Đang làm</option>
                                         <option value="2" data-lang-key="reflect_status_resolved">Đã xử lý</option>
                                         <option value="3" data-lang-key="reflect_status_closed">Đã đóng</option>
                                     </select>
@@ -64,7 +64,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title" data-lang-key="feedback_list">Feedback List</h5>
+                                <h5 class="card-title" data-lang-key="feedback_list">Danh sách góp ý</h5>
                                 <span id="ticketCount" class="badge bg-primary">0 ticket</span>
                             </div>
 
@@ -97,7 +97,7 @@
     <div id="createModal" class="reflect-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Create New Reflect</h5>
+                <h5>Gửi góp ý mới</h5>
                 <button type="button" class="modal-close" onclick="closeCreateModal()" aria-label="Đóng">
                     <i class="bi bi-x-lg" aria-hidden="true"></i>
                 </button>
@@ -105,9 +105,9 @@
             <div class="modal-body">
                 <form id="createTicketForm">
                     <div class="form-group">
-                        <label for="createType">Type Reflect <span class="required">*</span></label>
+                        <label for="createType">Loại góp ý <span class="required">*</span></label>
                         <select id="createType" class="form-control" required>
-                            <option value="">-- -- Select Type --</option>
+                            <option value="">-- Chọn loại --</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -124,7 +124,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Huỷ</button>
                 <button type="button" class="btn btn-primary" onclick="createTicket()">
-                    <i class="bi bi-send"></i> <span>Create Reflect</span>
+                    <i class="bi bi-send"></i> <span>Gửi góp ý</span>
                 </button>
             </div>
         </div>
@@ -184,7 +184,7 @@
                         createSelect.appendChild(option);
                     });
                 } else {
-                    console.error('Types API error:', data.message || 'Unknown error');
+                    console.error('Types API error:', data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
                     UI.error('Không tải được danh sách loại góp ý: ' + (data.message || 'lỗi không xác định'));
                 }
             } catch (error) {
@@ -223,7 +223,7 @@
                     empty.style.display = 'block';
                     document.getElementById('ticketCount').textContent = '0 ticket';
                     if (!data.success) {
-                        console.error('Tickets API error:', data.message || 'Unknown error');
+                        console.error('Tickets API error:', data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
                     }
                 }
             } catch (error) {
@@ -298,12 +298,12 @@
         // Get status label
         function getStatusLabel(status) {
             const labels = {
-                0: 'New',
+                0: 'Mới',
                 1: 'Đang xử lý',
-                2: 'Resolved',
-                3: 'Closed'
+                2: 'Đã xử lý',
+                3: 'Đã đóng'
             };
-            return labels[status] || 'Unknown';
+            return labels[status] || 'Không rõ';
         }
 
         // Get status badge class
@@ -323,7 +323,7 @@
             const now = new Date();
             const diff = now - date;
 
-            if (diff < 60000) return 'Just now';
+            if (diff < 60000) return 'Vừa xong';
             if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
             if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
             if (diff < 604800000) return `${Math.floor(diff / 86400000)} days ago`;

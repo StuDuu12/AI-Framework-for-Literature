@@ -256,27 +256,13 @@ body.dark-theme .assignment-card {
 }
 
 body.dark-theme .empty-state i {
-    color: #3a4155;
+    color: var(--lit-border-strong);
 }
 
-/* Current class name in sidebar — always red */
-.sidebar-current-class-name {
-    color: #dc3545 !important;
-    font-weight: 700;
-}
-
-.sidebar-nav .nav-link:not(.collapsed) .sidebar-current-class-name {
-    color: #ff6b6b !important;
-}
-
-body.dark-theme .sidebar-current-class-name {
-    color: #ff6b6b !important;
-}
-
-body.dark-theme .sidebar-nav .nav-link:not(.collapsed) .sidebar-current-class-name {
-    color: #ff8787 !important;
-}
-
+/* Tên lớp hiện tại trong sidebar: nổi bật bằng màu chủ đạo; khi mục đang chọn thì theo màu chữ của mục */
+.sidebar-current-class-name { color: var(--lit-primary) !important; font-weight: 700; }
+.sidebar-nav .nav-link:not(.collapsed) .sidebar-current-class-name,
+.sidebar-nav .nav-link.active .sidebar-current-class-name { color: inherit !important; text-decoration: underline; text-underline-offset: 3px; }
 /* ===== Header notifications ===== */
 .notifications-dropdown {
     width: min(440px, calc(100vw - 1.5rem));
@@ -782,20 +768,26 @@ body.dark-theme .total-score-display {
 
 body.dark-theme .chat-box { background: #1e2230; }
 body.dark-theme .consensus-step { background: #1e2230; }
-body.dark-theme .final-score-box { background: #252a3a; }
+body.dark-theme .final-score-box { background: var(--lit-surface-2); }
 
 /* ===== Task view (teacher) stats ===== */
 .stat-card {
-    border-radius: 8px;
-    padding: 20px;
+    --stat-c: var(--lit-primary);
+    --stat-bg: var(--lit-primary-subtle);
+    border-radius: var(--lit-radius-md);
+    padding: 18px 16px;
     text-align: center;
-    background: var(--app-primary, var(--lit-primary));
-    color: var(--lit-primary-contrast);
+    background: var(--lit-surface);
+    border: 1px solid var(--lit-border);
+    border-top: 4px solid var(--stat-c);
+    box-shadow: var(--lit-shadow-sm);
+    color: var(--lit-text-secondary);
 }
-
-.stat-card.success { background: #2eca6a; }
-.stat-card.warning { background: #ff771d; }
-.stat-card.info { background: #2c3e87; }
+.stat-card .stat-number, .stat-card h2, .stat-card h3, .stat-card i, .stat-card .bi { color: var(--stat-c) !important; }
+.stat-card.success { --stat-c: var(--lit-success); --stat-bg: var(--lit-success-subtle); }
+.stat-card.warning { --stat-c: var(--lit-warning); --stat-bg: var(--lit-warning-subtle); }
+.stat-card.info { --stat-c: var(--lit-info); --stat-bg: var(--lit-info-subtle); }
+.stat-card.danger { --stat-c: var(--lit-danger); --stat-bg: var(--lit-danger-subtle); }
 
 .stat-number {
     font-size: 2.5rem;
@@ -1512,3 +1504,10 @@ body.dark-theme .final-score-box { background: #252a3a; }
     color: var(--lit-text-muted);
     opacity: 0.7;
 }
+
+@media (max-width: 575.98px) {
+    .stat-card { padding: 12px 10px; }
+    .stat-card i, .stat-card .bi { font-size: 1.4rem !important; }
+    .stat-number { font-size: 1.5rem !important; }
+}
+.status-badge { white-space: nowrap; }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="task_list_title">Task List</title>
+    <title data-lang-key="task_list_title">Danh sách nhiệm vụ</title>
 </head>
 
 <body>
@@ -48,7 +48,7 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="task_list_title">Task List</h1>
+            <h1 data-lang-key="task_list_title">Danh sách nhiệm vụ</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/class"><?= $_SESSION['current_class_name']; ?></a></li>
@@ -112,11 +112,11 @@
                                                             </span>
                                                         <?php elseif ($status === 1): ?>
                                                             <span class="badge bg-primary">
-                                                                <i class="bi bi-arrow-repeat"></i> <span>In Progress</span>
+                                                                <i class="bi bi-arrow-repeat"></i> <span>Đang làm</span>
                                                             </span>
                                                         <?php else: ?>
                                                             <span class="badge bg-warning text-dark">
-                                                                <i class="bi bi-clock"></i> <span>Not Started</span>
+                                                                <i class="bi bi-clock"></i> <span>Chưa bắt đầu</span>
                                                             </span>
                                                         <?php endif; ?>
                                                     </div>
@@ -155,7 +155,7 @@
                                                     <?php if ($task['delivery_status'] == 1): ?>
                                                         <a href="/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $task['id_deliver'] ?>"
                                                             class="btn btn-sm btn-outline-success">
-                                                            <i class="bi bi-eye"></i> <span>View Submission</span>
+                                                            <i class="bi bi-eye"></i> <span>Xem bài nộp</span>
                                                         </a>
                                                     <?php else: ?>
                                                         <a href="/class/task/perform?task_id=<?= $task['task_id'] ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $task['id_deliver'] ?>"

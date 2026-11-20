@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="menu_manage_criteria">Manage Evaluation Criteria</title>
+    <title data-lang-key="menu_manage_criteria">Quản lý tiêu chí đánh giá</title>
 </head>
 
 <body>
@@ -24,11 +24,11 @@
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-card-checklist"></i> <span data-lang-key="menu_manage_criteria">Manage Evaluation Criteria</span></h1>
+            <h1><i class="bi bi-card-checklist"></i> <span data-lang-key="menu_manage_criteria">Quản lý tiêu chí đánh giá</span></h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/class">Trang chủ</a></li>
-                    <li class="breadcrumb-item active">Evaluation Criteria</li>
+                    <li class="breadcrumb-item active">Tiêu chí đánh giá</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -40,9 +40,9 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                                <h5 class="card-title mb-0">Criteria Groups</h5>
+                                <h5 class="card-title mb-0">Bộ tiêu chí</h5>
                                 <button class="btn btn-primary btn-sm" onclick="showAddGroupModal()">
-                                    <i class="bi bi-plus-circle"></i> <span>Add Group</span>
+                                    <i class="bi bi-plus-circle"></i> <span>Thêm nhóm</span>
                                 </button>
                             </div>
 
@@ -69,7 +69,7 @@
                                 </div>
                                 <button class="btn btn-success btn-sm" id="addCriteriaBtn"
                                     onclick="showAddCriteriaModal()" disabled>
-                                    <i class="bi bi-plus-circle"></i> <span>Add Criterion</span>
+                                    <i class="bi bi-plus-circle"></i> <span>Thêm tiêu chí</span>
                                 </button>
                             </div>
 
@@ -77,7 +77,7 @@
                                 <!-- Criteria will be loaded here -->
                                 <div class="empty-state">
                                     <i class="bi bi-inbox"></i>
-                                    <h5>No criteria</h5>
+                                    <h5>Chưa có tiêu chí</h5>
                                     <p>Chọn một bộ tiêu chí ở bên trái hoặc tạo bộ mới</p>
                                 </div>
                             </div>
@@ -92,14 +92,14 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="groupModalTitle">Add Criteria Group</h5>
+                        <h5 class="modal-title" id="groupModalTitle">Thêm bộ tiêu chí</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <form id="groupForm">
                             <input type="hidden" id="groupId" name="nhom_tc_id">
                             <div class="mb-3">
-                                <label for="groupName" class="form-label">Group Name <span
+                                <label for="groupName" class="form-label">Tên nhóm <span
                                         class="text-hasnger">*</span></label>
                                 <input type="text" class="form-control" id="groupName" name="ten_nhom_tc" required
                                     placeholder="Ví dụ: Đánh giá nội dung">
@@ -126,7 +126,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="criteriaModalTitle">Add Criterion</h5>
+                        <h5 class="modal-title" id="criteriaModalTitle">Thêm tiêu chí</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -135,7 +135,7 @@
                             <input type="hidden" id="criteriaGroupId" name="nhom_tc_id">
 
                             <div class="mb-3">
-                                <label for="criteriaName" class="form-label">Criterion Name <span
+                                <label for="criteriaName" class="form-label">Tên tiêu chí <span
                                         class="text-hasnger">*</span></label>
                                 <input type="text" class="form-control" id="criteriaName" name="name_tc" required
                                     placeholder="Ví dụ: Độ chính xác của nội dung">
@@ -150,7 +150,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="minScore" class="form-label">Min Score <span
+                                        <label for="minScore" class="form-label">Điểm tối thiểu <span
                                                 class="text-hasnger">*</span></label>
                                         <input type="number" class="form-control" id="minScore" name="min_score" min="0"
                                             step="1" value="0" required>
@@ -158,7 +158,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="maxScore" class="form-label">Max Score <span
+                                        <label for="maxScore" class="form-label">Điểm tối đa <span
                                                 class="text-hasnger">*</span></label>
                                         <input type="number" class="form-control" id="maxScore" name="max_score" min="0"
                                             value="10" required>
@@ -182,7 +182,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="rubricLevelsTitle">Rubric Levels</h5>
+                        <h5 class="modal-title" id="rubricLevelsTitle">Các mức đánh giá</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -195,13 +195,13 @@
                             <!-- Levels will be loaded here -->
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="addRubricLevelRow()">
-                            <i class="bi bi-plus"></i> Add Level
+                            <i class="bi bi-plus"></i> Thêm mức
                         </button>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                         <button type="button" class="btn btn-primary" onclick="saveRubricLevels()">
-                            <i class="bi bi-save"></i> Save Levels
+                            <i class="bi bi-save"></i> Lưu các mức
                         </button>
                     </div>
                 </div>
@@ -319,20 +319,20 @@
                     result = JSON.parse(text);
                 } catch (e) {
                     console.error('Invalid JSON:', text.slice(0, 300));
-                    throw new Error('Invalid response from server');
+                    throw new Error('Máy chủ trả về dữ liệu không hợp lệ.');
                 }
 
                 if (result.success) {
                     groupsCache = result.data || [];
                     displayGroups(groupsCache);
                 } else {
-                    showGroupsError(result.message || 'Cannot load criteria groups');
-                    showError(result.message || 'Cannot load criteria groups');
+                    showGroupsError(result.message || 'Không tải được bộ tiêu chí.');
+                    showError(result.message || 'Không tải được bộ tiêu chí.');
                 }
             } catch (error) {
                 console.error('Error loading groups:', error);
-                showGroupsError('Error loading criteria groups');
-                showError('Error loading criteria groups');
+                showGroupsError('Không tải được bộ tiêu chí.');
+                showError('Không tải được bộ tiêu chí.');
             }
         }
 
@@ -345,7 +345,7 @@
                     <div class="empty-state">
                         <i class="bi bi-folder-x"></i>
                         <p class="mb-0">Chưa có bộ tiêu chí</p>
-                        <small class="text-muted">Click "Add Group" to get started</small>
+                        <small class="text-muted">Click "Thêm bộ" to get started</small>
                     </div>
                 `;
                 return;
@@ -360,14 +360,14 @@
                             <h6 class="mb-1">${escapeHtml(tcLabel(group.ten_nhom_tc))}</h6>
                             ${group.description ? `<small class="text-muted">${escapeHtml(tcLabel(group.description))}</small>` : ''}
                             <div class="mt-1">
-                                <span class="badge bg-info">${group.criteria_count || 0} criteria</span>
+                                <span class="badge bg-info">${group.criteria_count || 0} tiêu chí</span>
                             </div>
                         </div>
                         <div class="btn-group group-actions" role="group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); editGroup(${group.nhom_tc_id})" title="Edit">
+                            <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); editGroup(${group.nhom_tc_id})" title="Sửa">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-hasnger" onclick="event.stopPropagation(); deleteGroup(${group.nhom_tc_id})" title="Delete">
+                            <button class="btn btn-sm btn-outline-hasnger" onclick="event.stopPropagation(); deleteGroup(${group.nhom_tc_id})" title="Xoá">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -409,7 +409,7 @@
                 }
             } catch (error) {
                 console.error('Error loading criteria:', error);
-                showError('Error loading criteria list');
+                showError('Không tải được danh sách tiêu chí.');
             }
         }
 
@@ -422,7 +422,7 @@
                     <div class="empty-state">
                         <i class="bi bi-list-check"></i>
                         <h6>Chưa có tiêu chí</h6>
-                        <p class="mb-0 text-muted">Click "Thêm tiêu chí" to add new criteria</p>
+                        <p class="mb-0 text-muted">Bấm "Thêm tiêu chí" để thêm tiêu chí mới</p>
                     </div>
                 `;
                 return;
@@ -434,7 +434,7 @@
                         <thead>
                             <tr>
                                 <th width="30%">Tên tiêu chí</th>
-                                <th width="25%">Description</th>
+                                <th width="25%">Mô tả</th>
                                 <th width="12%" class="text-center">Thang điểm</th>
                                 <th width="18%" class="text-center">Các mức đánh giá</th>
                                 <th width="15%" class="text-end">Thao tác</th>
@@ -444,20 +444,20 @@
                             ${criteria.map(item => `
                                 <tr class="criteria-item">
                                     <td><strong>${escapeHtml(tcLabel(item.name_tc))}</strong></td>
-                                    <td><small class="text-muted">${escapeHtml(tcLabel(item.description || '') || 'No description')}</small></td>
+                                    <td><small class="text-muted">${escapeHtml(tcLabel(item.description || '') || 'Chưa có mô tả')}</small></td>
                                     <td class="text-center">
                                         <span class="badge badge-score bg-success">${item.min_score} - ${item.max_score}</span>
                                     </td>
                                     <td class="text-center">
                                         <button class="btn btn-sm btn-outline-info" onclick="editRubricLevels(${item.tc_id}, '${escapeHtml(tcLabel(item.name_tc)).replace(/'/g, "\\'")}', ${item.min_score}, ${item.max_score})" title="Sửa các mức đánh giá">
-                                            <i class="bi bi-list-ol"></i> Levels
+                                            <i class="bi bi-list-ol"></i> Các mức
                                         </button>
                                     </td>
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="editCriteria(${item.tc_id})" title="Edit">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editCriteria(${item.tc_id})" title="Sửa">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-hasnger" onclick="deleteCriteria(${item.tc_id})" title="Delete">
+                                        <button class="btn btn-sm btn-outline-hasnger" onclick="deleteCriteria(${item.tc_id})" title="Xoá">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
@@ -493,7 +493,7 @@
                 }
             } catch (error) {
                 console.error('Error loading group:', error);
-                showError('Error loading group info');
+                showError('Không tải được thông tin bộ tiêu chí.');
             }
         }
 
@@ -533,7 +533,7 @@
                 }
             } catch (error) {
                 console.error('Error saving group:', error);
-                showError('Error saving criteria group');
+                showError('Không lưu được bộ tiêu chí.');
             }
         }
 
@@ -575,14 +575,14 @@
                 }
             } catch (error) {
                 console.error('Error deleting group:', error);
-                showError('Error deleting criteria group');
+                showError('Không xoá được bộ tiêu chí.');
             }
         }
 
         // Show add criteria modal
         function showAddCriteriaModal() {
             if (!selectedGroupId) {
-                showError('Please select a criteria group first');
+                showError('Hãy chọn một bộ tiêu chí trước.');
                 return;
             }
 
@@ -614,7 +614,7 @@
                 }
             } catch (error) {
                 console.error('Error loading criteria:', error);
-                showError('Error loading criteria info');
+                showError('Không tải được thông tin tiêu chí.');
             }
         }
 
@@ -630,7 +630,7 @@
             const maxScore = parseInt(document.getElementById('maxScore').value);
 
             if (minScore > maxScore) {
-                showError('Min Score cannot be greater than max score');
+                showError('Điểm tối thiểu không được lớn hơn điểm tối đa.');
                 return;
             }
 
@@ -656,7 +656,7 @@
                 }
             } catch (error) {
                 console.error('Error saving criteria:', error);
-                showError('Error saving criteria');
+                showError('Không lưu được tiêu chí.');
             }
         }
 
@@ -690,7 +690,7 @@
                 }
             } catch (error) {
                 console.error('Error deleting criteria:', error);
-                showError('Error deleting criteria');
+                showError('Không xoá được tiêu chí.');
             }
         }
 
@@ -733,7 +733,7 @@
             document.getElementById('rubricLevelsTitle').textContent = 'Các mức đánh giá: ' + name;
 
             const container = document.getElementById('rubricLevelsContainer');
-            container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading...</div>';
+            container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Đang tải…</div>';
 
             rubricLevelsModal = new bootstrap.Modal(document.getElementById('rubricLevelsModal'));
             rubricLevelsModal.show();
@@ -749,10 +749,10 @@
                     const range = maxScore - minScore;
                     const step = Math.max(1, Math.floor(range / 3));
                     const defaults = [
-                        { level_name: 'Excellent', score: maxScore, description: '' },
-                        { level_name: 'Good', score: maxScore - step, description: '' },
-                        { level_name: 'Fair', score: maxScore - step * 2, description: '' },
-                        { level_name: 'Poor', score: minScore, description: '' },
+                        { level_name: 'Giỏi', score: maxScore, description: '' },
+                        { level_name: 'Khá', score: maxScore - step, description: '' },
+                        { level_name: 'Trung bình', score: maxScore - step * 2, description: '' },
+                        { level_name: 'Yếu', score: minScore, description: '' },
                     ];
                     renderRubricLevels(defaults);
                 }
@@ -770,7 +770,7 @@
                             value="${escapeHtml(lvl.level_name || '')}" data-field="level_name">
                     </div>
                     <div class="col-md-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Score"
+                        <input type="number" class="form-control form-control-sm" placeholder="Điểm"
                             value="${lvl.score ?? 0}" data-field="score" min="0">
                     </div>
                     <div class="col-md-6">
@@ -778,7 +778,7 @@
                             value="${escapeHtml(lvl.description || '')}" data-field="description">
                     </div>
                     <div class="col-md-1">
-                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('.rubric-level-row').remove()" title="Remove">
+                        <button class="btn btn-sm btn-outline-danger" onclick="this.closest('.rubric-level-row').remove()" title="Bỏ">
                             <i class="bi bi-x"></i>
                         </button>
                     </div>
@@ -795,13 +795,13 @@
                     <input type="text" class="form-control form-control-sm" placeholder="Tên mức" data-field="level_name">
                 </div>
                 <div class="col-md-2">
-                    <input type="number" class="form-control form-control-sm" placeholder="Score" data-field="score" min="0" value="0">
+                    <input type="number" class="form-control form-control-sm" placeholder="Điểm" data-field="score" min="0" value="0">
                 </div>
                 <div class="col-md-6">
                     <input type="text" class="form-control form-control-sm" placeholder="Mô tả (không bắt buộc)" data-field="description">
                 </div>
                 <div class="col-md-1">
-                    <button class="btn btn-sm btn-outline-danger" onclick="this.closest('.rubric-level-row').remove()" title="Remove">
+                    <button class="btn btn-sm btn-outline-danger" onclick="this.closest('.rubric-level-row').remove()" title="Bỏ">
                         <i class="bi bi-x"></i>
                     </button>
                 </div>

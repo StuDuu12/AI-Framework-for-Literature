@@ -18,13 +18,13 @@
             <a class="nav-link <?= strpos($current_path, 'admin/users') !== false ? '' : 'collapsed' ?>"
                 data-bs-target="#users-nav" data-bs-toggle="collapse" href="#">
                 <i class="bi bi-people" aria-hidden="true"></i>
-                <span data-lang-key="admin_user_management">User Management</span>
+                <span data-lang-key="admin_user_management">Quản lý người dùng</span>
                 <i class="bi bi-chevron-down ms-auto" aria-hidden="true"></i>
             </a>
             <ul id="users-nav" class="nav-content collapse <?= strpos($current_path, 'admin/users') !== false ? 'show' : '' ?>" data-bs-parent="#sidebar-nav">
                 <li>
                     <a href="<?= URL_ROOT ?>/admin/users" class="<?= strpos($current_path, 'admin/users') !== false && strpos($current_path, 'registrations') === false ? 'active' : '' ?>">
-                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_all_users">All Users</span>
+                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_all_users">Tất cả người dùng</span>
                     </a>
                 </li>
                 <li>
@@ -39,12 +39,12 @@
                 </li>
                 <li>
                     <a href="<?= URL_ROOT ?>/admin/users/create?role=teacher">
-                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_add_teacher">Add Teacher</span>
+                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_add_teacher">Thêm giáo viên</span>
                     </a>
                 </li>
                 <li>
                     <a href="<?= URL_ROOT ?>/admin/users/create?role=student">
-                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_add_student">Add Student</span>
+                        <i class="bi bi-circle" aria-hidden="true"></i><span data-lang-key="admin_add_student">Thêm học sinh</span>
                     </a>
                 </li>
                 <li>
@@ -72,7 +72,7 @@
         <li class="nav-item">
             <a class="nav-link <?= strpos($current_path, 'reflect') !== false ? '' : 'collapsed' ?>" href="<?= URL_ROOT ?>/reflect">
                 <i class="bi bi-journal-text" aria-hidden="true"></i>
-                <span data-lang-key="manage_feedback">Manage Feedback</span>
+                <span data-lang-key="manage_feedback">Quản lý góp ý</span>
                 <?php
                 // Display pending reflect count
                 try {

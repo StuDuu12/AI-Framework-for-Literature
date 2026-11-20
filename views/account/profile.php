@@ -23,10 +23,10 @@ if (!$profile) {
 }
 
 $roleLabel = match($profile['role']) {
-    'admin'   => 'Administrator',
-    'teacher' => 'Teacher',
-    'student' => 'Student',
-    default   => 'User'
+    'admin'   => 'Quản trị viên',
+    'teacher' => 'Giáo viên',
+    'student' => 'Học sinh',
+    default   => 'Người dùng'
 };
 
 $joinedDate = date('d/m/Y', strtotime($profile['created_at']));

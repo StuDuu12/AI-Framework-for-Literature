@@ -26,7 +26,7 @@ $__roleLabel = ['admin' => 'Quản trị viên', 'teacher' => 'Giáo viên', 'st
 
     <div class="search-bar">
         <form class="search-form d-flex align-items-center" method="POST" action="#" role="search">
-            <input type="text" name="query" placeholder="Tìm lớp, nhiệm vụ, chủ đề… (Ctrl+K)" aria-label="Tìm kiếm" autocomplete="off"
+            <input type="text" name="query" placeholder="Tìm lớp, nhiệm vụ, chủ đề… (Ctrl+K)" title="Tìm kiếm (Ctrl+K hoặc /)" aria-label="Tìm kiếm" autocomplete="off"
                    data-lang-key="search_placeholder_shortcut" data-lang-attr="placeholder">
             <button type="submit" aria-label="Tìm kiếm"><i class="bi bi-search" aria-hidden="true"></i></button>
         </form>

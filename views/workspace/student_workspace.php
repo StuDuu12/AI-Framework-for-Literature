@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link href="<?= URL_ROOT ?>/assets/css/student-workspace.css" rel="stylesheet">
-    <title data-lang-key="workspace_title">Learning Workspace - Literature System</title>
+    <title data-lang-key="workspace_title">Thư viện tác phẩm</title>
 </head>
 
 <body class="workspace-page">
@@ -21,7 +21,7 @@
     }
 
     $userId = (int) $_SESSION['user']['user_id'];
-    $userName = $_SESSION['user']['fullname'] ?? $_SESSION['user']['username'] ?? 'Student';
+    $userName = $_SESSION['user']['fullname'] ?? $_SESSION['user']['username'] ?? 'bạn';
     $stats = getStudentWorkspaceStats($userId);
     $catalog = getLiteraryCanonWorks();
     $suggestionChips = getLiterarySuggestionChips(12);
@@ -63,15 +63,15 @@
                     <span class="workspace-stat-pill">
                         <i class="bi bi-book"></i>
                         <?= $stats['canon_count'] ?: count($catalog) ?>
-                        <span data-lang-key="workspace_stat_works">works</span>
+                        <span data-lang-key="workspace_stat_works">tác phẩm</span>
                     </span>
                     <span class="workspace-stat-pill">
                         <i class="bi bi-collection"></i>
-                        <?= $stats['classes'] ?> <span data-lang-key="workspace_stat_classes">classes</span>
+                        <?= $stats['classes'] ?> <span data-lang-key="workspace_stat_classes">lớp</span>
                     </span>
                     <span class="workspace-stat-pill">
                         <i class="bi bi-list-task"></i>
-                        <?= $stats['tasks'] ?> <span data-lang-key="workspace_stat_tasks">tasks</span>
+                        <?= $stats['tasks'] ?> <span data-lang-key="workspace_stat_tasks">nhiệm vụ</span>
                     </span>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                     </div>
 
                     <div class="lit-search-filters" id="litSearchFilters">
-                        <button type="button" class="lit-filter-chip active" data-region="all" data-lang-key="workspace_filter_all">All</button>
+                        <button type="button" class="lit-filter-chip active" data-region="all" data-lang-key="workspace_filter_all">Tất cả</button>
                         <button type="button" class="lit-filter-chip" data-region="vietnam" data-lang-key="workspace_filter_vn">Việt Nam</button>
                         <button type="button" class="lit-filter-chip" data-region="international" data-lang-key="workspace_filter_intl">Thế giới</button>
                         <button type="button" class="lit-filter-chip" data-genre="poem" data-lang-key="workspace_filter_poem">Thơ</button>
@@ -142,13 +142,13 @@
 
                     <div class="lit-quick-links">
                         <a href="<?= URL_ROOT ?>/canon" class="btn btn-sm btn-primary">
-                            <i class="bi bi-book"></i> <span data-lang-key="menu_canon">Knowledge Base</span>
+                            <i class="bi bi-book"></i> <span data-lang-key="menu_canon">Kho kiến thức</span>
                         </a>
                         <a href="<?= URL_ROOT ?>/dashboard" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-grid"></i> <span data-lang-key="menu_classes">Class List</span>
+                            <i class="bi bi-grid"></i> <span data-lang-key="menu_classes">Danh sách lớp</span>
                         </a>
                         <a href="<?= URL_ROOT ?>/class/my_tasks" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-list-task"></i> <span data-lang-key="menu_my_tasks">My Tasks</span>
+                            <i class="bi bi-list-task"></i> <span data-lang-key="menu_my_tasks">Nhiệm vụ của tôi</span>
                         </a>
                     </div>
                 </div>
@@ -220,7 +220,7 @@
                     <?php if (!empty($featuredWorks)): ?>
                         <div class="workspace-picks">
                             <div class="workspace-picks__head">
-                                <span data-lang-key="workspace_discover_picks">Editor's picks</span>
+                                <span data-lang-key="workspace_discover_picks">Biên tập chọn</span>
                                 <a href="<?= URL_ROOT ?>/canon" data-lang-key="workspace_discover_view_all">Xem tất cả</a>
                             </div>
                             <div class="workspace-picks__scroll">
@@ -243,8 +243,8 @@
                 <aside class="poster-gallery-panel">
                     <div class="poster-gallery-panel__head">
                         <div>
-                            <h3 class="poster-gallery-panel__title" data-lang-key="workspace_gallery_title">Literary Canon</h3>
-                            <p class="poster-gallery-panel__sub" data-lang-key="workspace_gallery_sub">Vietnam &amp; world masterpieces</p>
+                            <h3 class="poster-gallery-panel__title" data-lang-key="workspace_gallery_title">Kho tác phẩm</h3>
+                            <p class="poster-gallery-panel__sub" data-lang-key="workspace_gallery_sub">Kiệt tác Việt Nam &amp; thế giới</p>
                         </div>
                         <span class="badge bg-primary"><?= count($catalog) ?></span>
                     </div>
@@ -266,7 +266,7 @@
                                 <?php endif; ?>
                                 <span class="poster-card__genre"><?= htmlspecialchars($work['genre_label'] ?? '') ?></span>
                                 <span class="poster-card__region poster-card__region--<?= ($work['region'] ?? '') === 'vietnam' ? 'vn' : 'intl' ?>">
-                                    <?= ($work['region'] ?? '') === 'vietnam' ? 'VN' : 'World' ?>
+                                    <?= ($work['region'] ?? '') === 'vietnam' ? 'Việt Nam' : 'Thế giới' ?>
                                 </span>
                                 <div class="poster-card__overlay">
                                     <p class="poster-card__title"><?= htmlspecialchars($work['title']) ?></p>
@@ -338,14 +338,14 @@
                     <a href="${urlRoot}/canon/view?id=${item.id || 0}" class="lit-result-item">
                         ${item.cover_image ? `<img src="${escapeHtml(item.cover_image)}" class="lit-result-item__cover" alt="">` : `<div class="lit-result-item__icon" style="background:${escapeHtml(item.gradient || '#4154f1')}"><i class="bi bi-book"></i></div>`}
                         <div>
-                            <p class="lit-result-item__title">${escapeHtml(item.title)} <span class="lit-result-badge">${escapeHtml(item.region === 'vietnam' ? 'VN' : 'Canon')}</span></p>
+                            <p class="lit-result-item__title">${escapeHtml(item.title)} <span class="lit-result-badge">${escapeHtml(item.region === 'vietnam' ? 'VN' : 'Kho tác phẩm')}</span></p>
                             <p class="lit-result-item__meta">${escapeHtml(item.author)}${item.country ? ' · ' + escapeHtml(item.country) : ''} · ${escapeHtml(item.genre_label || '')}</p>
                             ${item.excerpt ? `<p class="lit-result-item__snippet">${escapeHtml(item.excerpt)}</p>` : ''}
                         </div>
                     </a>`).join('');
             }
             if (online.length) {
-                html += '<div class="lit-results-section-title">Online — multiple sources</div>';
+                html += '<div class="lit-results-section-title">Trực tuyến — nhiều nguồn</div>';
                 html += '<p class="lit-results-sources-hint">Open Library · Project Gutenberg · Internet Archive · Wikidata · Wikipedia</p>';
                 html += online.map(item => `
                     <a href="${escapeHtml(item.url)}" class="lit-result-item" target="_blank" rel="noopener">
@@ -364,7 +364,7 @@
             query = (query || '').trim();
             if (!query) return;
             closeAutocomplete();
-            resultsEl.innerHTML = '<div class="lit-search-results__empty"><span class="spinner-border spinner-border-sm"></span> Searching knowledge base &amp; online sources...</div>';
+            resultsEl.innerHTML = '<div class="lit-search-results__empty"><span class="spinner-border spinner-border-sm"></span> Đang tìm trong kho tác phẩm và nguồn trực tuyến…</div>';
             filterPosters(query);
             try {
                 const res = await fetch(apiUrl + '?action=search&q=' + encodeURIComponent(query));

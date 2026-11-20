@@ -53,7 +53,7 @@ function renderDeltaBadge(?float $delta): string
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
     <link rel="stylesheet" href="<?= URL_ROOT ?>/assets/css/research-figures.css">
-    <title>Final Grading - Literature System</title>
+    <title>Chấm điểm cuối</title>
 </head>
 <body>
 <?php
@@ -62,7 +62,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
 ?>
 <main id="main" class="main">
     <div class="pagetitle">
-        <h1><i class="bi bi-award"></i> Final Grading</h1>
+        <h1><i class="bi bi-award"></i> Chấm điểm cuối</h1>
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
@@ -79,7 +79,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title"><?= htmlspecialchars($taskInfo['title'] ?? 'Grading task') ?></h5>
+                <h5 class="card-title"><?= htmlspecialchars($taskInfo['title'] ?? 'Nhiệm vụ chấm điểm') ?></h5>
 
                 <section class="research-figure research-figure--instructor" id="fig18-instructor-dashboard" aria-label="Bảng chấm của giáo viên">
                     <div class="research-figure__body">
@@ -143,7 +143,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
                                         $system = $row['system_evaluation'] ?? [];
                                     ?>
                                         <tr>
-                                            <td><strong><?= htmlspecialchars($row['submitter_name'] ?? 'Unknown') ?></strong></td>
+                                            <td><strong><?= htmlspecialchars($row['submitter_name'] ?? 'Không rõ') ?></strong></td>
                                             <td>
                                                 <?php if (!empty($system)): ?>
                                                     <div class="small">
@@ -154,7 +154,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
                                                             <div>Chỉnh sửa: <strong><?= number_format((float)$system['avg_edit_change_percent'], 1) ?>%</strong></div>
                                                         <?php endif; ?>
                                                         <?php if ($system['total_copy_percent'] !== null): ?>
-                                                            <div>Copy: <?= number_format((float)$system['total_copy_percent'], 1) ?>%</div>
+                                                            <div>Sao chép: <?= number_format((float)$system['total_copy_percent'], 1) ?>%</div>
                                                         <?php endif; ?>
                                                         <?php if ($system['outline_score'] === null && $system['avg_edit_change_percent'] === null): ?>
                                                             <span class="text-muted">Chưa có số liệu hệ thống</span>
@@ -182,7 +182,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
                                                     <?php endforeach; ?>
                                                     </ul>
                                                     <?php if ($peerAvg !== null): ?>
-                                                        <div class="small text-muted mt-1">Avg: <strong><?= number_format($peerAvg, 1) ?></strong></div>
+                                                        <div class="small text-muted mt-1">TB: <strong><?= number_format($peerAvg, 1) ?></strong></div>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                             </td>
@@ -204,7 +204,7 @@ require_once __DIR__ . '/../templates/sidebar.php';
                                     </tbody>
                                 </table>
                             </div>
-                            <p class="text-muted small mt-2 mb-0">S<sub>Acc</sub> = max(0, S<sub>Max</sub> − α·Δ) where Δ = |S<sub>Peer</sub> − S<sub>Teacher</sub>| and S<sub>Max</sub> = <?= number_format((float)$sMax, 1) ?> for this task.</p>
+                            <p class="text-muted small mt-2 mb-0">S<sub>Acc</sub> = max(0, S<sub>Max</sub> − α·Δ), trong đó Δ = |S<sub>Peer</sub> − S<sub>Teacher</sub>| và S<sub>Max</sub> = <?= number_format((float)$sMax, 1) ?> cho nhiệm vụ này.</p>
                         <?php endif; ?>
                     </div>
                 </section>

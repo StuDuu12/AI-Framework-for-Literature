@@ -60,7 +60,7 @@
 
 .research-figure__badge--pending {
     color: #92400e;
-    background: #fef3c7;
+    background: var(--lit-warning-subtle);
     border-color: #fcd34d;
 }
 
@@ -90,12 +90,12 @@
 
 .research-figure__workflow-step--done {
     border-color: #86efac;
-    background: #f0fdf4;
+    background: var(--lit-success-subtle);
 }
 
 .research-figure__workflow-step--current {
     border-color: #a78bfa;
-    background: #f5f3ff;
+    background: var(--lit-primary-subtle);
     box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.12);
 }
 

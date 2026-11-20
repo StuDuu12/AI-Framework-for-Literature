@@ -81,7 +81,7 @@ $pageTitle = "User Management";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="admin_user_management">User Management</h1>
+            <h1 data-lang-key="admin_user_management">Quản lý người dùng</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= URL_ROOT ?>/dashboard" data-lang-key="menu_dashboard">Trang chủ</a></li>
@@ -99,7 +99,7 @@ $pageTitle = "User Management";
                         <div class="col-md-3">
                             <label class="form-label">Vai trò</label>
                             <select aria-label="Vai trò" name="role" class="form-select" onchange="this.form.submit()">
-                                <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>All</option>
+                                <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>Tất cả</option>
                                 <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
                                 <option value="teacher" <?= $role === 'teacher' ? 'selected' : '' ?>>Giáo viên</option>
                                 <option value="student" <?= $role === 'student' ? 'selected' : '' ?>>Học sinh</option>
@@ -128,13 +128,13 @@ $pageTitle = "User Management";
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title"><span data-lang-key="user_list">User List</span> (<?= $total ?? 0 ?>)</h5>
+                        <h5 class="card-title"><span data-lang-key="user_list">Danh sách người dùng</span> (<?= $total ?? 0 ?>)</h5>
                         <div>
                             <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=teacher" class="btn btn-sm btn-primary">
-                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_teacher">Add Teacher</span>
+                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_teacher">Thêm giáo viên</span>
                             </a>
                             <a href="<?= URL_ROOT ?>/views/admin/create_user.php?role=student" class="btn btn-sm btn-success">
-                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_student">Add Student</span>
+                                <i class="bi bi-person-plus"></i> <span data-lang-key="admin_add_student">Thêm học sinh</span>
                             </a>
                         </div>
                     </div>
@@ -143,11 +143,11 @@ $pageTitle = "User Management";
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Full Name</th>
+                                    <th>Họ tên</th>
                                     <th>Tên đăng nhập</th>
                                     <th>Email</th>
                                     <th>Vai trò</th>
-                                    <th>Created Date</th>
+                                    <th>Ngày tạo</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -172,9 +172,9 @@ $pageTitle = "User Management";
                                                     default => 'secondary'
                                                 };
                                                 $roleText = match ($user['role']) {
-                                                    'admin' => 'Admin',
-                                                    'teacher' => 'Teacher',
-                                                    'student' => 'Student',
+                                                    'admin' => 'Quản trị',
+                                                    'teacher' => 'Giáo viên',
+                                                    'student' => 'Học sinh',
                                                     default => $user['role']
                                                 };
                                                 ?>

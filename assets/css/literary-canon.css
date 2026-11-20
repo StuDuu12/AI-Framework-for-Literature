@@ -511,7 +511,7 @@
     z-index: 1;
     margin: 0 0 1.5rem;
     padding: 1.25rem 1.5rem 1.25rem 3.5rem;
-    background: rgba(255, 255, 255, 0.82);
+    background: color-mix(in srgb, var(--lit-surface) 82%, transparent);
     border: 1px solid rgba(var(--lit-primary-rgb), 0.12);
     border-radius: 1rem;
     box-shadow: 0 8px 28px rgba(var(--lit-primary-rgb), 0.08);
@@ -563,7 +563,7 @@
 }
 
 .canon-tail__panel {
-    background: rgba(255, 255, 255, 0.9);
+    background: color-mix(in srgb, var(--lit-surface) 90%, transparent);
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 1rem;
     padding: 1.1rem 1.15rem;
@@ -773,7 +773,7 @@
     gap: 0.4rem;
     padding: 0.35rem 0.75rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.85);
+    background: color-mix(in srgb, var(--lit-surface) 85%, transparent);
     border: 1px solid rgba(0, 0, 0, 0.06);
     font-size: 0.76rem;
     color: var(--lit-text-secondary);

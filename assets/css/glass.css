@@ -38,7 +38,7 @@ body.dark-theme {
  * SECTION 2: Glass Header
  * ============================================ */
 .header.glass {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: color-mix(in srgb, var(--lit-surface) 95%, transparent) !important;
     backdrop-filter: var(--glass-blur-strong) !important;
     -webkit-backdrop-filter: var(--glass-blur-strong) !important;
     border-bottom: 1px solid var(--glass-border) !important;

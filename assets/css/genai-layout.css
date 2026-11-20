@@ -99,8 +99,8 @@ body.literary-bg .bg-slate-50 { background-color: var(--lit-surface-2); }
 body.literary-bg .bg-slate-100 { background-color: var(--lit-surface-3); }
 body.literary-bg .bg-indigo-50 { background-color: var(--lit-primary-subtle); }
 body.literary-bg .bg-indigo-600 { background-color: var(--lit-primary); }
-body.literary-bg .bg-amber-50 { background-color: #fffbeb; }
-body.literary-bg .bg-red-100 { background-color: #fee2e2; }
+body.literary-bg .bg-amber-50 { background-color: var(--lit-warning-subtle); }
+body.literary-bg .bg-red-100 { background-color: var(--lit-danger-subtle); }
 
 body.literary-bg .border { border-width: 1px; border-style: solid; }
 body.literary-bg .border-t { border-top-width: 1px; border-top-style: solid; }
@@ -152,7 +152,7 @@ body.literary-bg .w-5 { width: 1.25rem; }
 body.literary-bg .text-\[10px\] { font-size: 10px; }
 body.literary-bg .bg-green-100 { background-color: #dcfce7; }
 body.literary-bg .text-green-700 { color: #15803d; }
-body.literary-bg .bg-amber-100 { background-color: #fef3c7; }
+body.literary-bg .bg-amber-100 { background-color: var(--lit-warning-subtle); }
 body.literary-bg .text-amber-800 { color: #92400e; }
 body.literary-bg .bg-slate-100 { background-color: var(--lit-surface-3); }
 body.literary-bg .text-slate-600 { color: var(--lit-text-secondary); }
@@ -174,13 +174,13 @@ body.literary-bg input.shadow-sm:focus {
 }
 
 body.literary-bg button.bg-indigo-600:hover:not(:disabled) { background-color: var(--lit-primary-hover); }
-body.literary-bg button.border-red-600:hover:not(:disabled) { background-color: #fef2f2; }
+body.literary-bg button.border-red-600:hover:not(:disabled) { background-color: var(--lit-danger-subtle); }
 body.literary-bg button.border-indigo-600:hover:not(:disabled) { background-color: var(--lit-primary-subtle); }
-body.literary-bg button.border-amber-500:hover:not(:disabled) { background-color: #fef3c7; }
-body.literary-bg button.border-purple-600:hover:not(:disabled) { background-color: #faf5ff; }
+body.literary-bg button.border-amber-500:hover:not(:disabled) { background-color: var(--lit-warning-subtle); }
+body.literary-bg button.border-purple-600:hover:not(:disabled) { background-color: var(--lit-primary-subtle); }
 body.literary-bg label.text-indigo-600:hover { color: var(--lit-primary-hover); }
 body.literary-bg .bg-slate-50:hover { background-color: var(--lit-surface-3); }
-body.literary-bg #delete-file-button:hover { color: #dc2626; background-color: #fee2e2; }
+body.literary-bg #delete-file-button:hover { color: #dc2626; background-color: var(--lit-danger-subtle); }
 body.literary-bg button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 body.literary-bg .h-5 { height: 1.25rem; }
@@ -311,3 +311,7 @@ body.literary-bg #content-analysis blockquote {
     line-height: 1.8;
 }
 body.literary-bg .genai-placeholder { min-height: 360px; }
+@media (max-width: 991.98px) {
+    body.literary-bg #results-container { min-height: 0 !important; }
+    body.literary-bg .genai-placeholder { min-height: 220px; padding: 1.5rem !important; }
+}

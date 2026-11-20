@@ -138,7 +138,7 @@
                         </div>
                         <div class="col-4">
                             <h3 class="text-danger mb-0">${data.streak.current_streak}</h3>
-                            <small class="text-muted">Streak</small>
+                            <small class="text-muted">Chuỗi ngày</small>
                         </div>
                         <div class="col-4">
                             <h3 class="text-warning mb-0">${data.badges.length}</h3>

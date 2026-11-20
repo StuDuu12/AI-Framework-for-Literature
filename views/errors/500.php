@@ -1,7 +1,7 @@
 ﻿<?php
 $errorCode = '500';
-$errorTitle = 'Internal Server Error';
-$errorMessage = 'Something went wrong on our end.<br>Please try again later or contact support if the problem persists.';
+$errorTitle = 'Lỗi máy chủ';
+$errorMessage = 'Hệ thống gặp sự cố.<br>Vui lòng thử lại sau ít phút; nếu vẫn lỗi, hãy báo quản trị viên.';
 $errorIcon = '💥';
 $errorClass = 'error-page--500';
 require __DIR__ . '/../templates/error_page.php';

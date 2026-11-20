@@ -71,7 +71,7 @@ $pageTitle = "Admin Dashboard";
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1 data-lang-key="admin_dashboard">Admin Dashboard</h1>
+            <h1 data-lang-key="admin_dashboard">Tổng quan quản trị</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item active" data-lang-key="menu_dashboard">Trang chủ</li>
@@ -95,7 +95,7 @@ $pageTitle = "Admin Dashboard";
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalTeachers ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">users</span>
+                                            <span class="text-muted small pt-2 ps-1">người dùng</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
@@ -118,7 +118,7 @@ $pageTitle = "Admin Dashboard";
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalStudents ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">users</span>
+                                            <span class="text-muted small pt-2 ps-1">người dùng</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
@@ -135,14 +135,14 @@ $pageTitle = "Admin Dashboard";
                         <div class="col-xxl-3 col-md-6">
                             <div class="card info-card">
                                 <div class="card-body">
-                                    <h5 class="card-title" data-lang-key="pending_feedback">Pending Feedback</h5>
+                                    <h5 class="card-title" data-lang-key="pending_feedback">Góp ý đang chờ</h5>
                                     <div class="d-flex align-items-center">
                                         <div class="card-icon rounded-circle d-flex align-items-center justify-content-center" style="background: #fce4ec; color: #e91e63;">
                                             <i class="bi bi-journal-text"></i>
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $pendingReflect ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">reflect</span>
+                                            <span class="text-muted small pt-2 ps-1">góp ý</span>
                                         </div>
                                     </div>
                                     <div class="mt-3">
@@ -165,7 +165,7 @@ $pageTitle = "Admin Dashboard";
                                         </div>
                                         <div class="ps-3">
                                             <h6><?= $totalClasses ?? 0 ?></h6>
-                                            <span class="text-muted small pt-2 ps-1">classes</span>
+                                            <span class="text-muted small pt-2 ps-1">lớp</span>
                                         </div>
                                     </div>
                                 </div>
@@ -180,33 +180,33 @@ $pageTitle = "Admin Dashboard";
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title" data-lang-key="quick_actions">Quick Actions</h5>
+                            <h5 class="card-title" data-lang-key="quick_actions">Thao tác nhanh</h5>
                             <div class="row">
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/admin/users/create?role=teacher" class="btn btn-primary">
-                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_teacher_account">Create Teacher Account</span>
+                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_teacher_account">Tạo tài khoản giáo viên</span>
                                         </a>
                                     </div>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/admin/users/create?role=student" class="btn btn-success">
-                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_student_account">Create Student Account</span>
+                                            <i class="bi bi-person-plus me-2"></i><span data-lang-key="create_student_account">Tạo tài khoản học sinh</span>
                                         </a>
                                     </div>
                                 </div>
                                 <!-- <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/views/admin/manage_feedback.php" class="btn btn-warning">
-                                            <i class="bi bi-chat-left-text me-2"></i>Manage Feedback
+                                            <i class="bi bi-chat-left-text me-2"></i>Quản lý góp ý
                                         </a>
                                     </div>
                                 </div> -->
                                 <div class="col-md-3 mb-3">
                                     <div class="d-grid">
                                         <a href="<?= URL_ROOT ?>/reflect" class="btn btn-info">
-                                            <i class="bi bi-journal-text me-2"></i><span data-lang-key="manage_feedback">Manage Feedback</span>
+                                            <i class="bi bi-journal-text me-2"></i><span data-lang-key="manage_feedback">Quản lý góp ý</span>
                                         </a>
                                     </div>
                                 </div>

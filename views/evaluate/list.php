@@ -67,7 +67,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="evaluate_list">Evaluation List</title>
+    <title data-lang-key="evaluate_list">Danh sách đánh giá</title>
 </head>
 
 <body>
@@ -78,7 +78,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1><i class="bi bi-list-check"></i> <span data-lang-key="evaluate_list">Evaluation Assignment List</span></h1>
+            <h1><i class="bi bi-list-check"></i> <span data-lang-key="evaluate_list">Danh sách bài cần đánh giá</span></h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="<?= breadcrumbClassUrl() ?>"><?= breadcrumbClassLabel() ?></a></li>
@@ -94,12 +94,12 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
             <!-- Task Info -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-info-circle"></i> <span data-lang-key="task_info">Task Info</span></h5>
+                    <h5 class="card-title"><i class="bi bi-info-circle"></i> <span data-lang-key="task_info">Thông tin nhiệm vụ</span></h5>
                     <div class="row">
                         <div class="col-md-8">
-                            <p><strong>Task Name:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
+                            <p><strong>Tên nhiệm vụ:</strong> <?= htmlspecialchars($taskInfo['task_title']) ?></p>
                             <p><strong>Mô tả:</strong>
-                                <?= htmlspecialchars($taskInfo['task_description'] ?? 'No description') ?></p>
+                                <?= htmlspecialchars($taskInfo['task_description'] ?? 'Chưa có mô tả') ?></p>
                             <?php if (!empty($criteriaList)): ?>
                                 <div class="rubric-preview mt-2">
                                     <small class="text-muted d-block mb-1"><i class="bi bi-list-check"></i> <span>Tiêu chí đánh giá:</span></small>
@@ -168,7 +168,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                         </h6>
                                         <p class="text-muted mb-1 small">
                                             <i class="bi bi-file-text"></i>
-                                            <?= htmlspecialchars(mb_substr($assignment['response_content'] ?? 'No content', 0, 100)) ?>...
+                                            <?= htmlspecialchars(mb_substr($assignment['response_content'] ?? 'Chưa có nội dung', 0, 100)) ?>...
                                         </p>
                                         <small class="text-muted">
                                             <i class="bi bi-clock"></i>
@@ -217,7 +217,7 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <span class="status-badge status-0">
-                                                <i class="bi bi-exclamation-circle"></i> <span>Not Graded</span>
+                                                <i class="bi bi-exclamation-circle"></i> <span>Chưa chấm</span>
                                             </span>
                                         <?php endif; ?>
                                     </div>
@@ -226,13 +226,13 @@ $topicInfo = $topicId ? getTopicDetails($topicId) : null;
                                         <?php if ($assignment['eval_status'] == 2): ?>
                                             <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>"
                                                 class="btn btn-outline-primary">
-                                                <i class="bi bi-eye"></i> <span>View Evaluation</span>
+                                                <i class="bi bi-eye"></i> <span>Xem đánh giá</span>
                                             </a>
                                         <?php else: ?>
                                             <a href="/class/evaluate/student?task_id=<?= $taskId ?>&topic_id=<?= $topicId ?>&phase_id=<?= $phaseId ?>&deliver_id=<?= $assignment['id_deliver'] ?>"
                                                 class="btn btn-primary">
                                                 <i class="bi bi-pencil-square"></i>
-                                                <?= $assignment['eval_status'] !== null ? '<span>Continue</span>' : '<span>Start</span>' ?> <span>evaluation</span>
+                                                <?= $assignment['eval_status'] !== null ? 'Chấm tiếp' : 'Bắt đầu chấm' ?>
                                             </a>
                                         <?php endif; ?>
                                     </div>

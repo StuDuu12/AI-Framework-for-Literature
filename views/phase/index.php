@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php require_once __DIR__ . '/../templates/assets.php'; ?>
-    <title data-lang-key="learning_phases">Learning Phase</title>
+    <title data-lang-key="learning_phases">Giai đoạn</title>
 </head>
 
 <body>
@@ -69,7 +69,7 @@
                                     <?php if ($isTeacher): ?>
                                         <a href="<?= URL_ROOT ?>/class/phases/create?topic_id=<?= $topicId ?>"
                                             class="btn btn-primary">
-                                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_phase">Create New Phase</span>
+                                            <i class="bi bi-plus-circle"></i> <span data-lang-key="create_new_phase">Tạo giai đoạn mới</span>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -230,7 +230,7 @@
                     case 'success':
                         toastHeader.classList.add('bg-success', 'text-white');
                         toastIcon.classList.add('bi-check-circle-fill');
-                        toastTitle.textContent = 'Success';
+                        toastTitle.textContent = 'Thành công';
                         break;
                     case 'error':
                         toastHeader.classList.add('bg-danger', 'text-white');
@@ -240,12 +240,12 @@
                     case 'warning':
                         toastHeader.classList.add('bg-warning', 'text-dark');
                         toastIcon.classList.add('bi-exclamation-triangle-fill');
-                        toastTitle.textContent = 'Warning';
+                        toastTitle.textContent = 'Lưu ý';
                         break;
                     case 'info':
                         toastHeader.classList.add('bg-info', 'text-white');
                         toastIcon.classList.add('bi-info-circle-fill');
-                        toastTitle.textContent = 'Info';
+                        toastTitle.textContent = 'Thông tin';
                         break;
                 }
 
@@ -287,7 +287,7 @@
                                 location.reload();
                             }, 1000);
                         } else {
-                            showToast(data.message || 'Cannot delete phase', 'error');
+                            showToast(data.message || 'Không xoá được giai đoạn.', 'error');
                         }
                     } catch (error) {
                         console.error('Error:', error);
